@@ -26,6 +26,7 @@ Longer Term goals:
 * Add check for using object members outside of class
 * Add check for implicit string concatentation
 * Fix deriving from class by alias name
+* Add portability checks for win32/unix
 
 * Allow import checker to catch errors, rather than starting checker.py
 * Find lines that end w/semi-colons (;)
