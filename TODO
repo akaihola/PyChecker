@@ -7,7 +7,6 @@ Goals for next release:
 
 Longer Term goals:
 ------------------
-* Add check for violating Demeter's Law (referencing c as in: a.b.c)
 * Add check for magic #s/consts
 	(need dict of consts, count, max count, consts to ignore)
 * Add check for unsupported operand type(s) for * + / etc
