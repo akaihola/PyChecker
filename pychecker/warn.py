@@ -266,7 +266,11 @@ def _baseInitCalled(classInitInfo, base, functionsCalled) :
 
     # ok, do this the hard way, there may be aliases, so check here
     names = string.split(initName, '.')
-    obj = sys.modules[names[0]]
+    try:
+        # i think this can raise an exception if the module is a library (.so)
+        obj = sys.modules[names[0]]
+    except KeyError:
+        return 1
     for i in range(1, len(names)) :
         obj = getattr(obj, names[i], None)
         if obj is None:
