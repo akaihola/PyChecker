@@ -218,7 +218,7 @@ def _checkFunction(module, func, c = None) :
                                    _GLOBAL_DEFINED_NOT_DECLARED % operand)
                     func.function.func_globals[operand] = operand
                 if unpackCount :
-                    unpackCount -= 1
+                    unpackCount = unpackCount - 1
             elif OP.LOAD_CONST(op) :
                 debug("  load const", operand)
                 stack.append(operand)
@@ -251,12 +251,12 @@ def _checkFunction(module, func, c = None) :
                     if not unpackCount or _cfg.unusedLocalTuple :
                         unusedLocals[operand] = lastLineNum
                 if unpackCount :
-                    unpackCount -= 1
+                    unpackCount = unpackCount - 1
                 stack = stack[:-2]
             elif OP.STORE_ATTR(op) :
                 debug("  store attr", operand)
                 if unpackCount :
-                    unpackCount -= 1
+                    unpackCount = unpackCount - 1
                 stack = stack[:-2]
             elif OP.CALL_FUNCTION(op) :
                 warn, stack, funcCalled = \
@@ -301,9 +301,9 @@ def _checkFunction(module, func, c = None) :
                 del stack[-1]
 
     if _cfg.localVariablesUsed :
-        unusedLocals = [ item for item in unusedLocals.items() if item[1] ]
-        for var, line in unusedLocals :
-            warnings.append(Warning(func_code, line, _UNUSED_LOCAL % var))
+        for var, line in unusedLocals.items() :
+            if line :
+                warnings.append(Warning(func_code, line, _UNUSED_LOCAL % var))
     return warnings, globalRefs, functionsCalled
 
 
@@ -324,13 +324,13 @@ def _checkBaseClassInit(moduleName, moduleFilename, c, func_code, functionsCalle
        for each base class whose __init__() is not called"""
     
     warnings = []
-    moduleDepth = moduleName.count('.')
+    moduleDepth = string.count(moduleName, '.')
     for base in c.classObject.__bases__ :
         if hasattr(base, '__init__') :
             # create full name, make sure file is in name
             modules = str(base).split('.')[moduleDepth:]
             # handle import ...
-            initName1 = moduleName + '.' + '.'.join(modules) + '.__init__'
+            initName1 = moduleName + '.' + string.join(modules, '.') + '.__init__'
             # handle from ... inport ...
             initName2 = moduleName + '.' + base.__name__ + '.__init__'
             if not functionsCalled.has_key(initName1) and \

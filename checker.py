@@ -49,22 +49,21 @@ def findModule(name, path=sys.path):
        name can be a module or a package name.  It is *not* a filename."""
 
     assert type(name) == types.StringType
-    packages = name.split('.')
+    packages = string.split(name, '.')
     if not packages:
         return imp.find_module(name, path)
 
     for p in packages:
         # load __init__
-        res = imp.find_module(p, path)
-        info = res[-1]
-        if info[-1] == imp.PKG_DIRECTORY:
+        file, filename, smt = imp.find_module(p, path)
+        if smt[-1] == imp.PKG_DIRECTORY:
             # package found - read path info from init file
-            m = imp.load_module(p, *res)
+            m = imp.load_module(p, file, filename, smt)
             path = m.__path__
         else:
             if p is not packages[-1]:
                 raise ImportError, "No module named %s" % packages[-1]
-            return res
+            return file, filename, smt
 
 
 class Variable :

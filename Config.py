@@ -66,6 +66,7 @@ def usage() :
     print "Usage for: checker.py [options] PACKAGE ...\n"
     print "    PACKAGEs can be a python package, module or filename\n"
     print "  Options:          Toggle warning for ... [default value]"
+
     cfg = Config()
     for opt in _OPTIONS :
         if opt == None :
@@ -83,9 +84,11 @@ def usage() :
 def setupFromArgs(argList) :
     "Returns (Config, [ file1, file2, ... ]) from argList"
 
-    longArgs  = [ opt[1] for opt in _OPTIONS if opt != None ]
-    shortArgs = [ opt[0] for opt in _OPTIONS if opt != None ]
-    shortArgs = ''.join(shortArgs)
+    shortArgs, longArgs = "", []
+    for opt in _OPTIONS :
+        if opt != None :
+            shortArgs = shortArgs + opt[0]
+            longArgs.append(opt[1])
 
     options = {}
     for opt in _OPTIONS :
