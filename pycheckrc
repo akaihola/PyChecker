@@ -30,6 +30,9 @@ mixImport = 1
 # bool: warn when imports are not used in __init__.py
 packageImportUsed = 1
 
+# bool: warn when a module reimports another module (import & from/import)
+moduleImportErrors = 1
+
 # bool: warn when modules import themselves
 reimportSelf = 1
 

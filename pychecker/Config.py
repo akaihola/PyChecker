@@ -33,6 +33,7 @@ _OPTIONS = [
  ('i', 0, 'import', 'importUsed', 'unused imports'),
  ('k', 0, 'pkgimport', 'packageImportUsed', 'unused imports from __init__.py'),
  ('M', 0, 'reimportself', 'reimportSelf', 'module imports itself'),
+ ('X', 0, 'reimport', 'moduleImportErrors', 'reimporting a module'),
  ('x', 0, 'miximport', 'mixImport', 'module does import and from ... import'),
  ('l', 0, 'local', 'localVariablesUsed', 'unused local variables, except tuples'),
  ('t', 0, 'tuple', 'unusedLocalTuple', 'all unused local variables, including tuples'),
@@ -176,6 +177,7 @@ class Config :
         self.privateVariableUsed = 1
         self.importUsed = 1
         self.reimportSelf = 1
+        self.moduleImportErrors = 1
         self.mixImport = 1
         self.packageImportUsed = 1
         self.localVariablesUsed = 1
