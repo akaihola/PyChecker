@@ -38,6 +38,7 @@ def main():
     options = Options.Options()
     checks = [ ParseChecks.ParseCheck(),
                OpChecks.OpCheck(),
+               OpChecks.ExceptCheck(),
                ImportChecks.ImportCheck(),
                VariableChecks.ShadowCheck(),
                VariableChecks.UnpackCheck(),

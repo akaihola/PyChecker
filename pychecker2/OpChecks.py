@@ -1,5 +1,6 @@
 from pychecker2.Check import Check
 from pychecker2.Warning import Warning
+from pychecker2.util import BaseVisitor
 
 import compiler
 
@@ -15,17 +16,29 @@ class OpCheck(Check):
         "Operator (+) normally has no effect"
         )
 
-    def check(self, file, unused_checker):
+    def check(self, file, unused_checklist):
         class OpVisitor:
             def visitUnaryAdd(self, n):
                 if n.getChildren()[0].__class__ == compiler.ast.UnaryAdd:
-                    file.warning(n, OpCheck.operator, '++')
+                    file.warning(n, self.operator, '++')
                 else:
-                    file.warning(n, OpCheck.operatorPlus)
+                    file.warning(n, self.operatorPlus)
 
             def visitUnarySub(self, n):
                 if n.getChildren()[0].__class__ == compiler.ast.UnarySub:
-                    file.warning(n, OpCheck.operator, '--')
+                    file.warning(n, self.operator, '--')
         if file.parseTree:        
             compiler.walk(file.parseTree, OpVisitor())
 
+class ExceptCheck(Check):
+    emptyExcept = Warning('Warn about "except:',
+                          'Empty except clauses can hide unexpected errors')
+    
+    def check(self, file, unused_checklist):
+        class ExceptVisitor(BaseVisitor):
+            def visitTryExcept(s, node):
+                if node.handlers[0][0] is None:
+                    file.warning(node, self.emptyExcept)
+                s.visitChildren(node)
+        if file.parseTree:        
+            compiler.walk(file.parseTree, ExceptVisitor())
