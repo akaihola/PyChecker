@@ -57,7 +57,7 @@ fairly infrequent."""
         raise
 
     setup(name                  = "PyChecker",
-          version               = "0.8.9beta",
+          version               = "0.8.9",
           license               = "BSD-like",
           description           = "Python source code checking tool",
           author                = "Neal Norwitz, MetaSlash, Inc.",
