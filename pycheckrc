@@ -24,6 +24,9 @@ privateVariableUsed = 1
 # bool: warn when imports are not used
 importUsed = 1
 
+# bool: warn when imports are not used in __init__.py
+packageImportUsed = 1
+
 # bool: warn when local variables are not used
 localVariablesUsed = 1
 
@@ -33,12 +36,18 @@ unusedLocalTuple = 0
 # bool: warn when __init__ is defined in a subclass
 initDefinedInSubclass = 0
 
+# bool: warn when __init__ returns None
+returnNoneFromInit = 1
+
 # bool: warn when calling an attribute not a method
 callingAttribute = 0
 
 # bool: warn when using named arguments: func(a=1, b=2), where def func(a, b):
 #       def func2(a, b, **kw): doesn't generate a warning
 namedArgs = 1
+
+# str: name of 'self' parameter
+methodArgName = 'self'
 
 # int: warnings for code complexity, max value before generating a warning
 maxLines = 200
