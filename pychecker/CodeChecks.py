@@ -772,6 +772,7 @@ def _STORE_NAME(oparg, operand, codeSource, code) :
         else :
             if code.stack :
                 codeSource.classObject.statics[operand] = code.stack[-1]
+                codeSource.classObject.lineNums[operand] = code.lastLineNum
 
         var = module.variables.get(operand)
         if var is not None and code.stack and code.stack[-1].const :

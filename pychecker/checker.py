@@ -184,6 +184,7 @@ class Class :
                          '__dict__': types.DictType, }
         self.memberRefs = {}
         self.statics = {}
+        self.lineNums = {}
 
     def getFirstLine(self) :
         "Return first line we can find in THIS class, not any base classes"
