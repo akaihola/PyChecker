@@ -14,7 +14,7 @@ from pychecker2 import ClassChecks
 from pychecker2 import ReachableChecks
 from pychecker2 import FormatStringChecks
 
-def _print_warnings(f, out):
+def print_warnings(f, out):
     if not f.warnings:
         return 0
     f.warnings.sort()
@@ -65,13 +65,13 @@ def main():
     for f in files:
         checker.check_file(f)
         if options.incremental and not options.profile:
-            _print_warnings(f, sys.stdout)
+            print_warnings(f, sys.stdout)
 
     result = 0
     if not options.incremental and not options.profile:
         files.sort()
         for f in files:
-            result |=  _print_warnings(f, sys.stdout)
+            result |=  print_warnings(f, sys.stdout)
 
         if not result and options.verbose:
             print >>sys.stdout, None
