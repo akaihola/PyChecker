@@ -15,7 +15,7 @@ if [ $# -gt 0 ]; then
     done
 fi
 
-if [ -z $TMP ]; then
+if [ -z "$TMP" ]; then
     TMP=/tmp
 fi
 
