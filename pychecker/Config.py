@@ -55,6 +55,7 @@ _OPTIONS = (
  ('2', 0, 'constCond', 'constantConditions', 'a constant is used in a conditional statement'),
  ('1', 0, 'constant1', 'constant1', '1 is used in a conditional statement (if 1: or while 1:)'),
  ( '', 0, 'stringiter', 'stringIteration', 'check if iterating over a string'),
+ ( '', 0, 'stringfind', 'stringFind', 'check improper use of string.find()'),
  ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
  ('y', 0, 'classattr', 'classAttrExists', 'class attribute does not exist'),
  ('S', 1, 'self', 'methodArgName', 'First argument to methods'),
@@ -238,6 +239,7 @@ class Config :
         self.deprecated = 1
         self.modulo1 = 1
         self.isLiteral = 1
+        self.stringFind = 1
 
         self.unusedNames = _DEFAULT_UNUSED_LIST
         self.variablesToIgnore = _DEFAULT_VARIABLE_IGNORE_LIST

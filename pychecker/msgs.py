@@ -130,3 +130,5 @@ USING_INSECURE_FUNC = "%s() is a security problem"
 USE_INSTEAD = ", consider using %s"
 
 USES_CONST_ATTR = "Passing a constant string to %s, consider direct reference"
+
+BAD_STRING_FIND = "string.find() returns an integer, consider checking >= 0 or < 0 for not found"

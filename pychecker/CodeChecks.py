@@ -211,6 +211,17 @@ def _isexception(object) :
             return 1
     return 0
 
+def _checkStringFind(code, loadValue):
+    if len(loadValue.data) == 2 and loadValue.data[1] == 'find':
+        try:
+            if types.StringType in code.typeMap.get(loadValue.data[0], []):
+                op = code.nextOpInfo()[0]
+                if OP.IS_CONDITIONAL_JUMP(op) or OP.IS_NOT(op):
+                    code.addWarning(msgs.BAD_STRING_FIND)
+        except TypeError:
+            # we don't care if loadValue.data[0] is not hashable
+            pass
+
 def _checkAbstract(refClass, code, name):
     name_list = refClass.isAbstract()
     if name_list:
@@ -328,6 +339,9 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
 
             if cfg().abstractClasses and refClass and method:
                 _checkAbstract(refClass, code, funcName)
+
+            if cfg().stringFind:
+                _checkStringFind(code, loadValue)
 
             if func != None :
                 if refClass and func.isClassMethod():
@@ -1422,12 +1436,17 @@ def _popModified(oparg, operand, codeSource, code):
     _popModifiedStack(code)
 _BINARY_LSHIFT = _BINARY_RSHIFT = _popModified
 
-def _checkModifyNoOp(code, op, msg=msgs.MODIFY_VAR_NOOP):
+def _checkModifyNoOp(code, op, msg=msgs.MODIFY_VAR_NOOP, modifyStack=1):
     stack = code.stack
     if len(stack) >= 2:
         name = stack[-1].getName()
         if name != Stack.TYPE_UNKNOWN and name == stack[-2].getName():
             code.addWarning(msg % (name, op, name))
+
+        if modifyStack:
+            code.popStack()
+            stack[-1].const = 0
+            _modifyStackName(code, op)
 
 def _BINARY_AND(oparg, operand, codeSource, code):
     _checkModifyNoOp(code, '&')
@@ -1499,7 +1518,7 @@ def _isint(stackItem, code) :
 
 def _BINARY_DIVIDE(oparg, operand, codeSource, code) :
     _checkNoEffect(code)
-    _checkModifyNoOp(code, '/', msgs.DIVIDE_VAR_BY_ITSELF)
+    _checkModifyNoOp(code, '/', msgs.DIVIDE_VAR_BY_ITSELF, 0)
     if cfg().intDivide and len(code.stack) >= 2 :
         if _isint(code.stack[-1], code) and _isint(code.stack[-2], code) :
             code.addWarning(msgs.INTEGER_DIVISION % tuple(code.stack[-2:]))
@@ -1753,6 +1772,11 @@ DISPATCH[ 27] = _BINARY_TRUE_DIVIDE
 DISPATCH[ 31] = _SLICE1
 DISPATCH[ 32] = _SLICE2
 DISPATCH[ 33] = _SLICE3
+DISPATCH[ 55] = _BINARY_ADD             # INPLACE
+DISPATCH[ 56] = _BINARY_SUBTRACT        # INPLACE
+DISPATCH[ 57] = _BINARY_MULTIPLY        # INPLACE
+DISPATCH[ 58] = _BINARY_DIVIDE          # INPLACE
+DISPATCH[ 59] = _BINARY_MODULO          # INPLACE
 DISPATCH[ 60] = _STORE_SUBSCR
 DISPATCH[ 61] = _DELETE_SUBSCR
 DISPATCH[ 62] = _BINARY_LSHIFT
@@ -1760,9 +1784,15 @@ DISPATCH[ 63] = _BINARY_RSHIFT
 DISPATCH[ 64] = _BINARY_AND
 DISPATCH[ 65] = _BINARY_XOR
 DISPATCH[ 66] = _BINARY_OR
+DISPATCH[ 67] = _BINARY_POWER           # INPLACE
 DISPATCH[ 68] = _GET_ITER
 DISPATCH[ 71] = _PRINT_ITEM
 DISPATCH[ 73] = _PRINT_ITEM_TO
+DISPATCH[ 75] = _BINARY_LSHIFT          # INPLACE
+DISPATCH[ 76] = _BINARY_RSHIFT          # INPLACE
+DISPATCH[ 77] = _BINARY_AND             # INPLACE
+DISPATCH[ 78] = _BINARY_XOR             # INPLACE
+DISPATCH[ 79] = _BINARY_OR              # INPLACE
 DISPATCH[ 83] = _RETURN_VALUE
 DISPATCH[ 84] = _IMPORT_STAR
 DISPATCH[ 85] = _EXEC_STMT

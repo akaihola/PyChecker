@@ -1,4 +1,7 @@
 Version 0.8.14   - XX XXX 2004
+  * Add warning to check for "if s.find(str):"
+      this should be "if s.find(str) >= 0:" when s is a string
+  * Fix spurious warning when using augmented assignment (e.g., x += x)
   * Fix spurious warning when doing x = not x
   * Fix spurious warning for invalid arg count when calling a staticmethod
   * Fix spurious warning for setting a variable to itself when:  x, y, z = x
