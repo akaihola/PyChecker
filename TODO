@@ -19,6 +19,7 @@ Longer Term goals:
 * Recursive calls to __repr__ implementations
 * Make check for 'self' a list instead of a string
 * Check function return values - partially complete
+* Add check for using future keywords (e.g., yield)
 * Add check for unreachable code
 * Add check for except: pass
 * Add check that private functions are used in module/class
@@ -27,6 +28,7 @@ Longer Term goals:
 * Add check for implicit string concatentation
 * Add check for creating tuple when don't want a tuple, like: 1,
             or not creating tuple when want one, like: (1)
+* Add check that an assert is not passed a tuple
 * Fix deriving from class by alias name
 * Add portability checks for win32/unix
 
