@@ -626,9 +626,6 @@ def _LOAD_CONST(oparg, operand, codeSource, code) :
         if name == utils.LAMBDA :
             # use a unique key, so we can have multiple lambdas
             code.codeObjects[code.index] = operand
-            tmpOp, tmpOpArg = code.nextOpInfo()
-            if OP.name[tmpOp] == 'MAKE_FUNCTION' and tmpOpArg > 0 :
-                code.popStackItems(oparg)
         elif obj is None :
             code.codeObjects[name] = operand
         elif cfg().redefiningFunction :
@@ -709,6 +706,9 @@ def _CALL_FUNCTION_KW(oparg, operand, codeSource, code) :
 
 def _CALL_FUNCTION_VAR_KW(oparg, operand, codeSource, code) :
     _handleFunctionCall(codeSource, code, oparg, 2)
+
+def _MAKE_FUNCTION(oparg, operand, codeSource, code) :
+    code.popStackItems(oparg)
 
 def _BUILD_MAP(oparg, operand, codeSource, code) :
     _makeConstant(code.stack, oparg, Stack.makeDict)
@@ -842,6 +842,7 @@ DISPATCH[124] = _LOAD_FAST
 DISPATCH[125] = _STORE_FAST
 DISPATCH[127] = _LINE_NUM
 DISPATCH[131] = _CALL_FUNCTION
+DISPATCH[132] = _MAKE_FUNCTION
 DISPATCH[140] = _CALL_FUNCTION_VAR
 DISPATCH[141] = _CALL_FUNCTION_KW
 DISPATCH[142] = _CALL_FUNCTION_VAR_KW

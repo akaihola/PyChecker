@@ -27,3 +27,6 @@ def foobar(x): return x
 def nn():
     print map(lambda x, s=foobar: s(x), [1,2])
 
+def start() :
+    int(args=(lambda x=None: x,))
+
