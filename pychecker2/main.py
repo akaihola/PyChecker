@@ -45,6 +45,7 @@ def create_checklist(options):
                VariableChecks.UnknownCheck(),
                VariableChecks.SelfCheck(),
                ClassChecks.AttributeCheck(),
+               ClassChecks.InitCheck(),
                ScopeChecks.RedefineCheck(),
                ]
     for checker in checks:
