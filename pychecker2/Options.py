@@ -43,6 +43,7 @@ class Options:
         for c in Categories:
             self.options[c] = []
         self.add(BoolOpt(self, 'verbose', 'turn on verbose messages'), MISC)
+        self.add(BoolOpt(self, 'incremental', 'print warnings as they are created'), MISC)
 
     def add(self, option, category=ERROR):
         self.options[category].append(option)

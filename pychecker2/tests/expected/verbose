@@ -1,20 +1,20 @@
-Running check ParseCheck
+Checking file RedefineCheck
 .........
-Running check OpCheck
+Checking file RedefineCheck
 .........
-Running check ImportCheck
+Checking file RedefineCheck
 .........
-Running check ShadowCheck
+Checking file RedefineCheck
 .........
-Running check UnpackCheck
+Checking file RedefineCheck
 .........
-Running check UnusedCheck
+Checking file RedefineCheck
 .........
-Running check UnknownCheck
+Checking file RedefineCheck
 .........
-Running check SelfCheck
+Checking file RedefineCheck
 .........
-Running check RedefineCheck
+Checking file RedefineCheck
 .........
 tests/badparse.py:1 Unable to parse: could not parse string
 

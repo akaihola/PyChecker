@@ -15,6 +15,22 @@ class NullWriter:
     def write(self, s): pass
     def flush(self): pass
 
+def _print_warnings(f):
+    if not f.warnings:
+        return 0
+    f.warnings.sort()
+    last_msg = None
+    for line, warning, args in f.warnings:
+        if warning.value:
+            msg = warning.message % args
+            if msg != last_msg:
+                print '%s:%s %s' % (f.name, line or '[unknown line]', msg)
+                last_msg = msg
+    if last_msg:
+        print
+    return 1
+    
+
 def main():
     options = Options.Options()
     checks = [ ParseChecks.ParseCheck(),
@@ -43,33 +59,25 @@ def main():
         out = sys.stdout
 
     modules = {}
-    for checker in checks:
-        print >>out, 'Running check', checker
-        for f in files:
-            checker.check(modules, f, options)
+    for f in files:
+        print >>out, 'Checking file', checker
+        for checker in checks:
             out.write('.')
             out.flush()
+            checker.check(modules, f, options)
         print >>out
+        if options.incremental:
+            _print_warnings(f)
 
     result = 0
-    files.sort()
-    for f in files:
-        if not f.warnings:
-            continue
-        result = 1
-        f.warnings.sort()
-        last_msg = None
-        for line, warning, args in f.warnings:
-            if warning.value:
-                msg = warning.message % args
-                if msg != last_msg:
-                    print '%s:%s %s' % (f.name, line or '[unknown line]', msg)
-                    last_msg = msg
-        if last_msg:
-            print
-        
-    if not result:
-        print >>out, None
+    if not options.incremental:
+        files.sort()
+        for f in files:
+            result |=  _print_warnings(f)
+
+        if not result:
+            print >>out, None
+
     sys.exit(result)
 
 if __name__ == "__main__":

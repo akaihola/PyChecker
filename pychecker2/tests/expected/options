@@ -22,4 +22,5 @@ Error:
                         ['unused', 'empty', 'dummy', '__pychecker__', '__all__', '__version__', 'ignored']
 
 Miscellaneous:
+ --incremental          print warnings as they are created
  --verbose              turn on verbose messages
