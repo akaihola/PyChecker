@@ -98,3 +98,25 @@ def func14(x):
         return 6
     except:
         raise
+
+def func15(x):
+    'should not produce a warning'
+    try:
+        return x.j
+    except AttributeError:
+        return 0
+
+def func16(x):
+    'should not produce a warning'
+    try:
+        return x.j
+    except AttributeError:
+        raise
+
+def func17(x):
+    'should not produce a warning'
+    try:
+        return x.j
+    except (AttributeError, KeyError, IndexError):
+        return 0
+

@@ -612,10 +612,7 @@ class Code :
             self.label = label = OP.getLabel(op, oparg, self.index)
             utils.debug("  %d %s" % (self.indexList[-1], OP.name[op]), oparg, operand)
             if label != None :
-                if self.branches.has_key(label) :
-                    self.branches[label] = self.branches[label] + 1
-                else :
-                    self.branches[label] = 1
+                self.addBranch(label)
 
         return op, oparg, operand
 
@@ -694,6 +691,13 @@ class Code :
     def addRaise(self) :
         self.raiseValues.append((self.lastLineNum, None, self.index))
 
+    def addBranch(self, label) :
+        if label is not None :
+            try :
+                self.branches[label] = self.branches[label] + 1
+            except KeyError :
+                self.branches[label] = 1
+
     def removeBranch(self, label) :
         branch = self.branches.get(label, None)
         if branch is not None :
@@ -709,7 +713,8 @@ class Code :
                 index = self.indexList[-3]
             if index >= 0 :
                 op = ord(self.bytes[index])
-                if OP.RETURN_VALUE(op) or OP.RAISE_VARARGS(op) :
+                if OP.RETURN_VALUE(op) or OP.RAISE_VARARGS(op) or \
+                   OP.END_FINALLY(ord(self.bytes[label-1])) :
                     self.removeBranch(label)
 
     def updateCheckerArgs(self, operand) :
@@ -1140,10 +1145,19 @@ def _jump(oparg, operand, codeSource, code) :
 _JUMP_ABSOLUTE = _jump
 
 def _jump_conditional(oparg, operand, codeSource, code) :
-    if code.stack and code.stack[-1].const :
-        if cfg().constantConditions and \
+    if code.stack :
+        if code.stack[-1].const and cfg().constantConditions and \
            (code.stack[-1].data != 1 or cfg().constant1) :
             code.addWarning(msgs.CONSTANT_CONDITION % str(code.stack[-1]))
+
+        # Remove branches to code when we are checking exceptions
+        # and we aren't catching all exceptions
+        topOfStack = code.stack[-1]
+        if topOfStack.type == Stack.TYPE_COMPARISON and \
+           topOfStack.data[1] == 'exception match' and \
+           topOfStack.data[2] is not Exception :
+            code.removeBranch(code.index + oparg)
+                
     _jump(oparg, operand, codeSource, code)
 _JUMP_IF_FALSE = _JUMP_IF_TRUE = _jump_conditional
 
