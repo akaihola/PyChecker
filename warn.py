@@ -446,7 +446,7 @@ def find(moduleList, cfg) :
             continue
 
         globalRefs = {}
-        moduleFilename = module.filename + '.py'
+        moduleFilename = module.filename()
         for func in module.functions.values() :
             func_code = func.function.func_code
             debug("in func:", func_code)

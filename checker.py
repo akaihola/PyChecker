@@ -11,6 +11,7 @@ import types
 import sys
 import imp
 import os
+import glob
 
 import printer
 import warn
@@ -28,15 +29,42 @@ _KW_ARGS_FLAG = 8
 _allModules = {}
 _cfg = None
 
-def getModules(list) :
-    "Return list of modules by removing .py from each entry."
+def _flattenList(list) :
+    "Returns a list which contains no lists"
+
+    new_list = []
+    for element in list :
+        if type(element) == types.ListType :
+            return new_list + _flattenList(element)
+        new_list.append(element)
+    
+    return new_list
+
+def getModules(arg_list) :
+    "Returns a list of module names that can be imported"
+
+    new_arguments = []
+    for arg in arg_list :
+        # is this a wildcard filespec? (necessary for windows)
+        if '*' in arg or '?' in arg or '[' in arg :
+            arg = glob.glob(arg)
+        new_arguments.append(arg)
+
+    PY_PREFIX = '.py'
+    PY_PREFIX_LEN = len(PY_PREFIX)
 
     modules = []
-    for file in list :
-        if file[-3:] == '.py' :
-            file = file[:-3]
-        modules.append((file, string.replace(file, os.sep, '.')))
-    return modules
+    for arg in _flattenList(new_arguments) :
+        # is it a .py file?
+        if len(arg) > PY_PREFIX_LEN and arg[-PY_PREFIX_LEN:] == PY_PREFIX:
+            arg_dir = os.path.dirname(arg)
+            module_name = os.path.basename(arg)[:-PY_PREFIX_LEN]
+            if arg_dir not in sys.path :
+                sys.path.append(arg_dir)
+	    arg = module_name
+        modules.append(arg)
+
+    return _flattenList(modules)
 
 
 def findModule(name, path = sys.path) :
@@ -44,9 +72,6 @@ def findModule(name, path = sys.path) :
        name can be a module or a package name.  It is *not* a filename."""
 
     packages = string.split(name, '.')
-    if not packages:
-        return imp.find_module(name, path)
-
     for p in packages :
         # smt = (suffix, mode, type)
         file, filename, smt = imp.find_module(p, path)
@@ -58,6 +83,8 @@ def findModule(name, path = sys.path) :
             if p is not packages[-1] :
                 raise ImportError, "No module named %s" % packages[-1]
             return file, filename, smt
+
+    raise ImportError, "No module named %s" % packages[-1]
 
 
 class Variable :
@@ -205,8 +232,9 @@ def importError(moduleName, info):
 class Module :
     "Class to hold all information for a module"
 
-    def __init__(self, filename, moduleName) :
-        self.filename = filename
+    def __init__(self, moduleName) :
+    # def __init__(self, filename, moduleName) :
+        # self.filename = filename
         self.moduleName = moduleName
         self.variables = {}
         self.functions = {}
@@ -222,28 +250,31 @@ class Module :
     def addFunction(self, func) :
         self.functions[func.__name__] = Function(func)
 
-    def __addBaseMethods(self, c, classObject) :
+    def __addAttributes(self, c, classObject) :
         for base in classObject.__bases__ :
-            self.__addBaseMethods(c, base)
+            self.__addAttributes(c, base)
         c.addMethods(classObject)
-
-    def __addBaseMembers(self, c, classObject) :
-        for base in classObject.__bases__ :
-            self.__addBaseMembers(c, base)
         c.addMembers(classObject)
 
     def addClass(self, name) :
         self.classes[name] = c = Class(name, self.module)
-        self.__addBaseMethods(c, c.classObject)
-        self.__addBaseMembers(c, c.classObject)
+        self.__addAttributes(c, c.classObject)
 
     def addModule(self, name) :
         if not _allModules.has_key(name) :
-            self.modules[name] = Module(name, name)
+            self.modules[name] = Module(name)
+
+    def filename(self) :
+        if not self.module :
+            return self.moduleName
+        filename = self.module.__file__
+        if string.lower(filename[-4:]) == '.pyc' :
+            filename = filename[:-4] + '.py'
+        return filename
 
     def load(self) :
         try :
-	    file, filename, smt = findModule(self.filename)
+	    file, filename, smt = findModule(self.moduleName)
             self.module = imp.load_module(self.moduleName, file, filename, smt)
         except (ImportError, NameError, SyntaxError), detail:
             # not sure which errors we should check here, maybe all?
@@ -271,11 +302,11 @@ def main(argv) :
     global _cfg
     _cfg, files = Config.setupFromArgs(argv[1:])
     importWarnings = []
-    for filename, moduleName in getModules(files) :
+    for moduleName in getModules(files) :
         print "Processing %s..." % moduleName
-        module = Module(filename, moduleName)
+        module = Module(moduleName)
         if not module.load() :
-            w = warn.Warning(filename, 1, "NOT PROCESSED UNABLE TO IMPORT")
+            w = warn.Warning(module.filename(), 1, "NOT PROCESSED UNABLE TO IMPORT")
             importWarnings.append(w)
 
     if _cfg.printParse :
