@@ -767,8 +767,9 @@ def _STORE_NAME(oparg, operand, codeSource, code) :
         _checkFutureKeywords(code, operand)
         module = codeSource.module
         if not codeSource.in_class :
-            _checkGlobal(operand, module, codeSource.func, code,
-                         msgs.GLOBAL_DEFINED_NOT_DECLARED, codeSource.main)
+            if not codeSource.calling_code :
+                _checkGlobal(operand, module, codeSource.func, code,
+                             msgs.GLOBAL_DEFINED_NOT_DECLARED, codeSource.main)
         else :
             if code.stack :
                 codeSource.classObject.statics[operand] = code.stack[-1]

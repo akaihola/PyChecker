@@ -125,9 +125,15 @@ def _checkUnusedParam(var, line, func, code) :
             code.addWarning(msgs.UNUSED_PARAMETER % var, code.func_code)
 
 def _handleLambda(func_code, code, codeSource):
-    if func_code.co_name == utils.LAMBDA :
+    nested = not (codeSource.main or codeSource.in_class)
+    if func_code.co_name == utils.LAMBDA or nested:
         utils.debug(' handling lambda')
-        code.init(function.create_fake(func_code.co_name, func_code))
+        varnames = None
+        if nested and func_code.co_name != utils.LAMBDA:
+            varnames = codeSource.calling_code.function.func_code.co_varnames 
+        code.init(function.create_fake(func_code.co_name, func_code, {},
+                                       varnames))
+                      
         # I sure hope there can't be/aren't lambda's within lambda's
         _checkCode(code, codeSource)
 

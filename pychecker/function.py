@@ -13,14 +13,25 @@ _ARGS_ARGS_FLAG = 4
 _KW_ARGS_FLAG = 8
 _CO_FLAGS_MASK = _ARGS_ARGS_FLAG + _KW_ARGS_FLAG
 
+class FakeCode :
+    "This is a holder class for code objects (so we can modify them)"
+    def __init__(self, code, varnames = None) :
+        for attr in dir(code):
+            try:
+                setattr(self, attr, getattr(code, attr))
+            except:
+                pass
+        if varnames is not None:
+            self.co_varnames = varnames
+
 class FakeFunction :
     "This is a holder class for turning code at module level into a function"
 
-    def __init__(self, name, code, func_globals = {}) :
+    def __init__(self, name, code, func_globals = {}, varnames = None) :
         self.func_name = self.__name__ = name
         self.func_doc  = self.__doc__  = "ignore"
 
-        self.func_code = code
+        self.func_code = FakeCode(code, varnames)
         self.func_defaults = None
         self.func_globals = func_globals
 
@@ -63,8 +74,8 @@ class Function :
         func_code = self.function.func_code
         return func_code.co_varnames[func_code.co_argcount]
 
-def create_fake(name, code, func_globals = {}) :
-    return Function(FakeFunction(name, code, func_globals))
+def create_fake(name, code, func_globals = {}, varnames = None) :
+    return Function(FakeFunction(name, code, func_globals, varnames))
 
 def create_from_file(file, filename, module) :
     # Make sure the file is at the beginning
