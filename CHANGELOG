@@ -1,4 +1,8 @@
 
+Version 0.6.1	- 27 June 2001
+  * Fix bug which caused an exception from some import code
+  * Fix bug in determining if there is an implicit return
+
 Version 0.6	- 25 June 2001
   * Check format strings: "%s %s %s" % (v1, v2, v3, v4) for arg counts
   * Warn when format strings do: '%(var) %(var2)'
