@@ -83,7 +83,6 @@ def main():
 if __name__ == "__main__":
     if '--profile' in sys.argv:
         print 'profiling'
-        import hotshot
         import hotshot.stats
         import time
         hs = hotshot.Profile('logfile.dat')
