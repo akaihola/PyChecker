@@ -22,3 +22,9 @@ class C:
     f = lambda a, b: a + b
     def f(self, b):
         pass
+
+class D:
+    CONSTANT = 1
+    def h(self, arg):
+        CONSTANT = D.CONSTANT
+        arg.append(CONSTANT)

@@ -36,6 +36,7 @@ tests/shadow.py:18 Identifier (b) not used
 tests/shadow.py:18 Identifier (b) shadows definition in scope <FunctionScope: g>
 tests/shadow.py:19 Unknown identifier: c
 tests/shadow.py:19 Unknown identifier: d
+tests/shadow.py:28 Identifier (self) not used
 
 tests/unused.py:2 Identifier (a) not used
 tests/unused.py:6 Identifier (Test) not used
