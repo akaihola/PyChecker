@@ -1,4 +1,8 @@
 
+Version 0.3	- xx April 2001
+  * Don't produce spurious warning for:  x(y, { 'a': 'b' })
+  * Add warnings for code complexity (lines/branches/returns per func)
+
 Version 0.2.5	- 12 April 2001
   * Add back support for Python 1.5.2 (again)
   	(I sure like 2.0 more with the [ for ] and string methods.)
