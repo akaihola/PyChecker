@@ -45,6 +45,8 @@ class Function :
         numArgs = self.function.func_code.co_argcount
         if self.maxArgs is None :
             numArgs = numArgs + 1
+        if self.supportsKW :
+            numArgs = numArgs + 1
         return name in self.function.func_code.co_varnames[:numArgs]
 
 def create_fake(name, code, func_globals = {}) :
