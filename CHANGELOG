@@ -7,6 +7,7 @@ Version 0.8.12   - xx October 2002
   * Add @option_file command line argument to read options from a file
   	(used on platforms which can't have too many options, ie Windows)
   * Fix several crashes
+  * Line numbers should be close for Python 2.3 and if run on optimized code
 
 Version 0.8.11   - 06 June 2002
   * Improve error message for syntax errors from user files

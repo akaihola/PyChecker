@@ -240,7 +240,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     #   branches in byte code to setup a loop, so subtract off 2/3's of them
     #    / 2 to approximate real branches
     branches = (len(code.branches.keys()) - (2 * code.loops)) / 2
-    lines = (code.lastLineNum - code.func_code.co_firstlineno)
+    lines = (code.getLineNum() - code.func_code.co_firstlineno)
     returns = len(code.returnValues)
     if not main and not in_class :
         args = code.func_code.co_argcount

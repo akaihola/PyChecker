@@ -476,7 +476,7 @@ def _handleImport(code, operand, module, main, fromName) :
                 err = 'from %s import %s' % (tmpFromName, operand)
                 err = msgs.MODULE_MEMBER_IMPORTED_AGAIN % err
             elif modline1 is not None :
-                if cfg().mixImport and code.lastLineNum != modline1[1] :
+                if cfg().mixImport and code.getLineNum() != modline1[1] :
                     err = msgs.MIX_IMPORT_AND_FROM_IMPORT % tmpFromName
             else :
                 err = msgs.MODULE_MEMBER_ALSO_STAR_IMPORTED % fromName
@@ -489,7 +489,7 @@ def _handleImport(code, operand, module, main, fromName) :
                 code.addWarning(err)
 
     if main :
-        fileline = (code.func_code.co_filename, code.lastLineNum)
+        fileline = (code.func_code.co_filename, code.getLineNum())
         module.moduleLineNums[key] = fileline
         if fromName is not None :
             module.moduleLineNums[(fromName,)] = fileline
@@ -662,6 +662,18 @@ def _getTypeStr(t):
     return returnStr
 
 
+def _getLineNum(co, instr_index):
+    co_lnotab = co.co_lnotab
+    lineno = co.co_firstlineno
+    addr = 0
+    for lnotab_index in range(0, len(co_lnotab), 2):
+        addr = addr + ord(co_lnotab[lnotab_index])
+        if addr > instr_index:
+            return lineno
+        lineno = lineno + ord(co_lnotab[lnotab_index+1])
+    return lineno
+
+
 class Code :
     'Hold all the code state information necessary to find warnings'
 
@@ -707,9 +719,17 @@ class Code :
             self.unusedLocals[arg] = 0
             self.typeMap[arg] = [ Stack.TYPE_UNKNOWN ]
 
+    def getLineNum(self):
+        line = self.lastLineNum
+        # if we don't have linenum info, calc it from co_lntab & index
+        if line == self.func_code.co_firstlineno:
+            # FIXME: this could be optimized, if we kept last line info
+            line = _getLineNum(self.func_code, self.index - 1)
+        return line
+
     def getWarning(self, err, line = None) :
         if line is None :
-            line = self.lastLineNum
+            line = self.getLineNum()
         return Warning.Warning(self.func_code, line, err)
 
     def addWarning(self, err, line = None) :
@@ -821,12 +841,12 @@ class Code :
 
     def addReturn(self) :
         if len(self.stack) > 0 :
-            value = (self.lastLineNum, self.stack[-1], self.nextOpInfo()[2])
+            value = (self.getLineNum(), self.stack[-1], self.nextOpInfo()[2])
             self.returnValues.append(value)
             self.popStack()
 
     def addRaise(self) :
-        self.raiseValues.append((self.lastLineNum, None, self.nextOpInfo()[2]))
+        self.raiseValues.append((self.getLineNum(), None, self.nextOpInfo()[2]))
 
     def addBranch(self, label) :
         if label is not None :
@@ -855,11 +875,11 @@ class Code :
         rc = utils.shouldUpdateArgs(operand)
         if rc :
             utils.updateCheckerArgs(self.stack[-1].data, self.func_code,
-                                    self.lastLineNum, self.warnings)
+                                    self.getLineNum(), self.warnings)
         return rc
         
     def updateModuleLineNums(self, module, operand) :
-        filelist = (self.func_code.co_filename, self.lastLineNum)
+        filelist = (self.func_code.co_filename, self.getLineNum())
         module.moduleLineNums[operand] = filelist
 
 
@@ -903,7 +923,7 @@ def _STORE_NAME(oparg, operand, codeSource, code) :
         else :
             if code.stack :
                 codeSource.classObject.statics[operand] = code.stack[-1]
-                codeSource.classObject.lineNums[operand] = code.lastLineNum
+                codeSource.classObject.lineNums[operand] = code.getLineNum()
 
         var = module.variables.get(operand)
         if var is not None and code.stack and code.stack[-1].const :
@@ -1041,7 +1061,7 @@ def _STORE_FAST(oparg, operand, codeSource, code) :
         if code.deletedLocals.has_key(operand) :
             del code.deletedLocals[operand]
         if not code.unusedLocals.has_key(operand) :
-            errLine = code.lastLineNum
+            errLine = code.getLineNum()
             if code.unpackCount and not cfg().unusedLocalTuple :
                 errLine = -errLine
             code.unusedLocals[operand] = errLine
@@ -1050,7 +1070,7 @@ def _STORE_FAST(oparg, operand, codeSource, code) :
 def _DELETE_FAST(oparg, operand, codeSource, code) :
     _checkLoadLocal(code, codeSource, operand,
                     msgs.LOCAL_ALREADY_DELETED, msgs.VAR_DELETED_BEFORE_SET)
-    code.deletedLocals[operand] = code.lastLineNum
+    code.deletedLocals[operand] = code.getLineNum()
 
 def _checkAttribute(top, operand, codeSource, code) :
     if top.data == cfg().methodArgName and codeSource.classObject != None :
@@ -1512,7 +1532,7 @@ def _is_unreachable(code, topOfStack, branch, if_false) :
 
     # check if we break out of the loop
     i = code.index
-    lastLineNum = code.lastLineNum
+    lastLineNum = code.getLineNum()
     while i < branch :
         op, oparg, i, extended_arg = OP.getInfo(code.bytes, i, extended_arg)
         if OP.LINE_NUM(op) :
