@@ -142,8 +142,12 @@ def _findUnreachableCode(code) :
         del unreachable[lastIndex]
 
     if cfg().unreachableCode :
-        for line in unreachable.values() :
-            code.addWarning(msgs.CODE_UNREACHABLE, line)
+        for index in unreachable.keys() :
+            try :
+                if not OP.JUMP_FORWARD(ord(code.bytes[index])) :
+                    code.addWarning(msgs.CODE_UNREACHABLE, unreachable[index])
+            except IndexError :
+                pass
 
 
 def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
