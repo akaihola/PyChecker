@@ -6,6 +6,7 @@ from pychecker2.util import BaseVisitor, parents, type_filter
 
 from compiler.misc import mangle
 from compiler import ast, walk
+import inspect
 
 _ignorable = {}
 for i in ['repr', 'dict', 'class', 'doc', 'str']:
@@ -73,18 +74,30 @@ def get_base_names(scope):
                 pass
     return names
 
+def find_defs(scope, names):
+    "Drill down scopes to find definition of x.y.z"
+    root = names[0]
+    for c in type_filter(scope.get_children(),
+                         symbols.FunctionScope, symbols.ClassScope):
+        if getattr(c, 'name', '') == root:
+            if len(names) == 1:
+                return c
+            return find_defs(c, names[1:])
+    # maybe defined by import
+    if scope.imports.has_key(root):
+        return None                     # FIXME
+    return None
+
 def find_local_class(scope, name):
+    "Search up to find scope defining x of x.y.z"
+    parts = name.split('.')
     for p in parents(scope):
-        if p.defs.has_key(name):
-            for c in p.get_children():
-                if isinstance(c, symbols.ClassScope) and c.name == name:
-                    return c
+        if p.defs.has_key(parts[0]):
+            return find_defs(p, parts)
     return None
 
 def get_bases(scope):
     result = []
-    if not isinstance(scope, symbols.ClassScope):
-        return result
     # FIXME: only finds local classes
     for name in get_base_names(scope):
         base = find_local_class(scope, name)
