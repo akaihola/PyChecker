@@ -1,5 +1,6 @@
 import os, sys
-path = os.path.dirname(os.path.dirname(sys.argv[0]))
+from os.path import dirname, realpath
+path = dirname(dirname(realpath(sys.argv[0])))
 sys.path.append(path)
 
 from pychecker2.Check import CheckList

@@ -23,14 +23,6 @@ def _modules(root):
             modules.append(module)
     return modules
 
-def _root_path_to_file(fname):
-    result = os.path.dirname(fname)
-    if not result:
-        result = os.getcwd()
-    if not result.startswith(os.sep):
-        result = os.path.join(os.getcwd(), result)
-    return os.path.normpath(result)
-
 class Usage(Exception): pass
 
 def main(args):
@@ -46,7 +38,7 @@ def main(args):
     except getopt.GetoptError, detail:
         raise Usage(str(detail))
 
-    root = _root_path_to_file(sys.argv[0])
+    root = os.path.dirname(os.path.realpath(sys.argv[0]))
     pychecker2 = os.path.split(root)[0]
     sys.path.append(pychecker2)
 
