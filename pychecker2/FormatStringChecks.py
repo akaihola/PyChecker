@@ -12,6 +12,10 @@ def _compute_node(node, recurse):
         return recurse(node.left) + recurse(node.right)
     elif isinstance(node, ast.Mul):
         return recurse(node.left) * recurse(node.right)
+    elif isinstance(node, ast.Sub):
+        return recurse(node.left) - recurse(node.right)
+    elif isinstance(node, ast.Div):
+        return recurse(node.left) / recurse(node.right)
     raise UnknownError
 
 def _compute_constant(node):
@@ -23,7 +27,11 @@ def _compute_constant(node):
 def _compute_tuple_size(node):
     "Compute the length of simple forms of tuples from an expression node"
     if isinstance(node, ast.Tuple):
-        return len(node.nodes)
+        return (None,) * len(node.nodes)
+    if isinstance(node, ast.Const):
+        return node.value
+    if isinstance(node, ast.Backquote):
+        return (None,)
     return _compute_node(node, _compute_tuple_size)
 
 # for details: http://www.python.org/doc/current/lib/typesseq-strings.html
@@ -89,20 +97,28 @@ class FormatStringCheck(Check):
                       'are used for format strings',
                       'The name %s is not defined in %s')
 
+    badConstant = \
+              Warning('Report bad constant expressions for format strings',
+                      'Error computing constant: %s')
+
     def check(self, file, unused_checker):
         if not file.parseTree:
             return
 
         for scope in file.scopes.values():
             for mod in walk(scope.node, _GetMod()).mods:
+                formats = []
                 try:
                     s = _compute_constant(mod.left)
                     formats = _check_format(s)
                 except FormatError, detail:
                     file.warning(mod, self.badFormat, detail.position,
                                  _bad_format_str(s, detail.position))
-                    continue
-                except (UnknownError, TypeError):
+                except TypeError, detail:
+                    file.warning(mod, self.badConstant, detail)
+                except UnknownError:
+                    pass
+                if not formats:
                     continue
 
                 count = len(formats)
@@ -117,12 +133,15 @@ class FormatStringCheck(Check):
                 names = [f[0] for f in formats if f[0] is not None]
                 if len(names) == 0:     # tuple
                     try:
-                        n = _compute_tuple_size(mod.right) 
+                        n = len(_compute_tuple_size(mod.right))
                         if n != count:
                             file.warning(mod, self.formatCount, n, count)
-                    except (UnknownError, TypeError):
+                    except UnknownError:
                         pass
-                elif len(names) == len(f): # dictionary
+                    except TypeError, detail:
+                        file.warning(mod, self.badConstant, detail)
+
+                elif len(names) == len(formats): # dictionary
                     defines = []
                     if isinstance(mod.right, ast.CallFunc) and \
                        isinstance(mod.right.node, ast.Name):
@@ -138,5 +157,7 @@ class FormatStringCheck(Check):
                                 file.warning(mod, self.unknownFormatName,
                                              n, mod.right.node.name)
                 else:
+                    print names
+                    print f
                     file.warning(mod, self.mixedFormat, "(%s)" % names[0])
 
