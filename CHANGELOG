@@ -1,4 +1,5 @@
 Version 0.8.13   - xx December 2002
+  * Add warning for using __getattribute__ in an old-style class
   * Suppress 'self as first argument' warning for static and class methods
   * Add --classmethodargs to specify first argument name for class methods
 

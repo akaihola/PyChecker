@@ -553,7 +553,13 @@ def _findClassWarnings(module, c, class_code,
         lineNum = coerceMethod.function.func_code.co_firstlineno
         err = msgs.USING_COERCE_IN_NEW_CLASS % c.name
         warnings.append(Warning(filename, lineNum, err))
-        
+
+    gettroMethod = c.methods.get('__getattribute__')
+    if not newStyleClass and gettroMethod:
+        lineNum = gettroMethod.function.func_code.co_firstlineno
+        err = msgs.USING_GETATTRIBUTE_IN_OLD_CLASS % c.name
+        warnings.append(Warning(filename, lineNum, err))
+
     if cfg().noDocClass and c.classObject.__doc__ == None :
         method = c.methods.get(utils.INIT, None)
         if method != None :
