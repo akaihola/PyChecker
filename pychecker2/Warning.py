@@ -10,3 +10,5 @@ class Warning:
     def __cmp__(self, other):
         return cmp(self.message, other.message)
 
+    def __repr__(self):
+        return repr(self.message)
