@@ -8,6 +8,7 @@ Print out warnings from Python source files.
 
 import sys
 import string
+import copy
 
 from pychecker import msgs
 from pychecker import Config
@@ -33,7 +34,6 @@ def initConfig(cfg) :
     _cfg.append(cfg)
 
 def pushConfig() :
-    import copy
     newCfg = copy.copy(cfg())
     _cfg.append(newCfg)
 

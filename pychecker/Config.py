@@ -11,6 +11,7 @@ import os
 import getopt
 import string
 import re
+import time
 
 _RC_FILE = ".pycheckrc"
 CHECKER_VAR = '__pychecker__'
@@ -142,7 +143,6 @@ _RC_FILE_HEADER = '''#
 '''
 
 def outputRc(cfg) :
-    import time
     output = _RC_FILE_HEADER % (_VERSION, time.ctime(time.time()))
     for name, group in _OPTIONS :
         for opt in group:

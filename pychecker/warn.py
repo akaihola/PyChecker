@@ -6,10 +6,12 @@
 Print out warnings from Python source files.
 """
 
+import os.path
 import sys
 import string
 import types
 import traceback
+import imp
 
 from pychecker import OP
 from pychecker import Stack
@@ -347,7 +349,6 @@ def getBlackList(moduleList) :
         if badBoy[-3:] == ".py":
             badBoy = badBoy[0:-3]
         try :
-            import imp
             file, path, flags = imp.find_module(badBoy)
             if file :
                 file.close()
@@ -359,7 +360,6 @@ def getBlackList(moduleList) :
 def getStandardLibrary() :
     if cfg().ignoreStandardLibrary :
         try :
-            import os.path
             from distutils import sysconfig
 
             std_lib = sysconfig.get_python_lib()
