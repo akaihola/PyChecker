@@ -344,7 +344,7 @@ def importError(moduleName):
                          moduleName)
 
         tbinfo = traceback.extract_tb(tb)
-        for filename, line, func, text in tbinfo[2:]:
+        for filename, line, func, text in tbinfo[1:]:
             sys.stderr.write("    File \"%s\", line %d" % (filename, line))
             if func != "?":
                 sys.stderr.write(", in %s()" % func)
