@@ -1,4 +1,10 @@
 
+Version 0.9	- xx August 2001
+  * Fix spurious warning (Base __init__() not called) when using *args or **kw
+  * Fix internal error when referencing a list constant:  [1,2,3][1]
+  * Fix 'No module attribute' warning when doing:  import foo.bar as bar
+  * Spell overridden write
+
 Version 0.8	- 6 August 2001
   * Add check for accessing list as list[1,2], should be slice 1:2
   * Add -J/maxargs to warn when using too many arguments
