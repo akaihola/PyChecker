@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2001, MetaSlash Inc.  All rights reserved.
+# Copyright (c) 2001-2002, MetaSlash Inc.  All rights reserved.
 
 """
 Object to hold information about functions.
@@ -11,7 +11,7 @@ import string
 
 _ARGS_ARGS_FLAG = 4
 _KW_ARGS_FLAG = 8
-
+_CO_FLAGS_MASK = _ARGS_ARGS_FLAG + _KW_ARGS_FLAG
 
 class FakeFunction :
     "This is a holder class for turning code at module level into a function"
@@ -80,6 +80,9 @@ def create_from_file(file, filename, module) :
     code = compile(codestr, filename, 'exec')
     return Function(FakeFunction('__main__', code, module.__dict__))
 
+def _co_flags_equal(o1, o2) :
+    return (o1.co_flags & _CO_FLAGS_MASK) == (o2.co_flags & _CO_FLAGS_MASK)
+    
 def same_signature(func, object) :
     '''Return a boolean value if the <func> has the same signature as
        a function with the same name in <object> (ie, an overriden method)'''
@@ -90,6 +93,6 @@ def same_signature(func, object) :
     except AttributeError :
         return 1
 
-    return base_func_code.co_flags == func.func_code.co_flags and \
+    return _co_flags_equal(base_func_code, func.func_code) and \
            base_func_code.co_argcount == func.func_code.co_argcount
 

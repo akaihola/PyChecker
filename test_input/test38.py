@@ -11,12 +11,12 @@ class X:
 
 class Y1(X):
     'should not generate any warnings'
-    def m1(self, a, b, c, d): pass
-    def m2(self, a, b, c, d, *args): pass
-    def m3(self, a, b, c, d, *args, **kwArgs): pass
-    def m4(self, a, b, c, d): pass
-    def m5(self, a, b, c, d, *args): pass
-    def m6(self, a, b, c, d, *args, **kwArgs): pass
+    def m1(self, a, b, c, d): exec a in globals()
+    def m2(self, a, b, c, d, *args): exec a in globals()
+    def m3(self, a, b, c, d, *args, **kwArgs): exec a in globals()
+    def m4(self, a, b, c, d): exec a in globals()
+    def m5(self, a, b, c, d, *args): exec a in globals()
+    def m6(self, a, b, c, d, *args, **kwArgs): exec a in globals()
 
 class Z1(X):
     'should generate warnings'
