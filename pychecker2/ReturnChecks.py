@@ -13,10 +13,15 @@ class Returns(BaseVisitor):
     def visitReturn(self, node):
         self.result.append(node)
 
+    # Don't descend into other scopes
     def visitFunction(self, node): pass
     visitClass = visitFunction
     visitLambda = visitFunction
-    
+
+def _is_implicit(node):
+    if isinstance(node, ast.Const) and node.value == None:
+        return 1
+    return None
 
 class MixedReturnCheck(Check):
 
@@ -31,8 +36,7 @@ class MixedReturnCheck(Check):
             returns = walk(scope.node.code, Returns()).result
             empty, value = [], []
             for node in returns:
-                if isinstance(node.value, ast.Const) and \
-                   node.value.value is None:
+                if _is_implicit(node.value):
                     empty.append(node)
                 else:
                     value.append(node)
