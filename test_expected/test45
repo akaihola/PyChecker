@@ -1,0 +1,12 @@
+Processing test45...
+
+Warnings...
+
+test_input/test45.py:7: Parameter (empty1) not used
+test_input/test45.py:7: Parameter (unused1) not used
+test_input/test45.py:12: Local variable (empty1) not used
+test_input/test45.py:13: Local variable (unused1) not used
+test_input/test45.py:17: Parameter (other) not used
+test_input/test45.py:19: Parameter (empty1) not used
+test_input/test45.py:19: Parameter (other1) not used
+test_input/test45.py:19: Parameter (unused1) not used

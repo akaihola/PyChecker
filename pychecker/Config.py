@@ -18,6 +18,7 @@ CHECKER_VAR = '__pychecker__'
 _DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", "gtk", "GTK", "GDK", ]
 _DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__',
                                   '__all__', ]
+_DEFAULT_UNUSED_LIST = [ '_', 'empty', 'unused', ]
 
 _OPTIONS = [ 
  ('e', 0, 'errors', None, 'turn off all warnings which are not likely errors'),
@@ -48,7 +49,8 @@ _OPTIONS = [
  None,
  ('q', 0, 'stdlib', 'ignoreStandardLibrary', 'ignore warnings from files under standard library'),
  ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules\n\t\t\t'),
- ('V', 1, 'varlist', 'variablesToIgnore', 'ignore variables not used from the list\n\t\t\t'),
+ ('V', 1, 'varlist', 'variablesToIgnore', 'ignore global variables not used if name is one of\n\t\t\t'),
+ ('E', 1, 'unusednames', 'unusedNames', 'ignore unused locals/arguments if name is one of\n\t\t\t'),
  ('L', 1, 'maxlines', 'maxLines', 'maximum lines in a function'),
  ('B', 1, 'maxbranches', 'maxBranches', 'maximum branches in a function'),
  ('R', 1, 'maxreturns', 'maxReturns', 'maximum returns in a function'),
@@ -149,6 +151,8 @@ class Config :
         self.callingAttribute = 0
         self.namedArgs = 1
         self.returnNoneFromInit = 1
+
+        self.unusedNames = _DEFAULT_UNUSED_LIST
         self.variablesToIgnore = _DEFAULT_VARIABLE_IGNORE_LIST
         self.blacklist = _DEFAULT_BLACK_LIST
         self.ignoreStandardLibrary = 0

@@ -143,7 +143,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
             
     if cfg().localVariablesUsed :
         for var, line in code.unusedLocals.items() :
-            if line is not None and line > 0 and var != '_' :
+            if line is not None and line > 0 and var not in cfg().unusedNames :
                 code.addWarning(msgs.UNUSED_LOCAL % var, line)
 
     if cfg().argumentsUsed :
@@ -152,8 +152,9 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
             for var, line in code.unusedLocals.items() :
                 should_warn = line is not None and line == 0
                 if should_warn :
-                    should_warn = cfg().ignoreSelfUnused or \
-                                  var != cfg().methodArgName
+                    should_warn = var not in cfg().unusedNames and \
+                                  (cfg().ignoreSelfUnused or
+                                   var != cfg().methodArgName)
                 if should_warn :
                     code.addWarning(msgs.UNUSED_PARAMETER % var, code.func_code)
 
@@ -401,7 +402,7 @@ def find(moduleList, initialCfg, suppressions = {}) :
             prefix = None
             if not cfg().allVariablesUsed :
                 prefix = "_"
-            for ignoreVar in cfg().variablesToIgnore :
+            for ignoreVar in cfg().variablesToIgnore + cfg().unusedNames :
                 globalRefs[ignoreVar] = ignoreVar
             warnings.extend(_getUnused(module, globalRefs, module.variables,
                                        msgs.VAR_NOT_USED, prefix))

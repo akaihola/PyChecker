@@ -1,5 +1,7 @@
 
 Version 0.8	- xx August 2001
+  * Add -E/unusednames to provide a list of unused names to ignore
+	(default is: [ '_', 'empty', 'unused' ])
   * Major refactoring of warn.py -> utils, msgs, Warning, CodeChecks
   * Fix spurious warnings for No class attribute for dynamic classes
   * Fix spurious warnings when using objects from blacklisted modules
