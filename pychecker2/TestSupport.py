@@ -11,13 +11,18 @@ class WarningTester(unittest.TestCase):
         self.checklist = main.create_checklist(self.options)
         self.argv = []
 
-    def check_warning(self, w, line, type, *args):
-        warn_line, warn_type, warn_data = w
-        self.assertEqual(warn_line, line)
-        self.assertEqual(warn_type, type)
-        self.assertEqual(len(args), len(warn_data))
-        for i in range(len(args)):
-            self.assertEqual(warn_data[i], args[i])
+    def check_warning(self, w, expected_line, expected_type, *expected_args):
+        warn_line, warn_type, warn_args = w
+        try:
+            self.assertEqual(warn_type, expected_type)
+            self.assertEqual(warn_line, expected_line)
+            self.assertEqual(len(warn_args), len(expected_args))
+            for i in range(len(expected_args)):
+                self.assertEqual(warn_args[i], expected_args[i])
+        except AssertionError:          # help w/debugging
+            print warn_line, warn_type, warn_args
+            print expected_line, expected_type, expected_args
+            raise
 
     def check_file(self, data):
         import tempfile, os
@@ -35,11 +40,13 @@ class WarningTester(unittest.TestCase):
 
     def warning(self, test, line, warning, *args):
         f = self.check_file(test)
-        self.assertEqual(len(f.warnings), 1)
+        assert len(f.warnings) == 1, "More than one warning:" + `f.warnings`
         self.check_warning(f.warnings[0], line, warning, *args)
 
     def silent(self, test):
         f = self.check_file(test)
+        if f.warnings:
+            print f.warnings
         self.assertEqual(len(f.warnings), 0)
 
     def setUp(self):
