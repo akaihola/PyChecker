@@ -57,7 +57,7 @@ def main(args):
             else:
                 raise Usage('unknown option ' + opt)
     except getopt.GetoptError, detail:
-                raise Usage(str(detail))
+        raise Usage(str(detail))
 
     root = _root_path_to_file(sys.argv[0])
     pychecker2 = os.path.split(root)[0]
