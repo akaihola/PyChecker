@@ -96,15 +96,24 @@ if utils.pythonVersion() >= utils.PYTHON_2_2 :
 
     GLOBAL_FUNC_INFO['bool'] = (BOOL, 1, 1, ['x'])
 
+if utils.pythonVersion() >= utils.PYTHON_2_4:
+    GLOBAL_FUNC_INFO['dict'] = (types.DictType, 0, 1, [])
+
 def tryAddGlobal(name, *args):
     if globals().has_key(name):
         GLOBAL_FUNC_INFO[name] = args
 
-tryAddGlobal('zip', types.ListType, 1, None)
+zipMinArgs = 1
+if utils.pythonVersion() >= utils.PYTHON_2_4:
+    zipMinArgs = 0
+    
+tryAddGlobal('zip', types.ListType, zipMinArgs, None)
+
 tryAddGlobal('enumerate', types.TupleType, 1, 1, ['sequence'])
 # sum() could also return float/long
 tryAddGlobal('sum', types.IntType, 1, 2, ['start'])
-# reversed() always returns an iterator  (FIXME: support iterator)
+# sorted() and reversed() always return an iterator  (FIXME: support iterator)
+tryAddGlobal('sorted', Stack.TYPE_UNKNOWN, 1, 1)
 tryAddGlobal('reversed', Stack.TYPE_UNKNOWN, 1, 1)
 
 _STRING_METHODS = { 'capitalize': (types.StringType, 0, 0),
@@ -143,6 +152,12 @@ _STRING_METHODS = { 'capitalize': (types.StringType, 0, 0),
 
 if utils.pythonVersion() >= utils.PYTHON_2_2 :
     _STRING_METHODS['decode'] = (types.UnicodeType, 0, 2)
+
+if utils.pythonVersion() >= utils.PYTHON_2_4:
+    _STRING_METHODS['rsplit'] = (types.StringType, 0, 2)
+    _STRING_METHODS['center'] = (types.StringType, 1, 2),
+    _STRING_METHODS['ljust'] = (types.StringType, 1, 2),
+    _STRING_METHODS['rjust'] = (types.StringType, 1, 2),
 
 BUILTIN_METHODS = { types.DictType :
                     { 'clear': (types.NoneType, 0, 0),
@@ -184,6 +199,10 @@ BUILTIN_METHODS = { types.DictType :
                       'xreadlines': (types.ListType, 0, 0),
                     },
                   }
+
+if utils.pythonVersion() >= utils.PYTHON_2_4:
+    kwargs = ['cmp', 'key', 'reverse']
+    BUILTIN_METHODS[types.ListType]['sort'] =(types.NoneType, 0, 3, kwargs)
 
 if hasattr({}, 'pop'):
     BUILTIN_METHODS[types.DictType]['pop'] = (Stack.TYPE_UNKNOWN, 1, 1)
@@ -285,7 +304,7 @@ _setupBuiltinAttrs()
 
 PENDING_DEPRECATED_MODULES = { 'string': None, 'types': None,
                              }
-DEPRECATED_MODULES = { 'audioop': None, 'FCNTL': 'fcntl', 'gopherlib': None,
+DEPRECATED_MODULES = { 'FCNTL': 'fcntl', 'gopherlib': None,
                        'macfs': 'Carbon.File or Carbon.Folder',
                        'posixfile': 'fcntl', 'pre': None, 'regsub': 're',
                        'statcache': 'os.stat()',
