@@ -629,7 +629,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                                             _GLOBAL_DEFINED_NOT_DECLARED, main)
                         if unpackCount :
                             unpackCount = unpackCount - 1
-                        else :
+                        elif stack :
                             del stack[-1]
                         if not module.moduleLineNums.has_key(operand) and main :
                             filename = func_code.co_filename
