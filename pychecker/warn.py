@@ -37,7 +37,7 @@ def _checkSelfArg(method, warnings) :
     err = None
     if code.co_argcount < 1 :
         err = msgs.NO_METHOD_ARGS % cfg().methodArgName
-    elif code.co_varnames[0] != cfg().methodArgName :
+    elif code.co_varnames[0] != cfg().methodArgName:
         err = msgs.SELF_NOT_FIRST_ARG % cfg().methodArgName
 
     if err is not None :
@@ -48,7 +48,7 @@ def _checkNoSelfArg(func, warnings) :
     "Return a Warning if there is a self parameter to a function."
 
     code = func.function.func_code
-    if code.co_argcount > 0 and cfg().methodArgName in code.co_varnames :
+    if code.co_argcount > 0 and cfg().methodArgName in code.co_varnames:
         warnings.append(Warning(code, code, msgs.SELF_IS_ARG))
 
 
@@ -482,7 +482,11 @@ def _findClassWarnings(module, c, class_code,
         func_code = method.function.func_code
         utils.debug("method:", func_code)
 
-        name = str(c.classObject) + '.' + method.function.func_name
+        try:
+            name = str(c.classObject) + '.' + method.function.func_name
+        except AttributeError:
+            # func_name may not exist
+            continue
         methodSuppress = getSuppression(name, suppressions, warnings)
 
         if cfg().checkOverridenMethods :
@@ -617,3 +621,8 @@ def find(moduleList, initialCfg, suppressions = None) :
     if cfg().ignoreStandardLibrary :
         std_lib = getStandardLibrary()
     return removeWarnings(warnings, getBlackList(cfg().blacklist), std_lib)
+
+if 0:
+    # if you want to test w/psyco, include this
+    import psyco
+    psyco.bind(_checkCode)

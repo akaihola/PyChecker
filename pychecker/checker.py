@@ -247,7 +247,9 @@ class Class :
                 
     def addMethods(self, classObject) :
         for classToken in _getClassTokens(classObject) :
-            token = getattr(classObject, classToken)
+            token = getattr(classObject, classToken, None)
+            if token is None:
+                continue
 
             # Looks like a method.  Need to code it this way to
             # accommodate ExtensionClass and Python 2.2.  Yecchh.
@@ -258,7 +260,7 @@ class Class :
             elif hasattr(token, '__get__') and \
                  not hasattr(token, '__set__') and \
                  type(token) is not types.ClassType :
-                self.addMethod(token.__name__)
+                self.addMethod(getattr(token, '__name__', classToken))
             else :
                 self.members[classToken] = type(token)
                 self.memberRefs[classToken] = None
@@ -271,7 +273,7 @@ class Class :
     def addMembers(self, classObject) :
         if not cfg().onlyCheckInitForMembers :
             for classToken in _getClassTokens(classObject) :
-                method = getattr(classObject, classToken)
+                method = getattr(classObject, classToken, None)
                 if type(method) == types.MethodType :
                     self.addMembersFromMethod(method.im_func)
         else:
