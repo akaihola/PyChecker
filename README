@@ -1,14 +1,14 @@
 
-PyChecker is a python source code checking tool to help you find
-common bugs.  It is meant to find problems that are typically caught
-by a compiler.  Because of the dynamic nature of python, some warnings
-may be incorrect; however, spurious warnings should be fairly infrequent.
+PyChecker is a tool for finding common bugs in python source code.
+It finds problems that are typically caught by a compiler for less
+dynamic languages, like C and C++.  Because of the dynamic nature
+of python, some warnings may be incorrect; however,
+spurious warnings should be fairly infrequent.
 
 PyChecker works in a combination of ways.  First, it imports each
 module.  If there is an import error, the module cannot be processed.
-The import provides some basic information about the module.  For each
-function, class, and method, the code within the function is checked
-for possible problems.
+The import provides some basic information about the module.  The code
+for each function, class, and method is checked for possible problems.
 
 Types of problems that can be found include:
 
