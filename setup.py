@@ -2,9 +2,9 @@
 
 """To use this setup script to install PyChecker:
 
-	rename pychecker-version pychecker
-	cd pychecker
-	python setup.py install
+        rename pychecker-version pychecker
+        cd pychecker
+        python setup.py install
 
 Contributed by:  Nicolas Chauvat
 """
@@ -24,40 +24,42 @@ dynamic languages, like C and C++. Because of the dynamic nature of python,
 some warnings may be incorrect; however, spurious warnings should be
 fairly infrequent."""
 
+    script_arg = '"$@"'
     script_suffix = 'sh'
     if sys.platform == 'win32' :
         script_suffix = 'bat'
+        script_arg = '%*'
     LOCAL_SCRIPT = 'pychecker.' + script_suffix
     try :
-	os.unlink(LOCAL_SCRIPT)
+        os.unlink(LOCAL_SCRIPT)
     except :
         pass
 
     install_dir = sysconfig.get_python_lib() + os.sep + 'pychecker'
     checker_py = install_dir + os.sep + 'checker.py'
     py_exe = sys.executable
-    script_str = '#! /bin/sh\n\n%(py_exe)s %(checker_py)s "$@"\n' % locals()
+    script_str = '#! /bin/sh\n\n%(py_exe)s %(checker_py)s %(script_arg)s\n' % locals()
 
     try :
         fp = open(LOCAL_SCRIPT, "w")
-	fp.write(script_str)
-	fp.close()
-	if sys.platform != 'mac' :
-	    os.chmod(LOCAL_SCRIPT, 0755)
+        fp.write(script_str)
+        fp.close()
+        if sys.platform != 'mac' :
+            os.chmod(LOCAL_SCRIPT, 0755)
     except :
         print "Unable to create utility script."
-	raise
+        raise
 
-    setup(name			= "PyChecker",
-	  version		= "0.7",
-	  license		= "BSD-like",
-	  description		= "Python source code checking tool",
-	  author		= "Neal Norwitz, MetaSlash, Inc.",
-	  author_email		= "pychecker@metaslash.com",
-	  url			= "http://pychecker.sourceforge.net/",
-	  packages		= [ 'pychecker' ],
-	  #data_files		= DOC_FILES,
-	  scripts		= [ LOCAL_SCRIPT, ],
-	  long_description	= LONG_DESCRIPTION
-	 )
+    setup(name                  = "PyChecker",
+          version               = "0.8beta",
+          license               = "BSD-like",
+          description           = "Python source code checking tool",
+          author                = "Neal Norwitz, MetaSlash, Inc.",
+          author_email          = "pychecker@metaslash.com",
+          url                   = "http://pychecker.sourceforge.net/",
+          packages              = [ 'pychecker' ],
+          #data_files           = DOC_FILES,
+          scripts               = [ LOCAL_SCRIPT, ],
+          long_description      = LONG_DESCRIPTION
+         )
 
