@@ -196,7 +196,7 @@ def _getUnused(module, globalRefs, dict, msg, filterPrefix = None) :
 
 _DOT_INIT = '.' + utils.INIT
 
-def _baseInitCalled(module, base, functionsCalled) :
+def _baseInitCalled(base, functionsCalled) :
     if not hasattr(base, utils.INIT) :
         return 1
 
@@ -228,7 +228,7 @@ def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
                 warnings.append(warn)
 
     for base in c.classObject.__bases__ :
-        if not _baseInitCalled(c.module, base, functionsCalled) :
+        if not _baseInitCalled(base, functionsCalled) :
             warn = Warning(moduleFilename, func_code,
                            msgs.BASE_CLASS_NOT_INIT % str(base))
             warnings.append(warn)
