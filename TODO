@@ -13,11 +13,12 @@
 
 Eric's code review:
 
-* __addBaseMethods, __addBaseMembers are also almost identical
 * would it be simpler to treat self.f() as f(self)?
 * use %(name)s expansion for warnings
 * Fix (for i in list: if i in other_list: continue) by using filter func
+	(need to fix warn.py:find()/blacklist)
 * Maybe _addWarning can be removed by using list flattening?
 * checker.py:  use one list for warnings (remove importWarnings)?
 * Consider i18n for cfg strings, warnings, etc.
+* insert rather than append '.' to sys.path???
 
