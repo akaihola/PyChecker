@@ -32,7 +32,8 @@ on the command line:
 
 	pychecker file1.py file2.py ...
 
-Note:  On Windows, use pychecker.bat.
+Note:  On Windows, use pychecker.bat.  You may also need to add
+python/scripts to your PATH.
 
 pychecker and pychecker.bat will only exist if pychecker has been
 installed.  To install, do:  python setup.py install
