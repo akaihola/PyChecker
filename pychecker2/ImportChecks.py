@@ -32,7 +32,7 @@ Figure out which names come from 'import name'.
             try:
                 return __import__(name, globals(), {}, [''])
             except ImportError, detail:
-                file.warning(node, ImportCheck.importError, name, detail)
+                file.warning(node, ImportCheck.importError, name, str(detail))
                 return None
             except Exception, detail:
                 file.warning(node, ImportCheck.importError, name, detail)
