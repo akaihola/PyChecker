@@ -94,7 +94,7 @@ def main():
             print >>sys.stdout, None
 
     fp = open(CACHE_FILE, 'wb')
-    cPickle.dump(checker, fp)
+    cPickle.dump(checker, fp, 1)
     fp.close()
 
     return result
