@@ -34,6 +34,9 @@ on the command line:
 
 Note:  On Windows, use pychecker.bat.
 
+pychecker and pychecker.bat will only exist if pychecker has been
+installed.  This can be done by doing:  python setup.py install
+
 Note:  If you haven't installed pychecker, it can be run by doing:
 python pychecker/checker.py
 
