@@ -462,6 +462,7 @@ def _checkBaseClassInit(moduleFilename, c, func_code, functionsCalled) :
     for base in c.classObject.__bases__ :
         if hasattr(base, '__init__') :
             initName = str(base)
+            # FIXME: this is a hack, oughta figure a better way to fix
             if _startswith(initName, 'exceptions.') :
                 initName = string.join(string.split(initName, '.')[1:], '.')
             initName = initName + '.__init__'
