@@ -192,10 +192,12 @@ class UnknownCheck(Check):
                                 file.warning(scope.uses[var], self.unknown, var)
 
 class SelfCheck(Check):
-    'Report any methods whose first argument is not self'
+    'Check for simple self parameter'
     
-    selfName = Warning(__doc__,
+    selfName = Warning('Report any methods whose first argument is not self',
                        'First argument to method %s (%s) is not in %s')
+    selfDefault = Warning('Report a self parameter with a default value',
+                          'First argument to method %s (%s) has a default value')
     
     def get_options(self, options):
         desc = 'Name of self parameter'
@@ -208,9 +210,19 @@ class SelfCheck(Check):
 
         for scope in file.scopes.values():
             for var in scope.defs:
-                if _is_self(scope, var) and var not in self.selfNames:
-                    file.warning(scope.defs[var], self.selfName,
-                                 scope.node.name, var, `self.selfNames`)
+                if _is_self(scope, var):
+                    if var not in self.selfNames:
+                        file.warning(scope.defs[var], self.selfName,
+                                     scope.node.name, var, `self.selfNames`)
+                    function = scope.node
+                    count = len(function.argnames)
+                    if function.varargs:
+                        count -= 1
+                    if function.kwargs:
+                        count -= 1
+                    if len(function.defaults) == count:
+                        file.warning(function, self.selfDefault,
+                                     function.name, var)
 
 class UnpackCheck(Check):
     'Mark all unpacked variables as used'
