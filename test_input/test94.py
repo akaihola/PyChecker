@@ -31,4 +31,10 @@ def g():
 
 def h():
   a = 1
+  a += a
+
   a = not a
+  a = not not a
+
+  a = (1, 2, 3)
+  a, b, c = a

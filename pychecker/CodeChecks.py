@@ -1280,6 +1280,9 @@ def _COMPARE_OP(oparg, operand, codeSource, code) :
     elif cfg().isLiteral:
         # X is Y   or   X is not Y   comparison
         second_arg = code.stack[-1].data[2]
+        # FIXME: how should booleans should e handled, need to think about it
+##        if second_arg.const or (second_arg.type == Stack.TYPE_GLOBAL and
+##                                second_arg.data in ['True', 'False']):
         if second_arg.const:
             data = second_arg.data
             if second_arg.type is types.DictType:
@@ -1574,6 +1577,7 @@ def _UNPACK_SEQUENCE(oparg, operand, codeSource, code) :
             if cfg().unpackNonSequence:
                 code.addWarning(msgs.UNPACK_NON_SEQUENCE %
                                 (top.data, _getTypeStr(topType)))
+        _modifyStackName(code, '-unpack')
 
 def _SLICE_1_ARG(oparg, operand, codeSource, code) :
     _popStackRef(code, operand)

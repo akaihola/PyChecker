@@ -1,6 +1,7 @@
 Version 0.8.14   - XX XXX 2004
   * Fix spurious warning when doing x = not x
   * Fix spurious warning for invalid arg count when calling a staticmethod
+  * Fix spurious warning for setting a variable to itself when:  x, y, z = x
   * Fix crash in STORE_ATTR with some list comprehensions in Python 2.2
   	e.g., a.a = [x for x in range(2) if x > 1]
   * Support Tk 8.4 and above in the GUI (change col= to column=)
