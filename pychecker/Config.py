@@ -147,8 +147,8 @@ class Config :
         self.onlyCheckInitForMembers = 0
         self.printParse = 0
 
-        self.noDocModule = 1
-        self.noDocClass = 1
+        self.noDocModule = 0
+        self.noDocClass = 0
         self.noDocFunc = 0
 
         self.reportAllGlobals = 0

@@ -4,8 +4,8 @@
 # If $HOME is not set, it will look in the current directory.
 
 # bool: warnings for Doc Strings
-noDocModule = 1
-noDocClass = 1
+noDocModule = 0
+noDocClass = 0
 noDocFunc = 0
 
 # bool: when checking if class data members (attributes) are set
@@ -24,6 +24,9 @@ privateVariableUsed = 1
 # bool: warn when imports are not used
 importUsed = 1
 
+# bool: warn when import and from ... import are used for same module
+mixImport = 1
+
 # bool: warn when imports are not used in __init__.py
 packageImportUsed = 1
 
@@ -36,11 +39,17 @@ localVariablesUsed = 1
 # bool:  assume a, b, and c are used in this case:  a, b, c = func()
 unusedLocalTuple = 0
 
+# bool: warn when Subclass.__init__ is not called in a subclass
+baseClassInitted = 1
+
 # bool: warn when __init__ is defined in a subclass
 initDefinedInSubclass = 0
 
 # bool: warn when __init__ returns None
 returnNoneFromInit = 1
+
+# bool: warn when the class attribute does not exist
+classAttrExists = 1
 
 # bool: warn when calling an attribute not a method
 callingAttribute = 0
@@ -79,7 +88,7 @@ ignoreStandardLibrary = 0
 
 
 # list of strings: ignore unused locals/arguments if name is one of
-unusedNames = [ '_', 'empty', 'unused', ]
+unusedNames = [ '_', 'empty', 'unused', 'dummy', ]
 
 
 # list of strings: ignore warnings generated from these modules

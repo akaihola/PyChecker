@@ -2,6 +2,7 @@
 
 TESTS="test_input/test[1-9]*.py"
 # comment out to use python from path
+# PYTHON="$HOME/local/bin/python2.2"
 # PYTHON="/usr/bin/python"
 
 if [ $# -gt 0 ]; then
@@ -30,7 +31,7 @@ for test_file in $TESTS ; do
     fi
 
     test_path=$TMP/$test_name
-    $PYTHON ./pychecker/checker.py --no-argsused $test_file > $test_path 2>&1
+    $PYTHON ./pychecker/checker.py --moduledoc --classdoc --no-argsused $test_file > $test_path 2>&1
     diff $test_path $expected
     if [ $? -ne 0 ]; then
     	error=`expr $error + 1`
