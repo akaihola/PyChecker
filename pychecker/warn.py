@@ -407,6 +407,9 @@ def _checkFunction(module, func, c = None, main = 0) :
                     if len(stack) > 0 :
                         returnValues.append((lastLineNum, stack[-1]))
                         del stack[-1]
+    except (SystemExit, KeyboardInterrupt) :
+        exc_type, exc_value, exc_tb = sys.exc_info()
+        raise exc_type, exc_value
     except :
         exc_type, exc_value, exc_tb = sys.exc_info()
         exc_list = traceback.format_exception(exc_type, exc_value, exc_tb)

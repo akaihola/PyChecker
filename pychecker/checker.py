@@ -346,6 +346,9 @@ class Module :
                 if file != None :
                     file.close()
             return self.initModule(module)
+        except (SystemExit, KeyboardInterrupt) :
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            raise exc_type, exc_value
         except :
             return importError(self.moduleName, sys.exc_value)
 
