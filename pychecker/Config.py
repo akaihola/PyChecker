@@ -10,6 +10,7 @@ import sys
 import os
 import getopt
 import string
+import re
 
 
 _RC_FILE = ".pycheckrc"
@@ -134,7 +135,15 @@ class UsageError(Exception) :
 
 _SUPPRESSIONS_ERR = \
 '''\nWarning, error processing defaults file: %s
-\tsuppressions must be a dictionary ({}) -- ignoring suppressions\n'''
+\%s must be a dictionary ({}) -- ignoring suppressions\n'''
+
+def _getSuppressions(name, dict) :
+    suppressions = dict.get(name, {})
+    if type(suppressions) != type({}) :
+        print _SUPPRESSIONS_ERR % (filename, name)
+        suppressions = {}
+    return suppressions
+
 
 class Config :
     "Hold configuration information"
@@ -191,24 +200,27 @@ class Config :
 
     def loadFile(self, filename) :
         suppressions = {}
+        suppressionRegexs = {}
         try :
             tmpGlobal, dict = {}, {}
             execfile(filename, tmpGlobal, dict)
             for key, value in dict.items() :
                 if self.__dict__.has_key(key) :
                     self.__dict__[key] = value
-                elif key != 'suppressions' :
+                elif key not in [ 'suppressions', 'suppressionRegexs' ] :
                     print "Warning, option (%s) doesn't exist, ignoring" % key
 
-            suppressions = dict.get('suppressions', {})
-            if type(suppressions) != type({}) :
-                print _SUPPRESSIONS_ERR % filename
-                suppressions = {}
+            suppressions = _getSuppressions('suppressions', dict)
+            regexs = _getSuppressions('suppressionRegexs', dict)
+            suppressionRegexs = {}
+            for regex_str in regexs.keys() :
+                regex = re.compile(regex_str)
+                suppressionRegexs[regex] = regexs[regex_str]
         except IOError :
             pass       # ignore if no file
         except Exception, detail:
             print "Warning, error loading defaults file:", filename, detail
-        return suppressions
+        return suppressions, suppressionRegexs
 
     def processArgs(self, argList) :
         try :

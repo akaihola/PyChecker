@@ -124,3 +124,6 @@ checkImplicitReturns = 0
 #	  'module3.my_class': 'no-initreturn', }
 suppressions = {}
 
+# dict: suppress warnings where keys can be regular expressions
+suppressionRegexs = {}
+

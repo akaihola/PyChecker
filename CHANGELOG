@@ -1,5 +1,6 @@
 
 Version 0.9	- xx August 2001
+  * Allow warning suppressions to be specified as regular expressions
   * Add warning checks when deleting variables
   * Add check for except Error1, Error2 : # should be except (Error1, Error2) :
   * Fix spurious warning when using parameter as dict for format string

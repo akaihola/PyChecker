@@ -309,15 +309,33 @@ def removeWarnings(warnings, blacklist, std_lib) :
 
     return warnings
 
-def getSuppression(name, suppressions, warnings) :
-    suppress = suppressions.get(name, None)
-    if suppress is not None :
-        utils.pushConfig()
-        if not utils.updateCheckerArgs(suppress, 'suppressions', 0, warnings) :
-            suppress = None
-            utils.popConfig()
-    return suppress
 
+class _SuppressionError(Exception) :
+    pass
+
+def _updateSuppressions(suppress, warnings) :
+    utils.pushConfig()
+    if not utils.updateCheckerArgs(suppress, 'suppressions', 0, warnings) :
+        utils.popConfig()
+        raise _SuppressionError
+
+def getSuppression(name, suppressions, warnings) :
+    try :
+        suppress = suppressions[0].get(name, None)
+        if suppress is not None :
+            _updateSuppressions(suppress, warnings)
+
+        regexList = suppressions[1].keys()
+        regexList.sort()
+        for regex in regexList :
+            match = regex.match(name)
+            if match and match.group() == name :
+                suppress = 1
+                _updateSuppressions(suppressions[1][regex], warnings)
+
+        return suppress
+    except _SuppressionError :
+        return 0
 
 def _findFunctionWarnings(module, globalRefs, warnings, suppressions) :
     for func in module.functions.values() :
@@ -395,8 +413,11 @@ def _findClassWarnings(module, c, class_code,
         utils.popConfig()
 
 
-def find(moduleList, initialCfg, suppressions = {}) :
+def find(moduleList, initialCfg, suppressions = None) :
     "Return a list of warnings found in the module list"
+
+    if suppressions is None :
+        suppressions = {}, {}
 
     utils.initConfig(initialCfg)
 

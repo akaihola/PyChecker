@@ -10,3 +10,13 @@ class X2:
     def x(self) : pass
     def y(self) : pass
 
+class Y1:
+    def a(self) : pass
+    def x(self) : pass
+    def y(self) : pass
+
+class Y2:
+    def a(self) : pass
+    def x(self) : pass
+    def y(self) : pass
+
