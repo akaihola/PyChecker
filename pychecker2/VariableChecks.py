@@ -66,6 +66,11 @@ class ShadowCheck(Check):
                     if p.defs.has_key(name) and not isinstance(p, symbols.ClassScope):
                         file.warning(scope.defs[name], self.shadowIdentifier, name, `p`)
 
+def _str_value(s):
+    if type(s) == type(''):
+        return eval(s)
+    return s
+
 class UnusedCheck(Check):
     """Use symbol information to check that no scope defines a name
     not used in this or any child scope"""
@@ -85,8 +90,7 @@ class UnusedCheck(Check):
         options.add(BoolOpt(self, 'reportUnusedSelf', desc))
 
     def check(self, file, unused_checker):
-        if type(self.unusedPrefixes) == type(''):
-            self.unusedPrefixes = eval(self.unusedPrefixes)
+        self.unusedPrefixes = _str_value(self.unusedPrefixes)
 
         def used(name, parent_scope):
             # don't report global classes and functions that
@@ -199,30 +203,44 @@ class SelfCheck(Check):
     selfDefault = Warning('Report a self parameter with a default value',
                           'First argument to method %s (%s) has a default value')
     
+    functionSelf = Warning('Report functions (not methods) with '
+                           'arguments named "self"',
+                           'Argument to function (%s) is "%s"')
+    
     def get_options(self, options):
         desc = 'Name of self parameter'
         default = ["self", "this", "s"]
         options.add(Opt(self, 'selfNames', desc, default))
 
+        desc = 'Suspicious self parameters'
+        self.selfSuspicious = ["self"]
+        options.add(Opt(self, 'selfSuspicious', desc, self.selfSuspicious))
+
     def check(self, file, unused_checker):
-        if type(self.selfNames) == type(''):
-            self.selfNames = eval(self.selfNames)
+        self.selfNames      = _str_value(self.selfNames)
+        self.selfSuspicious = _str_value(self.selfSuspicious)
 
         for scope in file.scopes.values():
             for var in scope.defs:
-                if _is_self(scope, var):
-                    if var not in self.selfNames:
-                        file.warning(scope.defs[var], self.selfName,
-                                     scope.node.name, var, `self.selfNames`)
-                    function = scope.node
-                    count = len(function.argnames)
-                    if function.varargs:
-                        count -= 1
-                    if function.kwargs:
-                        count -= 1
-                    if len(function.defaults) == count:
-                        file.warning(function, self.selfDefault,
-                                     function.name, var)
+                if _is_method(scope):
+                    if _is_self(scope, var):
+                        if var not in self.selfNames:
+                            file.warning(scope.defs[var], self.selfName,
+                                         scope.node.name, var, `self.selfNames`)
+                        function = scope.node
+                        count = len(function.argnames)
+                        if function.varargs:
+                            count -= 1
+                        if function.kwargs:
+                            count -= 1
+                        if len(function.defaults) == count:
+                            file.warning(function, self.selfDefault,
+                                         function.name, var)
+                else:
+                    if var in self.selfSuspicious:
+                        name = getattr(scope.node, 'name', 'lambda')
+                        file.warning(scope.defs[var], self.functionSelf,
+                                     name, var)
 
 class UnpackCheck(Check):
     'Mark all unpacked variables as used'
