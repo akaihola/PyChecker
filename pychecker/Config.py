@@ -45,6 +45,7 @@ _OPTIONS = (
  ('a', 0, 'initattr', 'onlyCheckInitForMembers', 'Attributes (members) must be defined in __init__()'),
  ('I', 0, 'initsubclass', 'initDefinedInSubclass', 'Subclass.__init__() not defined'),
  ('u', 0, 'callinit', 'baseClassInitted', 'Subclass.__init__() not called'),
+ ('0', 0, 'abstract', 'abstractClasses', 'Subclass needs to override methods that only throw exceptions'),
  ('N', 0, 'initreturn', 'returnNoneFromInit', 'Return None from __init__()'),
  ('8', 0, 'unreachable', 'unreachableCode', 'unreachable code'),
  ('2', 0, 'constCond', 'constantConditions', 'a constant is used in a conditional statement'),
@@ -192,6 +193,7 @@ class Config :
         self.unusedLocalTuple = 0
         self.initDefinedInSubclass = 0
         self.baseClassInitted = 1
+        self.abstractClasses = 1
         self.callingAttribute = 0
         self.classAttrExists = 1
         self.namedArgs = 1

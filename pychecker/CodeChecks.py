@@ -206,13 +206,14 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
     funcName = loadValue.getName(codeSource.module)
     returnValue = Stack.makeFuncReturnValue(loadValue, argCount)
 
-    _, refClass, _ = _getFunction(codeSource.module, loadValue)
-    if refClass:
-        name_list = refClass.isAbstract()
-        if name_list:
-            name_list.sort()
-            names = string.join(name_list, ", ")
-            code.addWarning(msgs.METHODS_NEED_OVERRIDE % (names, funcName))
+    if cfg().abstractClasses:
+        _, refClass, _ = _getFunction(codeSource.module, loadValue)
+        if refClass:
+            name_list = refClass.isAbstract()
+            if name_list:
+                name_list.sort()
+                names = string.join(name_list, ", ")
+                code.addWarning(msgs.METHODS_NEED_OVERRIDE % (names, funcName))
 
     if loadValue.isMethodCall(codeSource.classObject, cfg().methodArgName) :
         methodName = loadValue.data[1]
