@@ -1,5 +1,5 @@
 
-Version 0.8	- xx August 2001
+Version 0.8	- 6 August 2001
   * Add check for accessing list as list[1,2], should be slice 1:2
   * Add -J/maxargs to warn when using too many arguments
   * Add -K/maxlocals to warn when using too many local variables
