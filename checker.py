@@ -176,21 +176,21 @@ class Class :
             return
 
         func_code, code, i, maxCode, extended_arg = OP.initFuncCode(method)
-        loadList = []
+        stack = []
         while i < maxCode :
             op, oparg, i, extended_arg = OP.getInfo(code, i, extended_arg)
             if op >= OP.HAVE_ARGUMENT :
                 operand = OP.getOperand(op, func_code, oparg)
                 if OP.LOAD_CONST(op) or OP.LOAD_FAST(op) :
-                    loadList.append(operand)
+                    stack.append(operand)
                 elif OP.STORE_ATTR(op) :
-                    if len(loadList) > 0 :
-                        if loadList[-1] == 'self' :
+                    if len(stack) > 0 :
+                        if stack[-1] == 'self' :
                             value = None
-                            if len(loadList) > 1 :
-                                value = type(loadList[-2])
+                            if len(stack) > 1 :
+                                value = type(stack[-2])
                             self.members[operand] = value
-                        loadList = []
+                        stack = []
 
 
 class Module :
