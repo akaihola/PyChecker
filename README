@@ -25,6 +25,8 @@ Types of problems that can be found include:
   * Unused function/method arguments (can ignore self)
   * No doc strings in modules, classes, functions, and methods
 
+Using PyChecker
+---------------
 To use PyChecker, pass the python source files you want to check
 on the command line:
 
@@ -34,6 +36,9 @@ Note:  On Windows, use pychecker.bat.
 
 Note:  If you haven't installed pychecker, it can be run by doing:
 python pychecker/checker.py
+
+An alternate way to use PyChecker is to import it in your code.
+See 'Importing PyChecker' below for more details.
 
 If there are import dependencies in your source files, you should
 import those files first on the command line in order to get as many
@@ -64,6 +69,36 @@ You can also define suppressions in your code by doing:
 The format for __pychecker__ values and values in the suppressions dictionary
 are the same.  Dashes (--) are optional when preceding long option names.
 
+Importing PyChecker
+-------------------
+You can import PyChecker in your code's main module, by doing:
+
+        import pychecker.checker
+
+This will allow each module imported after PyChecker to be checked 
+(other than the main module).  NOTE:  Modules imported before PyChecker
+will not be checked.  Warnings will be displayed on stdout 
+(ie, PyChecker uses print).
+
+Since you can't pass command line parameters, you can do:
+
+        os.environ['PYCHECKER'] = 'command line options here'
+
+This is equivalent of setting PYCHECKER in the shell environment:
+
+        PYCHECKER='no-namedargs maxreturns=0' /path/to/your/program
+
+If you want to disable the warnings (and processing done by PyChecker), 
+prior to importing PyChecker, do:
+
+        os.environ['PYCHECKER_DISABLED'] = 1
+
+This is equivalent of setting PYCHECKER_DISABLED in the shell environment:
+
+        PYCHECKER_DISABLED=1 /path/to/your/program
+
+Internal Errors
+---------------
 If you find a bug in PyChecker, meaning you see something like:
 
 	pychecker myfile.py

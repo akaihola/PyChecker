@@ -53,6 +53,8 @@ Types of problems that can be found include:
   <li> No doc strings in modules, classes, functions, and methods
 </ul>
 
+<h2>Using PyChecker</h2>
+
 <p>
 To use PyChecker, pass options and the python source files (or packages)
 you want to check on the command line:
@@ -67,6 +69,10 @@ Note:  On Windows, use pychecker.bat.<br>
 
 Note:  If you haven't installed pychecker, it can be run by doing:
 python pychecker/checker.py
+
+<p>
+An alternate way to use PyChecker is to import it in your code.
+See <a href='#import'>Importing PyChecker</a> below for more details.
 
 <p>
 If there are import dependencies in your source files, you should
@@ -113,6 +119,51 @@ You can also define suppressions in your code by doing:
 <p>
 The format for __pychecker__ values and values in the suppressions dictionary
 are the same.  Dashes (--) are optional when preceding long option names.
+
+<a name='import'><h2>Importing PyChecker</h2></a>
+<p>
+You can import PyChecker in your code's main module, by doing:
+
+<p><pre>
+        import pychecker.checker
+</pre>
+
+<p>
+This will allow each module imported after PyChecker to be checked 
+(other than the main module).  NOTE:  Modules imported before PyChecker
+will not be checked.  Warnings will be displayed on stdout 
+(ie, PyChecker uses print).
+
+<p>
+Since you can't pass command line parameters, you can do:
+
+<p><pre>
+        os.environ['PYCHECKER'] = 'command line options here'
+</pre>
+
+<p>
+This is equivalent of setting PYCHECKER in the shell environment:
+
+<p><pre>
+        PYCHECKER='no-namedargs maxreturns=0' /path/to/your/program
+</pre>
+
+<p>
+If you want to disable the warnings (and processing done by PyChecker), 
+prior to importing PyChecker, do:
+
+<p><pre>
+        os.environ['PYCHECKER_DISABLED'] = 1
+</pre>
+
+<p>
+This is equivalent of setting PYCHECKER_DISABLED in the shell environment:
+
+<p><pre>
+        PYCHECKER_DISABLED=1 /path/to/your/program
+</pre>
+
+<h2>Internal Errors</h2>
 
 <p>
 If you find a bug in PyChecker, meaning you see something like:
