@@ -38,7 +38,8 @@ fairly infrequent."""
     script_suffix = ''
     script_str = '#! /bin/sh\n\n%s %s "$@"\n' % (py_exe, checker_py)
     if sys.platform == 'win32' :
-        script_str = '%s %s %%*\n' % (py_exe, checker_py)
+        arg_str = '%1 %2 %3 %4 %5 %6 %7 %8 %9'
+        script_str = '%s %s %s\n' % (py_exe, checker_py, arg_str)
         script_suffix = '.bat'
 
     LOCAL_SCRIPT = 'pychecker' + script_suffix
