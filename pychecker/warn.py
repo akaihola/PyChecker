@@ -410,6 +410,11 @@ def _findClassWarnings(module, c, class_code,
         if methodSuppress is not None :
             utils.popConfig()
 
+    if c.memberRefs and cfg().membersUsed :
+        members = string.join(c.memberRefs.keys(), ', ')
+        err = msgs.UNUSED_MEMBERS % (members, c.name)
+        warnings.append(Warning(filename, c.getFirstLine(), err))
+
     if cfg().noDocClass and c.classObject.__doc__ == None :
         method = c.methods.get(utils.INIT, None)
         if method != None :

@@ -37,6 +37,7 @@ _OPTIONS = (
  ('x', 0, 'miximport', 'mixImport', 'module does import and from ... import'),
  ('l', 0, 'local', 'localVariablesUsed', 'unused local variables, except tuples'),
  ('t', 0, 'tuple', 'unusedLocalTuple', 'all unused local variables, including tuples'),
+ ('9', 0, 'members', 'membersUsed', 'all unused class data members'),
  ('v', 0, 'var', 'allVariablesUsed', 'all unused module variables'),
  ('p', 0, 'privatevar', 'privateVariableUsed', 'unused private module variables'),
  ('g', 0, 'allglobals', 'reportAllGlobals', 'report each occurrence of global warnings'),
@@ -177,6 +178,7 @@ class Config :
         self.reportAllGlobals = 0
         self.allVariablesUsed = 0
         self.privateVariableUsed = 1
+        self.membersUsed = 0
         self.importUsed = 1
         self.reimportSelf = 1
         self.moduleImportErrors = 1

@@ -275,7 +275,12 @@ def _classHasAttribute(c, attr) :
             hasattr(c.classObject, attr))
 
 def _checkClassAttribute(attr, c, code) :
-    if not _classHasAttribute(c, attr) and cfg().classAttrExists :
+    if _classHasAttribute(c, attr) :
+        try :
+            del c.memberRefs[attr]
+        except KeyError :
+            pass
+    elif cfg().classAttrExists :
         code.addWarning(msgs.INVALID_CLASS_ATTR % attr)
 
 def _checkModuleAttribute(attr, module, code, ref) :

@@ -178,6 +178,7 @@ class Class :
         self.members = { '__class__': types.ClassType,
                          '__doc__': types.StringType,
                          '__dict__': types.DictType, }
+        self.memberRefs = {}
 
     def getFirstLine(self) :
         "Return first line we can find in THIS class, not any base classes"
@@ -229,7 +230,9 @@ class Class :
                 self.addMethod(token.im_func, classObject.__name__, classToken)
             else :
                 self.members[classToken] = type(token)
+                self.memberRefs[classToken] = None
 
+        self.cleanupMemberRefs()
         # add standard methods
         for methodName in ('__class__',) :
             self.addMethod(methodName, classObject.__name__)
@@ -262,8 +265,16 @@ class Class :
                             if len(stack) > 1 :
                                 value = type(stack[-2])
                             self.members[operand] = value
+                            self.memberRefs[operand] = None
                         stack = []
 
+        self.cleanupMemberRefs()
+
+    def cleanupMemberRefs(self) :
+        try :
+            del self.memberRefs['__pychecker__']
+        except KeyError :
+            pass
 
 def importError(moduleName, info):
     # detail may contain a newline replace with - 

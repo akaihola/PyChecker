@@ -17,6 +17,7 @@ VAR_NOT_USED = "Variable (%s) not used"
 IMPORT_NOT_USED = "Imported module (%s) not used"
 UNUSED_LOCAL = "Local variable (%s) not used"
 UNUSED_PARAMETER = "Parameter (%s) not used"
+UNUSED_MEMBERS = "Members (%s) not used in class (%s)"
 NO_LOCAL_VAR = "No local variable (%s)"
 VAR_USED_BEFORE_SET = "Variable (%s) used before being set"
 
