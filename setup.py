@@ -15,6 +15,12 @@ import tempfile
 from distutils.core import setup
 from distutils import sysconfig
 
+def remove_file(file):
+    try :
+        os.unlink(file)
+    except :
+        pass
+
 if __name__ == '__main__' :
     DOC_FILES = ('COPYRIGHT', 'README', 'VERSION', 'CHANGELOG', 'KNOWN_BUGS', 
                  'MAINTAINERS', 'TODO',)
@@ -25,16 +31,12 @@ dynamic languages, like C and C++. Because of the dynamic nature of python,
 some warnings may be incorrect; however, spurious warnings should be
 fairly infrequent."""
 
-    script_suffix = 'sh'
+    script_suffix = ''
     if sys.platform == 'win32' :
-        script_suffix = 'bat'
-    LOCAL_SCRIPT = 'pychecker.' + script_suffix
-    if not os.access(LOCAL_SCRIPT, os.W_OK) :
-        LOCAL_SCRIPT = os.path.join(tempfile.gettempdir(), LOCAL_SCRIPT)
-    try :
-        os.unlink(LOCAL_SCRIPT)
-    except :
-        pass
+        script_suffix = '.bat'
+    LOCAL_SCRIPT = 'pychecker' + script_suffix
+    LOCAL_SCRIPT = os.path.join(tempfile.gettempdir(), LOCAL_SCRIPT)
+    remove_file(LOCAL_SCRIPT)
 
     install_dir = sysconfig.get_python_lib() + os.sep + 'pychecker'
     checker_py = install_dir + os.sep + 'checker.py'
@@ -66,4 +68,7 @@ fairly infrequent."""
           scripts               = [ LOCAL_SCRIPT, ],
           long_description      = LONG_DESCRIPTION
          )
+
+    # cleanup old script file, it should have been installed
+    remove_file(LOCAL_SCRIPT)
 
