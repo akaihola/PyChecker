@@ -1,8 +1,8 @@
 tests/global.py:1 Identifier (x) not used
 tests/global.py:1 Unknown identifier: y
 
-tests/import.py:1 Identifier (args) not used
 tests/import.py:1 Identifier (getopt) not used
+tests/import.py:5 Unknown identifier: __all__
 
 tests/op.py:2 Operator (++) doesn't exist, statement has no effect
 tests/op.py:4 Scope (g) is redefined at line 7
