@@ -26,6 +26,17 @@ Items still missing:
 
         Speed
 
+Bugs:
+        def f(a, b, c):
+            lambda a=a, b=b, c=c: return a+b+c
+
+            Produces warnings about redefining a, b and c.  Happens
+            with default variables a lot, too.  Pychecker works as
+            intended, but this is a common idiom.
+
+        Assigning to globals in local scope should mark them as used
+        Argument unpacking doesn't mark a name as used
+
 Important stuff:
 
 If you want to add new checks, there are some parts to be aware of:
