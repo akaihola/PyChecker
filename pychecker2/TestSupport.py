@@ -38,10 +38,13 @@ class WarningTester(unittest.TestCase):
             os.unlink(fname)
         return f
 
-    def warning(self, test, line, warning, *args):
-        f = self.check_file(test)
+    def warning_file(self, f, line, warning, *args):
         assert len(f.warnings) == 1, "More than one warning:" + `f.warnings`
         self.check_warning(f.warnings[0], line, warning, *args)
+
+    def warning(self, test, line, warning, *args):
+        f = self.check_file(test)
+        self.warning_file(f, line, warning, *args)
 
     def silent(self, test):
         f = self.check_file(test)
