@@ -5,3 +5,8 @@ import getopt                           # unused
 def f(v):
     v.append(join(foo))                 # join from os.path
     v.append(__all__)                   # __all__ is unknown
+
+x = 7
+if x == 100:
+    from xYzZy import *
+    x = z

@@ -3,6 +3,7 @@ tests/badparse.py:1 Unable to parse: could not parse string
 tests/global.py:1 Identifier (x) not used
 
 tests/import.py:1 Identifier (getopt) not used
+tests/import.py:11 Error trying to import xYzZy: No module named xYzZy
 
 tests/not_there.py:[unknown line] Unable to parse: [Errno 2] No such file or directory: 'tests/not_there.py'
 

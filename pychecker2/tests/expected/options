@@ -4,6 +4,7 @@ Usage:
 available options:
 
 Error:
+ --no-importError       Report/ignore imports that may fail
  --no-operator          Check for (++) and (--) which are legal, but not useful
  --no-operatorPlus      Check for unary +
  --no-redefinedScope    Report redefined scopes
