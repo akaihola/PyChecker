@@ -400,6 +400,12 @@ def _findFunctionWarnings(module, globalRefs, warnings, suppressions) :
         if suppress is not None :
             utils.popConfig()
 
+# Create object for non-2.2 interpreters, any class object will do
+try:
+    if object: pass
+except NameError:
+    object = _SuppressionError
+
 def _findClassWarnings(module, c, class_code,
                        globalRefs, warnings, suppressions) :
     classSuppress = getSuppression(str(c.classObject), suppressions, warnings)
@@ -452,6 +458,17 @@ def _findClassWarnings(module, c, class_code,
         memberList.sort()
         err = msgs.UNUSED_MEMBERS % (string.join(memberList, ', '), c.name)
         warnings.append(Warning(filename, c.getFirstLine(), err))
+
+    slots = c.statics.get('__slots__')
+    if slots is not None and cfg().slots:
+        newStyleClass = issubclass(c.classObject, object)
+        lineNum = c.lineNums['__slots__']
+        if not newStyleClass:
+            err = msgs.USING_SLOTS_IN_CLASSIC_CLASS % c.name
+            warnings.append(Warning(filename, lineNum, err))
+        elif len(slots.data) == 0 and cfg().emptySlots:
+            err = msgs.EMPTY_SLOTS % c.name
+            warnings.append(Warning(filename, lineNum, err))
 
     if cfg().noDocClass and c.classObject.__doc__ == None :
         method = c.methods.get(utils.INIT, None)

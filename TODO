@@ -12,7 +12,7 @@ Goals for next major release (0.9):
 
 * Fix spurious warnings for unreachable code checks
 * Fix spurious warnings for (x and 'pass' or 'fail')
-* Handle __slots__ in Python 2.2
+* Check that classes with __slots__ don't set any other attributes
 * Fix most of the FIXMEs
 
 Longer Term goals:

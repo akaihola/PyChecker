@@ -65,6 +65,8 @@ _OPTIONS = (
  ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
  ('C', 0, 'implicitreturns', 'checkImplicitReturns', 'check if using implict and explicit return values'),
  ('O', 0, 'objattrs', 'checkObjectAttrs', 'check that attributes of objects exist'),
+ ('7', 0, 'slots', 'slots', 'various warnings about incorrect usage of __slots__'),
+ ( '', 0, 'emptyslots', 'emptySlots', 'check if __slots__ is empty'),
  ('D', 0, 'intdivide', 'intDivide', 'check if using integer division'),
  ('w', 0, 'shadow', 'shadows', 'check if local variable shadows a global'),
      ]),
@@ -221,6 +223,8 @@ class Config :
         self.maxLocals = 40
         self.maxReferences = 5
 
+        self.slots = 1
+        self.emptySlots = 1
         self.checkObjectAttrs = 1
         self.checkReturnValues = 1
         self.checkImplicitReturns = 1
@@ -312,6 +316,10 @@ def errors_only() :
 
 def printArg(shortArg, longArg, description, defaultValue, useValue) :
     defStr = ''
+    shortArgStr = '   '
+    if shortArg:
+        shortArgStr = '-%s,' % shortArg
+
     if defaultValue != None :
         if not useValue :
             if defaultValue :
@@ -319,7 +327,7 @@ def printArg(shortArg, longArg, description, defaultValue, useValue) :
             else :
                 defaultValue = 'off'
         defStr = ' [%s]' % defaultValue
-    args = "-%s, --%s" % (shortArg, longArg)
+    args = "%s --%s" % (shortArgStr, longArg)
     print "  %-18s %s%s" % (args, description, defStr)
 
 def usage(cfg = None) :

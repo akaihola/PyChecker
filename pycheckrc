@@ -48,6 +48,9 @@ membersUsed = 0
 # bool: warn when Subclass.__init__ is not called in a subclass
 baseClassInitted = 1
 
+# bool: warn when Subclass needs to override methods that only throw exceptions
+abstractClasses = 1
+
 # bool: warn when __init__ is defined in a subclass
 initDefinedInSubclass = 0
 
@@ -123,6 +126,12 @@ debug = 0
 
 # bool: check that attributes of objects exist
 checkObjectAttrs = 1
+
+# bool: various warnings about incorrect usage of __slots__
+slots = 1
+
+# bool: check if __slots__ is empty
+emptySlots = 1
 
 # bool: check for integer division (may be problem between Python versions)
 intDivide = 1
