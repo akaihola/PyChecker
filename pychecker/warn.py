@@ -30,6 +30,9 @@ def _checkSelfArg(method, warnings) :
     """Return a Warning if there is no self parameter or
        the first parameter to a method is not self."""
 
+    if not cfg().methodArgName:
+        return
+
     code = method.function.func_code
     err = None
     if code.co_argcount < 1 :
