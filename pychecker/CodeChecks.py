@@ -111,7 +111,7 @@ def _getFunction(module, stackValue) :
         return _getReferenceFromModule(module, identifier[-1])
 
     # we can't handle self.x.y
-    if (i+2) == maxLen and identifier[0] == cfg().methodArgName :
+    if (i+2) == maxLen and identifier[0] == cfg().methodArgName:
         return None, None, 0
 
     c = module.classes.get(identifier[-2], None)
@@ -270,7 +270,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
     funcName = loadValue.getName()
     returnValue = Stack.makeFuncReturnValue(loadValue, argCount)
 
-    if loadValue.isMethodCall(codeSource.classObject, cfg().methodArgName) :
+    if loadValue.isMethodCall(codeSource.classObject, cfg().methodArgName):
         methodName = loadValue.data[1]
         try :
             m = codeSource.classObject.methods[methodName]
@@ -328,7 +328,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                 
                     elif argCount > 0 and cfg().methodArgName and \
                          code.stack[funcIndex].type == Stack.TYPE_ATTRIBUTE and \
-                         code.stack[funcIndex+1].data != cfg().methodArgName :
+                         code.stack[funcIndex+1].data != cfg().methodArgName:
                         code.addWarning(msgs.SELF_NOT_FIRST_ARG % cfg().methodArgName)
             elif refClass and method :
                 returnValue = Stack.Item(loadValue, refClass)
@@ -1063,7 +1063,7 @@ def _checkExcessiveReferences(code, top, extraAttr = None) :
             data = data + (extraAttr,)
         
         maxReferences = cfg().maxReferences
-        if data[0] == cfg().methodArgName :
+        if data[0] == cfg().methodArgName:
             maxReferences = maxReferences + 1
         if len(data) > maxReferences :
             name = string.join(top.data, '.')
@@ -1473,7 +1473,7 @@ def _FOR_ITER(oparg, operand, codeSource, code) :
 def _jump(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
         topOfStack = code.stack[-1]
-        if topOfStack.isMethodCall(codeSource.classObject, cfg().methodArgName) :
+        if topOfStack.isMethodCall(codeSource.classObject, cfg().methodArgName):
             name = topOfStack.data[-1]
             if codeSource.classObject.methods.has_key(name) :
                 code.addWarning(msgs.USING_METHOD_AS_ATTR % name)

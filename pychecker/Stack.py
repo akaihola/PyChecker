@@ -50,7 +50,7 @@ class Item :
     def isImplicitNone(self) :
         return self.data is None and self.const
 
-    def isMethodCall(self, c, methodArgName) :
+    def isMethodCall(self, c, methodArgName):
         return self.type == TYPE_ATTRIBUTE and c != None and \
                len(self.data) == 2 and self.data[0] == methodArgName
 

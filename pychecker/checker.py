@@ -294,7 +294,7 @@ class Class :
                     stack.append(operand)
                 elif OP.STORE_ATTR(op) :
                     if len(stack) > 0 :
-                        if stack[-1] == cfg().methodArgName :
+                        if stack[-1] == cfg().methodArgName:
                             value = None
                             if len(stack) > 1 :
                                 value = type(stack[-2])
