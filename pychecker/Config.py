@@ -266,7 +266,8 @@ class Config :
             for key, value in dict.items() :
                 if self.__dict__.has_key(key) :
                     self.__dict__[key] = value
-                elif key not in ('suppressions', 'suppressionRegexs') :
+                elif key not in ('suppressions', 'suppressionRegexs') and \
+                     key[0] != '_':
                     print "Warning, option (%s) doesn't exist, ignoring" % key
 
             suppressions = _getSuppressions('suppressions', dict, filename)
