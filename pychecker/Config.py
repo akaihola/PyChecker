@@ -16,7 +16,8 @@ _RC_FILE = ".pycheckrc"
 CHECKER_VAR = '__pychecker__'
 
 _DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", "gtk", "GTK", "GDK", ]
-_DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__all__', ]
+_DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__',
+                                  '__all__', ]
 
 _OPTIONS = [ 
  ('e', 0, 'errors', None, 'turn off all warnings which are not likely errors'),
