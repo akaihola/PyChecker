@@ -1,4 +1,5 @@
 *ok.text: Ok
 *cancel.text: Cancel
 *default.text: Reset
-
+*helpBox.wrapLength: 400
+*helpBox.height: 2
