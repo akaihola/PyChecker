@@ -5,7 +5,7 @@ def f1(test):
     return test and 'true' or 'false'
 
 def f2(test):
-    'should warn about None'
+    'should not warn about None'
     return test and 'true' or None
 
 def f3(test):

@@ -293,7 +293,8 @@ special = {
     '__neg__': 1,     '__pos__': 1,     '__abs__': 1,     '__invert__': 1,
     '__complex__': 1, '__int__': 1,     '__long__': 1,    '__float__': 1,
     '__oct__': 1,     '__hex__': 1,     '__coerce__': 2,
-    '__getinitargs__': 1,
+    '__new__': None,
+    '__getinitargs__': 1, '__reduce__': 1,
     '__getstate__': 1,'__setstate__': 2,
     '__copy__': 1,    '__deepcopy__': 1,
     '__pow__': 2,     '__ipow__': 2,    # 2 or 3

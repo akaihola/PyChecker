@@ -2,7 +2,9 @@ Processing test87...
 
 Warnings...
 
+test_input/test87.py:3: (True) shadows builtin
 test_input/test87.py:3: Should not assign to True, it is (or will be) a builtin
+test_input/test87.py:4: (False) shadows builtin
 test_input/test87.py:4: Should not assign to False, it is (or will be) a builtin
 test_input/test87.py:6: Should not assign to true, it is similar to builtin True
 test_input/test87.py:7: Should not assign to false, it is similar to builtin False

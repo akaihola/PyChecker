@@ -3,8 +3,9 @@
 TESTS="test_input/test[1-9]*.py"
 # comment out to use python from path
 PYTHON="python"
-# PYTHON="$HOME/build/python/dist/src/python"
-# PYTHON="/usr/bin/python"
+#PYTHON="$HOME/build/python/clean/python"
+# PYTHON="$HOME/build/python/2.2/python"
+#PYTHON="/usr/bin/python"
 # PYTHON="$PYTHON -tt coverage.py -x"
 
 if [ $# -gt 0 ]; then

@@ -2,5 +2,11 @@
 suppressions = { 'test39': 'no-moduledoc', 'test39.func2': 'funcdoc',
 		 'test39.X1': 'no-classdoc', 'test39.X2.x': 'self="s"' }
 
+_compiler_suppressions = 'no-shadow no-classattr no-badexcept'
 suppressionRegexs = { 'test39.Y.': 'no-classdoc', 
-		      'test39.Y..a': 'funcdoc', }
+		      'test39.Y..a': 'funcdoc',
+		      'RestrictedPython.compiler_2_1.*': _compiler_suppressions,
+		      'RestrictedPython.*': _compiler_suppressions,
+		      'compiler.*': _compiler_suppressions,
+		      'Tkinter.*': 'no-shadow',
+		    }
