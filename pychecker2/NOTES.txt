@@ -30,6 +30,7 @@ Bugs:
         Is __file__ a builtin?
         locals() should use locals
         globals() should use globals
+        exec may use locals/globals
 
         attributes defined from inherited classes from other modules 
            are treated as undefined
@@ -42,6 +43,10 @@ Bugs:
 
         foo = 1
         del foo	                        # should not be unused
+
+        from __future__ import produces unused warnings
+        import of readline has side effect on input/raw_input, and should be
+           marked as used
 
 Important stuff:
 
