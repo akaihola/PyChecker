@@ -116,7 +116,7 @@ def _checkFunctionArgs(func, argCount, kwArgCount, lastLineNum) :
 def _addWarning(warningList, warning) :
     if warning != None :
         if type(warning) == types.ListType :
-            warningList = warningList + warning
+            warningList.extend(warning)
         else :
             warningList.append(warning)
 
@@ -353,15 +353,15 @@ def find(moduleList, cfg = None) :
 
             _addWarning(warnings, _checkNoSelfArg(func))
             newWarnings, newGlobalRefs, funcs = _checkFunction(module, func)
-            warnings = warnings + newWarnings
+            warnings.extend(newWarnings)
             globalRefs.update(newGlobalRefs)
 
         for c in module.classes.values() :
             for base in c.allBaseClasses() :
                 baseModule = str(base)
                 if '.' in baseModule :
-		    s = string.split(baseModule, '.')
-                    globalRefs[s[0]] = baseModule
+                    baseModuleDir = string.split(baseModule, '.')[0]
+                    globalRefs[baseModuleDir] = baseModule
 
             func_code = None
             for method in c.methods.values() :
@@ -379,18 +379,17 @@ def find(moduleList, cfg = None) :
                 _addWarning(warnings, _checkSelfArg(method))
                 newWarnings, newGlobalRefs, functionsCalled = \
                                         _checkFunction(module, method, c)
+                warnings.extend(newWarnings)
+                globalRefs.update(newGlobalRefs)
 
                 if func_code.co_name == '__init__' :
                     if '__init__' in dir(c.classObject) :
-                        warnings = warnings + _checkBaseClassInit(moduleFilename, c,
-                                                   func_code, functionsCalled)
+                        warnings.extend(_checkBaseClassInit(moduleFilename, c,
+                                                   func_code, functionsCalled))
                     else :
                         warn = Warning(moduleFilename, c.getFirstLine(),
                                        _NO_INIT_IN_SUBCLASS % c.name)
                         warnings.append(warn)
-
-                warnings = warnings + newWarnings
-                globalRefs.update(newGlobalRefs)
 
             if cfg.noDocClass and c.classObject.__doc__ == None :
                 method = c.methods.get('__init__', None)
@@ -409,11 +408,11 @@ def find(moduleList, cfg = None) :
                 prefix = "_"
             for ignoreVar in [ '__version__', '__all__', ] :
                 globalRefs[ignoreVar] = ignoreVar
-            warnings = warnings + _getUnused(moduleFilename, globalRefs,
-                                   module.variables, _VAR_NOT_USED, prefix)
+            warnings.extend(_getUnused(moduleFilename, globalRefs,
+                                    module.variables, _VAR_NOT_USED, prefix))
         if cfg.importUsed :
-            warnings = warnings + _getUnused(moduleFilename, globalRefs,
-                                   module.modules, _IMPORT_NOT_USED)
+            warnings.extend(_getUnused(moduleFilename, globalRefs,
+                                   module.modules, _IMPORT_NOT_USED))
 
     blacklist = []
     for badBoy in cfg.blacklist :
