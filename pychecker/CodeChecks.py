@@ -419,7 +419,7 @@ def _handleComparison(stack, operand) :
     for _ in range(si, 2) :
         compareValues.append(None)
     stack[-si:] = [ Stack.makeComparison(compareValues, operand) ]
-
+    return compareValues
 
 def _handleImport(code, operand, module, main, fromName) :
     # FIXME: this function should be refactored/cleaned up
@@ -1075,8 +1075,56 @@ def _DELETE_ATTR(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
         _checkAttribute(code.stack[-1], operand, codeSource, code)
 
+def _getExceptionInfo(codeSource, item):
+    # FIXME: probably ought to try to handle raise module.Error
+    if item.type is types.StringType and item.const == 1:
+        return item.data, 1
+
+    e = None
+    if item.type is Stack.TYPE_GLOBAL:
+        try:
+            e = eval(item.data)
+        except NameError:
+            pass
+
+    if not e:
+        c = codeSource.module.classes.get(item.data)
+        if c is not None:
+            e = c.classObject
+        else:
+            v = codeSource.module.variables.get(item.data)
+            if v is not None:
+                return v, 1
+    return e, 0
+
+_UNCHECKABLE_CATCH_TYPES = (Stack.TYPE_UNKNOWN, Stack.TYPE_ATTRIBUTE)
+def _checkCatchException(codeSource, code, item):
+    if not cfg().badExceptions:
+        return
+
+    if item.data is None or item.type in _UNCHECKABLE_CATCH_TYPES:
+        return
+
+    e, is_str = _getExceptionInfo(codeSource, item)
+    if is_str:
+        code.addWarning(msgs.CATCH_STR_EXCEPTION % item.data)
+    elif e is not None and not _isexception(e):
+        code.addWarning(msgs.CATCH_BAD_EXCEPTION % item.data)
+
+def _handleExceptionChecks(codeSource, code, checks):
+    for item in checks:
+        if item is not None:
+            if item.type is not types.TupleType:
+                _checkCatchException(codeSource, code, item)
+            else:
+                for ti in item.data:
+                    if isinstance(ti, Stack.Item):
+                        _checkCatchException(codeSource, code, ti)
+
 def _COMPARE_OP(oparg, operand, codeSource, code) :
-    _handleComparison(code.stack, operand)
+    compareValues = _handleComparison(code.stack, operand)
+    if operand is OP.EXCEPT_COMPARE:
+        _handleExceptionChecks(codeSource, code, compareValues)
 
 def _IMPORT_NAME(oparg, operand, codeSource, code) :
     code.pushStack(Stack.Item(operand, types.ModuleType))
@@ -1101,14 +1149,19 @@ def _DUP_TOP(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
         code.pushStack(code.stack[-1])
 
-def _pop2(oparg, operand, codeSource, code) :
+def _popn(code, n) :
     if len(code.stack) >= 2 :
         loadValue = code.stack[-2]
         if cfg().modifyDefaultValue and loadValue.type == types.StringType :
             _checkModifyDefaultArg(code, loadValue.data)
 
-    code.popStackItems(2)
-_STORE_SUBSCR = _DELETE_SUBSCR = _pop2
+    code.popStackItems(n)
+    
+def _DELETE_SUBSCR(oparg, operand, codeSource, code) :
+    _popn(code, 2)
+
+def _STORE_SUBSCR(oparg, operand, codeSource, code) :
+    _popn(code, 3)
 
 def _CALL_FUNCTION(oparg, operand, codeSource, code) :
     _handleFunctionCall(codeSource, code, oparg)
@@ -1135,6 +1188,11 @@ def _BUILD_TUPLE(oparg, operand, codeSource, code) :
 def _BUILD_LIST(oparg, operand, codeSource, code) :
     _makeConstant(code, oparg, Stack.makeList)
 
+def _BUILD_CLASS(oparg, operand, codeSource, code) :
+    newValue = Stack.makeFuncReturnValue(code.stack[-1], types.ClassType)
+    code.popStackItems(3)
+    code.pushStack(newValue)
+    
 def _UNARY_CONVERT(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
         stackValue = code.stack[-1]
@@ -1436,28 +1494,22 @@ def _EXEC_STMT(oparg, operand, codeSource, code) :
             code.addWarning(msgs.USES_EXEC)
 
 def _checkStrException(code, varType, item):
-    if varType is types.StringType and cfg().badExceptions:
+    if varType is types.StringType:
         code.addWarning(msgs.RAISE_STR_EXCEPTION % item.data)
-    
+
 def _RAISE_VARARGS(oparg, operand, codeSource, code) :
     code.addRaise()
+    if not cfg().badExceptions:
+        return
+
     if oparg > 0 and len(code.stack) >= oparg:
         item = code.stack[-oparg]
         if item.type not in (Stack.TYPE_FUNC_RETURN, Stack.TYPE_UNKNOWN):
             if item.type is Stack.TYPE_GLOBAL:
-                # FIXME: probably ought to try to handle raise module.Error
-                e = None
-                try:
-                    e = eval(item.data)
-                except NameError:
-                    c = codeSource.module.classes.get(item.data)
-                    if c is not None:
-                        e = c.classObject
-                    else:
-                        v = codeSource.module.variables.get(item.data)
-                        if v is not None:
-                            _checkStrException(code, v.type, item)
-                if e is not None and not _isexception(e) and cfg().badExceptions:
+                e, is_str = _getExceptionInfo(codeSource, item)
+                if is_str:
+                    _checkStrException(code, e.type, item)
+                elif e is not None and not _isexception(e):
                     code.addWarning(msgs.RAISE_BAD_EXCEPTION % item.data)
             else:
                 _checkStrException(code, item.getType(code.typeMap), item)
@@ -1495,6 +1547,7 @@ DISPATCH[ 83] = _RETURN_VALUE
 DISPATCH[ 84] = _IMPORT_STAR
 DISPATCH[ 85] = _EXEC_STMT
 DISPATCH[ 88] = _END_FINALLY
+DISPATCH[ 89] = _BUILD_CLASS
 DISPATCH[ 90] = _STORE_NAME
 DISPATCH[ 91] = _DELETE_NAME
 DISPATCH[ 92] = _UNPACK_SEQUENCE

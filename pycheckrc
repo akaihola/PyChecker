@@ -78,6 +78,10 @@ unpackNonSequence = 1
 # bool: warn when setting a tuple of variables to the wrong size (a, b = 1,)
 unpackSize = 1
 
+# bool: warn when using strings exceptions or 
+#       other classes not derived from Exception to raise/catch exceptions
+badExceptions = 1
+
 # bool: warn when the class attribute does not exist
 classAttrExists = 1
 

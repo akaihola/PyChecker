@@ -49,6 +49,8 @@ _HAS_JABS = (113, 119,)
 _CMP_OP =  ('<', '<=', '==', '!=', '>', '>=', 'in', 'not in', 'is',
             'is not', 'exception match', 'BAD')
 
+EXCEPT_COMPARE = _CMP_OP[10]
+
 def getOperand(op, func_code, oparg) :
     if op in _HAS_NAME :
         return func_code.co_names[oparg]
