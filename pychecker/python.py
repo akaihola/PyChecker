@@ -265,3 +265,34 @@ BUILTIN_ATTRS = { types.StringType : dir(''),
 
 # have to setup the rest this way to support different versions of Python
 _setupBuiltinAttrs()
+
+DEPRECATED_MODULES = { 'audioop': None, 'FCNTL': 'fcntl', 'gopherlib': None,
+                       'posixfile': 'fcntl', 'pre': None, 'regsub': 're',
+                       'statcache': 'os.stat()',
+                       'stringold': None, 'tzparse': None,
+                       'TERMIOS': 'termios', 'whrandom':'random',
+                       'xmllib': 'xml.sax',
+
+                       # C Modules
+                       'mpz': None, 'pcre': None, 'pypcre': None,
+                       'rgbimg': None, 'strop': None, 
+                     }
+DEPRECATED_ATTRS = { 'array.read': None, 'array.write': None,
+                     'operator.isCallable': None,
+                     'operator.sequenceIncludes': None,
+                     'pty.master_open': None, 'pty.slave_open': None,
+                     'rfc822.AddrlistClass': 'rfc822.AddressList',
+                     'string.atof': None, 'string.atoi': None,
+                     'string.atol': None, 'string.zfill': None,
+                     'sys.exc_traceback': None, 'sys.exit_thread': None,
+                     'tempfile.template': None,
+                   }
+
+# FIXME: can't check these right now, maybe later
+DEPRECATED_METHODS = { 
+                       'htmllib.HTMLParser.do_nextid': None,
+                       'pstats.Stats.ignore': None,
+                     }
+
+_OS_AND_POSIX_FUNCS = { 'tempnam': None, 'tmpnam': None }
+SECURITY_FUNCS = { 'os' : _OS_AND_POSIX_FUNCS, 'posix': _OS_AND_POSIX_FUNCS }

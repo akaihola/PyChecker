@@ -113,3 +113,8 @@ EMPTY_SLOTS = "__slots__ are empty in %s"
 USES_EXEC = "Using the exec statement"
 USES_GLOBAL_EXEC = "Using the exec statement in global namespace"
 USES_INPUT = "Using input() is a security problem, consider using raw_input()"
+
+USING_DEPRECATED_MODULE = "Module %s is deprecated"
+USING_DEPRECATED_ATTR = "%s is deprecated"
+USING_INSECURE_FUNC = "%s() is a security problem"
+USE_INSTEAD = ", consider using %s"

@@ -1,4 +1,6 @@
 Version 0.8.11   - xx April 2002
+  * Add --deprecated option for using deprecated modules or functions
+  * Add a warning for using functions with security problems (os.t[e]mpnam)
   * Add a warning for comparing against True/False or defining True/False
   * Add --badexcept option to warn when using string exceptions or
         classes not derived from Exception to raise/catch exceptions

@@ -85,6 +85,7 @@ _OPTIONS = (
  ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules\n\t\t\t'),
  ('Z', 1, 'varlist', 'variablesToIgnore', 'ignore global variables not used if name is one of these values\n\t\t\t'),
  ('E', 1, 'unusednames', 'unusedNames', 'ignore unused locals/arguments if name is one of these values\n\t\t\t'),
+ ( '', 0, 'deprecated', 'deprecated', 'ignore use of deprecated modules/functions'),
      ]),
     ('Complexity', [
  ('L', 1, 'maxlines', 'maxLines', 'maximum lines in a function'),
@@ -222,6 +223,7 @@ class Config :
         self.unpackNonSequence = 1
         self.unpackLength = 1
         self.badExceptions = 1
+        self.deprecated = 1
 
         self.unusedNames = _DEFAULT_UNUSED_LIST
         self.variablesToIgnore = _DEFAULT_VARIABLE_IGNORE_LIST

@@ -429,6 +429,17 @@ def _handleImport(code, operand, module, main, fromName) :
         tmpOperand = tmpFromName = fromName
         key = (fromName, operand)
 
+    if cfg().deprecated:
+        try:
+            undeprecated = python.DEPRECATED_MODULES[tmpFromName]
+        except KeyError:
+            pass
+        else:
+            msg = msgs.USING_DEPRECATED_MODULE % tmpFromName
+            if undeprecated:
+                msg = msg + msgs.USE_INSTEAD % undeprecated
+            code.addWarning(msg)
+
     if cfg().reimportSelf and tmpOperand == module.module.__name__ :
         code.addWarning(msgs.IMPORT_SELF % tmpOperand)
 
@@ -1056,11 +1067,38 @@ def _checkExcessiveReferences(code, top, extraAttr = None) :
     except TypeError :
         pass
 
+def _checkDeprecated(code, identifierTuple):
+    # check deprecated module.function
+    try:
+        name = string.join(identifierTuple, '.')
+        undeprecated = python.DEPRECATED_ATTRS[name]
+    except (KeyError, TypeError):
+        pass
+    else:
+        msg = msgs.USING_DEPRECATED_ATTR % name
+        if undeprecated:
+            msg = msg + msgs.USE_INSTEAD % undeprecated
+        code.addWarning(msg)
+
 def _LOAD_ATTR(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
         top = code.stack[-1]
         _checkAttribute(top, operand, codeSource, code)
         top.addAttribute(operand)
+
+        if len(top.data) == 2:
+            if cfg().deprecated:
+                _checkDeprecated(code, top.data)
+
+            try:
+                insecure = python.SECURITY_FUNCS.get(top.data[0])
+            except TypeError:
+                pass
+            else:
+                if insecure and insecure.has_key(operand):
+                    func = string.join(top.data, '.')
+                    code.addWarning(msgs.USING_INSECURE_FUNC % func)
+
         nextOp = code.nextOpInfo()[0]
         if not OP.LOAD_ATTR(nextOp) :
             if OP.POP_TOP(nextOp) :

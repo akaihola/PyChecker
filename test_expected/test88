@@ -1,0 +1,9 @@
+Processing test88...
+
+Warnings...
+
+test_input/test88.py:7: Module whrandom is deprecated, consider using random
+test_input/test88.py:8: Module audioop is deprecated
+test_input/test88.py:16: os.tempnam() is a security problem
+test_input/test88.py:17: os.tmpnam() is a security problem
+test_input/test88.py:19: string.atof is deprecated
