@@ -508,7 +508,10 @@ def _findClassWarnings(module, c, class_code,
         err = msgs.UNUSED_MEMBERS % (string.join(memberList, ', '), c.name)
         warnings.append(Warning(filename, c.getFirstLine(), err))
 
-    newStyleClass = issubclass(c.classObject, object)
+    try:
+        newStyleClass = issubclass(c.classObject, object)
+    except TypeError:
+        newStyleClass = 0
 
     slots = c.statics.get('__slots__')
     if slots is not None and cfg().slots:
@@ -578,7 +581,7 @@ def find(moduleList, initialCfg, suppressions = None) :
 
         for c in module.classes.values() :
             _findClassWarnings(module, c, classCodes.get(c.name),
-                               globalRefs, warnings, suppressions)
+                                   globalRefs, warnings, suppressions)
 
         if cfg().noDocModule and \
            module.module != None and module.module.__doc__ == None :
