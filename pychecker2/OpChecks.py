@@ -37,8 +37,9 @@ class ExceptCheck(Check):
     def check(self, file, unused_checklist):
         class ExceptVisitor(BaseVisitor):
             def visitTryExcept(s, node):
-                if node.handlers[0][0] is None:
-                    file.warning(node, self.emptyExcept)
+                for exc, det, code in node.handlers:
+                    if exc is None:
+                        file.warning(code.nodes[0], self.emptyExcept)
                 s.visitChildren(node)
         if file.parseTree:        
             compiler.walk(file.parseTree, ExceptVisitor())
