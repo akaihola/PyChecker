@@ -28,7 +28,7 @@ Types of problems that can be found include:
 To use PyChecker, pass the python source files you want to check
 on the command line:
 
-	pychecker.sh file1.py file2.py ...
+	pychecker file1.py file2.py ...
 
 Note:  On Windows, use pychecker.bat.
 
@@ -39,18 +39,18 @@ If there are import dependencies in your source files, you should
 import those files first on the command line in order to get as many
 files checked as possible.
 
-PyChecker works with Python 1.5.2, 2.0, and 2.1.
+PyChecker works with Python 1.5.2, 2.0, 2.1, and 2.2.
 
 You can use the test files as examples:
 
-	pychecker.sh test_input/*.py
+	pychecker test_input/*.py
 
 If you want to change the default behaviour, you can pass command line options
 or define a .pycheckrc file.  For an example, look at pycheckrc.
 
 To show the available options, do:
 
-	pychecker.sh -h
+	pychecker -h
 
 If you want to suppress warnings on a module/function/class/method,
 you can define a suppressions dictionary in .pycheckrc.
@@ -59,14 +59,14 @@ Examples of keys are:  'module', 'module.function',
 
 You can also define suppressions in your code by doing:
 
-	__pychecker__ = 'no-namedargs maxlines=0 maxreturns=0'
+	__pychecker__ = 'no-namedargs maxreturns=0 unusednames=foo,bar'
 
 The format for __pychecker__ values and values in the suppressions dictionary
 are the same.  Dashes (--) are optional when preceding long option names.
 
 If you find a bug in PyChecker, meaning you see something like:
 
-	pychecker.sh myfile.py
+	pychecker myfile.py
 
 	myfile.py:13 INTERNAL ERROR -- STOPPED PROCESSING FUNCTION --
         Traceback (most recent call last):

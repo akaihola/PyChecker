@@ -59,7 +59,7 @@ you want to check on the command line:
 
 <p>
 <pre>
-	pychecker.sh file1.py file2.py ...
+	pychecker file1.py file2.py ...
 </pre>
 
 <p>
@@ -81,7 +81,7 @@ You can use the test files as examples:
 
 <p>
 <pre>
-	pychecker.sh test_input/*.py
+	pychecker test_input/*.py
 </pre>
 
 <p>
@@ -91,7 +91,7 @@ or define a .pycheckrc file.  For an example, look at
 
 <p>
 <pre>
-	pychecker.sh -h
+	pychecker -h
 </pre>
 
 will show the available options.
@@ -107,7 +107,7 @@ You can also define suppressions in your code by doing:
 
 <p>
 <pre>
-        __pychecker__ = 'no-namedargs maxlines=0 maxreturns=0'
+        __pychecker__ = 'no-namedargs maxreturns=0 unusednames=foo,bar'
 </pre>
 
 <p>
@@ -118,7 +118,7 @@ are the same.  Dashes (--) are optional when preceding long option names.
 If you find a bug in PyChecker, meaning you see something like:
 
 <pre>
-	pychecker.sh myfile.py
+	pychecker myfile.py
 
 	myfile.py:13 INTERNAL ERROR -- STOPPED PROCESSING FUNCTION --
         Traceback (most recent call last):
