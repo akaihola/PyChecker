@@ -142,6 +142,11 @@ def get_base_classes(scope, checker):
             result.extend(get_base_classes(base, checker))
     return result
 
+def conforms(a, b):
+    if len(a.node.argnames) != len(b.node.argnames):
+        return None
+    return a.node.kwargs == b.node.kwargs and a.node.varargs == b.node.varargs
+
 class AttributeCheck(Check):
     "check `self.attr' expressions for attr"
 
@@ -152,6 +157,10 @@ class AttributeCheck(Check):
     methodRedefined = Warning('Report the redefinition of class methods',
                               'Method %s defined at line %d in '
                               'class %s redefined')
+    signatureChanged = Warning('Report methods whose signatures do not '
+                               'match base class methods',
+                               'Signature does not match method '
+                               '%s in base class %s')
 
     def check(self, file, checker):
         def visit_with_self(Visitor, method):
@@ -168,10 +177,22 @@ class AttributeCheck(Check):
             attributes = {}             # "self.foo = " kinda things
             methods = {}                # methods -> scopes
             inherited = {}              # all class defs
+            
+            for m in _get_methods(scope):
+                attributes.update(visit_with_self(GetDefs, m))
+                methods[m.name] = m
+
             for base in [scope] + bases:
                 for m in _get_methods(base):
                     attributes.update(visit_with_self(GetDefs, m))
-                    methods[m.name] = methods.get(m.name, m)
+                    if m.name != "__init__" and \
+                       methods.has_key(m.name) and \
+                       not conforms(m, methods[m.name]):
+                        file.warning(methods[m.name].node,
+                                     self.signatureChanged,
+                                     m.name, base.name)
+                    else:
+                        methods[m.name] = m
                 inherited.update(base.defs)
 
             # complain about defs with the same name as methods

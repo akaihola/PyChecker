@@ -102,3 +102,16 @@ def zzzz(arg):
         def f(self):
             print self.x
     print L(), arg
+
+class Base:
+   def f(self, x): pass
+class Derived(Base):
+   def f(self): pass
+
+class Node(compiler.ast.Node):
+    def getChildren(self, x):
+        return x
+
+class Node2(compiler.ast.Slice):
+    def __init__(self):
+        return self
