@@ -12,9 +12,9 @@ import getopt
 import string
 import re
 
-
 _RC_FILE = ".pycheckrc"
 CHECKER_VAR = '__pychecker__'
+_VERSION = '0.9beta'
 
 _DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", "gtk", "GTK", "GDK", ]
 _DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__', 
@@ -117,7 +117,7 @@ def _getRCfile(filename) :
 
 
 _RC_FILE_HEADER = '''#
-# .pycheckrc file created by PyChecker %s
+# .pycheckrc file created by PyChecker v%s @ %s
 #
 # It should be placed in your home directory (value of $HOME).
 # If $HOME is not set, it will look in the current directory.
@@ -127,7 +127,7 @@ _RC_FILE_HEADER = '''#
 
 def outputRc(cfg) :
     import time
-    output = _RC_FILE_HEADER % time.ctime(time.time())
+    output = _RC_FILE_HEADER % (_VERSION, time.ctime(time.time()))
     for name, group in _OPTIONS :
         for opt in group:
             shortArg, useValue, longArg, member, description = opt
@@ -256,7 +256,7 @@ class Config :
                     continue
                 elif longArg == 'version' :
                     # FIXME: it would be nice to define this in only one place
-                    print '0.9beta'
+                    print _VERSION
                     sys.exit(0)
 
                 self.noDocModule = 0
@@ -338,3 +338,4 @@ def setupFromArgs(argList) :
     except UsageError :
         usage(cfg)
         raise
+
