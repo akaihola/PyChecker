@@ -18,6 +18,7 @@ Items still missing:
             now gives an 'unknown identifier "stdout"'
 
         Line numbers for where identifiers are defined.
+        Ignoring variables created as a result of tuple unpacking
             (This will probably entail a re-write of 
              compiler.symbol.SymbolVisitor)
 
