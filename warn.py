@@ -284,7 +284,12 @@ def _checkFunction(module, func, c = None) :
                                    _INVALID_GLOBAL % operand)
                     func.function.func_globals[operand] = operand
                 if module.modules.has_key(operand) :
-                    operand = eval("module.module.%s.__name__" % operand)
+                    try :
+                        # if there was from x import *, _ names aren't imported
+                        operand = eval("module.module.%s.__name__" % operand)
+                    except AttributeError :
+                        # it's ok, we can ignore
+                        pass
                 stack.append(operand)
             elif OP.STORE_GLOBAL(op) :
                 if not func.function.func_globals.has_key(operand) and \
