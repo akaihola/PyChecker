@@ -12,7 +12,7 @@ from distutils.core import setup
 
 if __name__ == '__main__' :
   setup(name		= "PyChecker",
-        version		= "0.4",
+        version		= "0.4beta",
         license		= "BSD-like",
         description	= "Python source code checking tool",
         author		= "Neal Norwitz, MetaSlash, Inc.",
