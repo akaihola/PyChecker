@@ -68,3 +68,17 @@ def func9(x):
     except:
         return 0
 
+def func10(x):
+    'should not produce a warning'
+    if x:
+        raise ValueError
+
+def func11(x):
+    'should not produce a warning'
+    if x:
+        raise ValueError
+    return 5
+
+def func12(x):
+    'should not produce a warning'
+    raise ValueError
