@@ -198,6 +198,9 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
 
     code = CodeChecks.Code()
     code.init(func)
+    if main:
+        for key in func.function.func_globals.keys():
+            code.unusedLocals[key] = -1
     codeSource = CodeChecks.CodeSource(module, func, c, main, in_class, code)
     try :
         _checkCode(code, codeSource)
