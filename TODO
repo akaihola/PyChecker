@@ -1,17 +1,20 @@
+Goals for next minor release (0.8.8):
+-------------------------------------
+* Check that classes with __slots__ don't set any other attributes
+* Handle sys.exit() as non-returnable condition
+* Read .pycheckrc from $HOME, ., and -F
+
 Goals for next major release (0.9):
 -----------------------------------
 * Improve handling when importing packages (ie, don't import modules)
   - Make a base class to handle stack operations
   - Override base class with classes to handle module scope, functions, etc.
   - Process module and create Module/Class/Function objects w/o dir(), etc.
-  - Finish tests: 44, 56
+  - Finish tests: 44
 
 * Fix spurious warnings for unreachable code checks
 * Fix spurious warnings for (x and 'pass' or 'fail')
-* Check that classes with __slots__ don't set any other attributes
 * Fix most of the FIXMEs
-* Handle sys.exit() as non-returnable condition
-* Read .pycheckrc from $HOME, ., and -F
 
 Longer Term goals:
 ------------------
@@ -32,13 +35,12 @@ Longer Term goals:
 * Add check that private functions are used in module/class
 * Add check for using object members outside of class
 * Add portability checks for win32/unix
-* Fix deriving from class by alias name
-
 * Add check for except: pass
+* Spell check doc strings
+
+# need to read source code for these:
 * Add check for implicit string concatentation
 * Add check for creating tuple when don't want a tuple, like: 1,
             or not creating tuple when want one, like: (1)
-
 * Find lines that end w/semi-colons (;)
-* Spell check doc strings
 
