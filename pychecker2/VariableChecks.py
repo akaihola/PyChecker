@@ -1,7 +1,7 @@
 from pychecker2.Check import Check
 from pychecker2.Options import Opt, BoolOpt
 from pychecker2.Warning import Warning
-from pychecker2.util import ScopeVisitor, flatten
+from pychecker2.util import flatten
 from pychecker2 import symbols
 
 import compiler
@@ -12,6 +12,31 @@ def _is_method(scope):
 
 def _is_self(scope, name):
     return _is_method(scope) and name in scope.node.argnames[:1]
+
+def is_arg_and_defaulted_to_same_name(name, scope):
+    if isinstance(scope, symbols.FunctionScope):
+        if name in scope.node.argnames and scope.node.defaults:
+            # compute default args
+            args = scope.node.argnames[:]
+            # knock off varags 
+            if scope.node.varargs:
+                args = args[:-1]
+            # knock off kwargs
+            if scope.node.kwargs:
+                args = args[:-1]
+            # take the last args as the defaults
+            args = args[-len(scope.node.defaults):]
+            try:
+                # get the corresponding default arg value
+                default = scope.node.defaults[args.index(name)]
+                # must be a Name node of the same name
+                if isinstance(default, compiler.ast.Name) and \
+                   default.name == name:
+                    return 1
+            except ValueError:
+                pass
+    return None
+
 
 class Parents:
     def __init__(self, scope):
@@ -32,7 +57,6 @@ class ShadowCheck(Check):
                             'Identifier (%s) shadows builtin', 0)
     shadowIdentifier = Warning('Report names already defined in outer scopes',
                                'Identifier (%s) shadows definition in scope %s')
-
     def check(self, file):
         # warn if any name defined in a scope is defined in a parent scope
         # or even the builtins
@@ -42,6 +66,8 @@ class ShadowCheck(Check):
                 continue
             for name in scope.defs:
                 if name in scope.globals:
+                    continue
+                if is_arg_and_defaulted_to_same_name(name, scope):
                     continue
                 if _is_self(scope, name):
                     continue
@@ -149,6 +175,7 @@ class UnknownCheck(Check):
     builtins = {}
     builtins.update(__builtins__)
     builtins['__builtins__'] = __builtins__
+    builtins['WindowsError'] = getattr(__builtins__, 'WindowsError', None)
 
     def check(self, file):
 
@@ -197,12 +224,18 @@ class UnpackCheck(Check):
             return
 
         class Visitor:
-            def visitAssTuple(self, node, *scopes):
+            def visitAssTuple(self, node):
                 for c in node.getChildNodes():
-                    try:
-                        scopes[0].uses[c.name] = node.lineno
-                    except AttributeError:
-                        pass
+                    n = node
+                    while n:
+                        try:
+                            file.scopes[n].uses[c.name] = node.lineno
+                            break
+                        except AttributeError:
+                            pass
+                        except KeyError:
+                            pass
+                        n = n.parent
             visitAssList = visitAssTuple
 
         # local args unpacked on the `def' line are used, too
@@ -215,5 +248,4 @@ class UnpackCheck(Check):
                                                                   scope.node)
 
         if file.root_scope:
-            compiler.walk(file.root_scope.node,
-                          ScopeVisitor(file.scopes, Visitor()))
+            compiler.walk(file.root_scope.node, Visitor())
