@@ -4,3 +4,4 @@ Warnings...
 
 test_input/test75.py:5: Using __slots__ in classic class A is not used by Python
 test_input/test75.py:14: __slots__ are empty in C
+test_input/test75.py:26: Using property (x) in classic class E may not work

@@ -1,4 +1,5 @@
 Version 0.8.9   - xx February 2002
+  * Add -3/--properties warning when using properties with classic classes
   * Add more warnings for statements with no effect
   * Fix spurious warning for format string problem when using % at module scope
   * Don't warn about inconsistent return types from __getattr[ibute]__

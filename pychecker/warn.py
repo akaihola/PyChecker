@@ -438,6 +438,18 @@ try:
 except NameError:
     object = _SuppressionError
 
+# Create PropertyType for pre-2.2.1 interpreters
+try:
+    PropertyType = getattr(types, 'PropertyType', None)
+    if PropertyType is None:
+        class C:
+            def getp(self): pass
+            p = property(getp)
+        PropertyType = type(C.p)
+        del C
+except NameError:
+    pass
+
 def _findClassWarnings(module, c, class_code,
                        globalRefs, warnings, suppressions) :
     classSuppress = getSuppression(str(c.classObject), suppressions, warnings)
@@ -492,9 +504,10 @@ def _findClassWarnings(module, c, class_code,
         err = msgs.UNUSED_MEMBERS % (string.join(memberList, ', '), c.name)
         warnings.append(Warning(filename, c.getFirstLine(), err))
 
+    newStyleClass = issubclass(c.classObject, object)
+
     slots = c.statics.get('__slots__')
     if slots is not None and cfg().slots:
-        newStyleClass = issubclass(c.classObject, object)
         lineNum = c.lineNums['__slots__']
         if not newStyleClass:
             err = msgs.USING_SLOTS_IN_CLASSIC_CLASS % c.name
@@ -502,6 +515,13 @@ def _findClassWarnings(module, c, class_code,
         elif len(slots.data) == 0 and cfg().emptySlots:
             err = msgs.EMPTY_SLOTS % c.name
             warnings.append(Warning(filename, lineNum, err))
+
+    if not newStyleClass and PropertyType is not None and \
+       cfg().classicProperties:
+        for static in c.statics.keys():
+            if type(getattr(c.classObject, static)) is PropertyType:
+                err = msgs.USING_PROPERTIES_IN_CLASSIC_CLASS % (static, c.name)
+                warnings.append(Warning(filename, c.lineNums[static], err))
 
     if cfg().noDocClass and c.classObject.__doc__ == None :
         method = c.methods.get(utils.INIT, None)

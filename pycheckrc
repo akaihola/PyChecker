@@ -1,4 +1,4 @@
-# Sample defaults file for PyChecker 0.8.8
+# Sample defaults file for PyChecker 0.8.9
 # This file should be called:  .pycheckrc
 # It should be placed in your home directory (value of $HOME).
 # If $HOME is not set, it will look in the current directory.
@@ -132,6 +132,9 @@ slots = 1
 
 # bool: check if __slots__ is empty
 emptySlots = 1
+
+# bool: check for using properties in classic classes
+classicProperties = 1
 
 # bool: check for integer division (may be problem between Python versions)
 intDivide = 1

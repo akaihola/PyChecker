@@ -1,4 +1,4 @@
-'test slots, this will only work in Python 2.2'
+'test slots & property, this will only work in Python 2.2'
 
 class A:
     'warn about using slots in classic classes'
@@ -17,6 +17,20 @@ try:
         "don't warn about using empty slots"
         __pychecker__ = '--no-emptyslots'
         __slots__ = ()
+
+    class E:
+        'this should generate a warning for using properties w/classic classes'
+        def getx(self):
+            print 'get x'
+            return 5
+        x = property(getx)
+
+    class F(object):
+        'this should not generate a warning for using properties'
+        def getx(self):
+            print 'get x'
+            return 5
+        x = property(getx)
 
 except NameError:
     print 'This should fail on Python versions prior to 2.2'

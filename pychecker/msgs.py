@@ -94,6 +94,7 @@ MODIFYING_DEFAULT_ARG = "Modifying parameter (%s) with a default value may have 
 USING_SELF_IN_REPR = "Using `self` in __repr__ method"
 USING_NONE_RETURN_VALUE = "Using the return value from (%s) which is always None"
 
+USING_PROPERTIES_IN_CLASSIC_CLASS = "Using property (%s) in classic class %s may not work"
 USING_SLOTS_IN_CLASSIC_CLASS = "Using __slots__ in classic class %s is not used by Python"
 EMPTY_SLOTS = "__slots__ are empty in %s"
 

@@ -65,6 +65,7 @@ _OPTIONS = (
  ('C', 0, 'implicitreturns', 'checkImplicitReturns', 'check if using implict and explicit return values'),
  ('O', 0, 'objattrs', 'checkObjectAttrs', 'check that attributes of objects exist'),
  ('7', 0, 'slots', 'slots', 'various warnings about incorrect usage of __slots__'),
+ ('3', 0, 'properties', 'classicProperties', 'using properties with classic classes'),
  ( '', 0, 'emptyslots', 'emptySlots', 'check if __slots__ is empty'),
  ('D', 0, 'intdivide', 'intDivide', 'check if using integer division'),
  ('w', 0, 'shadow', 'shadows', 'check if local variable shadows a global'),
@@ -229,6 +230,7 @@ class Config :
 
         self.slots = 1
         self.emptySlots = 1
+        self.classicProperties = 1
         self.checkObjectAttrs = 1
         self.checkReturnValues = 1
         self.checkImplicitReturns = 1
