@@ -7,7 +7,7 @@ Check python source code files for possible errors and print warnings
 
 Contact Info:
   http://pychecker.sourceforge.net/
-  pychecker@metaslash.com
+  pychecker-list@lists.sourceforge.net
 """
 
 import string

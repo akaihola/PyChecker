@@ -7,7 +7,7 @@ dynamic languages, like C and C++.  It is also similar to lint.
 
 Contact Info:
   http://pychecker.sourceforge.net/
-  pychecker@metaslash.com
+  pychecker-list@lists.sourceforge.net
 """
 
 # A version # to check against in the main module (checker.py)
