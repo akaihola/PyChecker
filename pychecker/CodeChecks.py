@@ -599,15 +599,16 @@ class Code :
         self.warnings.append(Warning.Warning(self.func_code, line, err))
 
     def popNextOp(self) :
+        oldIndex = self.index
         info = OP.getInfo(self.bytes, self.index, self.extended_arg)
         op, oparg, self.index, self.extended_arg = info
         if op < OP.HAVE_ARGUMENT :
-            utils.debug("  " + str(self.index) + " " + OP.name[op])
+            utils.debug("  %d %s" % (oldIndex, OP.name[op]))
             operand = None
         else :
             operand = OP.getOperand(op, self.func_code, oparg)
             self.label = label = OP.getLabel(op, oparg, self.index)
-            utils.debug("  " + str(self.index) + " " + OP.name[op], oparg, operand)
+            utils.debug("  %d %s" % (oldIndex, OP.name[op]), oparg, operand)
             if label != None :
                 if self.branches.has_key(label) :
                     self.branches[label] = self.branches[label] + 1
