@@ -1,6 +1,10 @@
 Version 0.8.15   - XX XXX 2005
   * Fix spurious warning when using tuples for exceptions
   * Fix spurious warning <stack> / <stack> 
+  * Fix spurious warnings for sets module about __cmp__, __hash__
+  * Changed abstract check to require raising NotImplementedError
+    rather than raising any error
+  * Fix spurious warnings for some instances of No class attribute found
 
 Version 0.8.14   - 6 June 2004
   * Fix spurious warning in Python 2.3+ when doing a,b = 1,2

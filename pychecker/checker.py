@@ -332,7 +332,14 @@ class Class :
             op, oparg, i, extended_arg = OP.getInfo(code, i, extended_arg)
             if op >= OP.HAVE_ARGUMENT :
                 operand = OP.getOperand(op, func_code, oparg)
-                if OP.LOAD_CONST(op) or OP.LOAD_FAST(op) :
+                if OP.LOAD_CONST(op) or OP.LOAD_FAST(op) or OP.LOAD_GLOBAL(op):
+                    stack.append(operand)
+                elif OP.LOAD_DEREF(op):
+                    try:
+                        operand = func_code.co_cellvars[oparg]
+                    except IndexError:
+                        index = oparg - len(func_code.co_cellvars)
+                        operand = func_code.co_freevars[index]
                     stack.append(operand)
                 elif OP.STORE_ATTR(op) :
                     if len(stack) > 0 :
