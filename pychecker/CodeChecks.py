@@ -127,8 +127,13 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
         if info is not None :
             if func_name == 'input' and cfg().usesInput:
                 code.addWarning(msgs.USES_INPUT)
-            if kwArgs :
-                code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW % func_name)
+            if kwArgs:
+                if len(info) < 4:
+                    code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW % func_name)
+                elif info[3]:
+                    for arg in kwArgs:
+                        if arg not in info[3]:
+                            code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW_ARG % (func_name, arg))
             elif check_arg_count :
                 _checkFunctionArgCount(code, func_name, argCount,
                                        info[1], info[2])

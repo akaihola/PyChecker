@@ -82,7 +82,7 @@ if utils.pythonVersion() >= utils.PYTHON_2_2 :
 
     GLOBAL_FUNC_INFO['classmethod'] = (types.MethodType, 1, 1)
     GLOBAL_FUNC_INFO['iter'] = (Stack.TYPE_UNKNOWN, 1, 2)
-    GLOBAL_FUNC_INFO['property'] = (Stack.TYPE_UNKNOWN, 0, 4)
+    GLOBAL_FUNC_INFO['property'] = (Stack.TYPE_UNKNOWN, 0, 4, ['getx', 'setx', 'delx', 'doc'])
     GLOBAL_FUNC_INFO['super'] = (Stack.TYPE_UNKNOWN, 1, 2)
     GLOBAL_FUNC_INFO['staticmethod'] = (types.MethodType, 1, 1)
 

@@ -51,6 +51,7 @@ INVALID_ARG_COUNT1 = "Invalid arguments to (%s), got %d, expected %d"
 INVALID_ARG_COUNT2 = "Invalid arguments to (%s), got %d, expected at least %d"
 INVALID_ARG_COUNT3 = "Invalid arguments to (%s), got %d, expected between %d and %d"
 FUNC_DOESNT_SUPPORT_KW = "Function (%s) doesn't support **kwArgs"
+FUNC_DOESNT_SUPPORT_KW_ARG = "Function (%s) doesn't support **kwArgs for name (%s)"
 FUNC_USES_NAMED_ARGS = "Function (%s) uses named arguments"
 
 BASE_CLASS_NOT_INIT = "Base class (%s) __init__() not called"
