@@ -512,10 +512,9 @@ def _findClassWarnings(module, c, class_code,
             err = msgs.EMPTY_SLOTS % c.name
             warnings.append(Warning(filename, lineNum, err))
 
-    if not newStyleClass and property is not None and \
-       cfg().classicProperties:
+    if not newStyleClass and property is not None and cfg().classicProperties:
         for static in c.statics.keys():
-            if type(getattr(c.classObject, static)) == property:
+            if type(getattr(c.classObject, static, None)) == property:
                 err = msgs.USING_PROPERTIES_IN_CLASSIC_CLASS % (static, c.name)
                 warnings.append(Warning(filename, c.lineNums[static], err))
 
