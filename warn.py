@@ -277,7 +277,15 @@ def _checkFunction(module, func, c = None) :
                     stack = []
             elif OP.LOAD_GLOBAL(op) :
                 debug("  load global", operand)
-                globalRefs[operand] = operand
+
+                # get the right name of global refs (for from XXX import YYY)
+                globalName = operand
+                opModule = func.function.func_globals.get(operand)
+                if opModule and isinstance(opModule, types.ModuleType) :
+                    globalName = opModule.__name__
+                # make sure we remember each global ref to check for unused
+                globalRefs[globalName] = operand
+
                 if not func.function.func_globals.has_key(operand) and \
                    not __builtins__.has_key(operand)  :
                     warn = Warning(func_code, lastLineNum,
