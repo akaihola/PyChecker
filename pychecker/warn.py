@@ -261,8 +261,9 @@ def _getUnused(module, globalRefs, dict, msg, filterPrefix = None) :
     for ref in dict.keys() :
         check = not filterPrefix or utils.startswith(ref, filterPrefix)
         if check and globalRefs.get(ref) == None :
-            lineInfo = module.moduleLineNums.get(ref, (module.filename(), 1))
-            warnings.append(Warning(lineInfo[0], lineInfo[1], msg % ref))
+            lineInfo = module.moduleLineNums.get(ref)
+            if lineInfo:
+                warnings.append(Warning(lineInfo[0], lineInfo[1], msg % ref))
     return warnings
 
 
