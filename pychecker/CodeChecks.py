@@ -478,7 +478,8 @@ def _getConstant(code, module, data) :
     return None
 
 _UNCHECKABLE_FORMAT_STACK_TYPES = \
-      (Stack.TYPE_UNKNOWN, Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,)
+      (Stack.TYPE_UNKNOWN, Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,
+       Stack.TYPE_GLOBAL,)
 
 def _getFormatString(code, codeSource) :
     if len(code.stack) <= 1 :
