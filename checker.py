@@ -64,9 +64,13 @@ def _getModules(arg_list) :
         # is it a .py file?
         if len(arg) > PY_SUFFIX_LEN and arg[-PY_SUFFIX_LEN:] == PY_SUFFIX:
             arg_dir = os.path.dirname(arg)
+            if arg_dir and not os.path.exists(arg) :
+                print 'File or pathname element does not exist: "%s"' % arg
+                continue
+
             module_name = os.path.basename(arg)[:-PY_SUFFIX_LEN]
             if arg_dir not in sys.path :
-                sys.path.append(arg_dir)
+                sys.path.insert(1, arg_dir)
 	    arg = module_name
         modules.append(arg)
 
@@ -92,7 +96,7 @@ def _findModule(name, path = sys.path) :
                 file, filename, smt = imp.find_module(m.__name__, path)
                 m = imp.load_module(p, file, filename, smt)
 
-            path = path + m.__path__
+            path.insert(1, m.__path__)
         else:
             if p is not packages[-1] :
                 raise ImportError, "No module named %s" % packages[-1]
@@ -357,7 +361,7 @@ def _printWarnings(warnings) :
 
 def main(argv) :
     if not '.' in sys.path :
-        sys.path.append('.')
+        sys.path.insert(1, '.')
 
     global _cfg
     _cfg, files = Config.setupFromArgs(argv[1:])

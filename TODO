@@ -1,4 +1,5 @@
 
+* Use a unique prefix for checker source filenames so they don't clash w/input
 * Fix sys.exc_value, etc. generating No attribute warning in except clause
 * Fix Local variable (xxx) not used, when have:  "%(xxx)s" % locals()
 * Check format strings: "%s %d" % (strValue, intValue)
@@ -11,7 +12,6 @@
 
 Eric's code review:
 
-* insert rather than append '.' to sys.path???
 * Fix (for i in list: if i in other_list: continue) by using filter func
 	(need to fix warn.py:find()/blacklist)
 * would it be simpler to treat self.f() as f(self)?
