@@ -1310,10 +1310,10 @@ def _COMPARE_OP(oparg, operand, codeSource, code) :
     elif cfg().isLiteral:
         # X is Y   or   X is not Y   comparison
         second_arg = code.stack[-1].data[2]
-        # FIXME: how should booleans should e handled, need to think about it
+        # FIXME: how should booleans be handled, need to think about it
 ##        if second_arg.const or (second_arg.type == Stack.TYPE_GLOBAL and
 ##                                second_arg.data in ['True', 'False']):
-        if second_arg.const:
+        if second_arg.const and second_arg.data is not None:
             data = second_arg.data
             if second_arg.type is types.DictType:
                 data = {}
