@@ -49,6 +49,12 @@ namedArgs = 1
 # str: name of 'self' parameter
 methodArgName = 'self'
 
+# bool: warn when method/function arguments are unused
+argumentsUsed = 1
+
+# bool: ignore if self is unused in methods
+ignoreSelfUnused = 0
+
 # bool:  check if an overriden method has the same signature
 #	 as base class method (__init__() methods are not checked)
 checkOverridenMethods = 1
