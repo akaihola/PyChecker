@@ -40,7 +40,6 @@ tests/shadow.py:19 Unknown identifier: c
 tests/shadow.py:19 Unknown identifier: d
 tests/shadow.py:22 Identifier (a) shadows definition in scope <ModuleScope: global>
 
-tests/unused.py:2 Identifier (a) not used
 tests/unused.py:6 Identifier (Test) not used
 
 tests/unusedImport.py:1 Identifier (sys) not used
