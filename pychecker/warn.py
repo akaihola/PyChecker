@@ -414,6 +414,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                     if not module.moduleLineNums.has_key(operand) and main :
                         filename = func_code.co_filename
                         module.moduleLineNums[operand] = (filename, lastLineNum)
+                    # FIXME: should pop off stack
                 elif OP.LOAD_CONST(op) :
                     stack.append(Stack.Item(operand, type(operand), 1))
                     if type(operand) == types.CodeType :
@@ -430,6 +431,13 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                                                      lastLineNum, topOfStack)
                     topOfStack.addAttribute(operand)
                 elif OP.IMPORT_NAME(op) :
+                    stack.append(Stack.Item(operand, type(operand)))
+                    warn = _handleImport(operand, module, func_code,
+                                         lastLineNum, main)
+                elif OP.IMPORT_FROM(op) :
+                    fromName = stack[-1].data
+                    del module.moduleLineNums[fromName]
+                    stack.append(Stack.Item(operand, type(operand)))
                     warn = _handleImport(operand, module, func_code,
                                          lastLineNum, main)
                 elif OP.UNPACK_SEQUENCE(op) :

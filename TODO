@@ -4,7 +4,6 @@
 * Add check that private functions are used in module/class
 * Check format strings: "%s %d" % (strValue, intValue)
 * Fix deriving from class by alias name
-* Fix using from XXX import YYY ; from XXX import ZZZ causing re-import warning
 * Fix checking files in standard library before local file
 * Fix sys.exc_value, etc. generating No attribute warning in except clause
 * Fix Local variable (xxx) not used, when have:  "%(xxx)s" % locals()
