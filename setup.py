@@ -18,7 +18,7 @@ from distutils import sysconfig
 if __name__ == '__main__' :
     DOC_FILES = [ 'COPYRIGHT', 'README', 'VERSION', ]
     LONG_DESCRIPTION = \
-"""PyChecker is a tool for finding common bugs in python source code.
+"""PyChecker is a tool for finding bugs in python source code.
 It finds problems that are typically caught by a compiler for less
 dynamic languages, like C and C++. Because of the dynamic nature of python,
 some warnings may be incorrect; however, spurious warnings should be
@@ -28,6 +28,8 @@ fairly infrequent."""
     if sys.platform == 'win32' :
         script_suffix = 'bat'
     LOCAL_SCRIPT = 'pychecker.' + script_suffix
+    if not os.access(LOCAL_SCRIPT, os.W_OK) :
+        LOCAL_SCRIPT = os.path.join('/tmp', LOCAL_SCRIPT)
     try :
         os.unlink(LOCAL_SCRIPT)
     except :
@@ -52,7 +54,7 @@ fairly infrequent."""
         raise
 
     setup(name                  = "PyChecker",
-          version               = "0.9beta",
+          version               = "0.8.1",
           license               = "BSD-like",
           description           = "Python source code checking tool",
           author                = "Neal Norwitz, MetaSlash, Inc.",

@@ -1,7 +1,10 @@
 
-Version 0.9	- xx August 2001
-  * Fix spurious warning (Base __init__() not called) when using *args or **kw
+Version 0.8.1	- 9 August 2001
   * Fix internal error when referencing a list constant:  [1,2,3][1]
+  * Fix internal error for Python 1.5 not catching unicode syntax error
+  * Fix deprecation warning for Python 2.2a1 with xrange
+  * Fix spurious warning (No module attribute) when doing import x.y as y
+  * Fix spurious warning (Base __init__() not called) when using *args or **kw
   * Fix 'No module attribute' warning when doing:  import foo.bar as bar
   * Spell overridden write
 
