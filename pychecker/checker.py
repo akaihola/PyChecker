@@ -58,7 +58,7 @@ def _flattenList(list) :
     
     return new_list
 
-def _getModules(arg_list) :
+def getModules(arg_list) :
     "Returns a list of module names that can be imported"
 
     new_arguments = []
@@ -358,7 +358,7 @@ class Module :
             self.main_code = function.create_from_file(file, filename, module)
 
 
-def _getAllModules() :
+def getAllModules() :
     "Returns a list of all modules that should be checked."
     modules = []
     for module in _allModules.values() :
@@ -372,7 +372,7 @@ _BUILTIN_MODULE_ATTRS = { 'sys': [ 'ps1', 'ps2', 'tracebacklimit',
                                  ],
                         }
 
-def _fixupBuiltinModules() :
+def fixupBuiltinModules() :
     for moduleName in sys.builtin_module_names :
         module = _allModules.get(moduleName, None)
         if module is not None :
@@ -401,6 +401,39 @@ def _printWarnings(warnings) :
         warning.output()
 
 
+def processFiles(files, cfg = None, pre_process_cb = None) :
+    # insert this here, so we find files in the local dir before std library
+    if sys.path[0] != '' :
+        sys.path.insert(0, '')
+
+    # ensure we have a config object, it's necessary
+    global _cfg
+    if cfg is not None :
+        _cfg = cfg
+    elif _cfg is None :
+        _cfg = Config.Config()
+
+    warnings = []
+    for moduleName in getModules(files) :
+        if callable(pre_process_cb) :
+            pre_process_cb(moduleName)
+        module = Module(moduleName)
+        if not module.load() :
+            w = warn.Warning(module.filename(), 1, "NOT PROCESSED UNABLE TO IMPORT")
+            warnings.append(w)
+    return warnings
+
+
+def getWarnings(files, cfg = None, suppressions = {}):
+    warnings = processFiles(files, cfg)
+    fixupBuiltinModules()
+    return warnings + warn.find(getAllModules(), _cfg, suppressions)
+
+
+def _print_processing(name) :
+    sys.stderr.write("Processing %s...\n" % name)
+
+
 def main(argv) :
     global _cfg
     _cfg, files, suppressions = Config.setupFromArgs(argv[1:])
@@ -410,20 +443,13 @@ def main(argv) :
     # insert this here, so we find files in the local dir before std library
     sys.path.insert(0, '')
 
-    importWarnings = []
-    for moduleName in _getModules(files) :
-        sys.stderr.write("Processing %s...\n" % moduleName)
-        module = Module(moduleName)
-        if not module.load() :
-            w = warn.Warning(module.filename(), 1, "NOT PROCESSED UNABLE TO IMPORT")
-            importWarnings.append(w)
-
-    _fixupBuiltinModules()
+    importWarnings = processFiles(files, _cfg, _print_processing)
+    fixupBuiltinModules()
     if _cfg.printParse :
-        for module in _getAllModules() :
+        for module in getAllModules() :
             printer.module(module)
 
-    warnings = warn.find(_getAllModules(), _cfg, suppressions)
+    warnings = warn.find(getAllModules(), _cfg, suppressions)
     print "\nWarnings...\n"
     if warnings or importWarnings :
         _printWarnings(importWarnings + warnings)
