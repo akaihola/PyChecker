@@ -309,13 +309,14 @@ def _checkFunction(module, func, c = None) :
             elif OP.CALL_FUNCTION(op) :
                 warn, funcCalled = _handleFunctionCall(module, func_code, c,
                                                     stack, oparg, lastLineNum)
-
-                tmpModuleName = None
-                if not (type(funcCalled) == types.TupleType and 
-                        sys.modules.has_key(funcCalled[0])) :
-                    tmpModuleName = module.moduleName
-                funcName = _getNameFromStack(funcCalled, tmpModuleName)
-                functionsCalled[funcName] = funcCalled
+                # funcCalled can be () in some cases (e.g., using a map())
+                if funcCalled :
+                    tmpModuleName = None
+                    if not (type(funcCalled) == types.TupleType and 
+                            sys.modules.has_key(funcCalled[0])) :
+                        tmpModuleName = module.moduleName
+                    funcName = _getNameFromStack(funcCalled, tmpModuleName)
+                    functionsCalled[funcName] = funcCalled
             elif OP.BUILD_MAP(op) :
                 debug("  build map", oparg)
                 stack = stack[:-oparg] + [ str(type({})) ]
