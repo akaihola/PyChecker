@@ -61,7 +61,7 @@ fairly infrequent."""
           author_email          = "pychecker@metaslash.com",
           url                   = "http://pychecker.sourceforge.net/",
           packages              = [ 'pychecker' ],
-          #data_files           = DOC_FILES,
+          data_files            = [ (install_dir, DOC_FILES) ],
           scripts               = [ LOCAL_SCRIPT, ],
           long_description      = LONG_DESCRIPTION
          )
