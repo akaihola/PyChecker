@@ -25,6 +25,11 @@ def y():
     print '%d %J %s' % (1, 2.2, 'sdf')
     print '%***f' % (5, 2, 2.0, 3)
 
+    print '%(aaa)d %d' % locals()
+    print '%(aaa)*d' % locals()
+    jjj = 1.0
+    print '%(jjj)*.*f' % locals()
+
     fmt = '%d %s %d'
     # can't check this yet
     print fmt % (aaa, bbb)

@@ -68,6 +68,8 @@ _INCONSISTENT_RETURN_TYPE = "Fuction return types are inconsistent"
 _INVALID_FORMAT = "Invalid format string, problem starts near: '%s'"
 _INVALID_FORMAT_COUNT = "Format string argument count (%d) doesn't match arguments (%d)"
 _TOO_MANY_STARS_IN_FORMAT = "Too many *s in format flags"
+_USING_STAR_IN_FORMAT_MAPPING = "Can't use * in formats when using a mapping (dictionary), near: '%s'"
+_CANT_MIX_MAPPING_IN_FORMATS = "Can't mix tuple/mapping (dictionary) formats in same format string"
 
 _cfg = None
 
@@ -413,12 +415,14 @@ def _getFormatInfo(format, func_code, lastLineNum) :
     # first get rid of all the instances of %% in the string, they don't count
     format = string.replace(format, "%%", "")
     sections = string.split(format, '%')
-    formatCount = string.count(format, '%')
+    percentFormatCount = formatCount = string.count(format, '%')
+    mappingFormatCount = 0
 
     # skip the first item in the list, it's always empty
     for section in sections[1:] :
         # handle dictionary formats
         if section[0] == '(' :
+            mappingFormatCount = mappingFormatCount + 1
             varname = string.split(section, ')')
             if varname[1] == ''  :
                 warns.append(Warning(func_code, lastLineNum,
@@ -439,6 +443,10 @@ def _getFormatInfo(format, func_code, lastLineNum) :
             if section[i] in _FORMAT_FLAGS :
                 if section[i] == '*' :
                     stars = stars + 1
+                    if mappingFormatCount > 0 :
+                        w = Warning(func_code, lastLineNum,
+                                    _USING_STAR_IN_FORMAT_MAPPING % section)
+                        warns.append(w)
                 continue
 
         if stars > 2 :
@@ -449,6 +457,10 @@ def _getFormatInfo(format, func_code, lastLineNum) :
         if section[i] not in _FORMAT_CONVERTERS :
             warns.append(Warning(func_code, lastLineNum,
                                  _INVALID_FORMAT % section))
+
+    if mappingFormatCount > 0 and mappingFormatCount != percentFormatCount :
+        warns.append(Warning(func_code, lastLineNum,
+                             _CANT_MIX_MAPPING_IN_FORMATS))
 
     return formatCount, vars, warns
 
