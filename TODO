@@ -37,7 +37,6 @@ Longer Term goals:
 * Add portability checks for win32/unix
 * Fix deriving from class by alias name
 
-* Add check if __getattr[ibute]__ returns None (instead of raising an exception)
 * Add check for except: pass
 * Add check for implicit string concatentation
 * Add check for creating tuple when don't want a tuple, like: 1,

@@ -52,6 +52,12 @@ _IGNORE_RETURN_TYPES = ( Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,
                          Stack.TYPE_UNKNOWN)
 
 def _checkReturnWarnings(code) :
+    if code.func_code.co_name in ('__getattr__', '__getattribute__') :
+        for line, retval, dummy in code.returnValues :
+            if retval.isNone() :
+                err = msgs.DONT_RETURN_NONE % code.func_code.co_name
+                code.addWarning(err, line+1)
+
     # there must be at least 2 real return values to check for consistency
     returnValuesLen = len(code.returnValues)
     if returnValuesLen < 2 :

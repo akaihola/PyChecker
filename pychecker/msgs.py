@@ -67,6 +67,7 @@ IMPLICIT_AND_EXPLICIT_RETURNS = "Function returns a value and also implicitly re
 INCONSISTENT_RETURN_TYPE = "Function return types are inconsistent"
 CODE_UNREACHABLE = "Code appears to be unreachable"
 CONSTANT_CONDITION = "Using a conditional statement with a constant value (%s)"
+DONT_RETURN_NONE = "%s should never return None, raise an exception if not found"
 
 INVALID_FORMAT = "Invalid format string, problem starts near: '%s'"
 INVALID_FORMAT_COUNT = "Format string argument count (%d) doesn't match arguments (%d)"
