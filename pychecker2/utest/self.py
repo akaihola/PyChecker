@@ -21,6 +21,15 @@ class SelfTestCase(TestSupport.WarningTester):
         self.warning('class C:\n'
                      '  def f(s=None): return s\n',
                      2, VariableChecks.SelfCheck.selfDefault, 'f', 's')
+        self.warning('class C:\n'
+                     '  def f(s=None, **kw): return s, kw\n',
+                     2, VariableChecks.SelfCheck.selfDefault, 'f', 's')
+        self.warning('class C:\n'
+                     '  def f(s=None, *args): return s, args\n',
+                     2, VariableChecks.SelfCheck.selfDefault, 'f', 's')
+        self.warning('class C:\n'
+                     '  def f(s=None, *args, **kw): return s, args, kw\n',
+                     2, VariableChecks.SelfCheck.selfDefault, 'f', 's')
         
     def testFunctionSelf(self):
         self.warning('def f(a, self, b): return a + self + b\n',
