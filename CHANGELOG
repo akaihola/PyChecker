@@ -8,6 +8,7 @@ Version 0.8.9   - xx February 2002
         when objects are subclasses
   * Fix crash due to import module problems
   * Fix crash with nested scopes
+  * Always assume readline module is used if input/raw_input is used
 
 Version 0.8.8   - 13 January 2002
   * Add -F/--config option to specify pycheckrc file to use

@@ -585,6 +585,10 @@ def find(moduleList, initialCfg, suppressions = None) :
                                        msgs.VAR_NOT_USED, prefix))
         if cfg().importUsed :
             if module.moduleName != utils.INIT or cfg().packageImportUsed :
+                # always ignore readline module, if [raw_]input() is used
+                if globalRefs.has_key('input') or \
+                   globalRefs.has_key('raw_input'):
+                    globalRefs['readline'] = 0
                 warnings.extend(_getUnused(module, globalRefs, module.modules,
                                            msgs.IMPORT_NOT_USED))
 
