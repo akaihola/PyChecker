@@ -221,26 +221,27 @@ class SelfCheck(Check):
         self.selfSuspicious = _str_value(self.selfSuspicious)
 
         for scope in file.scopes.values():
-            for var in scope.defs:
-                if _is_method(scope):
-                    if _is_self(scope, var):
-                        if var not in self.selfNames:
-                            file.warning(scope.defs[var], self.selfName,
-                                         scope.node.name, var, `self.selfNames`)
-                        function = scope.node
-                        count = len(function.argnames)
-                        if function.varargs:
-                            count -= 1
-                        if function.kwargs:
-                            count -= 1
-                        if len(function.defaults) == count:
-                            file.warning(function, self.selfDefault,
-                                         function.name, var)
-                else:
-                    if var in self.selfSuspicious:
-                        name = getattr(scope.node, 'name', 'lambda')
-                        file.warning(scope.defs[var], self.functionSelf,
-                                     name, var)
+            if isinstance(scope, symbols.FunctionScope) and \
+               len(scope.node.argnames) > 0:
+                if not _is_method(scope):
+                    for name in scope.node.argnames:
+                        if name in self.selfSuspicious:
+                            funcname = getattr(scope.node, 'name', 'lambda')
+                            file.warning(scope.defs[name], self.functionSelf,
+                                         funcname, name)
+                elif scope.node.argnames[0] not in self.selfNames:
+                    function = scope.node
+                    name = function.argnames[0]
+                    file.warning(scope.defs[name], self.selfName,
+                                 function.name, name, `self.selfNames`)
+                    count = len(function.argnames)
+                    if function.varargs:
+                        count -= 1
+                    if function.kwargs:
+                        count -= 1
+                    if len(function.defaults) == count:
+                        file.warning(function, self.selfDefault,
+                                     function.name, var)
 
 class UnpackCheck(Check):
     'Mark all unpacked variables as used'
