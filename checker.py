@@ -8,7 +8,6 @@ Check python source code files for possible errors and print warnings
 
 
 _printParse = 0    # set to 1 if you want to see parse prints, 0 for no prints
-_onlyCheckInitForMembers = 0   # cfg param
 
 
 import string
@@ -31,7 +30,7 @@ _KW_ARGS_FLAG = 8
 
 # Globals for storing a dictionary of info about modules and classes
 _allModules = {}
-
+_cfg = None
 
 def getModules(list) :
     "Return list of modules by removing .py from each entry."
@@ -160,7 +159,7 @@ class Class :
             self.addMethod(methodName, classObject.__name__)
 
     def addMembers(self, classObject) :
-        if not _onlyCheckInitForMembers :
+        if not _cfg.onlyCheckInitForMembers :
             for classToken in dir(classObject):
                 if classToken in _DEFAULT_CLASS_TOKENS :
                     continue
@@ -262,7 +261,8 @@ def main(argv) :
     if not '.' in sys.path :
         sys.path.append('.')
 
-    cfg, files = Config.setupFromArgs(argv[1:])
+    global _cfg
+    _cfg, files = Config.setupFromArgs(argv[1:])
     importWarnings = []
     for filename, moduleName in getModules(files) :
         print "Processing %s..." % moduleName
@@ -276,7 +276,7 @@ def main(argv) :
             printer.module(module)
 
     print "\nWarnings...\n"
-    warnings = warn.find(_allModules.values(), cfg)
+    warnings = warn.find(_allModules.values(), _cfg)
     if warnings or importWarnings :
         warnings.sort()
         lastWarning = None

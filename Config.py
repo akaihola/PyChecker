@@ -20,6 +20,7 @@ class Config :
         "Initialize configuration with default values."
 
         self.debug = 0
+        self.onlyCheckInitForMembers = 0
 
         self.noDocModule = 1
         self.noDocClass = 1
@@ -62,6 +63,7 @@ _OPTIONS = [
  ('t', 0, 'tuple', 'unusedLocalTuple', 'all unused local variables, including tuples'),
  ('v', 0, 'var', 'allVariablesUsed', 'all unused module variables'),
  ('p', 0, 'privatevar', 'privateVariableUsed', 'unused private module variables'),
+ ('a', 0, 'initattr', 'onlyCheckInitForMembers', 'Attributes (members) must be defined in __init__()'),
  ('I', 0, 'initsubclass', 'initDefinedInSubclass', 'Subclass.__init__() not defined'),
  None,
  ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules'),
