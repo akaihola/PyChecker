@@ -561,6 +561,9 @@ _BACK_RETURN_INDEX = 4
 def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     "Return a list of Warnings found in a function/method."
 
+    # disable these checks for this crappy code
+    __pychecker__ = '--maxbranches=0 --maxlines=0'
+
     warnings, codeObjects = [], []
     globalRefs, unusedLocals, functionsCalled = {}, {}, {}
 
