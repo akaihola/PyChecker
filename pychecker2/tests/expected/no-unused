@@ -20,9 +20,12 @@ tests/op.py:8 Operator (--) doesn't exist, statement has no effect
 tests/self.py:9 First argument to method f (x) is not in ['self', 'this', 's']
 
 tests/shadow.py:2 Scope (f) is redefined at line 8
+tests/shadow.py:4 Identifier (a) shadows definition in scope <ModuleScope: global>
 tests/shadow.py:16 Identifier (f) shadows definition in scope <ModuleScope: global>
 tests/shadow.py:17 Identifier (a) shadows definition in scope <FunctionScope: g>
+tests/shadow.py:17 Identifier (a) shadows definition in scope <ModuleScope: global>
 tests/shadow.py:18 Identifier (b) shadows definition in scope <FunctionScope: g>
 tests/shadow.py:19 Unknown identifier: c
 tests/shadow.py:19 Unknown identifier: d
+tests/shadow.py:22 Identifier (a) shadows definition in scope <ModuleScope: global>
 

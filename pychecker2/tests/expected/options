@@ -1,11 +1,12 @@
 Error: option -? not recognized
 Usage:
- ./../pychecker2/main.py [options] [--] file1.py file2.py ...
+ /home/ecn/work/pychecker/pychecker2/../pychecker2/main.py [options] [--] file1.py file2.py ...
 available options:
 
 Error:
  --no-duplicateImport   Report/ignore duplicate imports
  --no-importError       Report/ignore imports that may fail
+ --no-main              Ignore module-level code protected by __name__ == "__main__"
  --no-operator          Check for (++) and (--) which are legal, but not useful
  --no-operatorPlus      Check for unary +
  --no-redefinedScope    Report redefined scopes

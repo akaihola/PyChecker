@@ -20,15 +20,19 @@ tests/self.py:9 First argument to method f (x) is not in ['self', 'this', 's']
 tests/self.py:14 Identifier (a) not used
 
 tests/shadow.py:2 Scope (f) is redefined at line 8
+tests/shadow.py:4 Identifier (a) shadows definition in scope <ModuleScope: global>
 tests/shadow.py:15 Identifier (a) not used
 tests/shadow.py:15 Identifier (b) not used
+tests/shadow.py:15 Identifier (a) shadows definition in scope <ModuleScope: global>
 tests/shadow.py:16 Identifier (f) shadows definition in scope <ModuleScope: global>
 tests/shadow.py:17 Identifier (a) not used
 tests/shadow.py:17 Identifier (a) shadows definition in scope <FunctionScope: g>
+tests/shadow.py:17 Identifier (a) shadows definition in scope <ModuleScope: global>
 tests/shadow.py:18 Identifier (b) not used
 tests/shadow.py:18 Identifier (b) shadows definition in scope <FunctionScope: g>
 tests/shadow.py:19 Unknown identifier: c
 tests/shadow.py:19 Unknown identifier: d
+tests/shadow.py:22 Identifier (a) shadows definition in scope <ModuleScope: global>
 
 tests/unused.py:2 Identifier (a) not used
 tests/unused.py:6 Identifier (Test) not used
