@@ -3,6 +3,10 @@ from pychecker2.Warning import Warning
 from pychecker2.File import File
 from pychecker2 import Options
 
+import time
+import os
+import stat
+
 class WarningOpt(Options.BoolOpt):
     __pychecker__ = 'no-callinit'
     
@@ -40,7 +44,7 @@ class CheckList:
         except KeyError:
             import inspect
             try:
-                fname = inspect.getsourcefile(m) 
+                fname = inspect.getsourcefile(m)
                 if fname:
                     f = File(fname)
             except TypeError:
@@ -49,6 +53,28 @@ class CheckList:
             if f:
                 self.check_file(f)
         return f
+
+    def __getstate__(self):
+        modules = []
+        for k, v in self.modules.items():
+            modules.append( (k.__name__, v) )
+        return (time.time(), self.checks, modules)
+
+    def __setstate__(self, data):
+        import inspect
+        cache_time, self.checks, modules = data
+        self.modules = {}
+        for k, v in modules:
+            module = __import__(k, globals(), {}, [''])
+            # Don't recover files that are newer than the save time
+            try:
+                fname = inspect.getsourcefile(module)
+                last_modified = os.stat(fname)[stat.ST_MTIME]
+            except TypeError:
+                last_modified = 0
+
+            if last_modified < cache_time:
+                self.modules[module] = v
                 
 class Check:
 

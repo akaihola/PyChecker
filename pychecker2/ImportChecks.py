@@ -11,6 +11,14 @@ class ModuleReference:
         self.module = module
         self.nodes = nodes
 
+    def __getstate__(self):
+        return (self.localname, self.remotename, self.module.__name__, 
+                self.nodes)
+
+    def __setstate__(self, data):
+        (self.localname, self.remotename, self.module, self.nodes) = data
+        self.module = __import__(self.module)
+
 class ImportCheck(Check):
     '''
 Get 'from module import *' names hauled into the file and modules.
