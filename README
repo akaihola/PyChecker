@@ -14,6 +14,7 @@ Types of problems that can be found include:
 
   * No global found (e.g., using a module without importing it)
   * Passing the wrong number of parameters to functions/methods/constructors
+  * Passing the wrong number of parameters to builtin functions & methods
   * Using format strings that don't match arguments
   * Using class methods and attributes that don't exist
   * Changing signature when overriding a method
