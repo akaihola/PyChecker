@@ -744,6 +744,8 @@ def _checkLoadGlobal(codeSource, code, varname) :
 
 def _LOAD_NAME(oparg, operand, codeSource, code) :
     _checkLoadGlobal(codeSource, code, operand)
+    if OP.POP_TOP(code.nextOpInfo()[0]) :
+        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
 
     # if there was from XXX import *, _* names aren't imported
     if codeSource.module.modules.has_key(operand) and \
@@ -761,11 +763,15 @@ _LOAD_GLOBAL = _LOAD_NAME
 
 def _LOAD_DEREF(oparg, operand, codeSource, code) :
     if type(oparg) == types.IntType :
-        argused = code.func_code.co_varnames[oparg]
-        code.unusedLocals[argused] = None
+        if code.func_code.co_name != utils.LAMBDA :
+            argused = code.func_code.co_varnames[oparg]
+            code.unusedLocals[argused] = None
+        if OP.POP_TOP(code.nextOpInfo()[0]) :
+            code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
     else :
         _LOAD_GLOBAL(oparg, operand, codeSource, code)
 
+_LOAD_CLOSURE = _LOAD_DEREF
 
 def _DELETE_NAME(oparg, operand, codeSource, code) :
     _checkLoadGlobal(codeSource, code, operand)
@@ -784,6 +790,8 @@ def _LOAD_CONST(oparg, operand, codeSource, code) :
             code.codeObjects[name] = operand
         elif cfg().redefiningFunction :
             code.addWarning(msgs.REDEFINING_ATTR % (name, obj.co_firstlineno))
+    elif OP.POP_TOP(code.nextOpInfo()[0]) :
+        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
 
 
 def _checkLocalShadow(code, module, varname) :
@@ -809,6 +817,8 @@ def _handleLoadLocal(code, codeSource, varname) :
 def _LOAD_FAST(oparg, operand, codeSource, code) :
     code.stack.append(Stack.Item(operand, type(operand)))
     _handleLoadLocal(code, codeSource, operand)
+    if OP.POP_TOP(code.nextOpInfo()[0]) :
+        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
 
 def _STORE_FAST(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :
@@ -868,8 +878,12 @@ def _LOAD_ATTR(oparg, operand, codeSource, code) :
         top = code.stack[-1]
         _checkAttribute(top, operand, codeSource, code)
         top.addAttribute(operand)
-        if not OP.LOAD_ATTR(code.nextOpInfo()[0]) :
-            _checkExcessiveReferences(code, top)
+        nextOp = code.nextOpInfo()[0]
+        if not OP.LOAD_ATTR(nextOp) :
+            if OP.POP_TOP(nextOp) :
+                code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
+            else :
+                _checkExcessiveReferences(code, top)
 
 def _STORE_ATTR(oparg, operand, codeSource, code) :
     _checkExcessiveReferences(code, code.stack[-1], operand)
@@ -931,6 +945,7 @@ def _CALL_FUNCTION_VAR_KW(oparg, operand, codeSource, code) :
 
 def _MAKE_FUNCTION(oparg, operand, codeSource, code) :
     code.popStackItems(oparg+1)
+_MAKE_CLOSURE = _MAKE_FUNCTION
 
 def _BUILD_MAP(oparg, operand, codeSource, code) :
     _makeConstant(code.stack, oparg, Stack.makeDict)
@@ -1116,6 +1131,8 @@ DISPATCH[126] = _DELETE_FAST
 DISPATCH[127] = _LINE_NUM
 DISPATCH[131] = _CALL_FUNCTION
 DISPATCH[132] = _MAKE_FUNCTION
+DISPATCH[134] = _MAKE_CLOSURE
+DISPATCH[135] = _LOAD_CLOSURE
 DISPATCH[136] = _LOAD_DEREF
 DISPATCH[140] = _CALL_FUNCTION_VAR
 DISPATCH[141] = _CALL_FUNCTION_KW

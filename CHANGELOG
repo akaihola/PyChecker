@@ -1,6 +1,9 @@
 
 Version 0.8.7	- xx December 2001
+  * Add warning statements with no effect (load var, but do nothing)
   * Add warning for local variable shadowing global variable
+  * Handle nested scopes better, includes fixing a crash and
+	eliminating spurious warnings
 
 Version 0.8.6	- 16 November 2001
   * Add -5/--maxrefs for maximum # of identifier references (Law of Demeter)

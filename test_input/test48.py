@@ -14,12 +14,12 @@ def x():
     n.has_no_method()
     e.has_no_method()
 
-    i.has_no_attr
-    l.has_no_attr
-    d.has_no_attr
-    s.has_no_attr
-    n.has_no_attr
-    e.has_no_attr
+    print i.has_no_attr
+    print l.has_no_attr
+    print d.has_no_attr
+    print s.has_no_attr
+    print n.has_no_attr
+    print e.has_no_attr
 
     l.sort()
     d.clear()
@@ -47,3 +47,14 @@ def zz():
     tt.b()
     tt.x()
     tt.y()
+
+def abc(a, b, c):
+    # these should all generate a warning for doing nothing
+    a
+    b
+    c
+    abc
+    5
+    zz.func_doc
+    str
+
