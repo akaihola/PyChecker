@@ -46,7 +46,8 @@ class Item :
             strValue, data = "", self.data
             # handle:  from XXX import YYY to munge the name 
             # into looking like: XXX.YYY
-            if hasattr(module.module, self.data[0]) :
+            if type(self.data[0]) == types.StringType and \
+               hasattr(module.module, self.data[0]) :
                 globalObject = getattr(module.module, self.data[0])
                 if type(globalObject) != types.ModuleType :
                     strValue = "." + str(globalObject)
