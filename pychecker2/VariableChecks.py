@@ -93,15 +93,6 @@ class UnusedCheck(Check):
         self.unusedPrefixes = _str_value(self.unusedPrefixes)
 
         def used(name, parent_scope):
-            # don't report global classes and functions that
-            # don't start with "_"
-            if parent_scope in file.root_scope.get_children() and \
-               parent_scope.__class__ in (symbols.ClassScope, \
-                                          symbols.FunctionScope) and \
-               name == parent_scope.node.name and \
-               not name.startswith('_'):
-                    return 1
-
             if parent_scope.uses.has_key(name):
                 return 1
             for c in parent_scope.get_children():
@@ -130,10 +121,12 @@ class UnusedCheck(Check):
                     continue
                 # functions which only assert falsehood are unlikely to use
                 # their local variables
-                if isinstance(code[0], compiler.ast.Assert) and \
-                   isinstance(code[0].test, compiler.ast.Const) and \
-                   not code[0].test.value:
-                    continue
+                if isinstance(code[0], compiler.ast.Assert):
+                    if (isinstance(code[0].test, compiler.ast.Const) and \
+                        not code[0].test.value) or \
+                        (isinstance(code[0].test, compiler.ast.Name) and \
+                         code[0].test.name == 'None'):
+                        continue
             
             # ignore names defined in a class scope
             if isinstance(scope, symbols.ClassScope):
@@ -146,14 +139,12 @@ class UnusedCheck(Check):
                     continue
 
                 # ignore names in the root scope which are not imported:
-                # class defs, function defs, variables, etc.
+                # class defs, function defs, variables, etc, unless
+                # they start with '_'
                 if scope == file.root_scope:
                     if not scope.imports.has_key(var):
-                        continue
-
-                # ignore variables global to this scope
-                if scope.globals.has_key(var):
-                    continue
+                        if not var.startswith('_'):
+                            continue
 
                 for prefix in self.unusedPrefixes:
                     if var.startswith(prefix):
