@@ -49,6 +49,7 @@ _INVALID_METHOD = "No method (%s) found"
 _INVALID_CLASS_ATTR = "No class attribute (%s) found"
 _INVALID_MODULE_ATTR = "No module attribute (%s) found"
 _USING_METHOD_AS_ATTR = "Using method (%s) as an attribute (not invoked)"
+_OBJECT_HAS_NO_METHODS = "Object (%s) has no methods"
 
 _INVALID_ARG_COUNT1 = "Invalid arguments to (%s), got %d, expected %d"
 _INVALID_ARG_COUNT2 = "Invalid arguments to (%s), got %d, expected at least %d"
@@ -489,6 +490,11 @@ def _getFormatWarnings(stack, func_code, lastLineNum, unusedLocals) :
         
     return warnings
 
+_METHODLESS_OBJECTS = { types.NoneType : None, types.IntType : None,
+                        types.LongType : None, types.FloatType : None,
+                        types.BufferType : None, types.TupleType : None,
+                        types.EllipsisType : None,
+                      }
 # number of instructions to check backwards if it was a return
 _BACK_RETURN_INDEX = 4
 
@@ -563,6 +569,10 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                     elif type(topOfStack.type) == types.StringType :
                         warn = _checkModuleAttribute(operand, module, func_code,
                                                     lastLineNum, topOfStack.data)
+                    # FIXME: need to keep type of objects
+                    elif 0 and _METHODLESS_OBJECTS.has_key(topOfStack.type) :
+                        warn = Warning(func_code, lastLineNum,
+                                       _OBJECT_HAS_NO_METHODS % operand)
                     topOfStack.addAttribute(operand)
                 elif OP.IMPORT_NAME(op) :
                     stack.append(Stack.Item(operand, type(operand)))
@@ -581,8 +591,10 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                     loops = loops + 1
                 elif OP.STORE_FAST(op) :
                     if not unusedLocals.has_key(operand) :
-                        if not unpackCount or _cfg.unusedLocalTuple :
-                            unusedLocals[operand] = lastLineNum
+                        errLine = lastLineNum
+                        if _cfg.unusedLocalTuple :
+                            errLine = -errLine
+                        unusedLocals[operand] = errLine
                     if unpackCount :
                         unpackCount = unpackCount - 1
                     if len(stack) > 0 :
@@ -688,7 +700,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
             
     if _cfg.localVariablesUsed :
         for var, line in unusedLocals.items() :
-            if line and var != '_' :
+            if line is not None and line > 0 and var != '_' :
                 warnings.append(Warning(func_code, line, _UNUSED_LOCAL % var))
 
     # Check code complexity:
