@@ -5,6 +5,7 @@ Version 0.4	- xx April 2001
   * Add .rc file processing to specify options (like on cmd line)
   * Add new warning if module.Attribute doesn't exist
   * Fix command line handling so you can pass module, package, or filename
+  * Add glob'ing support for windows
 
 Version 0.3	- 17 April 2001
   * Fix some checker crashes (oops)
