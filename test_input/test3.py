@@ -1,4 +1,6 @@
 
+"Shouldn't be any warnings/errors"
+
 import string
 
 def describeSyntax(syntax):
