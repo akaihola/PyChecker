@@ -12,6 +12,7 @@ def y(a, b, c = [], d = {}):
   print a, b, c, d
 
 class X:
+  'd'
   def x(self) : pass
 
 def zz(x = X()):

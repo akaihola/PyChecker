@@ -53,6 +53,7 @@ _OPTIONS = [
  ('o', 0, 'override', 'checkOverridenMethods', 'check if overridden methods have the same signature'),
  ('U', 0, 'reuseattr', 'redefiningFunction', 'check if function/class/method names are reused'),
  ('Y', 0, 'positive', 'unaryPositive', 'check if using unary positive (+) which is usually meaningless'),
+ ('j', 0, 'moddefvalue', 'modifyDefaultValue', 'check if modify (call method) on a parameter that has a default value'),
      ]),
     ('Possible Errors', [
  ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
@@ -209,6 +210,7 @@ class Config :
         self.checkImplicitReturns = 0
         self.intDivide = 1
         self.unaryPositive = 1
+        self.modifyDefaultValue = 1
 
     def loadFile(self, filename) :
         suppressions = {}

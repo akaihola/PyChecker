@@ -241,7 +241,8 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
         if loadValue.data == 'apply' :
             loadValue = code.stack[funcIndex+1]
         else :
-            if type(loadValue.data) == types.TupleType :
+            if cfg().modifyDefaultValue and \
+               type(loadValue.data) == types.TupleType :
                 objectName = loadValue.data[0]
                 try :
                     value = code.func.defaultValue(objectName)

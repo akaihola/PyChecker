@@ -111,6 +111,14 @@ checkObjectAttrs = 1
 # bool: check for integer division (may be problem between Python versions)
 intDivide = 1
 
+# bool: check for using +variable, since it is almost always has no effect
+unaryPositive = 1
+
+# bool: check for modifying a parameter with a default value
+#       (value must be: list, dict, instance)
+#       modifying the value may have undesirable/unexpected side-effects
+modifyDefaultValue = 1
+
 # bool: check consistent return values
 checkReturnValues = 0
 
