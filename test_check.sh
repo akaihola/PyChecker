@@ -9,12 +9,14 @@ fi
 error=0
 
 FAILED=""
+NO_EXPECTED_RESULTS=""
 for test_file in $TESTS ; do
     echo "Testing $test_file ..."
     test_name=`basename $test_file .py`
     expected=test_expected/$test_name
     if [ ! -e $expected ]; then
         echo "  WARNING:  $expected expected results does not exist"
+	NO_EXPECTED_RESULTS="$NO_EXPECTED_RESULTS $test_name"
 	continue
     fi
 
@@ -34,5 +36,9 @@ if [ $error -ne 0 ]; then
     echo "$errors TESTS FAILED: $FAILED"
 else
     echo "ALL TESTS PASSED"
+fi
+
+if [ "$NO_EXPECTED_RESULTS" != "" ]; then
+    echo "  WARNING no expected results for: $NO_EXPECTED_RESULTS"
 fi
 
