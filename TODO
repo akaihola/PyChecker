@@ -12,6 +12,7 @@ Goals for next major release (0.9):
   - Make a base class to handle stack operations
   - Override base class with classes to handle module scope, functions, etc.
   - Process module and create Module/Class/Function objects w/o dir(), etc.
+  - Finish tests: 44, 56
 
 * Check code in nested scopes - partially done (handles lambdas)
 	(get rid of unused warnings for identifiers used in nested scopes)
