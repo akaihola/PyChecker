@@ -238,6 +238,8 @@ class Module :
 
 
 def main(argv) :
+    if not '.' in sys.path :
+        sys.path.append('.')
     importWarnings = []
     for filename, moduleName in getModules(argv[1:]) :
         print "Processing %s..." % moduleName
