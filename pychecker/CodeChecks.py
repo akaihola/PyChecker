@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2001, MetaSlash Inc.  All rights reserved.
+# Copyright (c) 2001-2002, MetaSlash Inc.  All rights reserved.
 
 """
 Find warnings in byte code from Python source files.
@@ -937,8 +937,17 @@ def _LOAD_ATTR(oparg, operand, codeSource, code) :
             else :
                 _checkExcessiveReferences(code, top)
 
+def _ok_to_set_attr(classObject, basename, attr) :
+    return (cfg().onlyCheckInitForMembers and classObject != None and
+            basename == cfg().methodArgName and 
+            not _classHasAttribute(classObject, attr))
+
 def _STORE_ATTR(oparg, operand, codeSource, code) :
-    _checkExcessiveReferences(code, code.stack[-1], operand)
+    if code.stack :
+        top = code.stack[-1]
+        _checkExcessiveReferences(code, top, operand)
+        if _ok_to_set_attr(codeSource.classObject, top.data, operand) :
+            code.addWarning(msgs.INVALID_SET_CLASS_ATTR % operand)
     code.unpack()
 
 def _DELETE_ATTR(oparg, operand, codeSource, code) :

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2001, MetaSlash Inc.  All rights reserved.
+# Copyright (c) 2001-2002, MetaSlash Inc.  All rights reserved.
 
 """
 Warning Messages for PyChecker
@@ -39,6 +39,7 @@ GLOBAL_DEFINED_NOT_DECLARED = "Global variable (%s) defined without being declar
 INVALID_GLOBAL = "No global (%s) found"
 INVALID_METHOD = "No method (%s) found"
 INVALID_CLASS_ATTR = "No class attribute (%s) found"
+INVALID_SET_CLASS_ATTR = "Setting class attribute (%s) not set in __init__"
 INVALID_MODULE_ATTR = "No module attribute (%s) found"
 
 LOCAL_SHADOWS_GLOBAL = "Local variable (%s) shadows global defined on line %d"

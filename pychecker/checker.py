@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2001, MetaSlash Inc.  All rights reserved.
+# Copyright (c) 2001-2002, MetaSlash Inc.  All rights reserved.
 
 """
 Check python source code files for possible errors and print warnings
@@ -34,6 +34,7 @@ def setupNamespace(path) :
 if __name__ == '__main__' :
     setupNamespace(sys.argv[0])
 
+from pychecker import utils
 from pychecker import printer
 from pychecker import warn
 from pychecker import OP
@@ -57,6 +58,9 @@ If you want to run the local version, you must remove the version
 from site-packages.  Or you can install the current version
 by doing python setup.py install.
 '''
+
+def cfg() :
+    return utils.cfg()
 
 def _flattenList(list) :
     "Returns a list which contains no lists"
@@ -239,7 +243,7 @@ class Class :
             self.addMethod(methodName, classObject.__name__)
 
     def addMembers(self, classObject) :
-        if not _cfg.onlyCheckInitForMembers :
+        if not cfg().onlyCheckInitForMembers :
             for classToken in _getClassTokens(classObject) :
                 method = getattr(classObject, classToken)
                 if type(method) == types.MethodType :
@@ -261,7 +265,7 @@ class Class :
                     stack.append(operand)
                 elif OP.STORE_ATTR(op) :
                     if len(stack) > 0 :
-                        if stack[-1] == _cfg.methodArgName :
+                        if stack[-1] == cfg().methodArgName :
                             value = None
                             if len(stack) > 1 :
                                 value = type(stack[-2])
@@ -316,7 +320,7 @@ class Module :
     def addClass(self, name) :
         self.classes[name] = c = Class(name, self.module)
         packages = string.split(str(c.classObject), '.')
-        c.ignoreAttrs = packages[0] in _cfg.blacklist
+        c.ignoreAttrs = packages[0] in cfg().blacklist
         if not c.ignoreAttrs :
             self.__addAttributes(c, c.classObject)
 
@@ -370,6 +374,12 @@ class Module :
     def initModule(self, module) :
         self.module = module
         self.attributes = dir(self.module)
+
+        pychecker_attr = getattr(module, Config.CHECKER_VAR, None)
+        if pychecker_attr is not None :
+            utils.pushConfig()
+            utils.updateCheckerArgs(pychecker_attr, 'suppressions', 0, [])
+
         for tokenName in _filterDir(self.module, _DEFAULT_MODULE_TOKENS) :
             token = getattr(self.module, tokenName)
             tokenType = type(token)
@@ -383,6 +393,8 @@ class Module :
             else :
                 self.addVariable(tokenName, tokenType)
 
+        if pychecker_attr is not None :
+            utils.popConfig()
         return 1
 
     def setupMainCode(self, file, filename, module) :
@@ -446,6 +458,7 @@ def processFiles(files, cfg = None, pre_process_cb = None) :
         _cfg = Config.Config()
 
     warnings = []
+    utils.initConfig(_cfg)
     for moduleName in getModules(files) :
         if callable(pre_process_cb) :
             pre_process_cb(moduleName)
@@ -453,6 +466,7 @@ def processFiles(files, cfg = None, pre_process_cb = None) :
         if not module.load() :
             w = Warning(module.filename(), 1, "NOT PROCESSED UNABLE TO IMPORT")
             warnings.append(w)
+    utils.popConfig()
     return warnings
 
 
