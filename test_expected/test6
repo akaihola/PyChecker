@@ -1,0 +1,6 @@
+Processing test6...
+
+Warnings...
+
+test_input/test6.py:8 Base class (metaslash.db.db.Record) __init__() not called
+test_input/test6.py:14 Base class (exceptions.Exception) __init__() not called

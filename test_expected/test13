@@ -1,0 +1,6 @@
+Processing test13...
+
+Warnings...
+
+test_input/test13.py:12 Global variable (x) defined without being declared
+test_input/test13.py:29 No global (xxx) found
