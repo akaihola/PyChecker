@@ -632,6 +632,7 @@ else :
 
         args = string.split(os.environ.get('PYCHECKER', ''))
         _cfg, files, _suppressions = Config.setupFromArgs(args)
+        utils.initConfig(_cfg)
         fixupBuiltinModules()
 
         # keep the orig __import__ around so we can call it
@@ -639,5 +640,5 @@ else :
         _orig__import__ = __builtin__.__import__
         __builtin__.__import__ = __import__
 
-    if not os.environ.get('PYCHECKER_DISABLED', 0) :
+    if not os.environ.get('PYCHECKER_DISABLED') :
         _init()
