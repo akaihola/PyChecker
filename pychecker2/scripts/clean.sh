@@ -1,2 +1,5 @@
 #! /bin/sh
-/bin/rm */*.pyc */*.pyo *~ */*~ 2>/dev/null
+for i in `find . -type d -print`
+do
+    /bin/rm -f *.pyc *.pyo *~ 
+done

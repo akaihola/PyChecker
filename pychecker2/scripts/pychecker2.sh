@@ -1,3 +1,6 @@
 #! /bin/sh
-PYCHECKER2=pychecker2
-exec python2.2 $PYCHECKER2/main.py $@
+NAME=$0				# this script
+NAME=`dirname $NAME`		# trim scripts 
+NAME=$NAME/../..
+export PYTHONPATH=$PYTHONPATH:$NAME
+exec python2.2 $NAME/pychecker2/main.py $@
