@@ -61,6 +61,14 @@ def debug(*args) :
     if _cfg.debug: print args
 
 
+def _printStack(stack) :
+    "Debug aid to print stack contents"
+    print stack
+    for item in stack :
+        print str(item),
+    print
+
+
 class Warning :
     "Class which holds error information."
 
@@ -234,6 +242,23 @@ def _getGlobalName(name, func) :
     return name
 
 
+def _makeConstant(stack, index, factoryFunction) :
+    "Build a constant on the stack ((), [], or {})"
+    if index > 0 :
+        stack[-index:] = [ factoryFunction(stack[index:]) ]
+    else :
+        stack.append(factoryFunction())
+
+
+def _checkGlobal(operand, func, lastLineNum, err) :
+    if not func.function.func_globals.has_key(operand) and \
+       not __builtins__.has_key(operand) :
+        if not _cfg.reportAllGlobals :
+            func.function.func_globals[operand] = operand
+        return Warning(func.function.func_code, lastLineNum, err % operand)
+    return None
+
+
 def _checkFunction(module, func, c = None) :
     "Return a list of Warnings found in a function/method."
 
@@ -259,33 +284,22 @@ def _checkFunction(module, func, c = None) :
             if OP.LINE_NUM(op) :
                 lastLineNum = oparg
             elif OP.COMPARE_OP(op) :
-                if len(stack) >= 2 :
-                    stack[-2:] = [ Stack.makeComparison(stack[-2:], operand) ]
-                else :
-                    stack = []
+                stack[-2:] = [ Stack.makeComparison(stack[-2:], operand) ]
             elif OP.LOAD_GLOBAL(op) :
                 # make sure we remember each global ref to check for unused
                 globalRefs[_getGlobalName(operand, func)] = operand
 
-                if not func.function.func_globals.has_key(operand) and \
-                   not __builtins__.has_key(operand)  :
-                    warn = Warning(func_code, lastLineNum,
-                                   _INVALID_GLOBAL % operand)
-                    if not _cfg.reportAllGlobals :
-                        func.function.func_globals[operand] = operand
+                warn = _checkGlobal(operand, func, lastLineNum,
+                                    _INVALID_GLOBAL)
 
-                # if there was from x import *, _ names aren't imported
+                # if there was from XXX import *, _* names aren't imported
                 if module.modules.has_key(operand) and \
                    hasattr(module.module, operand) :
                     operand = eval("module.module.%s.__name__" % operand)
                 stack.append(Stack.Item(operand, Stack.TYPE_GLOBAL))
             elif OP.STORE_GLOBAL(op) :
-                if not func.function.func_globals.has_key(operand) and \
-                   not __builtins__.has_key(operand) :
-                    warn = Warning(func_code, lastLineNum,
-                                   _GLOBAL_DEFINED_NOT_DECLARED % operand)
-                    if not _cfg.reportAllGlobals :
-                        func.function.func_globals[operand] = operand
+                warn = _checkGlobal(operand, func, lastLineNum,
+                                    _GLOBAL_DEFINED_NOT_DECLARED)
                 if unpackCount :
                     unpackCount = unpackCount - 1
             elif OP.LOAD_CONST(op) :
@@ -329,17 +343,14 @@ def _checkFunction(module, func, c = None) :
                 if funcCalled :
                     functionsCalled[funcCalled.getName(module)] = funcCalled
             elif OP.BUILD_MAP(op) :
-                stack[-oparg:] = [ Stack.makeDict(stack[oparg:]) ]
+                _makeConstant(stack, oparg, Stack.makeDict)
             elif OP.BUILD_TUPLE(op) :
-                stack[-oparg:] = [ Stack.makeTuple(stack[oparg:]) ]
+                _makeConstant(stack, oparg, Stack.makeTuple)
             elif OP.BUILD_LIST(op) :
-                if oparg > 0 :
-                    stack[-oparg:] = [ Stack.makeList(stack[oparg:]) ]
-                else :
-                    stack.append(Stack.makeList([]))
+                _makeConstant(stack, oparg, Stack.makeList)
 
+            # Add a warning if there was any from any of the operations
             _addWarning(warnings, warn)
-
         else :
             debug("  " + OP.name[op])
             if OP.name[op][0:len('BINARY_')] == 'BINARY_' :
