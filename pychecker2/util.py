@@ -41,3 +41,14 @@ def under_simple_try_if(stmt_node1, stmt_node2):
     except AttributeError:
         pass
     return None
+
+def parents(obj):
+    class Parents:
+        def __init__(self, start):
+            self.next = start
+        def __call__(self):
+            retval = self.next.parent
+            self.next = retval
+            return retval
+    return iter(Parents(obj), None)
+

@@ -1,7 +1,7 @@
 from pychecker2.Check import Check
 from pychecker2.Options import Opt, BoolOpt
 from pychecker2.Warning import Warning
-from pychecker2.util import flatten
+from pychecker2.util import flatten, parents
 from pychecker2 import symbols
 
 import compiler
@@ -38,17 +38,6 @@ def is_arg_and_defaulted_to_same_name(name, scope):
     return None
 
 
-class Parents:
-    def __init__(self, scope):
-        self.scope = scope
-    def __call__(self):
-        retval = self.scope.parent
-        self.scope = retval
-        return retval
-
-def parents(scope):
-    return iter(Parents(scope), None)
-
 class ShadowCheck(Check):
     """Use symbol information to check that no scope defines a name
     already known to a parent scope"""
@@ -82,6 +71,9 @@ class UnusedCheck(Check):
     not used in this or any child scope"""
 
     unused = Warning('Report names not used', 'Identifier (%s) not used')
+
+    def __init__(self):
+        self.reportUnusedSelf = None
 
     def get_options(self, options):
         desc = 'Ignore unused identifiers that start with these values'
@@ -214,6 +206,9 @@ class SelfCheck(Check):
 
 class UnpackCheck(Check):
     'Mark all unpacked variables as used'
+
+    def __init__(self):
+        self.unpackedUsed = None
 
     def get_options(self, options):
         desc = 'Do not treat variables used in tuple assignment as used'
