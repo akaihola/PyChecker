@@ -334,6 +334,9 @@ def _checkComplex(warnings, maxValue, value, func, err) :
         warnings.append(warn)
 
 
+_IGNORE_RETURN_TYPES = ( Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,
+                         Stack.TYPE_GLOBAL )
+
 def _checkReturnWarnings(returnValues, func_code) :
     # there must be at least 2 real return values to check for consistency
     if len(returnValues) < 2 :
@@ -364,7 +367,8 @@ def _checkReturnWarnings(returnValues, func_code) :
             # always ignore None, None can be returned w/any other type
             # FIXME: if we stored func return values, we could do better
             if returnType is not None and not value.isNone() and \
-               not value.type == Stack.TYPE_FUNC_RETURN :
+               value.type not in _IGNORE_RETURN_TYPES and \
+               returnData.type not in _IGNORE_RETURN_TYPES :
                 ok = (returnType == type(value.data))
                 if ok and returnType == types.TupleType :
                     ok = returnData.length == value.length
@@ -408,7 +412,6 @@ _FORMAT_CONVERTERS = 'diouxXeEfFgGcrs'
 _FORMAT_FLAGS = '*#- +.' + string.digits
 
 def _getFormatInfo(format, func_code, lastLineNum) :
-    formats = 0
     vars = []
     warns = []
 
