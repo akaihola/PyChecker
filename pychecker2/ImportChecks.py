@@ -5,6 +5,13 @@ from pychecker2 import util
 
 from compiler import walk
 
+class ModuleReference:
+    def __init__(self, localname, remotename, module, nodes):
+        self.localname = localname
+        self.remotename = remotename
+        self.module = module
+        self.nodes = nodes
+
 class ImportCheck(Check):
     '''
 Get 'from module import *' names hauled into the file and modules.
@@ -25,25 +32,28 @@ Figure out which names come from 'import name'.
             except ImportError, detail:
                 file.warning(node, ImportCheck.importError, name, detail)
                 return None
-        def add_import(node, name, module):
+        def add_import(node, local, remote, module):
             scopes = util.enclosing_scopes(file.scopes, node)
             for scope in scopes:
                 try:
-                    smodule, snode = scope.imports[name]
-                    if not util.under_simple_try_if(snode, node):
-                        if smodule == module:
+                    ref = scope.imports[local]
+                    if not util.under_simple_try_if(ref.nodes, node):
+                        if ref.module == module:
                             if scope == scopes[0]:
                                 extra = " in current scope"
                             else:
                                 extra = " of import in parent scope %s" % scope
                             file.warning(node, ImportCheck.duplicateImport,
-                                         name, extra)
+                                         local, extra)
                         else:
                             file.warning(node, ImportCheck.shadowImport,
-                                         name, smodule.__name__, snode.lineno)
+                                         local,
+                                         ref.module.__name__,
+                                         ref.nodes.lineno)
                 except KeyError:
                     pass
-            scopes[0].imports[name] = (module, node)
+            scopes[0].imports[local] = ModuleReference(local, remote,
+                                                       module, node)
             checker.check_module(module)
             
         class FromImportVisitor:
@@ -55,17 +65,15 @@ Figure out which names come from 'import name'.
                         if module_name == '*':
                             for name in dir(m):
                                 if not name.startswith('_'):
-                                   add_import(node, name, m)
+                                   add_import(node, name, name, m)
                         else:
-                            add_import(node, local_name or module_name, m)
+                            add_import(node, local_name or module_name, module_name, m)
 
             def visitImport(self, node):
                 for module, name in node.names:
                     m = try_import(module, node)
                     if m:
-                        # example: os.path stored under "os" or supplied name
-                        base = module.split('.')[0]
-                        add_import(node, name or base, m)
+                        add_import(node, name or module, None, m)
 
 
         if file.root_scope:
