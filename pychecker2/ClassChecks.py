@@ -42,23 +42,26 @@ class GetRefs(BaseVisitor):
         self.visitChildren(node)
 
 
-def get_methods(class_scope):
+def _get_methods(class_scope):
     return type_filter(class_scope.get_children(), symbols.FunctionScope)
 
 def line(node):
-    while node:
-        if node.lineno is not None:
-            return node
-        node = node.parent
+    "find a node with a line number on it"
+    for n in parents(node):
+        if n.lineno is not None:
+            return n
     return None
 
 class NotSimpleName(Exception): pass
 
+# compress Getattr(Getattr(Name(x), y), z) -> "x.y.z"
 def get_name(node):
-        if isinstance(node, ast.Getattr):
-            return get_name(node.expr) + "." + node.attrname
-        elif isinstance(node, ast.Name):
-            return node.name
+    if isinstance(node, ast.Getattr):
+        return get_name(node.expr) + (node.attrname, )
+    elif isinstance(node, ast.Name):
+        return (node.name,)
+    else:
+        raise NotSimpleName
 
 def get_base_names(scope):
     names = []
@@ -70,14 +73,19 @@ def get_base_names(scope):
     return names
 
 def find_in_module(package, remotename, names, checker):
-    name = package.__name__
+    # No other names, must be a remote value from the module
     if not names:
         f = checker.check_module(package)
-        if not f:
-            return
-        return find_defs(f.root_scope, [remotename], checker)
+        if f:
+            return find_scope_going_down(f.root_scope, [remotename], checker)
+        return None
+
+    # complex name lookup
+    #  first, get the real name of the package
+    name = package.__name__
     if remotename:
-        name += ".%s" % remotename
+        name += "." + remotename
+    #  now import it, and chase down any other modules
     try:
         module = __import__(name, globals(), {}, [''])
         submodule = getattr(module, names[0], None)
@@ -85,48 +93,53 @@ def find_in_module(package, remotename, names, checker):
             return find_in_module(submodule, None, names[1:], checker)
     except ImportError:
         return None
+    
+    #  object in the module is not another module, so chase down the source
     f = checker.check_module(module)
     if f:
-        return find_defs(f.root_scope, names, checker)
+        return find_scope_going_down(f.root_scope, names, checker)
     return None
                  
-def find_defs(scope, names, checker):
+def find_scope_going_down(scope, names, checker):
     "Drill down scopes to find definition of x.y.z"
     root = names[0]
     for c in scope.get_children():
         if getattr(c, 'name', '') == root:
             if len(names) == 1:
                 return c
-            return find_defs(c, names[1:], checker)
+            return find_scope_going_down(c, names[1:], checker)
+    # Not defined here, check for import
     return find_imported_class(scope.imports, names, checker)
 
 def find_imported_class(imports, names, checker):
     # may be defined by import
     for i in range(1, len(names) + 1):
-        name = ".".join(names[:i])
-        if imports.has_key(name):
+        # try x, then x.y, then x.y.z as imported names
+        try:
+            name = ".".join(names[:i])
             ref = imports[name]
+            # now look for the rest of the name
             result = find_in_module(ref.module, ref.remotename, names[i:], checker)
             if result:
                 return result
+        except KeyError:
+            pass
     return None
 
-def find_local_class(scope, name, checker):
+def find_scope_going_up(scope, parts, checker):
     "Search up to find scope defining x of x.y.z"
-    parts = name.split('.')
     for p in parents(scope):
         if p.defs.has_key(parts[0]):
-            return find_defs(p, parts, checker)
+            return find_scope_going_down(p, parts, checker)
     return None
 
-def get_bases(scope, checker):
+def get_base_classes(scope, checker):
     result = []
-    # FIXME: only finds local classes
     for name in get_base_names(scope):
-        base = find_local_class(scope, name, checker)
+        base = find_scope_going_up(scope, name, checker)
         if base:
             result.append(base)
-            result.extend(get_bases(base, checker))
+            result.extend(get_base_classes(base, checker))
     return result
 
 class AttributeCheck(Check):
@@ -150,13 +163,13 @@ class AttributeCheck(Check):
 
         # for all class scopes
         for scope in type_filter(file.scopes.values(), symbols.ClassScope):
-            bases = get_bases(scope, checker)
+            bases = get_base_classes(scope, checker)
             # get attributes defined on self
             attributes = {}             # "self.foo = " kinda things
             methods = {}                # methods -> scopes
             inherited = {}              # all class defs
             for base in [scope] + bases:
-                for m in get_methods(base):
+                for m in _get_methods(base):
                     attributes.update(visit_with_self(GetDefs, m))
                     methods[m.name] = methods.get(m.name, m)
                 inherited.update(base.defs)
@@ -173,7 +186,7 @@ class AttributeCheck(Check):
 
             # find refs on self
             refs = []
-            for m in get_methods(scope):
+            for m in _get_methods(scope):
                 refs.extend(visit_with_self(GetRefs, m).items())
 
             # Now complain about refs on self that aren't known
