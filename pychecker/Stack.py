@@ -41,6 +41,9 @@ class Item :
             return value + ')'
         return str(self.data)
 
+    def __repr__(self):
+        return 'Stack Item: (%s, %s, %d)' % (self.data, self.type, self.const)
+
     def isNone(self) :
         return self.data is None or (self.data == 'None' and not self.const)
 
