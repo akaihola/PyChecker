@@ -138,6 +138,9 @@ class BadSpecial:
 
     def __setattr__(self, a = None):
         return 0
+
+    def __not_special__(self):
+        return 0
     
 class Z1:
     class Z2:
@@ -146,3 +149,4 @@ class Z1:
 class Z3(Z1.Z2.md.Node):
     def f(self):
         print self.childNodes
+
