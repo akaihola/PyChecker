@@ -157,10 +157,22 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
 
     return returnValue
 
-def _checkModifyDefaultArg(code, objectName) :
+_IMMUTABLE_LIST_METHODS = ('count', 'index',)
+_IMMUTABLE_DICT_METHODS = ('copy', 'get', 'has_key',
+                           'items', 'keys', 'values',
+                           'iteritems', 'iterkeys', 'itervalues')
+
+def _checkModifyDefaultArg(code, objectName, methodName=None) :
     try :
         value = code.func.defaultValue(objectName)
-        if type(value) in python.MUTABLE_TYPES :
+        objectType = type(value)
+        if objectType in python.MUTABLE_TYPES :
+            if objectType == types.DictType and \
+               methodName in _IMMUTABLE_DICT_METHODS :
+                return 
+            if objectType == types.ListType and \
+               methodName in _IMMUTABLE_LIST_METHODS :
+                return
             code.addWarning(msgs.MODIFYING_DEFAULT_ARG % objectName)
     except ValueError :
         pass
@@ -236,7 +248,8 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
         else :
             if cfg().modifyDefaultValue and \
                type(loadValue.data) == types.TupleType :
-                _checkModifyDefaultArg(code, loadValue.data[0])
+                _checkModifyDefaultArg(code, loadValue.data[0],
+                                       loadValue.data[1])
 
             func, refClass, method = _getFunction(codeSource.module, loadValue)
             if func == None and type(loadValue.data) == types.TupleType and \

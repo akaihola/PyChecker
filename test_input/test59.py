@@ -22,3 +22,10 @@ def zz2(a = [], b = {}):
     a[0] = b
     b[0] = a
 
+def aaa1(a, b, c = [], d = {}):
+  print c.index(a)
+  print c.count(a)
+  print d.get(b)
+  print d.has_key(b)
+  print d.keys()
+  print d[b]
