@@ -1,5 +1,6 @@
 
 Version 0.5.1	- xx June 2001
+  * Install script in /usr/local/bin to invoke PyChecker
   * Don't produce unused global warnings when using a module in parameters
   * Don't produce unused global warnings when using a module in class variables
   * Add check for right # of args to object construction

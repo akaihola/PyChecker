@@ -1,6 +1,5 @@
 
 * Add check when using method as an attribute (if method and x == y:)
-* Add script to /usr/local/bin to invoke PyChecker
 * Add check that private functions are used in module/class
 * Check format strings: "%s %d" % (strValue, intValue)
 * Fix deriving from class by alias name
