@@ -6,6 +6,9 @@ Goals for next release:
 
 Longer Term goals:
 ------------------
+* Security checks for known issues.  Adrian Likins @redhat recommends 
+  looking at http://www.securesw.com/rats/
+* Recursive calls to __repr__ implementations
 * Warn about integer division (possible semantic change in python versions)
 * Make check for 'self' a list instead of a string
 * Check function return values - partially complete
