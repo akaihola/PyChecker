@@ -6,7 +6,8 @@ import parser
 
 class ParseCheck(Check):
 
-    syntaxErrors = Warning('Report/ignore syntax errors', 'Unable to parse: %s')
+    syntaxErrors = Warning('Report/ignore syntax errors',
+                           'Unable to parse: %s')
 
     def check(self, unused_modules, file, unused_options):
         try:
@@ -31,6 +32,10 @@ class ParseCheck(Check):
                 for c in s.get_children():
                     c.parent = s
             file.root_scope.parent = None
+
+            # initialize the mapping of 'from name import *'
+            for s in file.scopes.values():
+                s.importStar = {}
 
         except parser.ParserError, detail:
             file.warning(1, self.syntaxErrors, detail)
