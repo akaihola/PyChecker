@@ -36,9 +36,15 @@ class ReachableCheck(Check):
             visitRaise = visitReturn
 
             def visitTryExcept(s, node):
+                s.returns = 0
+                # if body always returns, else code is unreachable
+                s.visit(node.body)
+                if s.returns and node.else_:
+                    file.warning(node.else_.nodes[0], self.unreachable)
+                s.returns = 0
                 # no matter what happens in the try clause, it might
-                # cause an exception, so just check the handlers and
-                # else conditions all return
+                # cause an exception, so check the handlers and else
+                # conditions all return
                 handlers = [code for exc, detail, code in node.handlers]
                 s.alternatives_with_else(handlers, node.else_)
 
@@ -62,7 +68,8 @@ class ReachableCheck(Check):
                 s.visit(node.code)
                 s.returns = tmp
 
-            def visitWhile(s, node):    # while's may never execute, and not return
+            def visitWhile(s, node):    # while's may never execute,
+                                        # and not return
                 s.returns = 0
 
             visitFor = visitWhile
