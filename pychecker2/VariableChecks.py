@@ -307,17 +307,14 @@ class UsedBeforeSetCheck(Check):
                 self.defines = []
                 # name->node vars used before defined                    
                 self.uses = {}
-
                 if defines is not None:
                     self.defines = defines[:]
                 if uses is not None:
                     self.uses = uses.copy()
             def visitFunction(self, node):
                 self.defines.append(node.name)
-            def visitClass(self, node):
-                self.defines.append(node.name)
-            def visitAssName(self, node):
-                self.defines.append(node.name)
+            visitClass = visitFunction
+            visitAssName = visitFunction
             def visitName(self, node):
                 if node.name not in self.defines:
                     self.uses[node.name] = self.uses.get(node.name, node)
@@ -342,7 +339,7 @@ class UsedBeforeSetCheck(Check):
         for scope in file.scopes.values():
             if isinstance(scope.node, ast.Function):
                 params = ast.flatten(scope.params)
-                for name, n in walk(scope.node, Visitor()).uses.items():
+                for name, n in walk(scope.node.code, Visitor()).uses.items():
                     if scope.defs.has_key(name) and \
                        name not in params and \
                        not scope.imports.has_key(name):
