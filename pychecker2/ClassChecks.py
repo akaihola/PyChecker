@@ -50,7 +50,7 @@ def line(node):
     for n in parents(node):
         if n.lineno is not None:
             return n
-    return None
+    assert 0, 'Should be unreachable'
 
 class NotSimpleName(Exception): pass
 
@@ -185,7 +185,7 @@ def check_special(scope):
 class AttributeCheck(Check):
     "check `self.attr' expressions for attr"
 
-    hasAttribute = Warning('Report unknown object attributes in methods',
+    unknownAttribute = Warning('Report unknown object attributes in methods',
                            'Class %s has no attribute %s')
     missingSelf = Warning('Report methods without "self"',
                           'Method %s is missing self parameter')
@@ -208,9 +208,7 @@ class AttributeCheck(Check):
 
     def check(self, file, checker):
         def visit_with_self(Visitor, method):
-            # find self
             if not method.node.argnames:
-                file.warning(method.node, self.missingSelf, method.node.name)
                 return {}
             return walk(method.node, Visitor(method.node.argnames[0])).result
 
@@ -223,6 +221,8 @@ class AttributeCheck(Check):
             inherited = {}              # all class defs
             
             for m in _get_methods(scope):
+                if not m.node.argnames:
+                    file.warning(m.node, self.missingSelf, m.node.name)
                 attributes.update(visit_with_self(GetDefs, m))
                 methods[m.name] = m
                 n = check_special(m)
@@ -270,5 +270,5 @@ class AttributeCheck(Check):
                    not _ignorable.get(name, None) and \
                    not scope.defs.has_key(mangle(name, scope.name)) and \
                    not inherited.has_key(name):
-                    file.warning(line(node), self.hasAttribute,
+                    file.warning(line(node), self.unknownAttribute,
                                  scope.name, name)
