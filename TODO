@@ -25,6 +25,8 @@ Longer Term goals:
 * Add check that subclass overrides method that only raises NotImplementedError
 * Add check for using object members outside of class
 * Add check for implicit string concatentation
+* Add check for creating tuple when don't want a tuple, like: 1,
+            or not creating tuple when want one, like: (1)
 * Fix deriving from class by alias name
 * Add portability checks for win32/unix
 
