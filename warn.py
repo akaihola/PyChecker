@@ -224,6 +224,8 @@ def _checkFunction(module, func, c = None) :
                     warn = Warning(func_code, lastLineNum,
                                    _INVALID_GLOBAL % operand)
                     func.function.func_globals[operand] = operand
+                if module.modules.has_key(operand) :
+                    operand = eval("module.module.%s.__name__" % operand)
                 stack.append(operand)
             elif OP.STORE_GLOBAL(op) :
                 if not func.function.func_globals.has_key(operand) and \
@@ -373,8 +375,8 @@ def _checkBaseClassInit(moduleName, moduleFilename, c, func_code, functionsCalle
             modules = string.split(str(base), '.')[moduleDepth:]
             # handle import ...
             initName1 = moduleName + '.' + string.join(modules, '.') + '.__init__'
-            # handle from ... inport ...
-            initName2 = moduleName + '.' + base.__name__ + '.__init__'
+            # handle from ... import ...
+            initName2 = moduleName + '.' + str(base) + '.__init__'
             if not functionsCalled.has_key(initName1) and \
                not functionsCalled.has_key(initName2) :
                 warn = Warning(moduleFilename, func_code,
@@ -424,7 +426,10 @@ def find(moduleList, cfg) :
                     continue
                 func_code = method.function.func_code
                 debug("in method:", func_code)
-                moduleFilename = func_code.co_filename
+                # make sure we are in the right file
+                # ie, not a method we inherited from another file
+                if method.function.__name__ in dir(c) :
+                    moduleFilename = func_code.co_filename
 
                 if cfg.noDocFunc and method.function.__doc__ == None :
                     warn = Warning(moduleFilename, func_code,
