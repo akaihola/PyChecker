@@ -2,7 +2,8 @@
 Version 0.5.1	- xx June 2001
   * Don't produce unused global warnings when using a module in parameters
   * Don't produce unused global warnings when using a module in class variables
-  * Add check for right # of args to object construction in calling module
+  * Add check for right # of args to object construction
+  * Add check for right # of args to function calls in other modules
   * Check for returning a value from __init__
   * Experimental support for checking consistent return values
 

@@ -167,6 +167,30 @@ def _checkFunctionArgs(func, argCount, kwArgs, lastLineNum) :
 
     return warnings
 
+def _getFunction(module, stackValue) :
+    "Return the function from the stack value"
+
+    identifier = stackValue.data
+    if type(identifier) != types.StringType :
+        identifier = ''
+        for element in stackValue.data :
+            identifier = identifier + '.' + str(element)
+        identifier = identifier[1:]
+
+        idList = string.split(identifier, '.')
+        refModule, identifier = string.join(idList[:-1], '.'), idList[-1]
+        module = module.modules.get(refModule, None)
+        if module is None :
+            return None
+
+    func = module.functions.get(identifier, None)
+    if func == None :
+        # if we didn't find the function, maybe this is object creation
+        c = module.classes.get(identifier, None)
+        if c != None :
+            func = c.methods.get('__init__', None)
+    return func
+
 def _addWarning(warningList, warning) :
     if warning != None :
         if type(warning) == types.ListType :
@@ -211,19 +235,12 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
             if _cfg.callingAttribute :
                 warn = Warning(code, lastLineNum, _INVALID_METHOD % methodName)
     elif loadValue.type in [ Stack.TYPE_ATTRIBUTE, Stack.TYPE_GLOBAL, ] and \
-         type(loadValue.data) == types.StringType :
+         type(loadValue.data) in [ types.StringType, types.TupleType ] :
         # apply(func, (args)), can't check # of args, so just return func
         if loadValue.data == 'apply' :
             loadValue = stack[funcIndex+1]
         else :
-            # already checked if module function w/this name exists
-            func = module.functions.get(loadValue.data, None)
-            if func == None :
-                # if we didn't find the function, maybe this is a new object
-                c = module.classes.get(loadValue.data, None)
-                if c != None :
-                    func = c.methods.get('__init__', None)
-
+            func = _getFunction(module, loadValue)
             if func != None :
                 warn = _checkFunctionArgs(func, argCount, kwArgs, lastLineNum)
 
