@@ -9,8 +9,6 @@ onto the option variables and define the Warning objects they support.
 Items still missing:
         Error suppression (errors may be suppressed globally)
 
-        Line numbers for where identifiers are defined.
-
         Typing of any kind:
              consistent return types
              consistent return styles (implicit and explicit)
@@ -25,6 +23,8 @@ Items still missing:
         Complexity
 
         Doc strings
+
+        Speed
 
 Important stuff:
 

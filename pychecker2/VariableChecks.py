@@ -2,12 +2,13 @@ from pychecker2.Check import Check
 from pychecker2.Options import Opt, BoolOpt
 from pychecker2.Warning import Warning
 from pychecker2.util import ScopeVisitor
+from pychecker2 import symbols
 
 import compiler
 
 def _is_method(scope):
-    return scope.__class__ is compiler.symbols.FunctionScope and \
-           scope.parent.__class__ is compiler.symbols.ClassScope
+    return scope.__class__ is symbols.FunctionScope and \
+           scope.parent.__class__ is symbols.ClassScope
 
 def _is_self(scope, name):
     return _is_method(scope) and name in scope.node.argnames[:1]
@@ -42,10 +43,10 @@ class ShadowCheck(Check):
                 if _is_self(scope, name):
                     continue
                 if __builtins__.has_key(name):
-                    file.warning(scope, self.shadowBuiltins, name)
+                    file.warning(scope.defs[name], self.shadowBuiltins, name)
                 for p in iter(Parents(scope), None):
                     if p.defs.has_key(name):
-                        file.warning(scope, self.shadowIdentifier, name, `p`)
+                        file.warning(scope.defs[name], self.shadowIdentifier, name, `p`)
 
 class UnusedCheck(Check):
     """Use symbol information to check that no scope defines a name
@@ -70,8 +71,8 @@ class UnusedCheck(Check):
             # don't report global classes and functions that
             # don't start with "_"
             if parent_scope in file.root_scope.get_children() and \
-               parent_scope.__class__ in (compiler.symbols.ClassScope, \
-                                          compiler.symbols.FunctionScope) and \
+               parent_scope.__class__ in (symbols.ClassScope, \
+                                          symbols.FunctionScope) and \
                name == parent_scope.node.name and \
                not name.startswith('_'):
                     return 1
@@ -102,7 +103,7 @@ class UnusedCheck(Check):
                     continue
             
             # ignore names defined in a class scope
-            if isinstance(scope, compiler.symbols.ClassScope):
+            if isinstance(scope, symbols.ClassScope):
                 continue
 
             # ensure that every defined variable is used in some scope
@@ -122,7 +123,7 @@ class UnusedCheck(Check):
                         break
                 else:
                     if not used(var, scope):
-                        file.warning(scope, self.unused, var)
+                        file.warning(scope.defs[var], self.unused, var)
 
 def _importedName(scope, name):
     if scope.imports.has_key(name):
@@ -154,7 +155,7 @@ class UnknownCheck(Check):
                     else:
                         if not _importedName(scope, var):
                             if not UnknownCheck.builtins.has_key(var):
-                                file.warning(scope, self.unknown, var)
+                                file.warning(scope.uses[var], self.unknown, var)
 
 class SelfCheck(Check):
     'Report any methods whose first argument is not self'
@@ -174,7 +175,7 @@ class SelfCheck(Check):
         for scope in file.scopes.values():
             for var in scope.defs:
                 if _is_self(scope, var) and var not in self.selfNames:
-                    file.warning(scope, self.selfName,
+                    file.warning(scope.defs[var], self.selfName,
                                  scope.node.name, var, `self.selfNames`)
 
 class UnpackCheck(Check):

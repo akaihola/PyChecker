@@ -1,7 +1,8 @@
 from pychecker2.Check import Check
 from pychecker2.Warning import Warning
+from pychecker2 import symbols
 
-from compiler import symbols, parseFile, walk
+from compiler import parseFile, walk
 import parser
 
 class ParseCheck(Check):

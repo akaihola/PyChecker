@@ -23,4 +23,5 @@ Error:
 
 Miscellaneous:
  --incremental          print warnings as they are created
+ --profile              print a profile of pychecker
  --verbose              turn on verbose messages

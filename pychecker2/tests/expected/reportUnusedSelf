@@ -1,13 +1,13 @@
 tests/badparse.py:1 Unable to parse: could not parse string
 
-tests/global.py:1 Unknown identifier: y
+tests/global.py:3 Unknown identifier: y
 
-tests/import.py:1 Identifier (bar) not used
-tests/import.py:1 Identifier (getopt) not used
-tests/import.py:1 Identifier (nifty) not used
-tests/import.py:1 Unknown identifier: z
-tests/import.py:6 Unknown identifier: __all__
+tests/import.py:2 Identifier (bar) not used
+tests/import.py:3 Identifier (getopt) not used
+tests/import.py:4 Identifier (nifty) not used
+tests/import.py:8 Unknown identifier: __all__
 tests/import.py:12 Error trying to import xYzZy: No module named xYzZy
+tests/import.py:13 Unknown identifier: z
 
 tests/not_there.py:[unknown line] Unable to parse: [Errno 2] No such file or directory: 'tests/not_there.py'
 
@@ -25,16 +25,16 @@ tests/self.py:14 Identifier (a) not used
 tests/shadow.py:2 Scope (f) is redefined at line 8
 tests/shadow.py:15 Identifier (a) not used
 tests/shadow.py:15 Identifier (b) not used
-tests/shadow.py:15 Identifier (f) shadows definition in scope <ModuleScope: global>
-tests/shadow.py:15 Unknown identifier: c
-tests/shadow.py:15 Unknown identifier: d
-tests/shadow.py:16 Identifier (a) not used
-tests/shadow.py:16 Identifier (b) not used
-tests/shadow.py:16 Identifier (a) shadows definition in scope <FunctionScope: g>
-tests/shadow.py:16 Identifier (b) shadows definition in scope <FunctionScope: g>
+tests/shadow.py:16 Identifier (f) shadows definition in scope <ModuleScope: global>
+tests/shadow.py:17 Identifier (a) not used
+tests/shadow.py:17 Identifier (a) shadows definition in scope <FunctionScope: g>
+tests/shadow.py:18 Identifier (b) not used
+tests/shadow.py:18 Identifier (b) shadows definition in scope <FunctionScope: g>
+tests/shadow.py:19 Unknown identifier: c
+tests/shadow.py:19 Unknown identifier: d
 
 tests/unused.py:2 Identifier (a) not used
-tests/unused.py:5 Identifier (Test) not used
+tests/unused.py:6 Identifier (Test) not used
 tests/unused.py:9 Identifier (self) not used
 
 tests/unusedImport.py:1 Identifier (sys) not used
