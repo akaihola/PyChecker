@@ -25,6 +25,15 @@ class ClassTestCase(WarningTester):
                      'class Derived(Base):\n'
                      '  def f(self, x): pass\n',
                      4, w, 'f', 'Base')
+        self.silent('class Base:\n'
+                    '  def f(self, x, y, *args): pass\n'
+                    'class Derived(Base):\n'
+                    '  def f(self, x, *args): pass\n')
+        self.warning('class Base:\n'
+                     '  def f(self, x, *args): pass\n'
+                     'class Derived(Base):\n'
+                     '  def f(self, x, y, *args): pass\n',
+                     4, w, 'f', 'Base')
 
     def testUnknownAttribute(self):
         w = ClassChecks.AttributeCheck.unknownAttribute
