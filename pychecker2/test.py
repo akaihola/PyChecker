@@ -27,7 +27,9 @@ def _make_coverage_dirs(root):
 
 def _modules(root):
     modules = []
-    for fname in glob.glob(os.path.join(root, 'utest', '*.py')):
+    files = glob.glob(os.path.join(root, 'utest', '*.py'))
+    files.sort()
+    for fname in files:
         fname = os.path.split(fname)[1] # remove path
         module = 'pychecker2.utest.' + os.path.splitext(fname)[0]
         if not module.endswith('_'):    # ignore __init__
