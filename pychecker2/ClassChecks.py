@@ -341,4 +341,23 @@ class SpecialCheck(Check):
                 if name.startswith('__') and name.endswith('__') and \
                    name != '__init__' and not special.has_key(name):
                     file.warning(m.node, self.notSpecial, name)
-    
+
+class BackQuote(BaseVisitor):
+
+    def __init__(self):
+        self.results = []
+
+    def visitBackquote(self, node):
+        if isinstance(node.expr, ast.Name) and node.expr.name == 'self':
+            self.results.append(node)
+
+class ReprCheck(Check):
+
+    backquoteSelf = Warning('Report use of `self` in __repr__ methods',
+                           'Using `self` in __repr__')
+    def check(self, file, unused_checker):
+        for scope in type_filter(file.scopes.values(), symbols.ClassScope):
+            for m in _get_methods(scope):
+                if m.name == '__repr__':
+                    for n in walk(m.node.code, BackQuote()).results:
+                        file.warning(line(n), self.backquoteSelf)

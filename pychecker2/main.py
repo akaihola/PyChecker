@@ -39,6 +39,7 @@ def create_checklist(options):
                OpChecks.ExceptCheck(),
                ReachableChecks.ReachableCheck(),
                ConditionalChecks.ConstantCheck(),
+               ClassChecks.ReprCheck(),
                ImportChecks.ImportCheck(),
                FormatStringChecks.FormatStringCheck(),
                VariableChecks.ShadowCheck(),

@@ -188,3 +188,12 @@ class ClassTestCase(WarningTester):
                      '  def f(self):\n'
                      '    self.value = 1',
                      3, w, 'value')
+
+    def testRepr(self):
+        w = ClassChecks.ReprCheck.backquoteSelf
+        self.silent('class C:\n'
+                    '  def __str__(self):\n'
+                    '    return "C" + `self`\n')
+        self.warning('class C:\n'
+                    '  def __repr__(self):\n'
+                    '    return "C" + `self`\n', 3, w)
