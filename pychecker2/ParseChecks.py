@@ -35,25 +35,23 @@ class ParseCheck(Check):
 
         if not self.main:
             # remove __name__ == '__main__' code from module-level
-            for n in file.parseTree.node.nodes[:]:
-                is_main = None
+            for n in file.parseTree.node.nodes:
                 try:
                     test, code = n.tests[0]
                     comparison, value = test.ops[0]
-                    try:
-                        if test.expr.name == '__name__' and \
-                           comparison == '==' and \
-                           value.value == '__main__':
-                            is_main = 1
-                    except (AttributeError, IndexError), unused:
-                        if test.expr.value == '__main__' and \
-                           comparison == '==' and \
-                           value.name == '__name__':
-                            is_main = 1
-                except AttributeError, IndexError:
+                    if comparison == '==':
+                        try:
+                            if test.expr.name == '__name__' and \
+                               value.value == '__main__':
+                                file.parseTree.node.nodes.remove(n)
+                                break
+                        except AttributeError:
+                            if test.expr.value == '__main__' and \
+                               value.name == '__name__':
+                                file.parseTree.node.nodes.remove(n)
+                                break
+                except (AttributeError, IndexError):
                     pass
-                if is_main:
-                    file.parseTree.node.nodes.remove(n)
 
         file.scopes = walk(file.parseTree, symbols.SymbolVisitor()).scopes
         file.root_scope = file.scopes[file.parseTree]
