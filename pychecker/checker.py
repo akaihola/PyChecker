@@ -95,7 +95,7 @@ def getModules(arg_list) :
             module_name = os.path.basename(arg)[:-PY_SUFFIX_LEN]
             if arg_dir not in sys.path :
                 sys.path.insert(1, arg_dir)
-	    arg = module_name
+            arg = module_name
         modules.append(arg)
 
     return modules
@@ -128,9 +128,9 @@ def _findModule(name, path = sys.path) :
                     if file is not None :
                         file.close()
 
-	    new_path = m.__path__
-	    if type(new_path) == types.ListType :
-	        new_path = filename
+            new_path = m.__path__
+            if type(new_path) == types.ListType :
+                new_path = filename
             if new_path not in path :
                 path.insert(1, new_path)
         else:
@@ -337,7 +337,7 @@ class Module :
                     return self.initModule(sys.modules[self.moduleName])
                 return 1
 
-	    file, filename, smt = _findModule(self.moduleName)
+            file, filename, smt = _findModule(self.moduleName)
             # FIXME: if the smt[-1] == imp.PKG_DIRECTORY : load __all__
             try :
                 module = imp.load_module(self.moduleName, file, filename, smt)

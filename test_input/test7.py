@@ -8,10 +8,10 @@ class X:
     def __init__(self, other):
         self.func = func
         self.other = other
-	self.x = None
+        self.x = None
 
     def test(self):
-    	"self.y should generate a function"
+        "self.y should generate a function"
         self.func()
         self.other()
         self.x()

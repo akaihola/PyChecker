@@ -32,12 +32,12 @@ def ppp():
 
 class X:
     def __init__(self) :
-	print sys.argv
-	print self.__class__, self.__doc__, self.__dict__, self.__x__, self.x
-	self.y = 0
-	print self.y
+        print sys.argv
+        print self.__class__, self.__doc__, self.__dict__, self.__x__, self.x
+        self.y = 0
+        print self.y
     def r(sf):
-	nofunc()
+        nofunc()
         for i in range(0, len(self.a)) :
             jjj(1, 2, 3, k=5)
 
@@ -51,7 +51,7 @@ class Y(X):
         adf.mmm.kkk()
         # j doesn't exist
         self.j = 0
-	self.xxx(1, 2)
+        self.xxx(1, 2)
 
 def uuu():
   a=1+2

@@ -24,7 +24,7 @@ class check_here:
     'test __pychecker__ var at class scope'
     __pychecker__ = 'funcdoc argsused unusednames=foo,bar'
     def a(self) :
-	'd'
+        'd'
         pass
     def x(self, foo) :
         print self
