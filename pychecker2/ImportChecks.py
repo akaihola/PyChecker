@@ -1,4 +1,3 @@
-
 from pychecker2.Check import Check
 from pychecker2.Check import Warning
 from pychecker2 import util
@@ -35,7 +34,7 @@ Figure out which names come from 'import name'.
                 file.warning(node, ImportCheck.importError, name, str(detail))
                 return None
             except Exception, detail:
-                file.warning(node, ImportCheck.importError, name, detail)
+                file.warning(node, ImportCheck.importError, name, str(detail))
 
         def add_import(node, local, remote, module):
             scopes = util.enclosing_scopes(file.scopes, node)
