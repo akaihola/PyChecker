@@ -1,13 +1,13 @@
 
 Version 0.4	- xx April 2001
-  * Handle apply(BaseClass.__init__(self, args))
-  * Fix **kwArgs warning if named parameter is not first
   * Add .rc file processing to specify options (like on command line)
   * Add new warning if module.Attribute doesn't exist
-  * Fix command line handling so you can pass module, package, or filename
-  * Add glob'ing support for windows
-  * Don't exit from checker when import checker from interpreter
   * Add new warning:  Module (%s) re-imported locally
+  * Add glob'ing support for windows
+  * Handle apply(BaseClass.__init__(self, args))
+  * Fix command line handling so you can pass module, package, or filename
+  * Fix **kwArgs warning if named parameter is not first
+  * Don't exit from checker when import checker from interpreter
 
 Version 0.3	- 17 April 2001
   * Fix some checker crashes (oops)

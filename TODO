@@ -2,6 +2,7 @@
 * Fix spurious warnings (Base class __init__ not called)
 	(only known case is subclass from Exception)
 * Fix Local variable (xxx) not used, when have:  "%(xxx)s" % locals()
+* Check format strings: "%s %d" % (strValue, intValue)
 * Check function return values
 * Finer grain control of warnings/config options (per module/class/method)
 * Check code in module scope (not in a function/method)
