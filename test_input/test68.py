@@ -89,3 +89,12 @@ def func13(x):
         return 1
     else:
         return 0
+
+def func14(x):
+    'should not produce a warning'
+    try:
+        if x == 1:
+            return 3
+        return 6
+    except:
+        raise

@@ -24,6 +24,7 @@ def UNARY_INVERT(op):          return op == 15
 def RETURN_VALUE(op):          return op == 83
 def JUMP_FORWARD(op):          return op == 110
 def RAISE_VARARGS(op):         return op == 130
+def POP_BLOCK(op):             return op == 87
 
 def UNPACK_SEQUENCE(op) :
     "Deal w/Python 1.5.2 (UNPACK_[LIST|TUPLE]) or 2.0 (UNPACK_SEQUENCE)"

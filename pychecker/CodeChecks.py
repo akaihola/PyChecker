@@ -561,6 +561,7 @@ class Code :
         self.func = None
         self.func_code = None
         self.index = 0
+        self.indexList = []
         self.extended_arg = 0
         self.lastLineNum = 0
         self.maxCode = 0
@@ -600,16 +601,16 @@ class Code :
         self.warnings.append(Warning.Warning(self.func_code, line, err))
 
     def popNextOp(self) :
-        oldIndex = self.index
+        self.indexList.append(self.index)
         info = OP.getInfo(self.bytes, self.index, self.extended_arg)
         op, oparg, self.index, self.extended_arg = info
         if op < OP.HAVE_ARGUMENT :
-            utils.debug("  %d %s" % (oldIndex, OP.name[op]))
+            utils.debug("  %d %s" % (self.indexList[-1], OP.name[op]))
             operand = None
         else :
             operand = OP.getOperand(op, self.func_code, oparg)
             self.label = label = OP.getLabel(op, oparg, self.index)
-            utils.debug("  %d %s" % (oldIndex, OP.name[op]), oparg, operand)
+            utils.debug("  %d %s" % (self.indexList[-1], OP.name[op]), oparg, operand)
             if label != None :
                 if self.branches.has_key(label) :
                     self.branches[label] = self.branches[label] + 1
@@ -692,18 +693,22 @@ class Code :
         self.raiseValues.append((self.lastLineNum, None, self.index))
 
     def removeBranch(self, label) :
-        # FIXME: not sure what to do here, we need all the branches
-        #        for checking unused code (I think)
-        #        but it's an extra branch for code complexity,
-        #        right now, unused code is more important
-        return
-
         branch = self.branches.get(label, None)
         if branch is not None :
             if branch == 1 :
                 del self.branches[label]
             else :
                 self.branches[label] = branch - 1
+
+    def remove_unreachable_code(self, label) :
+        if len(self.indexList) >= 2 :
+            index = self.indexList[-2]
+            if index >= 0 and OP.POP_BLOCK(ord(self.bytes[index])) :
+                index = self.indexList[-3]
+            if index >= 0 :
+                op = ord(self.bytes[index])
+                if OP.RETURN_VALUE(op) or OP.RAISE_VARARGS(op) :
+                    self.removeBranch(label)
 
     def updateCheckerArgs(self, operand) :
         rc = utils.shouldUpdateArgs(operand)
@@ -1140,13 +1145,9 @@ def _jump_conditional(oparg, operand, codeSource, code) :
     _jump(oparg, operand, codeSource, code)
 _JUMP_IF_FALSE = _JUMP_IF_TRUE = _jump_conditional
 
-
 def _JUMP_FORWARD(oparg, operand, codeSource, code) :
     _jump(oparg, operand, codeSource, code)
-
-    # remove unreachable branches
-    if OP.RETURN_VALUE(ord(code.bytes[code.index - utils.BACK_RETURN_INDEX])) :
-        code.removeBranch(code.label)
+    code.remove_unreachable_code(code.label)
 
 def _RETURN_VALUE(oparg, operand, codeSource, code) :
     if codeSource.calling_code is None :

@@ -133,8 +133,8 @@ def _findUnreachableCode(code) :
     lastLine, lastItem, lastIndex = code.returnValues[-1]
     if len(code.returnValues) >= 2 :
         lastIndex = code.returnValues[-2][2]
-    elif lastIndex < 0 and code.raiseValues :
-        lastIndex = code.raiseValues[-1][2]
+    if code.raiseValues :
+        lastIndex = max(lastIndex, code.raiseValues[-1][2])
 
     # remove last return if it's unreachable AND implicit
     if unreachable.get(lastIndex) == lastLine and lastItem.isImplicitNone() :
