@@ -73,7 +73,7 @@ def get_base_names(scope):
     return names
 
 def find_in_module(package, remotename, names, checker):
-    # No other names, must be a remote value from the module
+    # No other names, must be a name from the module
     if not names:
         f = checker.check_module(package)
         if f:
@@ -86,13 +86,10 @@ def find_in_module(package, remotename, names, checker):
     if remotename:
         name += "." + remotename
     #  now import it, and chase down any other modules
-    try:
-        module = __import__(name, globals(), {}, [''])
-        submodule = getattr(module, names[0], None)
-        if type(submodule) == type(symbols):
-            return find_in_module(submodule, None, names[1:], checker)
-    except ImportError:
-        return None
+    module = __import__(name, globals(), {}, [''])
+    submodule = getattr(module, names[0], None)
+    if type(submodule) == type(symbols):
+        return find_in_module(submodule, None, names[1:], checker)
     
     #  object in the module is not another module, so chase down the source
     f = checker.check_module(module)
@@ -122,7 +119,7 @@ def find_imported_class(imports, names, checker):
             result = find_in_module(ref.module, ref.remotename, names[i:], checker)
             if result:
                 return result
-        except KeyError:
+        except (KeyError, ImportError):
             pass
     return None
 
