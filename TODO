@@ -10,7 +10,6 @@
 * Fix Local variable (xxx) not used, when have:  "%(xxx)s" % locals()
 * Check function return values
 * Finer grain control of warnings/config options (per module/class/method)
-* Use real line numbers for class warnings
 * Allow import checker to catch errors, rather than starting checker.py
 * Find lines that end w/semi-colons (;)
 * Spell check doc strings
