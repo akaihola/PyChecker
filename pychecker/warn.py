@@ -80,8 +80,9 @@ def _checkReturnWarnings(code) :
                                 lastReturn[0]+1)
                 break
 
-    # getattr can return different types, so don't warn about inconsistency
-    if is_getattr :
+    # __get*__ funcs can return different types, don't warn about inconsistency
+    if utils.startswith(code.func_code.co_name, '__get') and \
+       utils.endswith(code.func_code.co_name, '__') :
         return
 
     returnType, returnData = None, None
