@@ -72,13 +72,19 @@ GLOBAL_FUNC_INFO = { '__import__': (types.ModuleType, 1, 4),
 
 if utils.pythonVersion() >= utils.PYTHON_2_2 :
     GLOBAL_FUNC_INFO['compile'] = (types.CodeType, 3, 5)
-    GLOBAL_FUNC_INFO['dictionary'] = (types.DictType, 0, 1)
+    GLOBAL_FUNC_INFO['dict'] = (types.DictType, 0, 1)
     GLOBAL_FUNC_INFO['int'] = (types.IntType, 0, 2)
     GLOBAL_FUNC_INFO['list'] = (types.ListType, 0, 1)
     GLOBAL_FUNC_INFO['long'] = (types.LongType, 0, 2)
     GLOBAL_FUNC_INFO['str'] = (types.StringType, 0, 1)
     GLOBAL_FUNC_INFO['type'] = (types.TypeType, 1, 3)     # FIXME: not 2 args
     GLOBAL_FUNC_INFO['tuple'] = (types.TupleType, 0, 1)
+
+    GLOBAL_FUNC_INFO['classmethod'] = (types.MethodType, 1, 1)
+    GLOBAL_FUNC_INFO['iter'] = (Stack.TYPE_UNKNOWN, 1, 2)
+    GLOBAL_FUNC_INFO['property'] = (Stack.TYPE_UNKNOWN, 0, 4) # FIXME: ???
+    GLOBAL_FUNC_INFO['super'] = (Stack.TYPE_UNKNOWN, 1, 2)
+    GLOBAL_FUNC_INFO['staticmethod'] = (types.MethodType, 1, 1)
 
 if hasattr(types, 'UnicodeType') :
     GLOBAL_FUNC_INFO['unichr'] = (types.UnicodeType, 1, 1)
