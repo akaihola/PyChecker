@@ -234,23 +234,28 @@ class Module :
             else :
                 self.addVariable(tokenName, tokenType)
 
+        return 1
+
 
 def main(argv) :
+    importWarnings = []
     for filename, moduleName in getModules(argv[1:]) :
         print "Processing %s..." % moduleName
         module = Module(filename, moduleName)
-        module.load()
+        if not module.load() :
+            w = warn.Warning(filename, 1, "NOT PROCESSED UNABLE TO IMPORT")
+            importWarnings.append(w)
 
     if _printParse :
         for module in _allModules.values() :
             printer.module(module)
 
-    print "Warnings..."
+    print "\nWarnings...\n"
     warnings = warn.find(_allModules.values())
-    if len(warnings) > 0 :
+    if warnings or importWarnings :
         warnings.sort()
         lastWarning = None
-        for warning in warnings :
+        for warning in importWarnings + warnings :
             if lastWarning != None :
                 # ignore duplicate warnings
                 if cmp(lastWarning, warning) == 0 :
