@@ -81,6 +81,20 @@ or:
 
 ---------------------------------------------------------------------
 
-Tests #44, 47, 56 don't work due to problems with from/import.
+The following code generates a spurious warning:
+
+	from XXX import *
+
+	class SameName:
+	    def __init__(self): pass
+
+And in the file XXX:
+
+	class SameName:
+	    def __init__(self, c): pass
+
+	class Anyname:
+	    def __init__(self):
+	        self.xxx = SameName(1)
 
 ---------------------------------------------------------------------
