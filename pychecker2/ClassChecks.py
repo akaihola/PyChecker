@@ -141,10 +141,11 @@ def conforms(a, b):
     alen = len(a.node.argnames)
     blen = len(b.node.argnames)
     # f(a, *args) conforms to f(a, b, *args)
-    if alen < blen and a.node.varargs and b.node.varargs:
-        return None
     if alen != blen:
-        return None
+        if alen < blen:
+            return None
+        elif not a.node.varargs or not b.node.varargs:
+            return None
     return a.node.kwargs == b.node.kwargs and a.node.varargs == b.node.varargs
 
 class AttributeCheck(Check):
