@@ -1,6 +1,6 @@
 'test setting class attributes not in __init__ w/initattr set'
 
-__pychecker__ = 'initattr'
+__pychecker__ = 'initattr no-classdoc'
 
 class A:
   'd'
