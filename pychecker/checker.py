@@ -102,7 +102,8 @@ def _findModule(name, path = sys.path) :
                 # package found - read path info from init file
                 m = imp.load_module(p, file, filename, smt)
             finally :
-                file.close()
+                if file is not None :
+                    file.close()
 
             # importing xml plays a trick, which replaces itself with _xmlplus
             # both have subdirs w/same name, but different modules in them
@@ -112,7 +113,8 @@ def _findModule(name, path = sys.path) :
                     file, filename, smt = imp.find_module(m.__name__, path)
                     m = imp.load_module(p, file, filename, smt)
                 finally :
-                    file.close()
+                    if file is not None :
+                        file.close()
         
 	    new_path = m.__path__
 	    if type(new_path) == types.ListType :
@@ -121,7 +123,8 @@ def _findModule(name, path = sys.path) :
                 path.insert(1, new_path)
         else:
             if p is not packages[-1] :
-                file.close()
+                if file is not None :
+                    file.close()
                 raise ImportError, "No module named %s" % packages[-1]
             return file, filename, smt
 
