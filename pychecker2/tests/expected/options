@@ -16,6 +16,7 @@ Error:
  --no-shadowIdentifier  Report names already defined in outer scopes
  --no-syntaxErrors      Report/ignore syntax errors
  --no-unknown           Report names that are not defined
+ --no-unpackedUsed      Do not treat variables used in tuple assignment as used
  --no-unused            Report names not used
  --unusedPrefixes       Ignore unused identifiers that start with these values
                         ['unused', 'empty', 'dummy', '__pychecker__', '__all__', '__version__', 'ignored']
