@@ -294,7 +294,7 @@ class Class :
 
     def cleanupMemberRefs(self) :
         try :
-            del self.memberRefs['__pychecker__']
+            del self.memberRefs[Config.CHECKER_VAR]
         except KeyError :
             pass
 
@@ -612,9 +612,9 @@ else :
                     _printWarnings(warn.find([module], _cfg, _suppressions))
                 else :
                     print 'Unable to load module', pymodule.__name__
-            except Exception, detail:
+            except Exception:
                 name = getattr(pymodule, '__name__', str(pymodule))
-                print 'PyChecker error processing %s: %s' % (name, detail)
+                importError(name)
 
         return pymodule
 
