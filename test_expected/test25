@@ -2,6 +2,6 @@ Processing test25...
 
 Warnings...
 
-test_input/test25.py:13 No class attribute (a) found
-test_input/test25.py:14 No class attribute (y) found
-test_input/test25.py:15 No module attribute (lkjsdflksjasdlf) found
+test_input/test25.py:13: No class attribute (a) found
+test_input/test25.py:14: No class attribute (y) found
+test_input/test25.py:15: No module attribute (lkjsdflksjasdlf) found

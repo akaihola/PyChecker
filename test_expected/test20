@@ -2,7 +2,7 @@ Processing test20...
 
 Warnings...
 
-test_input/test20.py:10 Function returns a value and also implicitly returns None
-test_input/test20.py:21 Fuction return types are inconsistent
-test_input/test20.py:28 Fuction return types are inconsistent
-test_input/test20.py:40 Fuction return types are inconsistent
+test_input/test20.py:10: Function returns a value and also implicitly returns None
+test_input/test20.py:21: Function return types are inconsistent
+test_input/test20.py:28: Function return types are inconsistent
+test_input/test20.py:40: Function return types are inconsistent

@@ -2,5 +2,5 @@ Processing test9...
 
 Warnings...
 
-test_input/test9.py:8 Module (getopt) re-imported
-test_input/test9.py:15 No module attribute (xyz) found
+test_input/test9.py:8: Module (getopt) re-imported
+test_input/test9.py:15: No module attribute (xyz) found
