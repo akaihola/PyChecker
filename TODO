@@ -10,6 +10,7 @@ Longer Term goals:
 ------------------
 * Check object method calls for # args for builtin type methods
 * Store types of globals, class attributes, function & method return values
+* Handle slots in Python 2.2
 * Add original line warnings for those that refer to another place
 	(e.g., overridden method doesn't match signature)
 * Add capability to check features from a specified version of python
@@ -20,6 +21,7 @@ Longer Term goals:
 * Make check for 'self' a list instead of a string
 * Check function return values - partially complete
 * Add check for unreachable code
+* Add check if __getattr[ibute]__ returns None (instead of raising an exception)
 * Add check for except: pass
 * Add check that private functions are used in module/class
 * Add check that subclass overrides method that only raises NotImplementedError
