@@ -3,8 +3,12 @@
 import sys
 
 from OptionTypes import *
+from string import capitalize, strip
 
 import Config
+
+MAX_SUBBOX_ROWS = 7
+MAX_BOX_COLS = 3
 
 class ConfigDialog:
     "Dialog for editiong options"
@@ -21,8 +25,8 @@ class ConfigDialog:
               value = None
               if member:
                   value = getattr(self._cfg, member)
-                  description = member + ": " + description.capitalize()
-                  description = description.strip()
+                  description = member + ": " + capitalize(description)
+                  description = strip(description)
               tk.option_add('*' + longArg + ".help", description)
               if useValue:
                   if type(value) == type([]):
@@ -51,28 +55,50 @@ class ConfigDialog:
     def click(self, ev):
         self.help(ev.widget)
 
+    def add_fields(self, w, opts):
+        count = 0
+        for opt in opts:
+            f = opt.field(w)
+            c, r = divmod(count, MAX_SUBBOX_ROWS)
+            f.grid(row=r, col=c, sticky=Tkinter.NSEW)
+            count = count + 1
+
+    def add_group(self, w, name, opts):
+        colFrame = Tkinter.Frame(w)
+        
+        label = Tkinter.Label(colFrame, text=name + ":")
+        label.grid(row=0, col=0, sticky=Tkinter.NSEW)
+        
+        gframe = Tkinter.Frame(colFrame, relief=Tkinter.GROOVE, borderwidth=2)
+        gframe.grid(row=1, col=0, sticky=Tkinter.NSEW)
+        self.add_fields(gframe, opts)
+        
+        label = Tkinter.Label(colFrame)
+        label.grid(row=2, col=0, sticky=Tkinter.NSEW)
+        colFrame.rowconfigure(2, weight=1)
+        return colFrame
+
     def main(self):
         frame = Tkinter.Frame(self._tk, name="opts")
         frame.grid()
         tk.option_readfile('Options.ad')
         self._fields = {}
-        row = 0
-        col = 0
+        row, col = 0, 0
+        rowFrame = Tkinter.Frame(frame)
+        rowFrame.grid(row=row)
+        row = row + 1
         for name, opts in self._opts:
-          label = Tkinter.Label(frame, text=name + ":")
-          label.grid(row=row, col=col, sticky=Tkinter.W)
-          row += 1
-          for opt in opts:
-              f = opt.field(frame)
-              f.grid(row=row, col=col, sticky=Tkinter.E + Tkinter.W)
-              row += 1
-          col += 1
-          row = 0
-        for c in range(col):
-            frame.columnconfigure(c, weight=1)
+            w = self.add_group(rowFrame, name, opts)
+            w.grid(row=row, col=col, sticky=Tkinter.NSEW)
+            col = col + 1
+            if col >= MAX_BOX_COLS:
+                rowFrame=Tkinter.Frame(frame)
+                rowFrame.grid(row=row, sticky=Tkinter.NSEW)
+                col = 0
+                row = row + 1
 
         self._help = Tkinter.Label(tk, name="helpBox")
-        self._help.grid(row)
+        self._help.grid(row=row)
         self._help.config(takefocus=0)
         buttons = Tkinter.Frame(tk, name="buttons")
         ok = Tkinter.Button(buttons, name="ok", command=self.ok)
@@ -91,8 +117,8 @@ class ConfigDialog:
     def ok(self):
         opts = []
         # Pull command-line args
-        for opt in self._opts:
-            if opt:
+        for name, group in self._opts:
+            for opt in group:
                 arg = opt.arg()
                 if arg:
                     opts.append(arg)
@@ -102,17 +128,15 @@ class ConfigDialog:
         self._cfg, _, _ = Config.setupFromArgs(opts)
 
         # Set controls based on new config
-        for opt in Config._OPTIONS:
-            if opt:
-                _, _, longArg, member, _ = opt
+        for name, group in Config._OPTIONS:
+            for _, _, longArg, member, _ in group:
                 if member:
                     self._optMap[longArg].set(getattr(self._cfg, member))
 
     def default(self):
         self._cfg, _, _ = Config.setupFromArgs(sys.argv)
-        for opt in Config._OPTIONS:
-            if opt:
-                _, _, longArg, member, _ = opt
+        for _, group in Config._OPTIONS:
+            for _, _, longArg, member, _ in group:
                 if member:
                     self._optMap[longArg].set(getattr(self._cfg, member))
                 else:

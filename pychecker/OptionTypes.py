@@ -105,9 +105,13 @@ class Text(Base):
 class List(Text):
     "OptionType for editing a list of values"
 
+    def join(self, list):
+        import string
+        return string.join(list, ", ")
+
     def __init__(self, name, default):
-        Text.__init__(self, name, ", ".join(default))
+        Text.__init__(self, name, self.join(default))
 
     def set(self, value):
-        self._var.set(", ".join(value))
+        self._var.set(self.join(value))
 
