@@ -1018,7 +1018,8 @@ def _JUMP_FORWARD(oparg, operand, codeSource, code) :
         code.removeBranch(code.label)
 
 def _RETURN_VALUE(oparg, operand, codeSource, code) :
-    code.addReturn()
+    if codeSource.calling_code is None :
+        code.addReturn()
 
 
 DISPATCH = [ None ] * 256

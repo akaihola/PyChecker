@@ -19,3 +19,11 @@ class Z:
     'should not get a warning'
     def __init__(self, x):
         return
+
+
+class Q(Z):
+    'd'
+    def __init__(self):
+        v = lambda : None
+	Z.__init__(self, v)
+
