@@ -1145,9 +1145,9 @@ def _checkBoolean(code, checks):
 
 def _COMPARE_OP(oparg, operand, codeSource, code) :
     compareValues = _handleComparison(code.stack, operand)
-    if operand is OP.EXCEPT_COMPARE:
+    if oparg == OP.EXCEPT_COMPARISON:
         _handleExceptionChecks(codeSource, code, compareValues)
-    else:
+    elif oparg < OP.IS_COMPARISON:
         _checkBoolean(code, compareValues)
 
 def _IMPORT_NAME(oparg, operand, codeSource, code) :
