@@ -1,7 +1,7 @@
 from pychecker2.Check import Check
 from pychecker2.Options import Opt, BoolOpt
 from pychecker2.Warning import Warning
-from pychecker2 import util
+from pychecker2.util import ScopeVisitor
 
 import compiler
 
@@ -189,19 +189,6 @@ class UnpackCheck(Check):
             return
 
         class Visitor:
-            def __getattr__(self, name):
-                if name == 'visitAssTuple':
-                    return self.visitAssTuple
-                return self.default
-
-            def default(self, node, *scopes):
-                try:
-                    scopes = scopes + (file.scopes[node],)
-                except KeyError:
-                    pass
-                for c in node.getChildNodes():
-                    self.visit(c, *scopes)
-
             def visitAssTuple(self, node, *scopes):
                 for c in node.getChildNodes():
                     try:
@@ -210,4 +197,5 @@ class UnpackCheck(Check):
                         pass
                 
         if file.root_scope:
-            compiler.walk(file.root_scope.node, Visitor())
+            compiler.walk(file.root_scope.node,
+                          ScopeVisitor(file.scopes, Visitor()))
