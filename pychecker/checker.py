@@ -343,7 +343,7 @@ def importError(moduleName):
                          moduleName)
 
         tbinfo = traceback.extract_tb(tb)
-        for filename, line, func, text in tbinfo:
+        for filename, line, func, text in tbinfo[2:]:
             sys.stderr.write("    File \"%s\", line %d" % (filename, line))
             if func != "?":
                 sys.stderr.write(", in %s()" % func)
@@ -352,7 +352,10 @@ def importError(moduleName):
                 sys.stderr.write("      %s\n" % text)
 
         # And finally print the exception type and value.
-        sys.stderr.write("  %s: %s\n" % (exc_name, exc_value))
+        try:
+            sys.stderr.write("  %s: %s\n" % (exc_name, exc_value))
+        except:
+            pass
 
 
 class Module :
