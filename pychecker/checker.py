@@ -627,6 +627,9 @@ def main(argv) :
         sys.stderr.write(_VERSION_MISMATCH_ERROR)
         sys.exit(100)
 
+    # remove empty arguments
+    argv = filter(None, argv)
+        
     # if the first arg starts with an @, read options from the file
     # after the @ (this is mostly for windows)
     if len(argv) >= 2 and argv[1][0] == '@':
