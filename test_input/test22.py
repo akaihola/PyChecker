@@ -21,6 +21,10 @@ def y():
     print '%*.*f' % (5, 2, 2.0)
     print '%*.*f' % (5, 2, 2.0, 3)
 
+    print '%z %f %s' % (1, 2.2, 'sdf')
+    print '%d %J %s' % (1, 2.2, 'sdf')
+    print '%***f' % (5, 2, 2.0, 3)
+
     fmt = '%d %s %d'
     # can't check this yet
     print fmt % (aaa, bbb)

@@ -65,8 +65,9 @@ _TOO_MANY_RETURNS = "Function (%s) has too many returns (%d)"
 _IMPLICIT_AND_EXPLICIT_RETURNS = "Function returns a value and also implicitly returns None"
 _INCONSISTENT_RETURN_TYPE = "Fuction return types are inconsistent"
 
-_INVALID_FORMAT = "Invalid format string"
+_INVALID_FORMAT = "Invalid format string, problem starts near: '%s'"
 _INVALID_FORMAT_COUNT = "Format string argument count (%d) doesn't match arguments (%d)"
+_TOO_MANY_STARS_IN_FORMAT = "Too many *s in format flags"
 
 _cfg = None
 
@@ -398,25 +399,58 @@ def _handleImport(operand, module, func_code, lastLineNum, main) :
                            _MODULE_IMPORTED_AGAIN % operand)
     return warn
 
-def __countFormatStars(str, ch) :
-    return string.count(str, ch + '*') + string.count(str, ch + '*.*')
 
-def countFormatStars(str, ch) :
-    return __countFormatStars(str, ch) + __countFormatStars(str, ch + '-')
+# http://www.python.org/doc/current/lib/typesseq-strings.html
+_FORMAT_CONVERTERS = 'diouxXeEfFgGcrs'
+# NOTE: lLh are legal in the flags, but are ignored by python, we warn
+_FORMAT_FLAGS = '*#- +.' + string.digits
 
 def _getFormatInfo(format, func_code, lastLineNum) :
-    warnings = []
-    allPercents = string.count(format, '%')
-    stars = countFormatStars(format, '%')
-    doublePercents = string.count(format, '%%')
-    vars = string.split(format, '%(')
-    for i in range(1, len(vars)) :
-        varname = string.split(vars[i], ')')
-        vars[i] = varname[0]
-        if len(varname[1]) == 0 or varname[1][0] in ' \t\r\n' :
-            warnings.append(Warning(func_code, lastLineNum, _INVALID_FORMAT))
+    formats = 0
+    vars = []
+    warns = []
 
-    return allPercents + stars - (2 * doublePercents), vars[1:], warnings
+    # first get rid of all the instances of %% in the string, they don't count
+    format = string.replace(format, "%%", "")
+    sections = string.split(format, '%')
+    formatCount = string.count(format, '%')
+
+    # skip the first item in the list, it's always empty
+    for section in sections[1:] :
+        # handle dictionary formats
+        if section[0] == '(' :
+            varname = string.split(section, ')')
+            if varname[1] == ''  :
+                warns.append(Warning(func_code, lastLineNum,
+                                     _INVALID_FORMAT % section))
+            vars.append(varname[0][1:])
+            section = varname[1]
+
+        if not section :
+            # no format data to check
+            continue
+
+        # FIXME: we ought to just define a regular expression to check
+        # formatRE = '[ #+-]*([0-9]*|*)(|.(|*|[0-9]*)[diouxXeEfFgGcrs].*'
+        stars = 0
+        for i in range(0, len(section)) :
+            if section[i] in _FORMAT_CONVERTERS :
+                break
+            if section[i] in _FORMAT_FLAGS :
+                if section[i] == '*' :
+                    stars = stars + 1
+                continue
+
+        if stars > 2 :
+            warns.append(Warning(func_code, lastLineNum,
+                                 _TOO_MANY_STARS_IN_FORMAT))
+
+        formatCount = formatCount + stars
+        if section[i] not in _FORMAT_CONVERTERS :
+            warns.append(Warning(func_code, lastLineNum,
+                                 _INVALID_FORMAT % section))
+
+    return formatCount, vars, warns
 
 def _getFormatWarnings(stack, func_code, lastLineNum, unusedLocals) :
     format = stack[-2]

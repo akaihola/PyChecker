@@ -7,7 +7,10 @@ test_input/test22.py:9 Local variable (eee) not used
 test_input/test22.py:10 No local variable (ccc)
 test_input/test22.py:10 No local variable (ddd)
 test_input/test22.py:13 No local variable ()
-test_input/test22.py:15 Invalid format string
-test_input/test22.py:16 Invalid format string
+test_input/test22.py:15 Invalid format string, problem starts near: ' '
+test_input/test22.py:16 Invalid format string, problem starts near: '(b)'
 test_input/test22.py:19 Format string argument count (2) doesn't match arguments (3)
 test_input/test22.py:22 Format string argument count (3) doesn't match arguments (4)
+test_input/test22.py:24 Invalid format string, problem starts near: 'z '
+test_input/test22.py:25 Invalid format string, problem starts near: 'J '
+test_input/test22.py:26 Too many *s in format flags

@@ -1,5 +1,6 @@
 
 Version 0.7	- xx July 2001
+  * Improve format string checks/warnings
   * Check arguments to constructors
   * Check that self is first arg to base constructor
   * Add -e/--errors option to only warn about likely errors
