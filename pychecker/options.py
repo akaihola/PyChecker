@@ -9,6 +9,12 @@ import Config
 
 MAX_SUBBOX_ROWS = 7
 MAX_BOX_COLS = 3
+PAD = 10
+
+def col_weight(grid):
+    unused, col = grid.grid_size()
+    for c in range(col):
+        grid.columnconfigure(c, weight=1)
 
 class ConfigDialog:
     "Dialog for editiong options"
@@ -89,13 +95,15 @@ class ConfigDialog:
         row = row + 1
         for name, opts in self._opts:
             w = self.add_group(rowFrame, name, opts)
-            w.grid(row=row, col=col, sticky=Tkinter.NSEW)
+            w.grid(row=row, col=col, sticky=Tkinter.NSEW, padx=PAD)
             col = col + 1
             if col >= MAX_BOX_COLS:
+                col_weight(rowFrame)
                 rowFrame=Tkinter.Frame(frame)
                 rowFrame.grid(row=row, sticky=Tkinter.NSEW)
                 col = 0
                 row = row + 1
+        col_weight(rowFrame)
 
         self._help = Tkinter.Label(tk, name="helpBox")
         self._help.grid(row=row)
@@ -128,7 +136,7 @@ class ConfigDialog:
         self._cfg, _, _ = Config.setupFromArgs(opts)
 
         # Set controls based on new config
-        for name, group in Config._OPTIONS:
+        for _, group in Config._OPTIONS:
             for _, _, longArg, member, _ in group:
                 if member:
                     self._optMap[longArg].set(getattr(self._cfg, member))
