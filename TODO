@@ -31,6 +31,8 @@ Longer Term goals:
   looking at http://www.securesw.com/rats/
 * Make check for 'self' a list instead of a string
 * Check function return values - partially complete
+* Keep info on whether a method mutates object, so warning about modifying
+        default arg will always be correct (e.g., {}.has_key(a))
 * Add check that private functions are used in module/class
 * Add check for using object members outside of class
 * Add portability checks for win32/unix
