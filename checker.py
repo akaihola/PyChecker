@@ -304,13 +304,17 @@ class Module :
         try :
             # there's no need to reload modules we already have
             if sys.modules.has_key(self.moduleName) :
+                if not _allModules[self.moduleName].module :
+                    return self.initModule(sys.modules[self.moduleName])
                 return 1
 
 	    file, filename, smt = _findModule(self.moduleName)
-            if file != None :
+            try :
                 module = imp.load_module(self.moduleName, file, filename, smt)
-                file.close()
-                return self.initModule(module)
+            finally :
+                if file != None :
+                    file.close()
+            return self.initModule(module)
         except :
             return importError(self.moduleName, sys.exc_value)
 
