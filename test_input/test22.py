@@ -79,3 +79,5 @@ def check_modulo_1():
   print '%s' % 1
   print .55555 % 1
   print 55555 % 1
+  f = 55555.55 
+  print f % 1

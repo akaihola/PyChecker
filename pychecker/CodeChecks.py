@@ -1408,8 +1408,10 @@ def _BINARY_MULTIPLY(oparg, operand, codeSource, code) :
 
 def _BINARY_MODULO(oparg, operand, codeSource, code) :
     _checkNoEffect(code)
-    if code.stack and code.stack[-1].data == 1:
-        code.addWarning(msgs.MODULO_1)
+    if cfg().modulo1 and code.stack and code.stack[-1].data == 1:
+        if len(code.stack) < 2 or \
+           code.stack[-2].getType(code.typeMap) != types.FloatType:
+            code.addWarning(msgs.MODULO_1)
     _getFormatWarnings(code, codeSource)
     code.popStack()
     if code.stack:
