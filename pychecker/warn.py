@@ -883,6 +883,33 @@ def _updateFunctionWarnings(module, func, c, warnings, globalRefs,
     return funcs, codeObjects, returnValues
 
 
+def getBlackList(moduleList) :
+    blacklist = []
+    for badBoy in moduleList :
+	try :
+            file, path, flags = imp.find_module(badBoy)
+            if file :
+                file.close()
+                blacklist.append(path)
+	except ImportError :
+	    pass
+    return blacklist
+
+def getStandardLibrary() :
+    if cfg().ignoreStandardLibrary :
+        import os.path
+        from distutils import sysconfig
+
+        try :
+            std_lib = sysconfig.get_python_lib()
+            path = os.path.split(std_lib)
+            if path[1] == 'site-packages' :
+                std_lib = path[0]
+            return std_lib
+        except ImportError :
+            return None
+
+
 def find(moduleList, initialCfg) :
     "Return a list of warnings found in the module list"
 
@@ -991,28 +1018,11 @@ def find(moduleList, initialCfg) :
         if module.main_code != None :
             popConfig()
 
-    blacklist = []
-    for badBoy in cfg().blacklist :
-	try :
-            file, path, flags = imp.find_module(badBoy)
-            if file :
-                file.close()
-                blacklist.append(path)
-	except ImportError :
-	    pass
+    blacklist = getBlackList(cfg().blacklist)
 
-    # ignore files from std library if requested
     std_lib = None
     if cfg().ignoreStandardLibrary :
-        try :
-            import os.path
-            from distutils import sysconfig
-            std_lib = sysconfig.get_python_lib()
-            path = os.path.split(std_lib)
-            if path[1] == 'site-packages' :
-                std_lib = path[0]
-        except ImportError :
-            pass
+        std_lib = getStandardLibrary()
 
     for index in range(len(warnings)-1, -1, -1) :
         filename = warnings[index].file
