@@ -360,8 +360,7 @@ class Module :
             tokenType = type(token)
             if tokenType == types.ModuleType :
                 # get the real module name, tokenName could be an alias
-                moduleName = getattr(self.module, tokenName).__name__
-                self.addModule(moduleName)
+                self.addModule(token.__name__)
             elif tokenType == types.FunctionType :
                 self.addFunction(token)
             elif tokenType == types.ClassType :
