@@ -1,11 +1,11 @@
 import compiler
-import compiler                                          as one
-import compiler.ast
-import compiler.ast                                      as two
-from   compiler import ast
-from   compiler import ast                               as three
-from   compiler.ast import Const
-from   compiler.ast import Const                         as four
+import compiler                   as one
+import compiler.ast              
+import compiler.ast               as two
+from   compiler import ast       
+from   compiler import ast        as three
+from   compiler.ast import Const 
+from   compiler.ast import Const  as four
 
 func = lambda x: x
 
@@ -67,6 +67,10 @@ class K(Const):
     def f(self):
         print self.value
 
+#
+# Various abusive imports, all under a non-global scope
+#
+
 def z(arg):
     from xml.dom import minidom as md
 
@@ -91,3 +95,10 @@ def zzz(arg):
             print arg, self.childNodes
     print L()
 
+def zzz(arg):
+    from tests import nested
+
+    class L(nested.N1.N2):
+        def f(self):
+            print self.x
+    print L(), arg

@@ -37,3 +37,23 @@ if __name__ == '__main__':
     a = 2
 if '__main__' == __name__:
     a = 2
+
+if x:
+    def f1():
+        print x
+else:
+    def f1():
+        print x
+
+try:
+    def f2():
+        print x
+except AttributeError:
+    def f2():
+        print x
+except:
+    def f2():
+        print x
+else:
+    def f2():                           # should still warn
+        print x
