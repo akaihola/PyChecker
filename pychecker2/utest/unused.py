@@ -48,17 +48,29 @@ class UnusedTestCase(WarningTester):
                     'def g(x): return x + _y\n')
 
     def testUnpack(self):
+        w = VariableChecks.UnusedCheck.unused
         self.silent('_x, _y = 1, 2\n')
         self.silent('def f(a, (b, c)): print a, b\n')
         self.silent('def f(a, (b, (c, d))): print a, b\n')
         
         self.argv = ['--no-unpackedUsed']
         self.warning('_x, _y = 1, 2\n'
-                     'print _x\n',
-                     1, VariableChecks.UnusedCheck.unused, '_y')
-        self.warning('def f(a, (b, c)): print a, b\n',
-                     1, VariableChecks.UnusedCheck.unused, 'c')
+                     'print _x\n', 1, w, '_y')
+        self.warning('def f(a, (b, c)): print a, b\n', 1, w, 'c')
         self.silent('def f(a):\n'
                     '   "this is an empty function"\n')
 
-        
+    def testUsedBeforeSet(self):
+        w = VariableChecks.UsedBeforeSetCheck.usedBeforeDefined
+        self.warning('G1 = 1\n'
+                     'def f(L1, (L2, L3)):\n'
+                     '  x = 1\n'
+                     '  if G1:\n'
+                     '    y = 2\n'
+                     '  if G1:\n'
+                     '    z = 1\n'
+                     '    y = 2\n'
+                     '  else:\n'
+                     '    z = 2\n'
+                     '  return L1, L2, L3, x, y, z\n',
+                     11, w, 'y')
