@@ -1,0 +1,17 @@
+
+Version 0.2	- 10 April 2001
+  * Move tests into a subdirectory so import test doesn't import pychecker/test
+  * Add more test files
+  * Add '.' to the python path so it doesn't need to be done in env't
+  * Print a warning at the end for each file that couldn't be import'ed
+  * Improve stack handling to improve error handling
+  * Try to get base class __init__ checking to work for both:
+  	import X.Y
+	from X import Y
+
+Version 0.1.1	- 8 April 2001
+  * Add support for Python 1.5.2
+
+Version 0.1	- 7 April 2001
+  * Initial release
+
