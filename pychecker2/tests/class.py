@@ -139,3 +139,10 @@ class BadSpecial:
     def __setattr__(self, a = None):
         return 0
     
+class Z1:
+    class Z2:
+        from xml.dom import minidom as md
+
+class Z3(Z1.Z2.md.Node):
+    def f(self):
+        print self.childNodes
