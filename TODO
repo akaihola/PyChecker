@@ -2,7 +2,7 @@ Goals for next minor release (0.8.9):
 -------------------------------------
 * Check that classes with __slots__ don't get/set any other attributes
 * Handle sys.exit() as non-returnable condition
-* Warning about non-escaping backslashes???
+* Warn about non-escaping backslashes???
 
 Goals for next major release (0.9):
 -----------------------------------
