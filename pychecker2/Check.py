@@ -30,9 +30,11 @@ class CheckList:
             c.check(f, self)
 
     def check_module(self, m):
-        if not self.modules.has_key(m):
+        f = None
+        try:
+            f = self.modules[m]
+        except KeyError:
             import inspect
-            f = None
             try:
                 fname = inspect.getsourcefile(m) 
                 if fname:
@@ -42,6 +44,7 @@ class CheckList:
             self.modules[m] = f
             if f:
                 self.check_file(f)
+        return f
                 
 class Check:
 
