@@ -564,14 +564,11 @@ class Code :
         self.lastLineNum = 0
         self.maxCode = 0
 
-        self.lastReturnLabel = 0
-        self.maxLabel = 0
-
         self.returnValues = []
+        self.raiseValues = []
         self.stack = []
 
         self.unpackCount = 0
-        self.returns = 0
         self.loops = 0
         self.branches = {}
 
@@ -601,7 +598,7 @@ class Code :
             line = self.lastLineNum
         self.warnings.append(Warning.Warning(self.func_code, line, err))
 
-    def getNextOp(self) :
+    def popNextOp(self) :
         info = OP.getInfo(self.bytes, self.index, self.extended_arg)
         op, oparg, self.index, self.extended_arg = info
         if op < OP.HAVE_ARGUMENT :
@@ -612,7 +609,6 @@ class Code :
             self.label = label = OP.getLabel(op, oparg, self.index)
             utils.debug("  " + str(self.index) + " " + OP.name[op], oparg, operand)
             if label != None :
-                self.maxLabel = max(label, self.maxLabel)
                 if self.branches.has_key(label) :
                     self.branches[label] = self.branches[label] + 1
                 else :
@@ -621,8 +617,10 @@ class Code :
         return op, oparg, operand
 
     def nextOpInfo(self) :
-        info = OP.getInfo(self.bytes, self.index, 0)
-        return info[0:2]
+        try :
+            return OP.getInfo(self.bytes, self.index, 0)[0:3]
+        except IndexError :
+            return -1, 0, -1
 
     def getFirstOp(self) :
         # find the first real op, maybe we should not check if params are used
@@ -681,13 +679,21 @@ class Code :
         self.typeMap[name] = valueList
             
     def addReturn(self) :
-        self.returns = self.returns + 1
-        self.lastReturnLabel = self.index - utils.BACK_RETURN_INDEX
         if len(self.stack) > 0 :
-            self.returnValues.append((self.lastLineNum, self.stack[-1]))
+            value = (self.lastLineNum, self.stack[-1], self.nextOpInfo()[2])
+            self.returnValues.append(value)
             self.popStack()
 
+    def addRaise(self) :
+        self.raiseValues.append((self.lastLineNum, None, self.nextOpInfo()[2]))
+
     def removeBranch(self, label) :
+        # FIXME: not sure what to do here, we need all the branches
+        #        for checking unused code (I think)
+        #        but it's an extra branch for code complexity,
+        #        right now, unused code is more important
+        return
+
         branch = self.branches.get(label, None)
         if branch is not None :
             if branch == 1 :
@@ -932,7 +938,7 @@ def _IMPORT_NAME(oparg, operand, codeSource, code) :
     if not OP.IMPORT_FROM(nextOp) and not OP.IMPORT_STAR(nextOp) :
         # handle import xml.sax as sax
         if OP.LOAD_ATTR(nextOp) :
-            operand = code.getNextOp()[2]
+            operand = code.popNextOp()[2]
         _handleImport(code, operand, codeSource.module, codeSource.main, None)
 
 def _IMPORT_FROM(oparg, operand, codeSource, code) :
@@ -997,7 +1003,7 @@ def _UNARY_CONVERT(oparg, operand, codeSource, code) :
 def _UNARY_POSITIVE(oparg, operand, codeSource, code) :
     if OP.UNARY_POSITIVE(code.nextOpInfo()[0]) :
         code.addWarning(msgs.STMT_WITH_NO_EFFECT % '++')
-        code.getNextOp()
+        code.popNextOp()
     elif cfg().unaryPositive and code.stack and not code.stack[-1].const :
         code.addWarning(msgs.UNARY_POSITIVE_HAS_NO_EFFECT)
 
@@ -1112,6 +1118,9 @@ def _RETURN_VALUE(oparg, operand, codeSource, code) :
     if codeSource.calling_code is None :
         code.addReturn()
 
+def _RAISE_VARARGS(oparg, operand, codeSource, code) :
+    code.addRaise()
+
 
 DISPATCH = [ None ] * 256
 DISPATCH[  1] = _POP_TOP
@@ -1167,6 +1176,7 @@ DISPATCH[124] = _LOAD_FAST
 DISPATCH[125] = _STORE_FAST
 DISPATCH[126] = _DELETE_FAST
 DISPATCH[127] = _LINE_NUM
+DISPATCH[130] = _RAISE_VARARGS
 DISPATCH[131] = _CALL_FUNCTION
 DISPATCH[132] = _MAKE_FUNCTION
 DISPATCH[134] = _MAKE_CLOSURE
