@@ -856,6 +856,14 @@ def _checkException(code, name) :
         if __builtins__.has_key(name) :
             code.addWarning(msgs.SET_EXCEPT_TO_BUILTIN % name)
 
+def _checkAssign(code, name):
+    if name in _BAD_ASSIGN_NAMES:
+        code.addWarning(msgs.SHOULDNT_ASSIGN_BUILTIN % name)
+    else:
+        cap = string.capitalize(name)
+        if cap in _BAD_ASSIGN_NAMES:
+            code.addWarning(msgs.SHOULDNT_ASSIGN_NAME % (name, cap))
+
 def _checkFutureKeywords(code, varname) :
     kw = python.FUTURE_KEYWORDS.get(varname)
     if kw is not None :
@@ -881,6 +889,7 @@ def _STORE_NAME(oparg, operand, codeSource, code) :
         if code.unpackCount :
             code.unpackCount = code.unpackCount - 1
         else:
+            _checkAssign(code, operand)
             _checkException(code, operand)
             code.popStack()
         if not module.moduleLineNums.has_key(operand) and codeSource.main :
@@ -1005,6 +1014,7 @@ def _STORE_FAST(oparg, operand, codeSource, code) :
                 code.constants[operand] = code.stack[-1].data
 
         _checkLocalShadow(code, codeSource.module, operand)
+        _checkAssign(code, operand)
         _checkException(code, operand)
         if code.deletedLocals.has_key(operand) :
             del code.deletedLocals[operand]
@@ -1121,10 +1131,24 @@ def _handleExceptionChecks(codeSource, code, checks):
                     if isinstance(ti, Stack.Item):
                         _checkCatchException(codeSource, code, ti)
 
+_BOOL_NAMES = ('True', 'False')
+_BAD_ASSIGN_NAMES = _BOOL_NAMES + ('None',)
+
+def _checkBoolean(code, checks):
+    for item in checks:
+        try:
+            data = string.capitalize(item.data)
+            if item.type is Stack.TYPE_GLOBAL and data in _BOOL_NAMES:
+                code.addWarning(msgs.BOOL_COMPARE % item.data)
+        except AttributeError:
+            pass # ignore items that are not a StackItem
+
 def _COMPARE_OP(oparg, operand, codeSource, code) :
     compareValues = _handleComparison(code.stack, operand)
     if operand is OP.EXCEPT_COMPARE:
         _handleExceptionChecks(codeSource, code, compareValues)
+    else:
+        _checkBoolean(code, compareValues)
 
 def _IMPORT_NAME(oparg, operand, codeSource, code) :
     code.pushStack(Stack.Item(operand, types.ModuleType))
