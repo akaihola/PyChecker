@@ -21,3 +21,34 @@ class foo4(foo):
     def __init__(self, *args, **kwargs):
         foo.__init__(self, jj=5, kk=10, *args, **kwargs)
 
+class c: 
+    'd'
+    def __init__(self): 
+        pass 
+
+class c1: 
+    'd'
+    o = c() 
+    def c(self,x): 
+        print x 
+
+def x():
+    a = c1() 
+    a.b = c1() 
+    # we can't handle this yet
+    # a.b.c(5)
+
+class c2: 
+    'd'
+    def m1(self): 
+        print "ok" 
+    def m2(self,x): 
+        print "ok" 
+
+class c3: 
+    'd'
+    c2 = None 
+    def m(self): 
+        self.c2.m1()
+        self.c2.m2(5)
+

@@ -88,11 +88,13 @@ def _getFunction(module, stackValue) :
     i, maxLen = 0, len(identifier)
     while i < maxLen :
         id = str(identifier[i])
-        if module.classes.has_key(id) :
+        if module.classes.has_key(id) or module.functions.has_key(id) :
             break
         refModule = module.modules.get(id, None)
         if refModule is not None :
             module = refModule
+        else :
+            return None, None, 0
         i = i + 1
 
     # if we got to the end, there is only modules, nothing we can do
@@ -102,6 +104,10 @@ def _getFunction(module, stackValue) :
 
     if (i+1) == maxLen :
         return _getReferenceFromModule(module, identifier[-1])
+
+    # we can't handle self.x.y
+    if (i+2) == maxLen and identifier[0] == cfg().methodArgName :
+        return None, None, 0
 
     c = module.classes.get(identifier[-2], None)
     if c is None :

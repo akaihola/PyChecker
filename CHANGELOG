@@ -1,5 +1,6 @@
 
 Version 0.9	- xx August 2001
+  * Fix spurious warnings when object attribute has same name as class
   * Add constants together on stack when get + to avoid some spurious warnings
   * Change default behaviour to not warn about missing doc strings
   * Add -Q/--quiet to be real quiet, only output warning msgs, nothing else
