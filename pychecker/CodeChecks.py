@@ -1189,8 +1189,14 @@ def _STORE_ATTR(oparg, operand, codeSource, code) :
     if code.stack :
         top = code.stack.pop()
         top_name = '%s.%s' % (top.getName(), operand)
+        try:
+            # FIXME: this is a hack to handle code like:
+            #        a.a = [x for x in range(2) if x > 1]
+            previous = code.stack[-1]
+        except IndexError:
+            previous = None
         if top.type in (types.StringType, Stack.TYPE_ATTRIBUTE) and \
-           code.stack[-1].type == Stack.TYPE_ATTRIBUTE:
+           previous and previous.type == Stack.TYPE_ATTRIBUTE:
             _checkVariableOperationOnItself(code, top_name,
                                             msgs.SET_VAR_TO_ITSELF)
         _checkExcessiveReferences(code, top, operand)
