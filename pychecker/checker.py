@@ -238,22 +238,23 @@ class Class :
             func_name = className + func_name
         return func_name
 
-    def addMethod(self, method, className = None, methodName = None) :
+    def addMethod(self, method, methodName = None) :
         if type(method) == types.StringType :
             self.methods[method] = None
-            return
-        if not hasattr(method, "func_name") :
-            return
-
-        if not methodName :
-            methodName = self.__getMethodName(method.func_name, className)
-        self.methods[methodName] = function.Function(method)
+        else :
+            assert methodName is not None, "must supply methodName"
+            self.methods[methodName] = function.Function(method)
                 
     def addMethods(self, classObject) :
         for classToken in _getClassTokens(classObject) :
             token = getattr(classObject, classToken)
-            if type(token) == types.MethodType :
-                self.addMethod(token.im_func, classObject.__name__, token.__name__)
+
+            # Looks like a method.  Need to code it this way to
+            # accommodate ExtensionClass and Python 2.2.  Yecchh.
+            if (hasattr(token, "func_code") and
+                hasattr(token.func_code, "co_argcount")): 
+                self.addMethod(token, token.__name__)
+
             elif hasattr(token, '__get__') and \
                  not hasattr(token, '__set__') and \
                  type(token) is not types.ClassType :
