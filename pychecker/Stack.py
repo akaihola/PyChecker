@@ -65,23 +65,11 @@ class Item :
         return TYPE_UNKNOWN
 
     def getName(self, module) :
-        if self.type == TYPE_ATTRIBUTE and \
-           type(self.data) != types.StringType :
-            strValue, data = "", self.data
-            # handle:  from XXX import YYY to munge the name 
-            # into looking like: XXX.YYY
-            if type(self.data[0]) == types.StringType and \
-               hasattr(module.module, self.data[0]) :
-                globalObject = getattr(module.module, self.data[0])
-                data = self.data[1:]
-                if type(globalObject) != types.ModuleType :
-                    strValue = "." + str(globalObject)
-                else :
-                    strValue = "." + globalObject.__name__
-
+        if self.type == TYPE_ATTRIBUTE and type(self.data) != types.StringType:
+            strValue = ""
             # convert the tuple into a string ('self', 'data') -> self.data
-            for item in data :
-                strValue = strValue + "." + str(item)
+            for item in self.data :
+                strValue = '%s.%s' % (strValue, str(item))
             return strValue[1:]
         return str(self.data)
 
