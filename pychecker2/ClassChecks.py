@@ -205,16 +205,10 @@ class AttributeCheck(Check):
                                'match base class methods',
                                'Signature does not match method '
                                '%s in base class %s')
-    specialMethod = Warning('Report special methods with incorrect '
-                            'number of arguments',
-                            'The %s method requires %d argument%s, '
-                            'including self')
-
-    notSpecial = Warning('Report methods with "__" prefix and suffix '
-                         'which are not defined as special methods',
-                         'The method %s is not a special method, '
-                         'but is reserved.')
-
+    attributeInitialized = \
+                 Warning('Report attributes not initialized in __init__',
+                         'Attribute %s is not initialized in __init__')
+                                   
     def check(self, file, checker):
         def visit_with_self(Visitor, method):
             if not method.node.argnames:
@@ -225,6 +219,7 @@ class AttributeCheck(Check):
         for scope in type_filter(file.scopes.values(), symbols.ClassScope):
             bases = get_base_classes(scope, checker)
             # get attributes defined on self
+            init_attributes = {}
             attributes = {}             # "self.foo = " kinda things
             methods = {}                # methods -> scopes
             inherited = {}              # all class defs (methods)
@@ -233,18 +228,16 @@ class AttributeCheck(Check):
             for m in _get_methods(scope):
                 if not m.node.argnames:
                     file.warning(m.node, self.missingSelf, m.node.name)
-                attributes.update(visit_with_self(GetDefs, m))
+                defs = visit_with_self(GetDefs, m)
+                if m.name == '__init__':
+                    init_attributes = defs
+                attributes.update(defs)
                 methods[m.name] = m
-                n = check_special(m)
-                if n:
-                    file.warning(m.node, self.specialMethod, m.name, n,
-                                 n > 1 and "s" or "")
-                name = m.name
-                if name.startswith('__') and \
-                   name.endswith('__') and \
-                   name != '__init__' and \
-                   not special.has_key(name):
-                    file.warning(m.node, self.notSpecial, name);
+
+            # complain about attributes not initialized in __init__
+            for name, node in attributes.items():
+                if not init_attributes.has_key(name):
+                    file.warning(line(node), self.attributeInitialized, name)
 
             for base in [scope] + bases:
                 for m in _get_methods(base):
@@ -325,3 +318,28 @@ class InitCheck(Check):
 
                             
 
+class SpecialCheck(Check):
+
+    specialMethod = Warning('Report special methods with incorrect '
+                            'number of arguments',
+                            'The %s method requires %d argument%s, '
+                            'including self')
+
+    notSpecial = Warning('Report methods with "__" prefix and suffix '
+                         'which are not defined as special methods',
+                         'The method %s is not a special method, '
+                         'but is reserved.')
+
+    def check(self, file, unused_checker):
+
+        for scope in type_filter(file.scopes.values(), symbols.ClassScope):
+            for m in _get_methods(scope):
+                n = check_special(m)
+                if n:
+                    file.warning(m.node, self.specialMethod, m.name, n,
+                                 n > 1 and "s" or "")
+                name = m.name
+                if name.startswith('__') and name.endswith('__') and \
+                   name != '__init__' and not special.has_key(name):
+                    file.warning(m.node, self.notSpecial, name)
+    
