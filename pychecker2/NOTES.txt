@@ -13,7 +13,6 @@ ToDo:
 Items still missing:
         Error suppression (errors may be suppressed globally)
 
-        Self as arg in function
         Format strings
         Member not used
         Return value from __init__
