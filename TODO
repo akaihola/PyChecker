@@ -1,14 +1,16 @@
 Goals for next minor release:
 -----------------------------
+* Add warning for (x % 1) (it's constant, either x or 0
+* Add warning for a import b & b import a (import loops)
+* Handle classmethod/staticmethod better
+	(need way to disable check for self is not method's first arg)
+* Add warning about redefining a function/method with different signatures
 * Check for return from finally (disables exception, default off?)
 * Check that classes with __slots__ don't get/set any other attributes
+* Add another boolean warning for:    if bool(xxx):
 * Handle sys.exit() as non-returnable condition
 * Warn about non-escaping backslashes???
-* Add warning about redefining a function/method with different signatures
 * Fix dependancy problem w/checkReturnValues & checkImplicitReturns
-* Add another boolean warning for:    if bool(xxx):
-* Handle classmethod/staticmethod better
-* Add warning for a import b & b import a (import loops)
 
 Goals for next major release (0.9):
 -----------------------------------
