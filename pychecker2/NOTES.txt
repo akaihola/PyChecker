@@ -27,6 +27,7 @@ Items still missing:
         Function arguments, kwargs
         Abstract methods
         exec may use locals/globals
+        import x with from x import
 
         Modifying a default parameter
         Tuple access to list list[1, 2]
