@@ -55,13 +55,4 @@ def enclosing_scopes(scopes, node):
 def type_filter(seq, *classes):
     return [s for s in seq if isinstance(s, classes)]
 
-def line(node):
-    "find a node with a line number on it"
-    if node.lineno:
-        return node
-    for n in parents(node):
-        if n.lineno is not None:
-            return n
-    raise AssertionError('Should be unreachable')
-
     

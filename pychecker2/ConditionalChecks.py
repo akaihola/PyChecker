@@ -1,6 +1,5 @@
 from pychecker2.Check import Check
 from pychecker2.util import BaseVisitor
-from pychecker2.util import line
 
 from compiler import ast, walk
 
@@ -42,4 +41,4 @@ class ConstantCheck(Check):
         if file.parseTree:
             v = GetConditionalConstants()
             for n, value in walk(file.parseTree, v).result:
-                file.warning(line(n), self.constantInConditional, value)
+                file.warning(n, self.constantInConditional, value)
