@@ -6,6 +6,7 @@
 Print out warnings from Python source files.
 """
 
+import sys
 import imp
 import string
 import types
@@ -45,7 +46,7 @@ _FUNC_USES_NAMED_ARGS = "Function (%s) uses named arguments"
 _BASE_CLASS_NOT_INIT = "Base class (%s) __init__() not called"
 _NO_INIT_IN_SUBCLASS = "No __init__() in subclass (%s)"
 
-_FUNC_TOO_LONG = "Function (%s) is too many lines (%d)"
+_FUNC_TOO_LONG = "Function (%s) has too many lines (%d)"
 _TOO_MANY_BRANCHES = "Function (%s) has too many branches (%d)"
 _TOO_MANY_RETURNS = "Function (%s) has too many returns (%d)"
 
@@ -254,7 +255,7 @@ def _checkFunction(module, func, c = None) :
                 stack.append(operand)
             elif OP.STORE_GLOBAL(op) :
                 if not func.function.func_globals.has_key(operand) and \
-                   not __builtins__.has_key(operand)  :
+                   not __builtins__.has_key(operand) :
                     warn = Warning(func_code, lastLineNum,
                                    _GLOBAL_DEFINED_NOT_DECLARED % operand)
                     func.function.func_globals[operand] = operand
@@ -306,7 +307,12 @@ def _checkFunction(module, func, c = None) :
                 warn, stack, funcCalled = \
                       _handleFunctionCall(module, func_code, c,
                                           stack, oparg, lastLineNum)
-                funcName = _getNameFromStack(funcCalled, module.moduleName)
+
+                tmpModuleName = None
+                if not (type(funcCalled) == types.TupleType and 
+                        sys.modules.has_key(funcCalled[0])) :
+                    tmpModuleName = module.moduleName
+                funcName = _getNameFromStack(funcCalled, tmpModuleName)
                 functionsCalled[funcName] = funcCalled
             elif OP.BUILD_MAP(op) :
                 debug("  build map", oparg)
@@ -391,7 +397,7 @@ def _getUnused(moduleName, globalRefs, dict, msg, filterPrefix = None) :
 def _checkBaseClassInit(moduleName, moduleFilename, c, func_code, functionsCalled) :
     """Return a list of warnings that occur
        for each base class whose __init__() is not called"""
-    
+
     warnings = []
     moduleDepth = string.count(moduleName, '.')
     for base in c.classObject.__bases__ :
@@ -399,9 +405,9 @@ def _checkBaseClassInit(moduleName, moduleFilename, c, func_code, functionsCalle
             # create full name, make sure file is in name
             modules = string.split(str(base), '.')[moduleDepth:]
             # handle import ...
-            initName1 = moduleName + '.' + string.join(modules, '.') + '.__init__'
+            initName1 = string.join(modules, '.') + '.__init__'
             # handle from ... import ...
-            initName2 = moduleName + '.' + str(base) + '.__init__'
+	    initName2 = str(base) + '.__init__'
             if not functionsCalled.has_key(initName1) and \
                not functionsCalled.has_key(initName2) :
                 warn = Warning(moduleFilename, func_code,

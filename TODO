@@ -1,5 +1,6 @@
 
 * Fix spurious warnings (Base class __init__ not called)
+	(only known case is subclass from Exception)
 * Make cfg calling self.func() where func is an attribute generates a warning
 	(No method (func) found)
 * Fix **kwArgs warning if named param is not first
