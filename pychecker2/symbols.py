@@ -189,7 +189,7 @@ class FunctionScope(Scope):
     pass
 
 class LambdaScope(FunctionScope):
-    __super_init = Scope.__init__
+    __super_init = FunctionScope.__init__
 
     __counter = 1
 
