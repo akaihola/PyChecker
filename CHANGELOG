@@ -1,4 +1,5 @@
 Version 0.9.0   - xx February 2002
+  * Fix spurious warnings for implicit returns when using while 1:
   * Fix spurious warnings for implicit returns when using try/finally:
   * Fix spurious warnings for modifying default arguments 
         when calling {}.get(), {}.has_key(), [].index(), [].count(), etc.

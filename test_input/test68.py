@@ -22,7 +22,7 @@ def func3(x):
     return 0
 
 def func4(x):
-    'should produce a warning'
+    'should not produce a warning'
     while 1:
         if x == 1:
             return 1

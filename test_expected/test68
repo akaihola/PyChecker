@@ -3,7 +3,6 @@ Processing test68...
 Warnings...
 
 test_input/test68.py:15: Function returns a value and also implicitly returns None
-test_input/test68.py:30: Function returns a value and also implicitly returns None
 test_input/test68.py:44: Function returns a value and also implicitly returns None
 test_input/test68.py:63: Function returns a value and also implicitly returns None
 test_input/test68.py:128: Function returns a value and also implicitly returns None

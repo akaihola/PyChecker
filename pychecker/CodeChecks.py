@@ -1210,10 +1210,19 @@ def _is_unreachable(code, topOfStack, branch, if_false) :
 
     # check if we break out of the loop
     i = code.index
+    lastLineNum = code.lastLineNum
     while i < branch :
         op, oparg, i, extended_arg = OP.getInfo(code.bytes, i, extended_arg)
+        if OP.LINE_NUM(op) :
+            lastLineNum = oparg
         if OP.BREAK_LOOP(op) :
             return 0
+    i = code.index - 3*4
+    op, oparg, i, extended_arg = OP.getInfo(code.bytes, i, 0)
+    if OP.SETUP_LOOP(op) :
+        # a little lie to pretend we have a raise after a while 1:
+        code.removeBranch(i + oparg)
+        code.raiseValues.append((lastLineNum, None, i + oparg))
     return 1
 
 def _jump_conditional(oparg, operand, codeSource, code, if_false) :
@@ -1223,9 +1232,9 @@ def _jump_conditional(oparg, operand, codeSource, code, if_false) :
            (topOfStack.data != 1 or cfg().constant1) :
             code.addWarning(msgs.CONSTANT_CONDITION % str(topOfStack))
 
-        if _is_unreachable(code, topOfStack, code.index + oparg, if_false) :
-            code.removeBranch(code.index + oparg)
-                
+        if _is_unreachable(code, topOfStack, code.label, if_false) :
+            code.removeBranch(code.label)
+
     _jump(oparg, operand, codeSource, code)
 
 def _JUMP_IF_FALSE(oparg, operand, codeSource, code) :
