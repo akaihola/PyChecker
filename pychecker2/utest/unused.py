@@ -34,10 +34,10 @@ class UnusedTestCase(WarningTester):
                     '  return g(b)\n')
 
     def testUnusedIgnore(self):
-        self.warning('def f(a, xyzzySilly): return a',
+        self.warning('def f(a, xyzzySilly): return a\n',
                      1, VariableChecks.UnusedCheck.unused, 'xyzzySilly')
         self.argv = ['--unusedPrefixes=["xyzzy"]']
-        self.silent('def f(a, xyzzySilly): return a')
+        self.silent('def f(a, xyzzySilly): return a\n')
                     
 
     def testGlobal(self):

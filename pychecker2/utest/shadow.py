@@ -10,5 +10,5 @@ class ShadowTestCase(TestSupport.WarningTester):
                      '  return x + a\n',
                      3, VariableChecks.ShadowCheck.shadowIdentifier,
                      'a', '<ModuleScope: global>')
-        self.warning('file = None',
+        self.warning('file = None\n',
                      1, VariableChecks.ShadowCheck.shadowBuiltins, 'file')
