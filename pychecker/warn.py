@@ -111,6 +111,7 @@ def _checkCode(code, codeSource) :
 
 def _handleLambda(func_code, code, codeSource):
     if func_code.co_name == utils.LAMBDA :
+        utils.debug(' handling lambda')
         code.init(function.create_fake(func_code.co_name, func_code))
         # I sure hope there can't be/aren't lambda's within lambda's
         _checkCode(code, codeSource)
