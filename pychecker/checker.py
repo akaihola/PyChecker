@@ -338,7 +338,7 @@ class Module :
             exc_type, exc_value, exc_tb = sys.exc_info()
             raise exc_type, exc_value
         except :
-            return importError(self.moduleName, sys.exc_value)
+            return importError(self.moduleName, sys.exc_info()[1])
 
     def initModule(self, module) :
         self.module = module
