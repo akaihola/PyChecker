@@ -2,11 +2,9 @@
 * Add check for multiple functions/methods/classes w/same name
 * Add check when using method as an attribute (if method and x == y:)
 * Add check that private functions are used in module/class
-* Check format strings: "%s %d" % (strValue, intValue)
 * Fix deriving from class by alias name
 * Fix checking files in standard library before local file
 * Fix sys.exc_value, etc. generating No attribute warning in except clause
-* Fix Local variable (xxx) not used, when have:  "%(xxx)s" % locals()
 * Check function return values - partially complete
 * Finer grain control of warnings/config options (per module/class/method)
 * Allow import checker to catch errors, rather than starting checker.py

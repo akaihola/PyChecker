@@ -10,6 +10,7 @@ import types
 
 
 DATA_UNKNOWN = "-unknown-"
+LOCALS = 'locals'
 
 # These should really be defined by subclasses
 TYPE_FUNC_RETURN = "-return-value-"
@@ -35,6 +36,9 @@ class Item :
     def isMethodCall(self, c) :
         return self.type == TYPE_ATTRIBUTE and c != None and \
                len(self.data) == 2 and self.data[0] == 'self'
+
+    def isLocals(self):
+        return self.type == TYPE_FUNC_RETURN and self.data == LOCALS
 
     def getName(self, module) :
         if self.type == TYPE_ATTRIBUTE and \
@@ -71,8 +75,11 @@ def makeTuple(values = (), const = 1) :
 def makeList(values = [], const = 1) :
     return Item(values, types.ListType, const, len(values))
 
-def makeFuncReturnValue() :
-    return Item(DATA_UNKNOWN, TYPE_FUNC_RETURN)
+def makeFuncReturnValue(stackValue) :
+    data = DATA_UNKNOWN
+    if stackValue.type == TYPE_GLOBAL and stackValue.data == LOCALS :
+        data = LOCALS
+    return Item(data, TYPE_FUNC_RETURN)
 
 def makeComparison(stackItems, comparison) :
     return Item((stackItems[0], comparison, stackItems[1]), TYPE_COMPARISON)

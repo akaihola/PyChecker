@@ -1,0 +1,10 @@
+Processing test22...
+
+Warnings...
+
+test_input/test22.py:6 Format string argument count (4) doesn't match arguments (3)
+test_input/test22.py:9 No local variable (ccc)
+test_input/test22.py:9 No local variable (ddd)
+test_input/test22.py:12 No local variable ()
+test_input/test22.py:14 Invalid format
+test_input/test22.py:15 Invalid format

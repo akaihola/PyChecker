@@ -32,6 +32,7 @@ _NO_FUNC_DOC = "No doc string for function %s"
 _VAR_NOT_USED = "Variable (%s) not used"
 _IMPORT_NOT_USED = "Imported module (%s) not used"
 _UNUSED_LOCAL = "Local variable (%s) not used"
+_NO_LOCAL_VAR = "No local variable (%s)"
 
 _MODULE_IMPORTED_AGAIN = "Module (%s) re-imported"
 
@@ -61,6 +62,8 @@ _TOO_MANY_RETURNS = "Function (%s) has too many returns (%d)"
 _IMPLICIT_AND_EXPLICIT_RETURNS = "Function returns a value and also implicitly returns None"
 _INCONSISTENT_RETURN_TYPE = "Fuction return types are inconsistent"
 
+_INVALID_FORMAT = "Invalid format"
+_INVALID_FORMAT_COUNT = "Format string argument count (%d) doesn't match arguments (%d)"
 
 _cfg = None
 
@@ -244,7 +247,7 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
             if func != None :
                 warn = _checkFunctionArgs(func, argCount, kwArgs, lastLineNum)
 
-    stack[:] = stack[:funcIndex] + [ Stack.makeFuncReturnValue() ]
+    stack[:] = stack[:funcIndex] + [ Stack.makeFuncReturnValue(loadValue) ]
     return warn, loadValue
 
 
@@ -359,6 +362,40 @@ def _handleImport(operand, module, func_code, lastLineNum, main) :
             warn = Warning(func_code, lastLineNum,
                            _MODULE_IMPORTED_AGAIN % operand)
     return warn
+
+def _getFormatInfo(format, func_code, lastLineNum) :
+    warnings = []
+    allPercents = string.count(format, '%')
+    doublePercents = string.count(format, '%%')
+    vars = string.split(format, '%(')
+    for i in range(1, len(vars)) :
+        varname = string.split(vars[i], ')')
+        vars[i] = varname[0]
+        if len(varname[1]) == 0 or varname[1][0] in ' \t\r\n' :
+            warnings.append(Warning(func_code, lastLineNum, _INVALID_FORMAT))
+        
+    return allPercents - (2 * doublePercents), vars[1:], warnings
+
+def _getFormatWarnings(stack, func_code, lastLineNum, unusedLocals) :
+    format = stack[-2]
+    if format.type != types.StringType or not format.const :
+        return None
+
+    count, vars, warnings = _getFormatInfo(format.data, func_code, lastLineNum)
+    if stack[-1].isLocals() :
+        for varname in vars :
+            if not unusedLocals.has_key(varname) :
+                warn = Warning(func_code, lastLineNum, _NO_LOCAL_VAR % varname)
+                warnings.append(warn)
+            else :
+                unusedLocals[varname] = None
+    elif stack[-1].type == types.TupleType :
+        if count != stack[-1].length :
+            warn = Warning(func_code, lastLineNum,
+                           _INVALID_FORMAT_COUNT % (count, stack[-1].length))
+            warnings.append(warn)
+        
+    return warnings
 
 # number of instructions to check backwards if it was a return
 _BACK_RETURN_INDEX = 4
@@ -486,6 +523,10 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
             else :
                 debug("  " + OP.name[op])
                 if _startswith(OP.name[op], 'BINARY_') :
+                    if OP.name[op] == 'BINARY_MODULO' and len(stack) > 1 :
+                        warn = _getFormatWarnings(stack, func_code,
+                                                  lastLineNum, unusedLocals)
+                        _addWarning(warnings, warn)
                     del stack[-1]
                 elif OP.POP_TOP(op) :
                     if len(stack) > 0 :
