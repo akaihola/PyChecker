@@ -73,6 +73,26 @@ def get_base_names(scope):
                 pass
     return names
 
+def find_in_module(package, names, checker):
+    if len(names) < 1:
+        return None
+    module = package
+    if len(names) > 1:
+        module = getattr(package, '.'.join(names[:-1]))
+    if len(names) == 1:
+        f = checker.check_module(package)
+        if f:
+            return find_defs(f.root_scope, names[:1], checker)
+    try:
+        module = getattr(package, '.'.join(names[:-1]))
+        if type(module) == type(symbols):
+            f = checker.check_module(module)
+            if f:
+                return find_defs(f.root_scope, names[-1:], checker)
+    except KeyError:
+        pass
+    return None
+                 
 def find_defs(scope, names, checker):
     "Drill down scopes to find definition of x.y.z"
     root = names[0]
@@ -89,10 +109,10 @@ def find_defs(scope, names, checker):
             ref = scope.imports[name]
             file = checker.modules[ref.module]
             if ref.remotename:
-                return find_defs(file.root_scope, [ref.remotename], checker)
+                return find_in_module(ref.module, [ref.remotename] + names[i:], checker)
             else:
                 if names[i:]:
-                    return find_defs(file.root_scope, names[i:], checker)
+                    return find_in_module(ref.module, names[i:], checker)
     return None
 
 def find_local_class(scope, name, checker):
