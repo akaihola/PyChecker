@@ -390,6 +390,7 @@ def _getFormatInfo(format, code) :
 
     # skip the first item in the list, it's always empty
     for section in sections[1:] :
+        orig_section = section
         # handle dictionary formats
         if section[0] == '(' :
             mappingFormatCount = mappingFormatCount + 1
@@ -420,7 +421,7 @@ def _getFormatInfo(format, code) :
 
         formatCount = formatCount + stars
         if section[i] not in _FORMAT_CONVERTERS :
-            code.addWarning(msgs.INVALID_FORMAT % section)
+            code.addWarning(msgs.INVALID_FORMAT % orig_section)
 
     if mappingFormatCount > 0 and mappingFormatCount != percentFormatCount :
         code.addWarning(msgs.CANT_MIX_MAPPING_IN_FORMATS)
