@@ -654,6 +654,16 @@ if __name__ == '__main__' :
 else :
     _orig__import__ = None
     _suppressions = None
+    _warnings_cache = {}
+
+    def _get_unique_warnings(warnings):
+        for i in range(len(warnings)-1, -1, -1):
+            w = warnings[i].format()
+            if _warnings_cache.has_key(w):
+                del warnings[i]
+            else:
+                _warnings_cache[w] = 1
+        return warnings
 
     def __import__(name, globals={}, locals={}, fromlist=[]) :
         check = not sys.modules.has_key(name) and name[:10] != 'pychecker.'
@@ -662,7 +672,8 @@ else :
             try :
                 module = Module(pymodule.__name__)
                 if module.load() :
-                    _printWarnings(warn.find([module], _cfg, _suppressions))
+                    warnings = warn.find([module], _cfg, _suppressions)
+                    _printWarnings(_get_unique_warnings(warnings))
                 else :
                     print 'Unable to load module', pymodule.__name__
             except Exception:
