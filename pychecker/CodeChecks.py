@@ -261,7 +261,7 @@ def _classHasAttribute(c, attr) :
     return (c.methods.has_key(attr) or c.members.has_key(attr) or
             hasattr(c.classObject, attr))
 
-def _checkAttribute(attr, c, code) :
+def _checkClassAttribute(attr, c, code) :
     if not _classHasAttribute(c, attr) and cfg().classAttrExists :
         code.addWarning(msgs.INVALID_CLASS_ATTR % attr)
 
@@ -273,7 +273,7 @@ def _checkModuleAttribute(attr, module, code, ref) :
 
     refClass = module.classes.get(ref)
     if refClass :
-        _checkAttribute(attr, refClass, code)
+        _checkClassAttribute(attr, refClass, code)
 
 
 def _getGlobalName(name, func) :
@@ -601,6 +601,7 @@ class Code :
 
         self.globalRefs = {}
         self.unusedLocals = {}
+        self.deletedLocals = {}
         self.functionsCalled = {}
         self.typeMap = {}
         self.constants = {}
@@ -759,21 +760,24 @@ def _STORE_NAME(oparg, operand, codeSource, code) :
 
 _STORE_GLOBAL = _STORE_NAME
 
-def _LOAD_NAME(oparg, operand, codeSource, code) :
-    check_global = 1
-    if codeSource.code.func_code.co_name == utils.LAMBDA :
+def _checkLoadGlobal(codeSource, code, varname) :
+    should_check = 1
+    if code.func_code.co_name == utils.LAMBDA :
         # this could really be a local reference, check first
         if not codeSource.main and \
-           operand in codeSource.calling_code.function.func_code.co_varnames :
-            _handleLoadLocal(code, codeSource.func, operand)
-            check_global = 0
+           varname in codeSource.calling_code.function.func_code.co_varnames :
+            _handleLoadLocal(code, codeSource.func, varname)
+            should_check = 0
 
-    if check_global :
+    if should_check :
         # make sure we remember each global ref to check for unused
-        code.globalRefs[_getGlobalName(operand, codeSource.func)] = operand
+        code.globalRefs[_getGlobalName(varname, codeSource.func)] = varname
         if not codeSource.in_class :
-            _checkGlobal(operand, codeSource.module, codeSource.func,
+            _checkGlobal(varname, codeSource.module, codeSource.func,
                          code, msgs.INVALID_GLOBAL)
+
+def _LOAD_NAME(oparg, operand, codeSource, code) :
+    _checkLoadGlobal(codeSource, code, operand)
 
     # if there was from XXX import *, _* names aren't imported
     if codeSource.module.modules.has_key(operand) and \
@@ -788,8 +792,8 @@ def _LOAD_NAME(oparg, operand, codeSource, code) :
 _LOAD_GLOBAL = _LOAD_DEREF = _LOAD_NAME
 
 def _DELETE_NAME(oparg, operand, codeSource, code) :
-    # FIXME: check if operand exists in globals, otherwise, warn
-    pass
+    _checkLoadGlobal(codeSource, code, operand)
+    # FIXME: handle deleting global multiple times
 _DELETE_GLOBAL = _DELETE_NAME
 
 def _LOAD_CONST(oparg, operand, codeSource, code) :
@@ -805,10 +809,18 @@ def _LOAD_CONST(oparg, operand, codeSource, code) :
         elif cfg().redefiningFunction :
             code.addWarning(msgs.REDEFINING_ATTR % (name, obj.co_firstlineno))
 
-def _handleLoadLocal(code, func, varname) :
-    if not code.unusedLocals.has_key(varname) and not func.isParam(varname) :
-        code.addWarning(msgs.VAR_USED_BEFORE_SET % varname)
+
+def _checkLoadLocal(code, func, varname, deletedWarn, usedBeforeSetWarn) :
+    deletedLine = code.deletedLocals.get(varname)
+    if deletedLine :
+        code.addWarning(deletedWarn % (varname, deletedLine))
+    elif not code.unusedLocals.has_key(varname) and not func.isParam(varname) :
+        code.addWarning(usedBeforeSetWarn % varname)
     code.unusedLocals[varname] = None
+
+def _handleLoadLocal(code, func, varname) :
+    _checkLoadLocal(code, func, varname,
+                    msgs.LOCAL_DELETED, msgs.VAR_USED_BEFORE_SET)
 
 def _LOAD_FAST(oparg, operand, codeSource, code) :
     code.stack.append(Stack.Item(operand, type(operand)))
@@ -832,27 +844,31 @@ def _STORE_FAST(oparg, operand, codeSource, code) :
         code.unpack()
 
 def _DELETE_FAST(oparg, operand, codeSource, code) :
-    # FIXME: check if operand exists in locals, otherwise, warn
-    pass
+    _checkLoadLocal(code, codeSource.func, operand,
+                    msgs.LOCAL_ALREADY_DELETED, msgs.VAR_DELETED_BEFORE_SET)
+    code.deletedLocals[operand] = code.lastLineNum
+
+def _checkAttribute(top, operand, codeSource, code) :
+    if top.data == cfg().methodArgName and codeSource.classObject != None :
+        _checkClassAttribute(operand, codeSource.classObject, code)
+    elif type(top.type) == types.StringType or \
+         top.type == types.ModuleType :
+        _checkModuleAttribute(operand, codeSource.module, code, top.data)
+    else :
+        _checkAttributeType(code, top, operand)
 
 def _LOAD_ATTR(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
         top = code.stack[-1]
-        if top.data == cfg().methodArgName and codeSource.classObject != None :
-            _checkAttribute(operand, codeSource.classObject, code)
-        elif type(top.type) == types.StringType or \
-             top.type == types.ModuleType :
-            _checkModuleAttribute(operand, codeSource.module, code, top.data)
-        else :
-            _checkAttributeType(code, top, operand)
+        _checkAttribute(top, operand, codeSource, code)
         top.addAttribute(operand)
 
 def _STORE_ATTR(oparg, operand, codeSource, code) :
     code.unpack()
 
 def _DELETE_ATTR(oparg, operand, codeSource, code) :
-    # FIXME: do same checks as LOAD_ATTR, but don't addAttr to stack item
-    pass
+    if len(code.stack) > 0 :
+        _checkAttribute(code.stack[-1], operand, codeSource, code)
 
 def _COMPARE_OP(oparg, operand, codeSource, code) :
     _handleComparison(code.stack, operand)
@@ -886,7 +902,6 @@ def _DUP_TOP(oparg, operand, codeSource, code) :
 def _pop2(oparg, operand, codeSource, code) :
     code.popStackItems(2)
 _STORE_SUBSCR = _DELETE_SUBSCR = _pop2
-
 
 def _CALL_FUNCTION(oparg, operand, codeSource, code) :
     _handleFunctionCall(codeSource, code, oparg)
@@ -1070,6 +1085,7 @@ DISPATCH[114] = _FOR_LOOP
 DISPATCH[116] = _LOAD_GLOBAL
 DISPATCH[124] = _LOAD_FAST
 DISPATCH[125] = _STORE_FAST
+DISPATCH[126] = _DELETE_FAST
 DISPATCH[127] = _LINE_NUM
 DISPATCH[131] = _CALL_FUNCTION
 DISPATCH[132] = _MAKE_FUNCTION

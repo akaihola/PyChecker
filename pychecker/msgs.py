@@ -72,3 +72,7 @@ USING_TUPLE_ACCESS_TO_LIST = "Using a tuple instead of slice as list accessor fo
 
 STMT_WITH_NO_EFFECT = "Operator (%s) doesn't exist, statement has no effect"
 LIST_APPEND_ARGS = "[].append() only takes 1 argument in Python 1.6 and above for (%s)"
+
+LOCAL_DELETED = "(%s) cannot be used after being deleted on line %d"
+LOCAL_ALREADY_DELETED = "Local variable (%s) has already been deleted on line %d"
+VAR_DELETED_BEFORE_SET = "Variable (%s) deleted before being set"
