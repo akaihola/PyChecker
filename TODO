@@ -1,9 +1,22 @@
-Goals for next release:
------------------------
-* Improve handling when importing packages
+Goals for next minor release (0.8.7):
+-------------------------------------
+* Add/fix/finish check for unreachable code
+* Fix test20.py:28 handle local types for return:
+        c = (1, 2)
+        if c: return c
+        return (3, 4)
+
+Goals for next major release (0.9):
+-----------------------------------
+* Improve handling when importing packages (ie, don't import modules)
+  - Make a base class to handle stack operations
+  - Override base class with classes to handle module scope, functions, etc.
+  - Process module and create Module/Class/Function objects w/o dir(), etc.
+
 * Check code in nested scopes - partially done (handles lambdas)
 	(get rid of unused warnings for identifiers used in nested scopes)
 	(see test64)
+* Fix most of the FIXMEs
 
 Longer Term goals:
 ------------------
@@ -30,7 +43,6 @@ Longer Term goals:
 * Add portability checks for win32/unix
 * Fix deriving from class by alias name
 
-* Add check for unreachable code
 * Add check if __getattr[ibute]__ returns None (instead of raising an exception)
 * Add check for except: pass
 * Add check for implicit string concatentation
