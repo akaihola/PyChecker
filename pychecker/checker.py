@@ -138,6 +138,7 @@ class Variable :
     def __init__(self, name, type):
         self.name = name
         self.type = type
+        self.value = None
 
 
 def _filterDir(object, ignoreList) :

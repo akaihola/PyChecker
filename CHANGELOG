@@ -1,6 +1,6 @@
 
 Version 0.9	- xx August 2001
-  * Check format strings of local constants
+  * Check format strings even if using global & local constants
   * Add check that [].append() only takes one argument
   * Add check that # parameters are correct for builtin functions
   * Fix method and attribute checks for None and Ellipsis

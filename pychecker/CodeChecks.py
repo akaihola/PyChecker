@@ -424,18 +424,30 @@ def _getFormatInfo(format, code) :
 
     return formatCount, vars
 
-def _getFormatWarnings(code) :
+def _getConstant(code, module, data) :
+    data = str(data.data)
+    format = code.constants.get(data)
+    if format is not None :
+        return format
+
+    format = module.variables.get(data)
+    if format is not None and format.value is not None :
+        return format.value
+    return None
+
+def _getFormatWarnings(code, module) :
     if len(code.stack) <= 1 :
         return
 
     format = code.stack[-2]
     if format.type != types.StringType or not format.const :
-        format = code.constants.get(format.data)
+        format = _getConstant(code, module, format)
         if format is None :
             return
     else :
         format = format.data
 
+    args = 0
     count, vars = _getFormatInfo(format, code)
     topOfStack = code.stack[-1]
     if topOfStack.isLocals() :
@@ -444,8 +456,16 @@ def _getFormatWarnings(code) :
                 code.addWarning(msgs.NO_LOCAL_VAR % varname)
             else :
                 code.unusedLocals[varname] = None
-    elif topOfStack.type == types.TupleType and count != topOfStack.length :
-        code.addWarning(msgs.INVALID_FORMAT_COUNT % (count, topOfStack.length))
+    elif topOfStack.type == types.TupleType :
+        args = topOfStack.length
+    elif topOfStack.type not in [Stack.TYPE_UNKNOWN, Stack.TYPE_FUNC_RETURN] :
+        args = 1
+        if topOfStack.type == types.StringType and not topOfStack.const :
+            if code.typeMap.get(topOfStack.data, types.TupleType) != types.TupleType :
+                args = len(code.constants.get(topOfStack.data, (0,)))
+
+    if args and count != args :
+        code.addWarning(msgs.INVALID_FORMAT_COUNT % (count, args))
 
 
 _METHODLESS_OBJECTS = { types.NoneType : None, types.IntType : None,
@@ -709,6 +729,11 @@ def _STORE_NAME(oparg, operand, codeSource, code) :
         if not codeSource.in_class :
             _checkGlobal(operand, module, codeSource.func, code,
                          msgs.GLOBAL_DEFINED_NOT_DECLARED, codeSource.main)
+
+        var = module.variables.get(operand)
+        if var is not None and code.stack and code.stack[-1].const :
+            var.value = code.stack[-1].data
+
         if code.unpackCount :
             code.unpackCount = code.unpackCount - 1
         else:
@@ -760,7 +785,8 @@ def _LOAD_FAST(oparg, operand, codeSource, code) :
 def _STORE_FAST(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :
         code.setType(operand)
-        if not code.unpackCount and code.stack[-1].const :
+        if not code.unpackCount and code.stack and \
+           (code.stack[-1].const or code.stack[-1].type == types.TupleType) :
             if code.constants.has_key(operand) :
                 del code.constants[operand]
             else :
@@ -903,7 +929,7 @@ def _BINARY_DIVIDE(oparg, operand, codeSource, code) :
     code.popStack()
 
 def _BINARY_MODULO(oparg, operand, codeSource, code) :
-    _getFormatWarnings(code)
+    _getFormatWarnings(code, codeSource.module)
     code.popStack()
 
 def _ROT_TWO(oparg, operand, codeSource, code) :

@@ -33,3 +33,20 @@ def y():
     fmt = '%d %s %d'
     print fmt % (aaa, bbb)
 
+
+_F = '%d %d'
+
+def ZZ():
+    print _F % 5
+    print _F % (5, 5)
+    print _F % (5, 5, 5)
+
+    F = '%d'
+    print F % 5
+    print F % (5, 5, 5)
+
+    t1 = (1,)
+    t2 = (1,2)
+    print F % t1
+    print F % t2
+

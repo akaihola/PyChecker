@@ -18,3 +18,7 @@ test_input/test22.py:28: Can't mix tuple/mapping (dictionary) formats in same fo
 test_input/test22.py:29: Can't use * in formats when using a mapping (dictionary), near: '*d'
 test_input/test22.py:31: Can't use * in formats when using a mapping (dictionary), near: '*.*f'
 test_input/test22.py:34: Format string argument count (3) doesn't match arguments (2)
+test_input/test22.py:40: Format string argument count (2) doesn't match arguments (1)
+test_input/test22.py:42: Format string argument count (2) doesn't match arguments (3)
+test_input/test22.py:46: Format string argument count (1) doesn't match arguments (3)
+test_input/test22.py:51: Format string argument count (1) doesn't match arguments (2)
