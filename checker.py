@@ -179,21 +179,22 @@ class Class :
             func_name = className + func_name
         return func_name
 
-    def addMethod(self, method, className = None) :
+    def addMethod(self, method, className = None, methodName = None) :
         if type(method) == types.StringType :
             self.methods[method] = None
             return
         if not hasattr(method, "func_name") :
             return
 
-        methodName = self.__getMethodName(method.func_name, className)
+        if not methodName :
+            methodName = self.__getMethodName(method.func_name, className)
         self.methods[methodName] = Function(method, 1)
 
     def addMethods(self, classObject) :
         for classToken in _getClassTokens(classObject) :
             token = getattr(classObject, classToken)
             if type(token) == types.MethodType :
-                self.addMethod(token.im_func, classObject.__name__)
+                self.addMethod(token.im_func, classObject.__name__, classToken)
             else :
                 self.members[classToken] = type(token)
 
