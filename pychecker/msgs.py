@@ -35,7 +35,7 @@ SELF_IS_ARG = "self is argument in function"
 RETURN_FROM_INIT = "Cannot return a value from __init__"
 NO_CTOR_ARGS = "Instantiating an object with arguments, but no constructor"
 
-GLOBAL_DEFINED_NOT_DECLARED = "Global variable (%s) defined without being declared"
+GLOBAL_DEFINED_NOT_DECLARED = "Global variable (%s) not defined in module scope"
 INVALID_GLOBAL = "No global (%s) found"
 INVALID_METHOD = "No method (%s) found"
 INVALID_CLASS_ATTR = "No class attribute (%s) found"
