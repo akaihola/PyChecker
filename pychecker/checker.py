@@ -443,8 +443,14 @@ class Module :
 
     def addClass(self, name) :
         self.classes[name] = c = Class(name, self.module)
-        packages = string.split(str(c.classObject), '.')
-        c.ignoreAttrs = packages[0] in cfg().blacklist
+        try:
+            objName = str(c.classObject)
+        except TypeError:
+            # this can happen if there is a goofy __getattr__
+            c.ignoreAttrs = 1
+        else:
+            packages = string.split(objName, '.')
+            c.ignoreAttrs = packages[0] in cfg().blacklist
         if not c.ignoreAttrs :
             self.__addAttributes(c, c.classObject)
 

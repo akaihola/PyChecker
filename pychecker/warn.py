@@ -476,7 +476,12 @@ except NameError:
 
 def _findClassWarnings(module, c, class_code,
                        globalRefs, warnings, suppressions) :
-    classSuppress = getSuppression(str(c.classObject), suppressions, warnings)
+    try:
+        className = str(c.classObject)
+    except TypeError:
+        # goofy __getattr__
+        return
+    classSuppress = getSuppression(className, suppressions, warnings)
     baseClasses = c.allBaseClasses()
     for base in baseClasses :
         baseModule = str(base)
