@@ -16,7 +16,8 @@ from distutils.core import setup
 from distutils import sysconfig
 
 if __name__ == '__main__' :
-    DOC_FILES = [ 'COPYRIGHT', 'README', 'VERSION', ]
+    DOC_FILES = ('COPYRIGHT', 'README', 'VERSION', 'CHANGELOG', 'KNOWN_BUGS', 
+                 'MAINTAINERS', 'TODO',)
     LONG_DESCRIPTION = \
 """PyChecker is a tool for finding bugs in python source code.
 It finds problems that are typically caught by a compiler for less

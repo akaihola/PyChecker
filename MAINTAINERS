@@ -29,6 +29,7 @@ Brad Knotwell			bug reports
 Jonathan Mark 			bug reports and suggestions
 Skip Montanaro			bug reports and suggestions
 Michele Moore			many suggestions
+Jon Nelson			fix setup.py, add MANIFEST.in
 Jon Ribbens			bugs, bugs, bugs
 Jim Rutledge			bug reports and suggestions
 Rich Salz			bug reports and suggestions
