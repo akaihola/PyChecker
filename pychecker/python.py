@@ -251,7 +251,7 @@ def _setupBuiltinAttrs() :
         tb = None
 
 BUILTIN_ATTRS = { types.StringType : dir(''),
-                  types.TypeType : dir(type(0)),
+                  types.TypeType : dir(type(type)),
                   types.ListType : dir([]),
                   types.DictType : dir({}),
                   types.FunctionType : dir(_setupBuiltinAttrs),
