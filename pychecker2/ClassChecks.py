@@ -2,7 +2,7 @@
 from pychecker2.Check import Check
 from pychecker2.Check import Warning
 from pychecker2 import symbols
-from pychecker2.util import BaseVisitor, parents, type_filter
+from pychecker2.util import BaseVisitor, parents, type_filter, line
 
 from compiler.misc import mangle
 from compiler import ast, walk
@@ -51,13 +51,6 @@ class GetRefs(BaseVisitor):
 
 def _get_methods(class_scope):
     return type_filter(class_scope.get_children(), symbols.FunctionScope)
-
-def line(node):
-    "find a node with a line number on it"
-    for n in parents(node):
-        if n.lineno is not None:
-            return n
-    raise AssertionError('Should be unreachable')
 
 class NotSimpleName(Exception): pass
 
@@ -176,6 +169,7 @@ special = {
     '__pow__': 2,     '__ipow__': 2,    # 2 or 3
     '__call__': None,                   # any number > 1
     '__getslice__': 3                   # deprecated
+    '__getattribute__': 2
     }
 
 def check_special(scope):
