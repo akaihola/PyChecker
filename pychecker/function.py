@@ -25,6 +25,10 @@ class _ReturnValues:
         # it's an empty list, that means no values
         if not returnValues:
             return 1
+        # make sure each value is not None
+        for rv in returnValues:
+            if not rv[1].isNone():
+                return 0
         return returnValues[-1][1].isImplicitNone()
 
 class FakeCode :
