@@ -330,7 +330,6 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
                           func.function.func_name == _INIT)
                 warn = _checkFunctionArgs(code, func, create, argCount,
                                           kwArgs, lastLineNum)
-                # print stack[funcIndex].__dict__, lastLineNum, create
                 if refClass and argCount > 0 and not create and \
                    stack[funcIndex].type == Stack.TYPE_ATTRIBUTE and \
                    stack[funcIndex+1].data != cfg().methodArgName :
