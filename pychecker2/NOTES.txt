@@ -17,20 +17,16 @@ ToDo:
 Items still missing:
         Error suppression (errors may be suppressed globally)
 
+        Define None
+        Using `self` in __repr__
         Not calling base class __init__
+        Using return value which is always None
         Wrong # of args on function (including ctor)
-        Member not initialized in __init__
         Function arguments, kwargs
         Explicit/implicit returns
         Abstract methods
-        constant in conditional
-        Define None
         Detail of exception is an exception
         Local used after deleted, already deleted, deleted before set
-        Using `self` in __repr__
-        Using return value which is always None
-        locals() should use locals
-        globals() should use globals
         exec may use locals/globals
 
         Modifying a default parameter
