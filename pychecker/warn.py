@@ -269,10 +269,15 @@ def _baseInitCalled(classInitInfo, base, functionsCalled) :
         return 1
 
     # ok, do this the hard way, there may be aliases, so check here
-    for func in functionsCalled.keys() :
-        if utils.endswith(func, _DOT_INIT) :
-            # FIXME: check if the func is a base class
-            pass
+    names = string.split(initName, '.')
+    obj = sys.modules[names[0]]
+    for i in range(1, len(names)) :
+        obj = getattr(obj, names[i], None)
+        if obj is None:
+            return 0
+        if functionsCalled.has_key(string.join(names[i:], '.')) :
+            return 1
+
     return 0
 
 def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
