@@ -7,8 +7,6 @@ Print out warnings from Python source files.
 """
 
 import sys
-import imp
-import copy
 import string
 import types
 import traceback
@@ -92,6 +90,7 @@ def cfg() :
     return _cfg[-1]
 
 def pushConfig() :
+    import copy
     newCfg = copy.copy(cfg())
     _cfg.append(newCfg)
 
@@ -953,6 +952,7 @@ def getBlackList(moduleList) :
     blacklist = []
     for badBoy in moduleList :
 	try :
+            import imp
             file, path, flags = imp.find_module(badBoy)
             if file :
                 file.close()
