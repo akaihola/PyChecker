@@ -5,4 +5,9 @@ def f(a):
 def g():
     class Test:
         def q(self):
-            self = self
+            class TestInner:
+                def p(self, a):
+                    return a
+            self.foo = TestInner()
+            
+                    
