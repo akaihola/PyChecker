@@ -473,26 +473,18 @@ def _getFormatWarnings(code, codeSource) :
             else :
                 code.unusedLocals[varname] = None
     else :
-        if topOfStack.type == types.StringType and not topOfStack.const :
-            if types.DictType in code.typeMap.get(topOfStack.data) :
-                return
-        if ((topOfStack.type == types.DictType and len(vars) > 0) or
+        stackItemType = topOfStack.getType(code.typeMap)
+        if ((stackItemType == types.DictType and len(vars) > 0) or
             codeSource.func.isParam(topOfStack.data) or
-            topOfStack.type in _UNCHECKABLE_FORMAT_STACK_TYPES) :
+            stackItemType in _UNCHECKABLE_FORMAT_STACK_TYPES) :
             return
 
         if topOfStack.type == types.TupleType :
             args = topOfStack.length
+        elif stackItemType == types.TupleType :
+            args = len(code.constants.get(topOfStack.data, (0,)))
         else :
             args = 1
-            # if we have a variable reference
-            if topOfStack.type == types.StringType and not topOfStack.const :
-                # and if the type is a tuple, get the length
-                dataTypes = code.typeMap.get(topOfStack.data, [])
-                if types.TupleType in dataTypes :
-                    args = 0
-                    if len(dataTypes) == 1 :
-                        args = len(code.constants.get(topOfStack.data, (0,)))
 
     if args and count != args :
         code.addWarning(msgs.INVALID_FORMAT_COUNT % (count, args))

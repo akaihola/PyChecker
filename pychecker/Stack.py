@@ -39,8 +39,19 @@ class Item :
         return self.type == TYPE_ATTRIBUTE and c != None and \
                len(self.data) == 2 and self.data[0] == methodArgName
 
-    def isLocals(self):
+    def isLocals(self) :
         return self.type == types.DictType and self.data == LOCALS
+
+    def getType(self, typeMap) :
+        if self.type != types.StringType :
+            return self.type
+        if self.const :
+            return type(self.data)
+        if type(self.data) == types.StringType :
+            localTypes = typeMap.get(self.data, [])
+            if len(localTypes) == 1 :
+                return localTypes[0]
+        return TYPE_UNKNOWN
 
     def getName(self, module) :
         if self.type == TYPE_ATTRIBUTE and \
