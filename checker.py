@@ -287,8 +287,10 @@ def main(argv) :
 
             lastWarning = warning
             warning.output()
+        sys.exit(1)
     else :
         print "None"
+        sys.exit(0)
 
 
 if __name__ == '__main__' :

@@ -138,5 +138,5 @@ def setupFromArgs(argList) :
         return cfg, files
     except getopt.GetoptError :
         usage()
-        sys.exit(0)
+        sys.exit(127)
 
