@@ -19,7 +19,7 @@ class RedefineCheck(Check):
                     first = node
                     second = names[key]
                     # but don't warn if the parent node is the same If or Try
-                    if util.under_simple_try_if(first, second):
+                    if util.try_if_exclusive(first, second):
                         continue
                     if first.lineno > second.lineno:
                         second, first = first, second

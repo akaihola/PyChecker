@@ -40,7 +40,7 @@ Figure out which names come from 'import name'.
             for scope in scopes:
                 try:
                     ref = scope.imports[local]
-                    if not util.under_simple_try_if(ref.nodes, node):
+                    if not util.try_if_exclusive(ref.nodes, node):
                         if ref.module == module:
                             if scope == scopes[0]:
                                 extra = " in current scope"
