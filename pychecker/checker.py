@@ -234,6 +234,10 @@ class Class :
             token = getattr(classObject, classToken)
             if type(token) == types.MethodType :
                 self.addMethod(token.im_func, classObject.__name__, token.__name__)
+            elif hasattr(token, '__get__') and \
+                 not hasattr(token, '__set__') and \
+                 type(token) is not types.ClassType :
+                self.addMethod(token.__name__)
             else :
                 self.members[classToken] = type(token)
                 self.memberRefs[classToken] = None
