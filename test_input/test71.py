@@ -26,3 +26,12 @@ def d(x):
     raise ValueError
     print x
 
+def e(x):
+    def foo():
+        print x
+    foo()
+    return x
+
+def f():
+    x = e(1)
+    print x

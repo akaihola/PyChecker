@@ -165,9 +165,12 @@ def _handleNestedCode(func_code, code, codeSource):
         if nested and func_code.co_name != utils.LAMBDA:
             varnames = func_code.co_varnames + \
                      codeSource.calling_code[-1].function.func_code.co_varnames
+        # save the original return value and restore after checking
+        returnValues = code.returnValues
         code.init(function.create_fake(func_code.co_name, func_code, {},
                                        varnames))
         _checkCode(code, codeSource)
+        code.returnValues = returnValues
 
 def _findUnreachableCode(code) :
     # code after RETURN or RAISE is unreachable unless there's a branch to it
