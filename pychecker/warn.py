@@ -118,7 +118,7 @@ class Warning :
         return cmp(self.err, warn.err)
         
     def output(self) :
-        print "%s:%d %s" % (self.file, self.line, self.err)
+        print "%s:%d: %s" % (self.file, self.line, self.err)
 
 
 def _checkSelfArg(method) :
