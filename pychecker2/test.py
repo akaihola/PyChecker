@@ -40,7 +40,7 @@ def _root_path_to_file(fname):
         result = os.getcwd()
     if not result.startswith(os.sep):
         result = os.path.join(os.getcwd(), result)
-    return result
+    return os.path.normpath(result)
 
 def main(args):
     import getopt
@@ -67,7 +67,8 @@ def main(args):
         ignore = trace.Ignore(dirs = [sys.prefix, sys.exec_prefix])
         coverage = trace.Coverage(ignore)
         trace.run(coverage.trace, 'test()')
-        trace.create_results_log(coverage.results(), 'coverage')
+        trace.create_results_log(coverage.results(),
+                                 os.path.join(root, 'coverage'))
         
 
 if __name__ == '__main__':
