@@ -27,13 +27,6 @@ Items still missing:
         Speed
 
 Bugs:
-        def f(a, b, c):
-            lambda a=a, b=b, c=c: return a+b+c
-
-            Produces warnings about redefining a, b and c.  Happens
-            with default variables a lot, too.  Pychecker works as
-            intended, but this is a common idiom.
-
         Is __file__ a builtin?
         locals() should use locals
         globals() should use globals
