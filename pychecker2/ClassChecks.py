@@ -50,7 +50,7 @@ def line(node):
     for n in parents(node):
         if n.lineno is not None:
             return n
-    assert 0, 'Should be unreachable'
+    raise AssertionError('Should be unreachable')
 
 class NotSimpleName(Exception): pass
 
