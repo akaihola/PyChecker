@@ -80,7 +80,7 @@ USING_STAR_IN_FORMAT_MAPPING = "Can't use * in formats when using a mapping (dic
 CANT_MIX_MAPPING_IN_FORMATS = "Can't mix tuple/mapping (dictionary) formats in same format string"
 
 INTEGER_DIVISION = "Using integer division (%s / %s) may return integer or float"
-MODULO_1 = "... % 1 is generally constant"
+MODULO_1 = "... % 1 may be constant"
 USING_TUPLE_ACCESS_TO_LIST = "Using a tuple instead of slice as list accessor for (%s)"
 BOOL_COMPARE = "Comparisons with %s are not necessary and may not work as expected"
 SHOULDNT_ASSIGN_BUILTIN = "Should not assign to %s, it is (or will be) a builtin"
