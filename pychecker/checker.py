@@ -16,6 +16,7 @@ import sys
 import imp
 import os
 import glob
+import traceback
 
 # see __init__.py for meaning, this must match the version there
 LOCAL_MAIN_VERSION = 1
@@ -156,6 +157,11 @@ class Variable :
         self.type = type
         self.value = None
 
+    def __str__(self) :
+        return self.name
+
+    __repr__ = utils.std_repr
+
 
 def _filterDir(object, ignoreList) :
     "Return a list of tokens (attributes) in a class, except for ignoreList"
@@ -185,6 +191,11 @@ class Class :
         self.memberRefs = {}
         self.statics = {}
         self.lineNums = {}
+
+    def __str__(self) :
+        return self.name
+
+    __repr__ = utils.std_repr
 
     def getFirstLine(self) :
         "Return first line we can find in THIS class, not any base classes"
@@ -312,15 +323,36 @@ class Class :
                 result.append(m)
         return result
 
-def importError(moduleName, info):
-    # detail may contain a newline replace with - 
-    # use str to avoid undestanding the tuple structure in the exception
-    try:
-        info = string.join(string.split(str(info), '\n' ), ' - ')
-    except:
-        exc_type, exc_value, exc_tb = sys.exc_info()
-        info = exc_value
-    sys.stderr.write("  Problem importing module %s - %s\n" % (moduleName, info))
+def importError(moduleName):
+    exc_type, exc_value, tb = sys.exc_info()
+
+    # First, try to get a nice-looking name for this exception type.
+    exc_name = getattr(exc_type, '__name__', None)
+    if not exc_name:
+        # either it's a string exception or a user-defined exception class
+        # show string or fully-qualified class name
+        exc_name = str(exc_type)
+        
+    # Print a traceback, unless this is an ImportError.  ImportError is
+    # presumably the most common import-time exception, so this saves
+    # the clutter of a traceback most of the time.  Also, the locus of
+    # the error is usually irrelevant for ImportError, so the lack of
+    # traceback shouldn't be a problem.
+    if exc_type is not ImportError:
+        sys.stderr.write("  Caught exception importing module %s:\n" %
+                         moduleName)
+
+        tbinfo = traceback.extract_tb(tb)
+        for filename, line, func, text in tbinfo:
+            sys.stderr.write("    File \"%s\", line %d" % (filename, line))
+            if func != "?":
+                sys.stderr.write(", in %s()" % func)
+            sys.stderr.write("\n")
+            if text:
+                sys.stderr.write("      %s\n" % text)
+
+        # And finally print the exception type and value.
+        sys.stderr.write("  %s: %s\n" % (exc_name, exc_value))
 
 
 class Module :
@@ -338,6 +370,11 @@ class Module :
         self.module = None
         self.check = check
         _allModules[moduleName] = self
+
+    def __str__(self) :
+        return self.moduleName
+
+    __repr__ = utils.std_repr
 
     def addVariable(self, var, varType) :
         self.variables[var] = Variable(var, varType)
@@ -396,7 +433,7 @@ class Module :
             exc_type, exc_value, exc_tb = sys.exc_info()
             raise exc_type, exc_value
         except :
-            return importError(self.moduleName, sys.exc_info()[1])
+            return importError(self.moduleName)
 
     def initModule(self, module) :
         self.module = module
