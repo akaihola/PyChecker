@@ -1,8 +1,8 @@
 
 Version 0.7	- xx July 2001
   * Improve import warning messages, add from checks
-  * checker -h prints defaults after processing .pycheckrc file
-  * Add config option to disable unused imports from __init__.py
+  * checker.py -h prints defaults after processing .pycheckrc file
+  * Add config option -k/--pkgimport to disable unused imports from __init__.py
   * Add warning for variable used before being set
   * Improve format string checks/warnings
   * Check arguments to constructors
