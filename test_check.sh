@@ -39,6 +39,6 @@ else
 fi
 
 if [ "$NO_EXPECTED_RESULTS" != "" ]; then
-    echo "  WARNING no expected results for: $NO_EXPECTED_RESULTS"
+    echo " WARNING no expected results for: $NO_EXPECTED_RESULTS"
 fi
 
