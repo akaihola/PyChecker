@@ -230,14 +230,21 @@ def _getUnused(module, globalRefs, dict, msg, filterPrefix = None) :
     return warnings
 
 
+def _get_func_info(method) :
+    fc = getattr(method.im_func, 'func_code', None)
+    if fc is not None :
+        return fc.co_filename, fc.co_firstlineno
+    return None, None
+
 _DOT_INIT = '.' + utils.INIT
 
-def _baseInitCalled(base, functionsCalled) :
-    if not hasattr(base, utils.INIT) :
+def _baseInitCalled(classInitInfo, base, functionsCalled) :
+    baseInit = getattr(base, utils.INIT, None)
+    if baseInit is None or _get_func_info(baseInit) == classInitInfo :
         return 1
 
-    # FIXME: im_class meaning changed in Python 2.2
-    initName = str(getattr(base, utils.INIT).im_class)
+    # Warning: im_class meaning changed in Python 2.2, but I think this is ok
+    initName = str(baseInit.im_class)
     # FIXME: this is a hack, oughta figure a better way to fix
     if utils.startswith(initName, 'exceptions.') :
         initName = string.join(string.split(initName, '.')[1:], '.')
@@ -264,9 +271,11 @@ def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
                 warn = Warning(moduleFilename, line, msgs.RETURN_FROM_INIT)
                 warnings.append(warn)
 
-    if cfg().baseClassInitted :
+    classInit = getattr(c.classObject, utils.INIT, None)
+    if cfg().baseClassInitted and classInit is not None :
+        classInitInfo = _get_func_info(classInit)
         for base in c.classObject.__bases__ :
-            if not _baseInitCalled(base, functionsCalled) :
+            if not _baseInitCalled(classInitInfo, base, functionsCalled) :
                 warn = Warning(moduleFilename, func_code,
                                msgs.BASE_CLASS_NOT_INIT % str(base))
                 warnings.append(warn)
