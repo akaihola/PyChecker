@@ -1,6 +1,7 @@
 from pychecker2.Check import Check
 from pychecker2.Options import Opt, BoolOpt
 from pychecker2.Warning import Warning
+from pychecker2 import util
 
 import compiler
 
@@ -84,14 +85,20 @@ class UnusedCheck(Check):
 
         for nodes, scope in file.scopes.items():
             if isinstance(nodes, compiler.ast.Function):
+                code = nodes.code.nodes
                 # functions which only raise exceptions are unlikely to use
                 # their local variables
-                if isinstance(nodes.code.nodes[0], compiler.ast.Raise):
+                if isinstance(code[0], compiler.ast.Raise):
                     continue
                 # functions which do nothing are unlikely to use their
                 # local variables
-                if len(nodes.code.nodes) == 1 and \
-                   isinstance(nodes.code.nodes[0], compiler.ast.Pass):
+                if len(code) == 1 and isinstance(code[0], compiler.ast.Pass):
+                    continue
+                # functions which only assert falsehood are unlikely to use
+                # their local variables
+                if isinstance(code[0], compiler.ast.Assert) and \
+                   isinstance(code[0].test, compiler.ast.Const) and \
+                   not code[0].test.value:
                     continue
             
             # ignore names defined in a class scope
@@ -166,3 +173,38 @@ class SelfCheck(Check):
                 if _is_self(scope, var) and var not in self.selfNames:
                     file.warning(scope, self.selfName,
                                  scope.node.name, var, `self.selfNames`)
+
+class UnpackCheck(Check):
+    'Mark all unpacked variables as used'
+
+    def get_options(self, options):
+        desc = 'Do not treat variables used in tuple assignment as used'
+        options.add(BoolOpt(self, 'unpackedUsed', desc, 1))
+
+    def check(self, unused_modules, file, unused_options):
+        if not self.unpackedUsed:
+            return
+
+        class Visitor:
+            def __getattr__(self, name):
+                if name == 'visitAssTuple':
+                    return self.visitAssTuple
+                return self.default
+
+            def default(self, node, *scopes):
+                try:
+                    scopes = scopes + (file.scopes[node],)
+                except KeyError:
+                    pass
+                for c in node.getChildNodes():
+                    self.visit(c, *scopes)
+
+            def visitAssTuple(self, node, *scopes):
+                for c in node.getChildNodes():
+                    try:
+                        scopes[-1].uses[c.name] = node.lineno
+                    except AttributeError:
+                        pass
+                
+        if file.root_scope:
+            compiler.walk(file.root_scope.node, Visitor())
