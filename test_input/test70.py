@@ -47,3 +47,8 @@ def func4(x):
         print x
         break
     return 0
+
+def func5(need_quotes, text):
+    'should not produce a warning'
+    return (need_quotes) and ('"%s"' % text) or (text)
+
