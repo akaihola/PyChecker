@@ -86,6 +86,8 @@ if utils.pythonVersion() >= utils.PYTHON_2_2 :
     GLOBAL_FUNC_INFO['super'] = (Stack.TYPE_UNKNOWN, 1, 2)
     GLOBAL_FUNC_INFO['staticmethod'] = (types.MethodType, 1, 1)
 
+    GLOBAL_FUNC_INFO['bool'] = (BOOL, 1, 1)
+
 if hasattr(types, 'UnicodeType') :
     GLOBAL_FUNC_INFO['unichr'] = (types.UnicodeType, 1, 1)
     GLOBAL_FUNC_INFO['unicode'] = (types.UnicodeType, 1, 3)
