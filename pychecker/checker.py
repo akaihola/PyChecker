@@ -273,8 +273,11 @@ class Class :
                 method = getattr(classObject, classToken)
                 if type(method) == types.MethodType :
                     self.addMembersFromMethod(method.im_func)
-        elif hasattr(classObject, "__init__") :
-            self.addMembersFromMethod(classObject.__init__.im_func)
+        else:
+            try:
+                self.addMembersFromMethod(classObject.__init__.im_func)
+            except AttributeError:
+                pass
 
     def addMembersFromMethod(self, method) :
         if not hasattr(method, 'func_code') :

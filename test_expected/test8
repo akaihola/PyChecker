@@ -1,6 +1,6 @@
 Processing test8...
   Caught exception importing module test8:
-    File "./pychecker/checker.py", line 483, in setupMainCode()
+    File "./pychecker/checker.py", line 486, in setupMainCode()
       module = imp.load_module(self.moduleName, file, filename, smt)
   SyntaxError: invalid syntax (test8.py, line 4)
 
