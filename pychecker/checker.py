@@ -382,16 +382,16 @@ class Module :
 
         for tokenName in _filterDir(self.module, _DEFAULT_MODULE_TOKENS) :
             token = getattr(self.module, tokenName)
-            tokenType = type(token)
-            if tokenType == types.ModuleType :
+            if isinstance(token, types.ModuleType) :
                 # get the real module name, tokenName could be an alias
                 self.addModule(token.__name__)
-            elif tokenType == types.FunctionType :
+            elif isinstance(token, types.FunctionType) :
                 self.addFunction(token)
-            elif tokenType == types.ClassType :
+            elif isinstance(token, types.ClassType) or \
+                 hasattr(token, '__bases__') :
                 self.addClass(tokenName)
             else :
-                self.addVariable(tokenName, tokenType)
+                self.addVariable(tokenName, type(token))
 
         if pychecker_attr is not None :
             utils.popConfig()
