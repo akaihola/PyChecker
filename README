@@ -44,7 +44,7 @@ If there are import dependencies in your source files, you should
 import those files first on the command line in order to get as many
 files checked as possible.
 
-PyChecker works with Python 1.5.2, 2.0, 2.1, and 2.2.
+PyChecker works with Python 1.5.2 through 2.2.
 
 You can use the test files as examples:
 
@@ -56,6 +56,12 @@ or define a .pycheckrc file.  For an example, look at pycheckrc.
 To show the available options, do:
 
 	pychecker -h
+
+There is a simple GUI which is not maintained much.  It is good
+for showing all the options and also allows you to run pychecker.
+To run options, you will need to start it manually:
+
+	python pychecker/options.py
 
 If you want to suppress warnings on a module/function/class/method,
 you can define a suppressions dictionary in .pycheckrc.
