@@ -85,6 +85,8 @@ class Warning :
             file = file.function.func_code.co_filename
         elif hasattr(file, "co_filename") :
             file = file.co_filename
+        elif hasattr(line, "co_filename") :
+            file = line.co_filename
         if file[:2] == './' :
             file = file[2:]
         self.file = file
@@ -253,7 +255,8 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
 
 
 def _checkAttribute(attr, c, func_code, lastLineNum) :
-    if not c.methods.has_key(attr) and not c.members.has_key(attr) :
+    if not c.methods.has_key(attr) and not c.members.has_key(attr) and \
+       not hasattr(c.classObject, attr) :
         return Warning(func_code, lastLineNum, _INVALID_ATTR % attr)
     return None
 
