@@ -1,5 +1,7 @@
 Processing test77...
-  Problem importing module test77 - MyError instance has no attribute 'args'
+  Caught exception importing module test77:
+    File "test_input/test77.py", line 8
+      raise MyError("FOO!")
 
 Warnings...
 

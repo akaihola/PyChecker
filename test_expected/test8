@@ -1,5 +1,6 @@
 Processing test8...
-  Problem importing module test8 - invalid syntax (test8.py, line 4)
+  Caught exception importing module test8:
+  SyntaxError: invalid syntax (test8.py, line 4)
 
 Warnings...
 
