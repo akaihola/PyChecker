@@ -15,3 +15,7 @@ def a(p):
 
     y()
 
+def chop(seq,size):
+    chunk = lambda i: seq[i:i+size]
+    return map(chunk,range(len(seq)))
+
