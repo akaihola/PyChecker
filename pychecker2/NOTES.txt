@@ -41,9 +41,10 @@ If you want to add new checks, there are some parts to be aware of:
                 Members:
                    name
                         The file name.
+
                    parseTree
                         The root of the Abstract Syntax Tree returned from
-                        compiler.parseFile.  Will be null if the file
+                        compiler.parseFile.  Will be None if the file
                         won't even parse.
 
                    scopes
@@ -60,12 +61,12 @@ If you want to add new checks, there are some parts to be aware of:
                 Basic step for checking a file.  Usually contributes
                 Warnings or additional information to File.  New checks
                 will subclass this, and be added to the chain of checks
-                given in main()
-
+                given in main().
 
         Warning
-                A description of a warning emitted by pychecker
+                A description of a warning emitted by pychecker.
 
 
         Command line options are pulled from each check.
-        A Warning is also turned into a boolean-style command line option
+        A Warning is also turned into a boolean-style command line option.
+
