@@ -21,6 +21,7 @@ class Config :
 
         self.debug = 0
         self.onlyCheckInitForMembers = 0
+        self.printParse = 0
 
         self.noDocModule = 1
         self.noDocClass = 1
@@ -71,6 +72,7 @@ _OPTIONS = [
  ('B', 1, 'maxbranches', 'maxBranches', 'maximum branches in a function'),
  ('R', 1, 'maxreturns', 'maxReturns', 'maximum returns in a function'),
  None,
+ ('P', 0, 'printparse', 'printParse', 'print internal checker parse structures'),
  ('d', 0, 'debug', 'debug', 'turn on debugging for checker'),
  None,
 ]

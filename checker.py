@@ -6,10 +6,6 @@
 Check python source code files for possible errors and print warnings
 """
 
-
-_printParse = 0    # set to 1 if you want to see parse prints, 0 for no prints
-
-
 import string
 import types
 import sys
@@ -271,7 +267,7 @@ def main(argv) :
             w = warn.Warning(filename, 1, "NOT PROCESSED UNABLE TO IMPORT")
             importWarnings.append(w)
 
-    if _printParse :
+    if _cfg.printParse :
         for module in _allModules.values() :
             printer.module(module)
 
