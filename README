@@ -18,6 +18,7 @@ Types of problems that can be found include:
   * No global found (e.g., using a module without importing it)
   * Global not used (module or variable)
   * Local variable not used
+  * Format strings don't match arguments
 
 To use PyChecker, pass the python source files you want to check on
 the command line:
