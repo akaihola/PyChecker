@@ -2,7 +2,6 @@
 Goals for next release:
 -----------------------
 * Add check for multiple functions/methods/classes w/same name
-* Add check for unused parameters
 * Type check object access based on possible types
 * Improve handling when importing packages
 

@@ -39,6 +39,8 @@ _OPTIONS = [
  ('N', 0, 'initreturn', 'returnNoneFromInit', 'Return None from __init__()'),
  ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
  ('S', 1, 'self', 'methodArgName', 'First argument to methods'),
+ ('T', 0, 'argsused', 'argumentsUsed', 'unused method/function arguments'),
+ ('G', 0, 'selfused', 'ignoreSelfUnused', 'ignore if self is unused in methods'),
  ('o', 0, 'override', 'checkOverridenMethods', 'check if overridden methods have the same signature'),
  None,
  ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
@@ -151,6 +153,9 @@ class Config :
         self.ignoreStandardLibrary = 0
         self.methodArgName = 'self'
         self.checkOverridenMethods = 1
+
+        self.argumentsUsed = 1
+        self.ignoreSelfUnused = 0
 
         self.maxLines = 200
         self.maxBranches = 50

@@ -28,7 +28,7 @@ for test_file in $TESTS ; do
     fi
 
     test_path=$TMP/$test_name
-    ./pychecker/checker.py $test_file > $test_path 2>&1
+    ./pychecker/checker.py --no-argsused $test_file > $test_path 2>&1
     diff $test_path $expected
     if [ $? -ne 0 ]; then
     	error=`expr $error + 1`

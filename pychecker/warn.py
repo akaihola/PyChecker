@@ -38,6 +38,7 @@ _NO_FUNC_DOC = "No doc string for function %s"
 _VAR_NOT_USED = "Variable (%s) not used"
 _IMPORT_NOT_USED = "Imported module (%s) not used"
 _UNUSED_LOCAL = "Local variable (%s) not used"
+_UNUSED_PARAMETER = "Parameter (%s) not used"
 _NO_LOCAL_VAR = "No local variable (%s)"
 _VAR_USED_BEFORE_SET = "Variable (%s) used before being set"
 
@@ -565,6 +566,17 @@ def _getFormatWarnings(stack, func_code, lastLineNum, unusedLocals) :
         
     return warnings
 
+def _getFirstOp(code, maxCode) :
+    # find the first real op, maybe we should not check if params are used
+    i = extended_arg = 0
+    while i < maxCode :
+        op, oparg, i, extended_arg = OP.getInfo(code, i, extended_arg)
+        if not OP.LINE_NUM(op) :
+            if not (OP.LOAD_CONST(op) or OP.LOAD_GLOBAL(op)) :
+                return op
+    return 0
+
+
 _METHODLESS_OBJECTS = { types.NoneType : None, types.IntType : None,
                         types.LongType : None, types.FloatType : None,
                         types.BufferType : None, types.TupleType : None,
@@ -582,9 +594,14 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     warnings, codeObjects = [], []
     globalRefs, unusedLocals, functionsCalled = {}, {}, {}
 
+    # initialize the arguments to unused
+    for arg in func.arguments() :
+        unusedLocals[arg] = 0
+
     # push a new config object, so we can pop at end of function
     pushConfig()
 
+    code = maxCode = 0
     try :
         # check the code
         #  see dis.py in std python distribution
@@ -796,6 +813,18 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
         for var, line in unusedLocals.items() :
             if line is not None and line > 0 and var != '_' :
                 warnings.append(Warning(func_code, line, _UNUSED_LOCAL % var))
+
+    if cfg().argumentsUsed :
+        op = _getFirstOp(code, maxCode)
+        if not (OP.RAISE_VARARGS(op) or OP.RETURN_VALUE(op)) :
+            for var, line in unusedLocals.items() :
+                should_warn = line is not None and line == 0
+                if should_warn :
+                    should_warn = cfg().ignoreSelfUnused or \
+                                  not var == cfg().methodArgName
+                if should_warn :
+                    warn = Warning(func_code, func_code, _UNUSED_PARAMETER % var)
+                    warnings.append(warn)
 
     # Check code complexity:
     #   loops should be counted as one branch, but there are typically 3

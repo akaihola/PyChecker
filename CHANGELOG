@@ -2,19 +2,21 @@
 Version 0.8	- xx July 2001
   * Suppress warnings on a per module/function/class/method basis
 	with new suppressions = {} in .pycheckrc
+  * Suppress warnings by setting __pychecker__ in source code
+  * Change long argument behaviour --arg sets arg to true,
+	--no-arg sets arg to false (also works for warning suppression)
+  * Add -T/--argsused check for unused method/function arguments
+  * Add -G/--selfused ignore if self is unused in a method (requires --argsused)
   * Add -q/--stdlib to disable warnings from the standard library
   * Add -o/--override warning when a method has different signature 
 	than one being overridden in a base class
-  * Fix checking files in standard library before local file
   * Add -F/--rcfile to generate a .pycheckrc file
+  * Fix checking files in standard library before local file
   * Fix spurious warning when using from X import Y and imports in methods
 	(Module (m) re-imported)
   * Fix spurious warning when doing:  from X import Y, Z
   * Fix spurious warning when deriving from Exception() and
 	instantiating object with multiple arguments
-  * Suppress warnings by setting __pychecker__ in source code
-  * Change long argument behaviour --arg sets arg to true,
-	--no-arg sets arg to false (also works for warning suppression)
   * Fix tests (forgot to add : after line number in expected results)
 
 Version 0.7	- 16 July 2001
