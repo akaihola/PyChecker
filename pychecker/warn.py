@@ -314,13 +314,14 @@ class _SuppressionError(Exception) :
     pass
 
 def _updateSuppressions(suppress, warnings) :
-    utils.pushConfig()
     if not utils.updateCheckerArgs(suppress, 'suppressions', 0, warnings) :
         utils.popConfig()
         raise _SuppressionError
 
 def getSuppression(name, suppressions, warnings) :
     try :
+        utils.pushConfig()
+
         suppress = suppressions[0].get(name, None)
         if suppress is not None :
             _updateSuppressions(suppress, warnings)
@@ -332,6 +333,9 @@ def getSuppression(name, suppressions, warnings) :
             if match and match.group() == name :
                 suppress = 1
                 _updateSuppressions(suppressions[1][regex], warnings)
+
+        if not suppress :
+            utils.popConfig()
 
         return suppress
     except _SuppressionError :
