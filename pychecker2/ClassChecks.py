@@ -55,13 +55,10 @@ def line(node):
 class NotSimpleName(Exception): pass
 
 def get_name(node):
-    while node:
         if isinstance(node, ast.Getattr):
             return get_name(node.expr) + "." + node.attrname
         elif isinstance(node, ast.Name):
             return node.name
-    else:
-        raise NotSimpleName(node)
 
 def get_base_names(scope):
     names = []
