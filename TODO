@@ -6,6 +6,7 @@ Goals for next release:
 
 Longer Term goals:
 ------------------
+* Warn about integer division (possible semantic change in python versions)
 * Make check for 'self' a list instead of a string
 * Check function return values - partially complete
 * Add check for unreachable code
