@@ -2,7 +2,7 @@ Processing test89...
   Caught exception importing module test89:
     File "./pychecker/checker.py", line 508, in setupMainCode()
       module = imp.load_module(self.moduleName, file, filename, smt)
-    File "test_input/test89.py", line 2
+    File "test_input/test89.py", line 3
       class Newbie(object):
   NameError: name 'object' is not defined
 
