@@ -18,3 +18,7 @@ def g(a, b):
         b = d + max
     return f(c, d)
 
+class C:
+    f = lambda a, b: a + b
+    def f(self, b):
+        pass
