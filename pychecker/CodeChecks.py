@@ -324,15 +324,21 @@ def _checkClassAttribute(attr, c, code) :
         code.addWarning(msgs.INVALID_CLASS_ATTR % attr)
 
 def _checkModuleAttribute(attr, module, code, ref) :
-    refModule = module.modules.get(ref)
-    if refModule and refModule.attributes != None :
-        if attr not in refModule.attributes and \
+    try:
+        if attr not in module.modules[ref].attributes and \
            not utils.endswith(ref, '.' + attr) :
             code.addWarning(msgs.INVALID_MODULE_ATTR % attr)
+    except (KeyError, TypeError):
+        # if ref isn't found, or ref isn't even hashable, we don't care
+        # we may not know, or ref could be something funky [e for e].method()
+        pass
 
-    refClass = module.classes.get(ref)
-    if refClass :
-        _checkClassAttribute(attr, refClass, code)
+    try:
+        _checkClassAttribute(attr, module.classes[ref], code)
+    except (KeyError, TypeError):
+        # if ref isn't found, or ref isn't even hashable, we don't care
+        # we may not know, or ref could be something funky [e for e].method()
+        pass
 
 
 def _getGlobalName(name, func) :
