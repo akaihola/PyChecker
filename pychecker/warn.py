@@ -435,8 +435,9 @@ def _findClassWarnings(module, c, class_code,
             utils.popConfig()
 
     if c.memberRefs and cfg().membersUsed :
-        members = string.join(c.memberRefs.keys(), ', ')
-        err = msgs.UNUSED_MEMBERS % (members, c.name)
+        memberList = c.memberRefs.keys()
+        memberList.sort()
+        err = msgs.UNUSED_MEMBERS % (string.join(memberList, ', '), c.name)
         warnings.append(Warning(filename, c.getFirstLine(), err))
 
     if cfg().noDocClass and c.classObject.__doc__ == None :
