@@ -406,6 +406,13 @@ def _findFunctionWarnings(module, globalRefs, warnings, suppressions) :
         if suppress is not None :
             utils.popConfig()
 
+def _getModuleFromFilename(module, filename):
+    if module.filename() != filename:
+        for m in module.modules.values():
+            if m.filename() == filename:
+                return m
+    return module
+
 # Create object for non-2.2 interpreters, any class object will do
 try:
     if object: pass
@@ -448,7 +455,8 @@ def _findClassWarnings(module, c, class_code,
             warnings.append(Warning(filename, func_code, err))
 
         _checkSelfArg(method, warnings)
-        funcInfo = _updateFunctionWarnings(module, method, c, warnings, globalRefs)
+        tmpModule = _getModuleFromFilename(module, func_code.co_filename)
+        funcInfo = _updateFunctionWarnings(tmpModule, method, c, warnings, globalRefs)
         if func_code.co_name == utils.INIT :
             if utils.INIT in dir(c.classObject) :
                 warns = _checkBaseClassInit(filename, c, func_code, funcInfo)
