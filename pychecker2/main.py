@@ -14,12 +14,6 @@ from pychecker2 import ClassChecks
 from pychecker2 import ReachableChecks
 from pychecker2 import FormatStringChecks
 
-# importing these incorporates these checks
-
-class NullWriter:
-    def write(self, s): pass
-    def flush(self): pass
-
 def _print_warnings(f):
     if not f.warnings:
         return 0
@@ -35,10 +29,9 @@ def _print_warnings(f):
     if last_msg:
         print
     return 1
-    
 
-def main():
-    options = Options.Options()
+def create_checklist(options):
+
     checks = [ ParseChecks.ParseCheck(),
                OpChecks.OpCheck(),
                OpChecks.ExceptCheck(),
@@ -56,24 +49,20 @@ def main():
     for checker in checks:
         checker.get_warnings(options)
         checker.get_options(options)
+    return CheckList(checks)
 
+def main():
+    options = Options.Options()
+    checker = create_checklist(options)
     try:
         files = options.process_options(sys.argv[1:])
     except Options.Error, detail:
-        err = sys.stderr
-        print >> err, "Error: %s" % detail
-        options.usage(sys.argv[0], err)
+        print >> sys.stderr, "Error: %s" % detail
+        options.usage(sys.argv[0], sys.stderr)
         return 1
 
-    out = NullWriter()
-    if options.verbose:
-        out = sys.stdout
-
-    checker = CheckList(checks)
     for f in files:
-        print >>out, 'Checking file', f.name
         checker.check_file(f)
-        print >>out
         if options.incremental and not options.profile:
             _print_warnings(f)
 
@@ -83,8 +72,8 @@ def main():
         for f in files:
             result |=  _print_warnings(f)
 
-        if not result:
-            print >>out, None
+        if not result and options.verbose:
+            print >>sys.stdout, None
 
     return result
 
