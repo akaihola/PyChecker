@@ -132,3 +132,10 @@ class BadSpecial:
 
     def __gt__(self, a, b):
         return 0
+
+    def __ge__(self, a, b = None, c = None):
+        return 0
+
+    def __setattr__(self, a = None):
+        return 0
+    
