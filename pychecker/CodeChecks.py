@@ -362,7 +362,7 @@ def _handleImport(code, operand, module, main, fromName) :
                 err = 'from %s import %s' % (tmpFromName, operand)
                 err = msgs.MODULE_MEMBER_IMPORTED_AGAIN % err
             elif modline1 is not None :
-                if cfg().mixImport :
+                if cfg().mixImport and code.lastLineNum != modline1[1] :
                     err = msgs.MIX_IMPORT_AND_FROM_IMPORT % tmpFromName
             else :
                 err = msgs.MODULE_MEMBER_ALSO_STAR_IMPORTED % fromName
