@@ -32,6 +32,9 @@ Figure out which names come from 'import name'.
             except ImportError, detail:
                 file.warning(node, ImportCheck.importError, name, detail)
                 return None
+            except Exception, detail:
+                file.warning(node, ImportCheck.importError, name, detail)
+
         def add_import(node, local, remote, module):
             scopes = util.enclosing_scopes(file.scopes, node)
             for scope in scopes:
