@@ -19,12 +19,11 @@ class ConfigDialog:
             field = None
             if opt:
                 _, useValue, longArg, member, description = opt
-                if member:
-                    description = member + ": " + description.capitalize()
-                tk.option_add('*' + longArg + ".help", description)
                 value = None
                 if member:
                     value = getattr(self._cfg, member)
+                    description = member + ": " + description.capitalize()
+                tk.option_add('*' + longArg + ".help", description)
                 if useValue:
                     if type(value) == type([]):
                         field = List(longArg, value)
@@ -82,6 +81,7 @@ class ConfigDialog:
         buttons.grid()
         
         tk.bind_all('<FocusIn>', self.focus)
+        tk.bind_all('<Enter>', self.focus)
         tk.bind_all('<ButtonPress>', self.click)
         tk.mainloop()
 
