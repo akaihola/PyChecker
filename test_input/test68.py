@@ -140,3 +140,12 @@ def func20(x):
             break
         return 1
 
+def func21(x):
+    'should not produce a warning'
+    try:
+        if x == 1:
+            return 3
+        return 6
+    finally:
+        print 'do nothing'
+

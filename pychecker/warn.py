@@ -73,7 +73,8 @@ def _checkReturnWarnings(code) :
 
     # if the last return is implicit, check if there are non None returns
     lastReturn = code.returnValues[-1]
-    if cfg().checkImplicitReturns and lastReturn[1].isImplicitNone() :
+    if not code.starts_and_ends_with_finally and \
+       cfg().checkImplicitReturns and lastReturn[1].isImplicitNone() :
         for line, retval, dummy in code.returnValues[:-1] :
             if not retval.isNone() :
                 code.addWarning(msgs.IMPLICIT_AND_EXPLICIT_RETURNS,

@@ -584,6 +584,9 @@ class Code :
         self.extended_arg = 0
         self.lastLineNum = 0
         self.maxCode = 0
+        self.has_except = 0
+        self.try_finally_first = 0
+        self.starts_and_ends_with_finally = 0
 
         self.returnValues = []
         self.raiseValues = []
@@ -715,10 +718,7 @@ class Code :
 
     def addBranch(self, label) :
         if label is not None :
-            try :
-                self.branches[label] = self.branches[label] + 1
-            except KeyError :
-                self.branches[label] = 1
+            self.branches[label] = self.branches.get(label, 0) + 1
 
     def removeBranch(self, label) :
         branch = self.branches.get(label, None)
@@ -1151,8 +1151,17 @@ def _ROT_TWO(oparg, operand, codeSource, code) :
         del code.stack[-2]
 
 def _SETUP_EXCEPT(oparg, operand, codeSource, code) :
+    code.has_except = 1
     code.pushStack(Stack.Item(None, Stack.TYPE_EXCEPT))
     code.pushStack(Stack.Item(None, Stack.TYPE_EXCEPT))
+
+def _SETUP_FINALLY(oparg, operand, codeSource, code) :
+    if not code.has_except :
+        code.try_finally_first = 1
+
+def _END_FINALLY(oparg, operand, codeSource, code) :
+    if code.try_finally_first and code.index == (len(code.bytes) - 4) :
+        code.starts_and_ends_with_finally = 1
 
 def _LINE_NUM(oparg, operand, codeSource, code) :
     code.lastLineNum = oparg
@@ -1272,6 +1281,7 @@ DISPATCH[ 66] = _BINARY_OR
 DISPATCH[ 83] = _RETURN_VALUE
 DISPATCH[ 84] = _IMPORT_STAR
 DISPATCH[ 85] = _EXEC_STMT
+DISPATCH[ 88] = _END_FINALLY
 DISPATCH[ 90] = _STORE_NAME
 DISPATCH[ 91] = _DELETE_NAME
 DISPATCH[ 92] = _UNPACK_SEQUENCE
@@ -1296,6 +1306,7 @@ DISPATCH[113] = _JUMP_ABSOLUTE
 DISPATCH[114] = _FOR_LOOP
 DISPATCH[116] = _LOAD_GLOBAL
 DISPATCH[121] = _SETUP_EXCEPT
+DISPATCH[122] = _SETUP_FINALLY
 DISPATCH[124] = _LOAD_FAST
 DISPATCH[125] = _STORE_FAST
 DISPATCH[126] = _DELETE_FAST
