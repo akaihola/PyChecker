@@ -731,6 +731,7 @@ def _checkLoadGlobal(codeSource, code, varname) :
     if code.func_code.co_name == utils.LAMBDA :
         # this could really be a local reference, check first
         if not codeSource.main and \
+           hasattr(codeSource.calling_code, 'function') and \
            varname in codeSource.calling_code.function.func_code.co_varnames :
             _handleLoadLocal(code, codeSource.func, varname)
             should_check = 0
