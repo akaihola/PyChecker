@@ -52,3 +52,5 @@ def parents(obj):
             return retval
     return iter(Parents(obj), None)
 
+def type_filter(seq, *classes):
+    return [s for s in seq if isinstance(s, classes)]
