@@ -58,12 +58,12 @@ class Number(Base):
         self._var.set(self._default)
         frame = Tkinter.Frame(w, name = self._name + "Frame")
         label = Tkinter.Label(frame, text=self._name + ":")
-        label.grid(row=0, col=0, sticky=Tkinter.W)
+        label.grid(row=0, column=0, sticky=Tkinter.W)
         entry = Tkinter.Entry(frame,
                               name=self._name,
                               textvariable=self._var,
                               width=4)
-        entry.grid(row=0, col=1, sticky=Tkinter.E)
+        entry.grid(row=0, column=1, sticky=Tkinter.E)
         for i in range(2):
             frame.columnconfigure(i, weight=1)
         return frame
@@ -87,12 +87,12 @@ class Text(Base):
         self._var.set(self._default)
         frame = Tkinter.Frame(w, name = self._name + "Frame")
         label = Tkinter.Label(frame, text=self._name + ":")
-        label.grid(row=0, col=0, sticky=Tkinter.W)
+        label.grid(row=0, column=0, sticky=Tkinter.W)
         entry = Tkinter.Entry(frame,
                               name=self._name,
                               textvariable=self._var,
                               width=self.width())
-        entry.grid(row=0, col=1, sticky=Tkinter.E)
+        entry.grid(row=0, column=1, sticky=Tkinter.E)
         for i in range(2):
             frame.columnconfigure(i, weight=1)
         return frame

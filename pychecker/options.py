@@ -135,21 +135,21 @@ class ConfigDialog:
         for opt in opts:
             f = opt.field(w)
             c, r = divmod(count, MAX_SUBBOX_ROWS)
-            f.grid(row=r, col=c, sticky=Tkinter.NSEW)
+            f.grid(row=r, column=c, sticky=Tkinter.NSEW)
             count = count + 1
 
     def _add_group(self, w, name, opts):
         colFrame = Tkinter.Frame(w)
         
         label = Tkinter.Label(colFrame, text=name + ":")
-        label.grid(row=0, col=0, sticky=Tkinter.NSEW)
+        label.grid(row=0, column=0, sticky=Tkinter.NSEW)
         
         gframe = Tkinter.Frame(colFrame, relief=Tkinter.GROOVE, borderwidth=2)
-        gframe.grid(row=1, col=0, sticky=Tkinter.NSEW)
+        gframe.grid(row=1, column=0, sticky=Tkinter.NSEW)
         self._add_fields(gframe, opts)
         
         label = Tkinter.Label(colFrame)
-        label.grid(row=2, col=0, sticky=Tkinter.NSEW)
+        label.grid(row=2, column=0, sticky=Tkinter.NSEW)
         colFrame.rowconfigure(2, weight=1)
         return colFrame
 
@@ -164,7 +164,7 @@ class ConfigDialog:
         row = row + 1
         for name, opts in self._opts:
             w = self._add_group(rowFrame, name, opts)
-            w.grid(row=row, col=col, sticky=Tkinter.NSEW, padx=PAD)
+            w.grid(row=row, column=col, sticky=Tkinter.NSEW, padx=PAD)
             col = col + 1
             if col >= MAX_BOX_COLS:
                 col_weight(rowFrame)
@@ -179,18 +179,18 @@ class ConfigDialog:
         self._help.config(takefocus=0)
         buttons = Tkinter.Frame(self._tk, name="buttons")
         ok = Tkinter.Button(buttons, name="ok", command=self.ok, default=Tkinter.ACTIVE)
-        ok.grid(row=row, col=0)
+        ok.grid(row=row, column=0)
         default = Tkinter.Button(buttons, name="default", command=self.default)
-        default.grid(row=row, col=1)
+        default.grid(row=row, column=1)
         close = Tkinter.Button(buttons, name="close", command=closeCB)
-        close.grid(row=row, col=2)
+        close.grid(row=row, column=2)
         buttons.grid()
 
         f = Tkinter.Frame(self._tk, name="fileStuff")
-        Tkinter.Button(f, name="getfile", command=self.file).grid(row=0, col=1)
+        Tkinter.Button(f, name="getfile", command=self.file).grid(row=0, column=1)
         fileEntry = Tkinter.Entry(f, name="fname", textvariable=self._file)
-	fileEntry.grid(row=0, col=2)
-        Tkinter.Button(f, name="check", command=self.check).grid(row=0, col=3)
+	fileEntry.grid(row=0, column=2)
+        Tkinter.Button(f, name="check", command=self.check).grid(row=0, column=3)
         f.grid(sticky=Tkinter.EW)
         
         self._tk.bind_all('<FocusIn>', self.focus)
