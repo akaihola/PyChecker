@@ -3,7 +3,7 @@ class BaseVisitor:
 
     def visit(self, node):
         "method is really overridden by compiler.visitor.ASTVisitor"
-        raise NotImplemented
+        raise NotImplementedError("Unreachable")
 
     def visitChildren(self, n):
         for c in n.getChildNodes():
