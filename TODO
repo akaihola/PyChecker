@@ -1,7 +1,6 @@
 
 * Module (m) re-imported warning when import m in 2 different functions
 * Handle "from types import StringType, UnicodeType" properly
-* If derive a class from Exception(), handle *args properly (ie, any # of args)
 * Add check for a[1,2] for lists (ok for dict)
 * Improve handling when importing packages
 * Fix error msg to base constructors (msg count is wrong)

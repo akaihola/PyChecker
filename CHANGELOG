@@ -1,5 +1,7 @@
 
 Version 0.8	- xx July 2001
+  * Fix warning when deriving from Exception() and instantiating object
+	with multiple arguments
   * Suppress warnings by setting __pychecker__ in source code
   * Change long argument behaviour --arg sets arg to true,
 	--no-arg sets arg to false (also works for warning suppression)

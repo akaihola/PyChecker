@@ -21,6 +21,8 @@ from pychecker import function
 _VAR_ARGS_BITS = 8
 _MAX_ARGS_MASK = ((1 << _VAR_ARGS_BITS) - 1)
 
+_INIT = '__init__'
+
 
 ###
 ### Warning Messages
@@ -241,7 +243,7 @@ def _getFunction(module, stackValue) :
         if c is None :
             c = module.classes.get(identifier, None)
         if c is not None :
-            func = c.methods.get('__init__', None)
+            func = c.methods.get(_INIT, None)
     return func, c
 
 def _addWarning(warningList, warning) :
@@ -295,7 +297,7 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
         else :
             func, is_ctor = _getFunction(module, loadValue)
             if func != None :
-                ctor = is_ctor and loadValue.data[-1] == '__init__'
+                ctor = is_ctor and loadValue.data[-1] == _INIT
                 if ctor :
                     argCount = argCount - 1
                 warn = _checkFunctionArgs(code, func, argCount, kwArgs, lastLineNum)
@@ -305,7 +307,9 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
                                 _SELF_NOT_FIRST_ARG % cfg().methodArgName)
                     warn.append(w)
             elif is_ctor and (argCount > 0 or len(kwArgs) > 0) :
-                warn = Warning(code, lastLineNum, _NO_CTOR_ARGS)
+                if is_ctor.methods.has_key(_INIT) or \
+                   not issubclass(is_ctor.classObject, Exception) :
+                    warn = Warning(code, lastLineNum, _NO_CTOR_ARGS)
 
     stack[:] = stack[:funcIndex] + [ Stack.makeFuncReturnValue(loadValue) ]
     return warn, loadValue
@@ -826,7 +830,7 @@ def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
                 warnings.append(warn)
 
     for base in c.classObject.__bases__ :
-        if hasattr(base, '__init__') :
+        if hasattr(base, _INIT) :
             initName = str(base)
             # FIXME: this is a hack, oughta figure a better way to fix
             if _startswith(initName, 'exceptions.') :
@@ -926,8 +930,8 @@ def find(moduleList, initialCfg) :
                 _addWarning(warnings, _checkSelfArg(method))
                 funcInfo = _updateFunctionWarnings(module, method, c,
                                                    warnings, globalRefs)
-                if func_code.co_name == '__init__' :
-                    if '__init__' in dir(c.classObject) :
+                if func_code.co_name == _INIT :
+                    if _INIT in dir(c.classObject) :
                         warns = _checkBaseClassInit(moduleFilename, c,
                                                     func_code, funcInfo)
                         warnings.extend(warns)
@@ -937,7 +941,7 @@ def find(moduleList, initialCfg) :
                         warnings.append(warn)
 
             if cfg().noDocClass and c.classObject.__doc__ == None :
-                method = c.methods.get('__init__', None)
+                method = c.methods.get(_INIT, None)
                 if method != None :
                     func_code = method.function.func_code
                 # FIXME: check to make sure this is in our file,
@@ -958,7 +962,7 @@ def find(moduleList, initialCfg) :
             warnings.extend(_getUnused(module, globalRefs, module.variables,
                                        _VAR_NOT_USED, prefix))
         if cfg().importUsed :
-            if module.moduleName != '__init__' or cfg().packageImportUsed :
+            if module.moduleName != _INIT or cfg().packageImportUsed :
                 warnings.extend(_getUnused(module, globalRefs, module.modules,
                                            _IMPORT_NOT_USED))
 
