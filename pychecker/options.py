@@ -117,7 +117,7 @@ class ConfigDialog:
     def ok(self):
         opts = []
         # Pull command-line args
-        for name, group in self._opts:
+        for _, group in self._opts:
             for opt in group:
                 arg = opt.arg()
                 if arg:
