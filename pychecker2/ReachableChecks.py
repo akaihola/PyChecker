@@ -14,6 +14,16 @@ class ReachableCheck(Check):
             def __init__(s):
                 s.returns = 0           #  icky: result value by side-effect
 
+            def alternatives_with_else(s, nodes, else_):
+                for n in nodes:
+                    s.returns = 0                
+                    s.visit(n)
+                    if not s.returns:
+                        return
+                s.returns = 0
+                if else_:
+                    s.visit(else_)
+
             def visitAssert(s, node):
                 if isinstance(node.test, ast.Const):
                     s.returns = not node.test.value
@@ -31,26 +41,12 @@ class ReachableCheck(Check):
                 # no matter what happens in the try clause, it might
                 # cause an exception, so just check the handlers and
                 # else conditions all return
-                for exc, detail, code in node.handlers:
-                    s.returns = 0                
-                    s.visit(code)
-                    if not s.returns:
-                        return
-                if node.else_:
-                    s.returns = 0
-                    s.visit(node.else_)
-                    return
-                s.returns = 0
+                handlers = [code for exc, detail, code in node.handlers]
+                s.alternatives_with_else(handlers, node.else_)
 
             def visitIf(s, node):
-                for cond, code in node.tests:
-                    s.returns = 0
-                    s.visit(code)
-                    if not s.returns:
-                        return
-                s.returns = 0
-                if node.else_:
-                    s.visit(node.else_)
+                code = [code for cond, code in node.tests]
+                s.alternatives_with_else(code, node.else_)
                     
             def visitStmt(s, node):
                 for n in range(len(node.nodes) - 1):
@@ -67,6 +63,12 @@ class ReachableCheck(Check):
                 s.returns = 0
                 s.visit(node.code)
                 s.returns = tmp
+
+            def visitWhile(s, node):    # while's may never execute, and not return
+                s.returns = 0
+
+            def visitFor(s, node):      # for's may never execute, and not return
+                s.returns = 0
 
         if file.parseTree:
             walk(file.parseTree, ReturnsVisitor())
