@@ -28,6 +28,7 @@ class Config :
         self.allVariablesUsed = 0
         self.privateVariableUsed = 1
         self.importUsed = 1
+        self.localVariablesUsed = 1
         self.blacklist = _DEFAULT_BLACK_LIST
 
 
@@ -49,7 +50,8 @@ _OPTIONS = [
   ('c', 'classdoc', 'noDocClass', 'turn off warnings for no class doc strings'),
   ('f', 'funcdoc', 'noDocFunc', 'turn on warnings for no function/method doc strings'),
   None,
-  ('i', 'import', 'importUsed', 'turn on warnings for unused imports'),
+  ('i', 'import', 'importUsed', 'turn off warnings for unused imports'),
+  ('l', 'local', 'localVariablesUsed', 'turn off warnings for unused local variables'),
   ('v', 'var', 'allVariablesUsed', 'turn on warnings for all unused module variables'),
   ('p', 'privatevar', 'privateVariableUsed', 'turn off warnings for unused private module variables'),
   None,
