@@ -1,7 +1,7 @@
 from pychecker2.TestSupport import WarningTester
 from pychecker2 import ConditionalChecks
 
-class ClassTestCase(WarningTester):
+class ConditionalTestCase(WarningTester):
     def testConstants(self):
         w = ConditionalChecks.ConstantCheck.constantInConditional
         

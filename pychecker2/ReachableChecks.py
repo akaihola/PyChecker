@@ -7,11 +7,16 @@ from compiler import ast, walk
 class ReachableCheck(Check):
 
     unreachable = Warning('Report unreachable code', 'Line is unreachable')
-    
+
+    implicitReturn = \
+       Warning('Report implicit return in a function with explicit returns',
+               'Function %s uses both implicit and explicit returns')
+
     def check(self, file, unused_checker):
         class ReturnsVisitor(BaseVisitor):
             def __init__(s):
                 s.always_returns = 0    #  icky: result value by side-effect
+                s.has_returns = 0
 
             def check_returns(s, node):
                 s.always_returns = 0                
@@ -33,9 +38,14 @@ class ReachableCheck(Check):
                     if node.test.name == 'None':
                         s.always_returns = 1
 
-            def visitReturn(s, unused_node):
+            def visitReturn(s, node):
                 s.always_returns = 1
-            visitRaise = visitReturn
+                if not isinstance(node.value, ast.Const) or \
+                   node.value.value is not None:
+                    s.has_returns = 1
+                
+            def visitRaise(s, unused_node):
+                s.always_returns = 1
 
             def visitTryExcept(s, node):
                 # if body always returns, else code is unreachable
@@ -46,7 +56,7 @@ class ReachableCheck(Check):
                 # cause an exception, so check the handlers and else
                 # conditions all return
                 handlers = [code for exc, detail, code in node.handlers]
-                s.alternatives_with_else(handlers, node.else_)
+                s.alternatives_with_else(handlers, node.else_ or node.body)
 
             def visitIf(s, node):
                 code = [code for cond, code in node.tests]
@@ -56,19 +66,27 @@ class ReachableCheck(Check):
                 for n in range(len(node.nodes) - 1):
                     if s.check_returns(node.nodes[n]):
                         file.warning(node.nodes[n + 1], self.unreachable)
-                if node.nodes:
-                    s.check_returns(node.nodes[-1])
+                        break
+                else:
+                    if node.nodes and \
+                       not s.check_returns(node.nodes[-1]) and \
+                       isinstance(node.parent, ast.Function) and \
+                       s.has_returns:
+                        file.warning(node.nodes[-1], self.implicitReturn,
+                                     node.parent.name)
                 
             def visitFunction(s, node):
                 tmp = s.always_returns
-                s.check_returns(node.code)
+                if node.code:
+                    walk(node.code, ReturnsVisitor())
                 s.always_returns = tmp
 
-            def visitWhile(s, unused_node):
+            def visitWhile(s, node):
                 # FIXME: while's may never execute and not return
                 s.always_returns = 0
 
-            visitFor = visitWhile
+            def visitFor(s, node):
+                s.always_returns = 0
 
         if file.parseTree:
             walk(file.parseTree, ReturnsVisitor())

@@ -12,6 +12,7 @@ from pychecker2 import ScopeChecks
 from pychecker2 import ImportChecks
 from pychecker2 import ClassChecks
 from pychecker2 import ReachableChecks
+from pychecker2 import ReturnChecks
 from pychecker2 import ConditionalChecks
 from pychecker2 import FormatStringChecks
 
@@ -47,6 +48,7 @@ def create_checklist(options):
                VariableChecks.UnusedCheck(),
                VariableChecks.UnknownCheck(),
                VariableChecks.SelfCheck(),
+               ReturnChecks.MixedReturnCheck(),
                ClassChecks.AttributeCheck(),
                ClassChecks.SpecialCheck(),
                ClassChecks.InitCheck(),
