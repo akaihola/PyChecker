@@ -17,6 +17,7 @@ Version 0.8.8   - xx January 2002
   * Fix spurious warnings for implicit returns when raise in except: clause
   * Fix various spurious warnings when using Python 2.2
   * Fix spurious warning for overridden method mismatch when using exec
+  * Fix spurious warning when doing len(filter(lambda))
 
 Version 0.8.7   - 05 January 2002
   * Add -2/--constcond option to warn if using a constant 
