@@ -33,7 +33,7 @@ _OPTIONS = [
  ('I', 0, 'initsubclass', 'initDefinedInSubclass', 'Subclass.__init__() not defined'),
  ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
  None,
- ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules'),
+ ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules\n\t\t\t'),
  ('L', 1, 'maxlines', 'maxLines', 'maximum lines in a function'),
  ('B', 1, 'maxbranches', 'maxBranches', 'maximum branches in a function'),
  ('R', 1, 'maxreturns', 'maxReturns', 'maximum returns in a function'),
