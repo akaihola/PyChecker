@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2001, MetaSlash Inc.  All rights reserved.
+# Copyright (c) 2001-2004, MetaSlash Inc.  All rights reserved.
 
 """
 Setup a lot of info about Python builtin types, functions, methods, etc.

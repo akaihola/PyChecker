@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2001-2002, MetaSlash Inc.  All rights reserved.
+# Copyright (c) 2001-2004, MetaSlash Inc.  All rights reserved.
 
 """
 Warning Messages for PyChecker

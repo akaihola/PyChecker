@@ -1,4 +1,4 @@
-Version 0.8.14   - XX XXX 2004
+Version 0.8.14   - 6 June 2004
   * Fix spurious warning in Python 2.3+ when doing a,b = 1,2
   * Add warning to check for "if s.find(str):"
       this should be "if s.find(str) >= 0:" when s is a string

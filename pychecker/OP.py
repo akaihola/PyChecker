@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2001, MetaSlash Inc.  All rights reserved.
+# Copyright (c) 2001-2004, MetaSlash Inc.  All rights reserved.
 
 """
 Python byte code operations.

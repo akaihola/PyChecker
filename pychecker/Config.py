@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2001-2002, MetaSlash Inc.  All rights reserved.
+# Copyright (c) 2001-2004, MetaSlash Inc.  All rights reserved.
 
 """
 Configuration information for checker.
@@ -15,7 +15,7 @@ import time
 
 _RC_FILE = ".pycheckrc"
 CHECKER_VAR = '__pychecker__'
-_VERSION = '0.8.13'
+_VERSION = '0.8.14'
 
 _DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", "gtk", "GTK", "GDK", ]
 _DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__', 
