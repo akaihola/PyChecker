@@ -75,8 +75,8 @@ inconsistentTypes = 0
 # bool: warn when setting a tuple of variables to a non-sequence (a, b = None)
 unpackNonSequence = 1
 
-# bool: warn when setting a tuple of variables to the wrong size (a, b = 1,)
-unpackSize = 1
+# bool: warn when setting a tuple of variables to the wrong length (a, b = 1,)
+unpackLength = 1
 
 # bool: warn when using strings exceptions or 
 #       other classes not derived from Exception to raise/catch exceptions
