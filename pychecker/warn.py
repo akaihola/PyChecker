@@ -54,7 +54,7 @@ def _implicitReturnUnreachable(code) :
 
 
 _IGNORE_RETURN_TYPES = ( Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,
-                         Stack.TYPE_GLOBAL )
+                         Stack.TYPE_GLOBAL, Stack.TYPE_COMPARISON, )
 
 def _checkReturnWarnings(code) :
     # there must be at least 2 real return values to check for consistency
@@ -87,7 +87,7 @@ def _checkReturnWarnings(code) :
             if returnType is not None and not value.isNone() and \
                value.type not in _IGNORE_RETURN_TYPES and \
                returnData.type not in _IGNORE_RETURN_TYPES :
-                ok = (returnType == type(value.data))
+                ok = (returnType == type(value.data) or returnType == value.type)
                 if ok and returnType == types.TupleType :
                     ok = returnData.length == value.length
                 if not ok :

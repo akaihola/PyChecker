@@ -4,6 +4,7 @@ Version 0.9	- xx October 2001
   * Add check for using future keywords (e.g., yield)
   * Add check for using unary positive on variables (e.g., +x)
   * Add -V/--version option for printing PyChecker version
+  * Fix some spurious warnings for inconsistent return value types
   * Fix spurious warning from calling functions like:  zip(*args)
   * Fix -F/--rcfile option so it really works
 
