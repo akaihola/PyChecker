@@ -22,3 +22,6 @@ class UnknownTestCase(TestSupport.WarningTester):
                     'def f():\n'
                     '  def g():\n'
                     '    print g, sys\n')
+        self.silent('def f():\n'
+                    '  for a, b in [(1,2)]:\n'
+                    '    print a, b\n')

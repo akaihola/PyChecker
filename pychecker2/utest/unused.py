@@ -87,3 +87,10 @@ class UnusedTestCase(WarningTester):
         self.silent('def f():\n'
                     '  from sys import *\n'
                     '  return argv\n')
+        self.silent('def f():\n'
+                    '  return [(a, b) for a, b in [(1,2)]]\n')
+        self.silent('def f():\n'
+                    '  r = [(a, b) for a, b in [(1,2)]]\n'
+                    '  return r, a, b\n')
+        self.silent('import pychecker2.utest\n'
+                    'print pychecker2.utest.data.exceptions.Warning()')
