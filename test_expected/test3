@@ -2,7 +2,7 @@ Processing test3...
 
 Warnings...
 
-/usr/lib/python2.1/UserDict.py:4: No doc string for class UserDict
+UserDict.py:4: No doc string for class UserDict
 
 test_input/test3.py:7: No global (x) found
 test_input/test3.py:12: No doc string for class jj
