@@ -2,12 +2,10 @@ import compiler
 import compiler                                          as one
 import compiler.ast
 import compiler.ast                                      as two
-# import compiler.ast.Const
-# import compiler.ast.Const                                as three
 from   compiler import ast
-from   compiler import ast                               as four
+from   compiler import ast                               as three
 from   compiler.ast import Const
-from   compiler.ast import Const                         as five
+from   compiler.ast import Const                         as four
 
 func = lambda x: x
 
@@ -47,23 +45,23 @@ class A(D.B):
     
 class E(one.ast.Const):
     def f(self):
-        print self.value                # fails
+        print self.value
 
 class F(two.Const):
     def f(self):
         print self.value
 
-class H(four.Const):
+class H(three.Const):
     def f(self):
-        print self.value                # fails
+        print self.value
 
-class I(five):
+class I(four):
     def f(self):
         print self.value
 
 class J(ast.Const):
     def f(self):
-        print self.value                # fails
+        print self.value
 
 class K(Const):
     def f(self):
