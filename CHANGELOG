@@ -1,4 +1,4 @@
-Version 0.8.9   - xx February 2002
+Version 0.8.9   - 02 February 2002
   * Add -3/--properties warning when using properties with classic classes
   * Add more warnings for statements with no effect
   * Fix crash due to import module problems
