@@ -17,12 +17,10 @@ ToDo:
 Items still missing:
         Error suppression (errors may be suppressed globally)
 
-        Member not used
-        Return value from __init__
+        Not calling base class __init__
         Wrong # of args on function (including ctor)
         Member not initialized in __init__
         Function arguments, kwargs
-        Not calling base class __init__
         Explicit/implicit returns
         Abstract methods
         constant in conditional
@@ -50,7 +48,6 @@ Items still missing:
         Exec warnings
         Security warning: input()
 
-        No __init__ in subclass
         Module imports itself
         Complexity
         Doc strings
@@ -61,6 +58,7 @@ Items still missing:
         Warning for string raising
 
 Bugs:
+        More member not used
         Speed
         Is __file__ a builtin?
 
