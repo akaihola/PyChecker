@@ -148,6 +148,7 @@ def conforms(a, b):
             return None
     return a.node.kwargs == b.node.kwargs and a.node.varargs == b.node.varargs
 
+
 class AttributeCheck(Check):
     "check `self.attr' expressions for attr"
 
@@ -155,8 +156,6 @@ class AttributeCheck(Check):
                            'Class %s has no attribute %s')
     unusedAttribute = Warning('Report attributes unused in methods',
                               'Attribute %s is not used in class %s')
-    missingSelf = Warning('Report methods without "self"',
-                          'Method %s is missing self parameter')
     methodRedefined = Warning('Report the redefinition of class methods',
                               'Method %s defined at line %d in '
                               'class %s redefined')
@@ -176,7 +175,6 @@ class AttributeCheck(Check):
 
         # for all class scopes
         for scope in type_filter(file.scopes.values(), symbols.ClassScope):
-            bases = get_base_classes(scope, checker)
             # get attributes defined on self
             init_attributes = None
             attributes = {}             # "self.foo = " kinda things
@@ -185,8 +183,6 @@ class AttributeCheck(Check):
             inherited_attributes = {}
             
             for m in _get_methods(scope):
-                if not m.node.argnames:
-                    file.warning(m.node, self.missingSelf, m.node.name)
                 defs = visit_with_self(GetDefs, m)
                 if m.name == '__init__':
                     init_attributes = defs
@@ -200,7 +196,7 @@ class AttributeCheck(Check):
                         file.warning(line(node),
                                      self.attributeInitialized, name)
 
-            for base in [scope] + bases:
+            for base in [scope] + get_base_classes(scope, checker):
                 for m in _get_methods(base):
                     inherited_attributes.update(visit_with_self(GetDefs, m))
                     if m.name != "__init__" and \
@@ -362,3 +358,4 @@ class ReprCheck(Check):
                     visitor = BackQuote(m.node.argnames[0])
                     for n in walk(m.node.code, visitor).results:
                         file.warning(line(n), self.backquoteSelf)
+

@@ -9,11 +9,6 @@ class ClassTestCase(WarningTester):
                     'class B(A):\n'
                     '  def g(self):\n'
                     '    return self.f\n')
-    def testSelf(self):
-        w = ClassChecks.AttributeCheck.missingSelf
-        self.warning('class C:\n'
-                     '  def f(): pass\n', 2, w, 'f')
-
     def testSignature(self):
         w = ClassChecks.AttributeCheck.signatureChanged
         self.silent('class Base:\n'

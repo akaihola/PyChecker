@@ -214,6 +214,9 @@ class SelfCheck(Check):
                            'arguments named "self"',
                            'Argument to function (%s) is "%s"')
     
+    missingSelf = Warning('Report methods without "self"',
+                          'Method %s is missing self parameter')
+    
     def get_options(self, options):
         desc = 'Name of self parameter'
         default = ["self", "this", "s"]
@@ -232,6 +235,8 @@ class SelfCheck(Check):
                 argnames = scope.node.argnames
                 name = getattr(scope.node, 'name', 'lambda')
                 if _is_method(scope):
+                    if not argnames:
+                        file.warning(scope.node, self.missingSelf, name)
                     if len(argnames) > 0 and argnames[0] not in self.selfNames:
                         file.warning(scope.node, self.selfName,
                                      name, argnames[0], `self.selfNames`)
