@@ -32,9 +32,6 @@ Bugs:
         globals() should use globals
         exec may use locals/globals
 
-        attributes defined from inherited classes from other modules 
-           are treated as undefined
-
         class C:
               def f(a, b): pass
               def g(a, b): pass
