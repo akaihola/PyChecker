@@ -141,7 +141,9 @@ def _findUnreachableCode(code) :
         del code.returnValues[-1]
         del unreachable[lastIndex]
 
-    # FIXME: add warning about unreachable code
+    if cfg().unreachableCode :
+        for line in unreachable.values() :
+            code.addWarning(msgs.CODE_UNREACHABLE, line)
 
 
 def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
