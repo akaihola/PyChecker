@@ -3,7 +3,6 @@
 	(only known case is subclass from Exception)
 * Fix Local variable (xxx) not used, when have:  except Error, xxx:
 * Check function return values
-* Make a .rc file to specify options (like on cmd line)
 * Finer grain control of warnings/config options (per module/class/method)
 * Check code in module scope (not in a function/method)
 * Use real line numbers for import & class warnings

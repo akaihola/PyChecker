@@ -7,8 +7,12 @@ Configuration information for checker.
 """
 
 import sys
+import os
 import getopt
 import string
+
+
+_RC_FILE = ".pycheckrc"
 
 _DEFAULT_BLACK_LIST = [ "Tkinter", ]
 
@@ -39,6 +43,17 @@ _OPTIONS = [
 ]
 
 
+def _getRCfile(filename) :
+    """Return the .rc filename, on Windows use the current directory
+                                on UNIX use the user's home directory"""
+
+    # FIXME: this is really cheating, but should work for now
+    home = os.environ.get('HOME')
+    if home :
+        filename = home + os.sep + filename
+    return filename
+
+
 class Config :
     "Hold configuration information"
 
@@ -66,6 +81,20 @@ class Config :
         self.maxLines = 200
         self.maxBranches = 50
         self.maxReturns = 10
+
+    def loadFile(self, filename) :
+        try :
+            tmpGlobal, dict = {}, {}
+            execfile(filename, tmpGlobal, dict)
+            for key, value in dict.items() :
+                if not self.__dict__.has_key(key) :
+                    print "Warning, option (%s) doesn't exist, ignoring" % key
+                else :
+                    self.__dict__[key] = value
+        except IOError :
+            pass       # ignore if no file
+        except :
+            print "Warning, error loading defaults file:", filename
 
 
 def printArg(shortArg, longArg, description, defaultValue, useValue) :
@@ -120,6 +149,7 @@ def setupFromArgs(argList) :
     try :
         args, files = getopt.getopt(argList, shortArgs, longArgs)
         cfg = Config()
+        cfg.loadFile(_getRCfile(_RC_FILE))
         for arg, value in args :
             shortArg, useValue, longArg, member, description = options[arg]
             if member == None :
