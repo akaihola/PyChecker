@@ -2,6 +2,7 @@ Processing test77...
   Caught exception importing module test77:
     File "test_input/test77.py", line 8
       raise MyError("FOO!")
+  MyError: **error formatting exception value**
 
 Warnings...
 
