@@ -35,7 +35,7 @@ fairly infrequent."""
     install_dir = sysconfig.get_python_lib() + os.sep + 'pychecker'
     checker_py = install_dir + os.sep + 'checker.py'
     py_exe = sys.executable
-    script_str = '#! /bin/sh\n\n%(py_exe)s %(checker_py)s $*\n' % locals()
+    script_str = '#! /bin/sh\n\n%(py_exe)s %(checker_py)s "$@"\n' % locals()
 
     try :
         fp = open(LOCAL_SCRIPT, "w")
@@ -48,7 +48,7 @@ fairly infrequent."""
 	raise
 
     setup(name			= "PyChecker",
-	  version		= "0.5.1beta",
+	  version		= "0.6",
 	  license		= "BSD-like",
 	  description		= "Python source code checking tool",
 	  author		= "Neal Norwitz, MetaSlash, Inc.",
