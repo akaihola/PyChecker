@@ -16,7 +16,7 @@ Andrew Bennetts                 suggestion: check for modifying def arg values
 Riaan Booysen                   bug reports, suggestions, etc.
 John Bowe                       bug reports, suggestions, etc.
 Mike Brown                      bug report
-Gary Capell                     refactoring suggestions
+Gary Capell                     bug reports and refactoring suggestions
 Loris Caren                     testing, etc.
 Charles Cazabon                 bug report
 Nicolas Chauvat                 setup.py

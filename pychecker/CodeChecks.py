@@ -304,7 +304,8 @@ def _checkClassAttribute(attr, c, code) :
 def _checkModuleAttribute(attr, module, code, ref) :
     refModule = module.modules.get(ref)
     if refModule and refModule.attributes != None :
-        if attr not in refModule.attributes :
+        if attr not in refModule.attributes and \
+           not utils.endswith(ref, '.' + attr) :
             code.addWarning(msgs.INVALID_MODULE_ATTR % attr)
 
     refClass = module.classes.get(ref)
