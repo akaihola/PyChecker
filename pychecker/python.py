@@ -32,7 +32,7 @@ GLOBAL_FUNC_INFO = { '__import__': (types.ModuleType, 1, 4),
                      'eval': (Stack.TYPE_UNKNOWN, 1, 3),
                      'execfile': (types.NoneType, 1, 3),
                      'filter': (types.ListType, 2, 2),
-                     'float': (types.FloatType, 1, 1, ['x']),
+                     'float': (types.FloatType, 1, 1),
                      'getattr': (Stack.TYPE_UNKNOWN, 2, 3),
                      'globals': (types.DictType, 0, 0),
                      'hasattr': (BOOL, 2, 2),
@@ -63,35 +63,38 @@ GLOBAL_FUNC_INFO = { '__import__': (types.ModuleType, 1, 4),
                      'round': (types.FloatType, 1, 2),
                      'setattr': (types.NoneType, 3, 3),
                      'slice': (types.SliceType, 1, 3),
-                     'str': (types.StringType, 1, 1, ['object']),
-                     'tuple': (types.TupleType, 1, 1, ['sequence']),
-                     'type': (types.TypeType, 1, 1, ['name', 'bases', 'dict']),
+                     'str': (types.StringType, 1, 1),
+                     'tuple': (types.TupleType, 1, 1),
+                     'type': (types.TypeType, 1, 1),
                      'vars': (types.DictType, 0, 1),
                      'xrange': (types.ListType, 1, 3),
                    }
+
+if hasattr(types, 'UnicodeType') :
+    GLOBAL_FUNC_INFO['unichr'] = (types.UnicodeType, 1, 1)
+    GLOBAL_FUNC_INFO['unicode'] = (types.UnicodeType, 1, 3, ['string', 'encoding', 'errors'])
 
 if utils.pythonVersion() >= utils.PYTHON_2_2 :
     GLOBAL_FUNC_INFO['compile'] = (types.CodeType, 3, 5)
     GLOBAL_FUNC_INFO['dict'] = (types.DictType, 0, 1, ['items'])
     GLOBAL_FUNC_INFO['file'] = GLOBAL_FUNC_INFO['open']
-    GLOBAL_FUNC_INFO['int'] = (types.IntType, 0, 2)
-    GLOBAL_FUNC_INFO['list'] = (types.ListType, 0, 1)
-    GLOBAL_FUNC_INFO['long'] = (types.LongType, 0, 2)
-    GLOBAL_FUNC_INFO['str'] = (types.StringType, 0, 1)
-    GLOBAL_FUNC_INFO['type'] = (types.TypeType, 1, 3)     # FIXME: not 2 args
-    GLOBAL_FUNC_INFO['tuple'] = (types.TupleType, 0, 1)
+    GLOBAL_FUNC_INFO['float'] = (types.IntType, 0, 1, ['x'])
+    GLOBAL_FUNC_INFO['int'] = (types.IntType, 0, 2, ['x'])
+    GLOBAL_FUNC_INFO['list'] = (types.ListType, 0, 1, ['sequence'])
+    GLOBAL_FUNC_INFO['long'] = (types.LongType, 0, 2, ['x'])
+    GLOBAL_FUNC_INFO['str'] = (types.StringType, 0, 1, ['object'])
+    # FIXME: type doesn't take 2 args, only 1 or 3
+    GLOBAL_FUNC_INFO['type'] = (types.TypeType, 1, 3, ['name', 'bases', 'dict'])
+    GLOBAL_FUNC_INFO['tuple'] = (types.TupleType, 0, 1, ['sequence']),
 
     GLOBAL_FUNC_INFO['classmethod'] = (types.MethodType, 1, 1)
     GLOBAL_FUNC_INFO['iter'] = (Stack.TYPE_UNKNOWN, 1, 2)
     GLOBAL_FUNC_INFO['property'] = (Stack.TYPE_UNKNOWN, 0, 4, ['fget', 'fset', 'fdel', 'doc'])
     GLOBAL_FUNC_INFO['super'] = (Stack.TYPE_UNKNOWN, 1, 2)
     GLOBAL_FUNC_INFO['staticmethod'] = (types.MethodType, 1, 1)
+    GLOBAL_FUNC_INFO['unicode'] = (types.UnicodeType, 0, 3, ['string', 'encoding', 'errors'])
 
     GLOBAL_FUNC_INFO['bool'] = (BOOL, 1, 1, ['x'])
-
-if hasattr(types, 'UnicodeType') :
-    GLOBAL_FUNC_INFO['unichr'] = (types.UnicodeType, 1, 1)
-    GLOBAL_FUNC_INFO['unicode'] = (types.UnicodeType, 1, 3, ['string', 'encoding', 'errors'])
 
 if globals().has_key('zip') :
     GLOBAL_FUNC_INFO['zip'] = (types.ListType, 1, None)
