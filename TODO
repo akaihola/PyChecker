@@ -1,9 +1,8 @@
 Goals for next release:
 -----------------------
 * Improve handling when importing packages
-* Check code in nested scopes
+* Check code in nested scopes - partially done (handles lambdas)
 	(get rid of unused warnings for identifiers used in nested scopes)
-* Warn when local variable or parameter shadows global
 
 Longer Term goals:
 ------------------
@@ -20,6 +19,7 @@ Longer Term goals:
 	which is different from runtime interpreter
 * Security checks for known issues.  Adrian Likins @redhat recommends 
   looking at http://www.securesw.com/rats/
+* When checking for unused vars, var list should be prefixes/regexes
 * Make check for 'self' a list instead of a string
 * Check function return values - partially complete
 * Add check that an assert is not passed a tuple
