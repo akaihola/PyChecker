@@ -44,5 +44,6 @@ Longer Term goals:
 * Add check for creating tuple when don't want a tuple, like: 1,
             or not creating tuple when want one, like: (1)
 * Warn when using () with statements (assert, print, del, if, while)
+* Add check for <>, should use !=
 * Find lines that end w/semi-colons (;)
 
