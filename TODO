@@ -8,6 +8,7 @@ Goals for next minor release:
 * Fix dependancy problem w/checkReturnValues & checkImplicitReturns
 * Add another boolean warning for:    if bool(xxx):
 * Handle classmethod/staticmethod better
+* Add warning for a import b & b import a (import loops)
 
 Goals for next major release (0.9):
 -----------------------------------
