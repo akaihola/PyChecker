@@ -753,7 +753,15 @@ def _LOAD_NAME(oparg, operand, codeSource, code) :
         opType, const = types.EllipsisType, 1
     code.stack.append(Stack.Item(operand, opType, const))
 
-_LOAD_GLOBAL = _LOAD_DEREF = _LOAD_NAME
+_LOAD_GLOBAL = _LOAD_NAME
+
+def _LOAD_DEREF(oparg, operand, codeSource, code) :
+    if type(oparg) == types.IntType :
+        argused = code.func_code.co_varnames[oparg]
+        code.unusedLocals[argused] = None
+    else :
+        _LOAD_GLOBAL(oparg, operand, codeSource, code)
+
 
 def _DELETE_NAME(oparg, operand, codeSource, code) :
     _checkLoadGlobal(codeSource, code, operand)
@@ -1076,6 +1084,7 @@ DISPATCH[126] = _DELETE_FAST
 DISPATCH[127] = _LINE_NUM
 DISPATCH[131] = _CALL_FUNCTION
 DISPATCH[132] = _MAKE_FUNCTION
+DISPATCH[136] = _LOAD_DEREF
 DISPATCH[140] = _CALL_FUNCTION_VAR
 DISPATCH[141] = _CALL_FUNCTION_KW
 DISPATCH[142] = _CALL_FUNCTION_VAR_KW
