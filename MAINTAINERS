@@ -12,6 +12,7 @@ Barry Scott             barry@scottb.demon.co.uk
 Shakeeb Alireza                 bug reports
 Andy Anderson                   many bug reports and fixes
 Erwin S. Andreasen              bug reports
+Anthony Baxter                  bug reports
 Jeff Bellegarde                 bug reports and fixes
 Andrew Bennetts                 suggestion: check for modifying def arg values
 Riaan Booysen                   bug reports, suggestions, etc.
@@ -21,6 +22,7 @@ Gary Capell                     bug reports and refactoring suggestions
 Loris Caren                     testing, etc.
 Charles Cazabon                 bug report
 Nicolas Chauvat                 setup.py
+Allan Crooks                    bug reports
 Jeff Collins                    checker.findModule
 Tom Culliton                    bug reports and suggestions
 André Dahlqvist                 bug reports
