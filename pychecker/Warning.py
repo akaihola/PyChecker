@@ -40,6 +40,6 @@ class Warning :
     def format(self) :
         return "%s:%d: %s" % (self.file, self.line, self.err)
 
-    def output(self) :
-        print self.format()
+    def output(self, stream) :
+        stream.write(self.format() + "\n")
 

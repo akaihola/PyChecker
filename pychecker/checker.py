@@ -403,7 +403,7 @@ def fixupBuiltinModules() :
                 module.attributes = [ '__dict__' ] + dir(m) + extra_attrs
                     
 
-def _printWarnings(warnings) :
+def _printWarnings(warnings, stream = sys.stdout) :
     warnings.sort()
     lastWarning = None
     for warning in warnings :
@@ -413,10 +413,10 @@ def _printWarnings(warnings) :
                 continue
             # print blank line between files
             if lastWarning.file != warning.file :
-                print ""
+                stream.write("\n")
 
         lastWarning = warning
-        warning.output()
+        warning.output(stream)
 
 
 def processFiles(files, cfg = None, pre_process_cb = None) :
