@@ -19,7 +19,7 @@ class WarningOpt(Options.BoolOpt):
     def get_description(self):
         return self.warning.description
 
-class Checker:
+class CheckList:
 
     def __init__(self, checks):
         self.checks = checks
