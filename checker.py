@@ -40,8 +40,9 @@ def _flattenList(list) :
     new_list = []
     for element in list :
         if type(element) == types.ListType :
-            return new_list + _flattenList(element)
-        new_list.append(element)
+            new_list.extend(_flattenList(element))
+        else :
+            new_list.append(element)
     
     return new_list
 
@@ -69,7 +70,7 @@ def _getModules(arg_list) :
 	    arg = module_name
         modules.append(arg)
 
-    return _flattenList(modules)
+    return modules
 
 
 def _findModule(name, path = sys.path) :
