@@ -19,3 +19,5 @@ x.y, x.z = 1, 2
 def h(a, b, c):
     assert 0, "should not be called"
 
+[x1, y1, z1] = [1, 2, 3]
+[x1, y1, z1] = [y1, z1, x1]

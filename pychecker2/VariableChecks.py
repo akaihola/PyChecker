@@ -190,6 +190,9 @@ class UnpackCheck(Check):
             return
 
         class Visitor:
+            def visitAssList(self, node, *scopes):
+                return self.visitAssTuple(node, *scopes)
+                
             def visitAssTuple(self, node, *scopes):
                 for c in node.getChildNodes():
                     try:
