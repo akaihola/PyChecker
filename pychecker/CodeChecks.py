@@ -109,17 +109,17 @@ def _getFunction(module, stackValue) :
     return c.methods.get(identifier[-1], None), c, 0
 
 
-def _handleFunctionCall(module, code, c, argCount) :
+def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0) :
     'Checks for warnings, returns function called (may be None)'
 
     if not code.stack :
-        return None
+        return
 
     kwArgCount = argCount >> utils.VAR_ARGS_BITS
     argCount = argCount & utils.MAX_ARGS_MASK
 
     # function call on stack is before the args, and keyword args
-    funcIndex = argCount + 2 * kwArgCount + 1
+    funcIndex = argCount + 2 * kwArgCount + 1 + indexOffset
     if funcIndex > len(code.stack) :
         funcIndex = 0
     # to find on stack, we have to look backwards from top of stack (end)
@@ -129,16 +129,16 @@ def _handleFunctionCall(module, code, c, argCount) :
     kwArgs = []
     if kwArgCount > 0 :
         # loop backwards by 2 (keyword, value) in stack to find keyword args
-        for i in range(-2, (-2 * kwArgCount - 1), -2) :
+        for i in range(-2 - indexOffset, (-2 * kwArgCount - 1), -2) :
             kwArgs.append(code.stack[i].data)
         kwArgs.reverse()
 
     loadValue = code.stack[funcIndex]
     returnValue = Stack.makeFuncReturnValue(loadValue)
-    if loadValue.isMethodCall(c, cfg().methodArgName) :
+    if loadValue.isMethodCall(codeSource.classObject, cfg().methodArgName) :
         methodName = loadValue.data[1]
         try :
-            m = c.methods[methodName]
+            m = codeSource.classObject.methods[methodName]
             if m != None :
                 _checkFunctionArgs(code, m, 1, argCount, kwArgs)
         except KeyError :
@@ -150,7 +150,7 @@ def _handleFunctionCall(module, code, c, argCount) :
         if loadValue.data == 'apply' :
             loadValue = code.stack[funcIndex+1]
         else :
-            func, refClass, create = _getFunction(module, loadValue)
+            func, refClass, create = _getFunction(codeSource.module, loadValue)
             if func != None :
                 _checkFunctionArgs(code, func, create, argCount, kwArgs)
                 if refClass and argCount > 0 and not create and \
@@ -166,7 +166,8 @@ def _handleFunctionCall(module, code, c, argCount) :
                     code.addWarning(msgs.NO_CTOR_ARGS)
 
     code.stack = code.stack[:funcIndex] + [ returnValue ]
-    return loadValue
+    if loadValue is not None :
+        code.functionsCalled[loadValue.getName(codeSource.module)] = loadValue
 
 
 def _classHasAttribute(c, attr) :
@@ -697,10 +698,17 @@ def _DUP_TOP(oparg, operand, codeSource, code) :
 def _STORE_SUBSCR(oparg, operand, codeSource, code) :
     code.popStackItems(2)
 
-def _CALL_FUNCTION(oparg, operand, src, code) :
-    func = _handleFunctionCall(src.module, code, src.classObject, oparg)
-    if func :
-        code.functionsCalled[func.getName(src.module)] = func
+def _CALL_FUNCTION(oparg, operand, codeSource, code) :
+    _handleFunctionCall(codeSource, code, oparg)
+
+def _CALL_FUNCTION_VAR(oparg, operand, codeSource, code) :
+    _handleFunctionCall(codeSource, code, oparg, 1)
+
+def _CALL_FUNCTION_KW(oparg, operand, codeSource, code) :
+    _handleFunctionCall(codeSource, code, oparg, 1)
+
+def _CALL_FUNCTION_VAR_KW(oparg, operand, codeSource, code) :
+    _handleFunctionCall(codeSource, code, oparg, 2)
 
 def _BUILD_MAP(oparg, operand, codeSource, code) :
     _makeConstant(code.stack, oparg, Stack.makeDict)
@@ -834,5 +842,8 @@ DISPATCH[124] = _LOAD_FAST
 DISPATCH[125] = _STORE_FAST
 DISPATCH[127] = _LINE_NUM
 DISPATCH[131] = _CALL_FUNCTION
+DISPATCH[140] = _CALL_FUNCTION_VAR
+DISPATCH[141] = _CALL_FUNCTION_KW
+DISPATCH[142] = _CALL_FUNCTION_VAR_KW
 
 
