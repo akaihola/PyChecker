@@ -1187,6 +1187,8 @@ def _COMPARE_OP(oparg, operand, codeSource, code) :
         _handleExceptionChecks(codeSource, code, compareValues)
     elif oparg < OP.IS_COMPARISON:
         _checkBoolean(code, compareValues)
+    if OP.POP_TOP(code.nextOpInfo()[0]) :
+        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
 
 def _IMPORT_NAME(oparg, operand, codeSource, code) :
     code.pushStack(Stack.Item(operand, types.ModuleType))
