@@ -32,7 +32,7 @@ PyChecker should work with Python 1.5.2, 2.0, and 2.1.
 
 To look at a little example, you can use the test files included:
 
-	python checker.py test_input/*.py
+	python pychecker/checker.py test_input/*.py
 
 If you want to change the default behaviour, you can pass command line options
 or define a .pycheckrc file.  For an example, look at pycheckrc.
