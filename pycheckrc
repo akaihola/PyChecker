@@ -72,6 +72,12 @@ stringIteration = 1
 # bool: warn when setting a variable to different types
 inconsistentTypes = 0
 
+# bool: warn when setting a tuple of variables to a non-sequence (a, b = None)
+unpackNonSequence = 1
+
+# bool: warn when setting a tuple of variables to the wrong size (a, b = 1,)
+unpackSize = 1
+
 # bool: warn when the class attribute does not exist
 classAttrExists = 1
 

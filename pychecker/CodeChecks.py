@@ -1259,10 +1259,12 @@ def _UNPACK_SEQUENCE(oparg, operand, codeSource, code) :
                 if type(value) in _SEQUENCE_TYPES:
                     length = len(value)
             if length > 0 and length != oparg:
-                code.addWarning(msgs.WRONG_UNPACK_SIZE % (length, oparg))
+                if cfg().unpackLength:
+                    code.addWarning(msgs.WRONG_UNPACK_SIZE % (length, oparg))
         elif topType not in _UNCHECKABLE_STACK_TYPES:
-            code.addWarning(msgs.UNPACK_NON_SEQUENCE %
-                            (top.data, _getTypeStr(topType)))
+            if cfg().unpackNonSequence:
+                code.addWarning(msgs.UNPACK_NON_SEQUENCE %
+                                (top.data, _getTypeStr(topType)))
 
 def _SLICE_1_ARG(oparg, operand, codeSource, code) :
     _popStackRef(code, operand)

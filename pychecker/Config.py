@@ -62,6 +62,8 @@ _OPTIONS = (
  ('Y', 0, 'positive', 'unaryPositive', 'check if using unary positive (+) which is usually meaningless'),
  ('j', 0, 'moddefvalue', 'modifyDefaultValue', 'check if modify (call method) on a parameter that has a default value'),
  ( '', 0, 'changetypes', 'inconsistentTypes', 'check if variables are set to different types'),
+ ( '', 0, 'unpack', 'unpackNonSequence', 'check if unpacking a non-sequence'),
+ ( '', 0, 'unpacklen', 'unpackLength', 'check if unpacking sequence with the wrong length'),
      ]),
     ('Possible Errors', [
  ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
@@ -216,6 +218,8 @@ class Config :
         self.constant1 = 0
         self.stringIteration = 1
         self.inconsistentTypes = 0
+        self.unpackNonSequence = 1
+        self.unpackLength = 1
 
         self.unusedNames = _DEFAULT_UNUSED_LIST
         self.variablesToIgnore = _DEFAULT_VARIABLE_IGNORE_LIST
