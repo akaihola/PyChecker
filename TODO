@@ -1,6 +1,5 @@
 Goals for next minor release:
 -----------------------------
-* Add warning for (x % 1) (it's constant, either x or 0
 * Add warning for a import b & b import a (import loops)
 * Handle classmethod/staticmethod better
 * Add warning about redefining a function/method with different signatures

@@ -1408,6 +1408,8 @@ def _BINARY_MULTIPLY(oparg, operand, codeSource, code) :
 
 def _BINARY_MODULO(oparg, operand, codeSource, code) :
     _checkNoEffect(code)
+    if code.stack and code.stack[-1].data == 1:
+        code.addWarning(msgs.MODULO_1)
     _getFormatWarnings(code, codeSource)
     code.popStack()
     if code.stack:

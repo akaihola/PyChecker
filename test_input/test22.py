@@ -74,3 +74,8 @@ def check_vars2():
     a = b = c = 5
     print '%(a)d %(b)d' % vars(c)
 
+def check_modulo_1():
+  print '%s' % '1'
+  print '%s' % 1
+  print .55555 % 1
+  print 55555 % 1
