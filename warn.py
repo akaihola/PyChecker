@@ -149,6 +149,9 @@ def _getNameFromStack(value, prefix = None) :
         strValue = None
         for item in value :
             strValue = _getNameFromStack(item, strValue)
+            # FIXME: not sure why this is required, seems to be just for 1.5.2
+            if not strValue :
+                strValue = "-NONE FOUND-" 
         return prefix + strValue
     return prefix + `value`
 
