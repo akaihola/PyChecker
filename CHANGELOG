@@ -1,5 +1,5 @@
 
-Version 0.9	- xx October 2001
+Version 0.8.5	- 17 October 2001
   * Add check for using builtin function/method const (None) return value
   	(e.g., not_a_new_list = [].sort())
   * Add check for builtin object method calls for right # args
