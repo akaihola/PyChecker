@@ -1,5 +1,5 @@
 
-Version 0.8	- xx July 2001
+Version 0.7.5	- 22 July 2001
   * Suppress warnings on a per module/function/class/method basis
 	with new suppressions = {} in .pycheckrc
   * Suppress warnings by setting __pychecker__ in source code
