@@ -110,6 +110,7 @@ class ClassTestCase(WarningTester):
                     '  class C(klass):\n'
                     '      def f(self, x):\n'
                     '          self.foo = x\n'
+                    '      def g(self): return self.foo\n'
                     '  return C()\n')
         # inherit from an expression
         self.silent('class A:\n'
@@ -139,3 +140,32 @@ class ClassTestCase(WarningTester):
         self.silent('def f():\n'
                     '   class Foo(None.__class__): pass\n'
                     '   return Foo()\n')
+
+    def testUnused(self):
+        self.warning('class C:\n'
+                     '  def __init__(self):\n'
+                     '    self.__x = 1\n',
+                     3, ClassChecks.AttributeCheck.unusedAttribute, '__x', 'C')
+        self.warning('class C:\n'
+                     '  def __init__(self):\n'
+                     '    class D:\n'
+                     '       def __init__(self): self.__x = 1\n'
+                     '       def f(self):\n'
+                     '          return self.__x\n'
+                     '    self.__x = D()\n',
+                     7, ClassChecks.AttributeCheck.unusedAttribute, '__x', 'C')
+        self.silent('class C:\n'
+                     '  def __init__(self):\n'
+                     '    self.x = 1\n')
+
+    def testInit(self):
+        self.warning('class C:\n'
+                     '  def __init__(self):\n'
+                     '    return 1\n',
+                     3, ClassChecks.InitCheck.initReturnsValue)
+        self.warning('class C:\n'
+                     '  def __init__(self):\n'
+                     '    def f(x):\n'
+                     '        return f(x - 1)\n'
+                     '    return f(1)\n',
+                     5, ClassChecks.InitCheck.initReturnsValue)
