@@ -260,11 +260,7 @@ def _baseInitCalled(classInitInfo, base, functionsCalled) :
     if baseInit is None or _get_func_info(baseInit) == classInitInfo :
         return 1
 
-    initName = str(base)
-    # FIXME: this is a hack, oughta figure a better way to fix
-    if utils.startswith(initName, 'exceptions.') :
-        initName = string.join(string.split(initName, '.')[1:], '.')
-    initName = initName + _DOT_INIT
+    initName = str(base) + _DOT_INIT
     if functionsCalled.has_key(initName) :
         return 1
 
