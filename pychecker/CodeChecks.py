@@ -786,6 +786,11 @@ def _LOAD_CONST(oparg, operand, codeSource, code) :
             code.addWarning(msgs.REDEFINING_ATTR % (name, obj.co_firstlineno))
 
 
+def _checkLocalShadow(code, module, varname) :
+    if module.variables.has_key(varname) :
+        line = module.moduleLineNums.get(varname, (0, 0))[1]
+        code.addWarning(msgs.LOCAL_SHADOWS_GLOBAL % (varname, line))
+
 def _checkLoadLocal(code, codeSource, varname, deletedWarn, usedBeforeSetWarn) :
     _checkFutureKeywords(code, varname)
     deletedLine = code.deletedLocals.get(varname)
@@ -795,9 +800,7 @@ def _checkLoadLocal(code, codeSource, varname, deletedWarn, usedBeforeSetWarn) :
          not codeSource.func.isParam(varname) :
         code.addWarning(usedBeforeSetWarn % varname)
     code.unusedLocals[varname] = None
-    if codeSource.module.variables.has_key(varname) :
-        line = codeSource.module.moduleLineNums.get(varname, (0, 0))[1]
-        code.addWarning(msgs.LOCAL_SHADOWS_GLOBAL % (varname, line))
+    _checkLocalShadow(code, codeSource.module, varname)
 
 def _handleLoadLocal(code, codeSource, varname) :
     _checkLoadLocal(code, codeSource, varname,
@@ -818,6 +821,7 @@ def _STORE_FAST(oparg, operand, codeSource, code) :
             else :
                 code.constants[operand] = code.stack[-1].data
 
+        _checkLocalShadow(code, codeSource.module, operand)
         _checkException(code, operand)
         if code.deletedLocals.has_key(operand) :
             del code.deletedLocals[operand]
