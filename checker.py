@@ -187,6 +187,13 @@ class Class :
                         stack = []
 
 
+def importError(moduleName, info):
+    # detail may contain a newline replace with - 
+    # use str to avoid undestanding the tuple structure in the exception
+    info = string.join(string.split(str(info), '\n' ), ' - ')
+    print "  Problem importing module %s - %s" % (moduleName, info)
+
+
 class Module :
     "Class to hold all information for a module"
 
@@ -231,9 +238,9 @@ class Module :
 	    # smt = (suffix, mode, type)
 	    file, filename, smt = findModule(self.filename)
             self.module = imp.load_module(self.moduleName, file, filename, smt)
-        except :
-            print "  Problem importing module %s" % self.moduleName
-            return
+        except (ImportError, NameError, SyntaxError), detail:
+            # not sure which errors we should check here, maybe all?
+            return importError(self.moduleName, detail)
 
         for tokenName in dir(self.module) :
             if tokenName in _DEFAULT_MODULE_TOKENS :

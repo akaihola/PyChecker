@@ -6,4 +6,6 @@ Eric C. Newton		ecn@metaslash.com
 Other Contributors:
 
 Jeff Collins		checker.findModule
+Barry Scott		Fix Base class not init spurious warning
+			Other misc suggestions and fixes
 
