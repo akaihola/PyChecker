@@ -14,7 +14,7 @@ def printFunction(spaces, prefix, func, className = None) :
     for i in range(0, argcount) :
         arg = func.func_code.co_varnames[i]
         if i >= defaultArgStart :
-            arg = arg + " = %s" % func.func_defaults[i - defaultArgStart]
+            arg = arg + " = %s" % str(func.func_defaults[i - defaultArgStart])
         params = params + "%s, " % arg
     params = "(%s)" % params[:-2]
     if className == None :
