@@ -21,8 +21,8 @@ class A(B):
     def y(self):
         self.a, self.b = (1, 2)         # define a, b
 
-    def z(self):
-        print self.z                    # method
+    def _z(self):
+        print self._z                   # method
         print self.x                    # assigned
         print self.a                    # unpacked
         print self.w                    # unknown
