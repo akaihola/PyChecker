@@ -96,7 +96,7 @@ class Config :
         self.maxBranches = 50
         self.maxReturns = 10
 
-        self.checkReturnValues = 0
+        self.checkReturnValues = 1
 
     def loadFile(self, filename) :
         try :
