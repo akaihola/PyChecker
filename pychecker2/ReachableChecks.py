@@ -33,7 +33,7 @@ class ReachableCheck(Check):
                     if node.test.name == 'None':
                         s.always_returns = 1
 
-            def visitReturn(s, node):
+            def visitReturn(s, unused_node):
                 s.always_returns = 1
             visitRaise = visitReturn
 
@@ -64,7 +64,7 @@ class ReachableCheck(Check):
                 s.check_returns(node.code)
                 s.always_returns = tmp
 
-            def visitWhile(s, node):
+            def visitWhile(s, unused_node):
                 # FIXME: while's may never execute and not return
                 s.always_returns = 0
 
