@@ -81,4 +81,4 @@ def func11(x):
 
 def func12(x):
     'should not produce a warning'
-    raise ValueError
+    raise ValueError, 'test'

@@ -36,3 +36,14 @@ def func3(x):
         return 3
 
     return 4
+
+def func4(x):
+    'should not produce a warning'
+    if x == 204 or x == 201 or 200 <= x < 300:
+        x = 0
+    if x == 1:
+        pass
+    while x == 'str':
+        print x
+        break
+    return 0
