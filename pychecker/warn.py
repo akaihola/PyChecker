@@ -26,11 +26,11 @@ _NO_MODULE_DOC = "No module doc string"
 _NO_CLASS_DOC = "No doc string for class %s"
 _NO_FUNC_DOC = "No doc string for function %s"
 
-_VAR_NOT_USED = "Variable (%s) not used in any function"
-_IMPORT_NOT_USED = "Imported module (%s) not used in any function"
+_VAR_NOT_USED = "Variable (%s) not used"
+_IMPORT_NOT_USED = "Imported module (%s) not used"
 _UNUSED_LOCAL = "Local variable (%s) not used"
 
-_MODULE_IMPORTED_AGAIN = "Module (%s) re-imported locally"
+_MODULE_IMPORTED_AGAIN = "Module (%s) re-imported"
 
 _NO_METHOD_ARGS = "No method arguments, should have self as argument"
 _SELF_NOT_FIRST_ARG = "self is not first method argument"
@@ -61,12 +61,9 @@ def debug(*args) :
     if _cfg.debug: print args
 
 
-def _printStack(stack) :
-    "Debug aid to print stack contents"
-    print stack
-    for item in stack :
-        print str(item),
-    print
+def _startswith(s, substr) :
+    "Ugh, supporting python 1.5 is a pain"
+    return s[0:len(substr)] == substr
 
 
 class Warning :
@@ -250,9 +247,10 @@ def _makeConstant(stack, index, factoryFunction) :
         stack.append(factoryFunction())
 
 
-def _checkGlobal(operand, func, lastLineNum, err) :
-    if not func.function.func_globals.has_key(operand) and \
-       not __builtins__.has_key(operand) :
+def _checkGlobal(operand, module, func, lastLineNum, err, main = 0) :
+    if (not func.function.func_globals.has_key(operand) and
+        (not module.moduleLineNums.has_key(operand) and not main) and
+        not __builtins__.has_key(operand)) :
         if not _cfg.reportAllGlobals :
             func.function.func_globals[operand] = operand
         return Warning(func.function.func_code, lastLineNum, err % operand)
@@ -266,7 +264,7 @@ def _checkComplex(warnings, maxValue, value, func, err) :
         warnings.append(warn)
 
 
-def _checkFunction(module, func, c = None, main = None) :
+def _checkFunction(module, func, c = None, main = 0) :
     "Return a list of Warnings found in a function/method."
 
     warnings, globalRefs, unusedLocals, functionsCalled = [], {}, {}, {}
@@ -298,10 +296,10 @@ def _checkFunction(module, func, c = None, main = None) :
                 else :
                     compareValues = [ None, None ]
                 stack[-si:] = [ Stack.makeComparison(compareValues, operand) ]
-            elif OP.LOAD_GLOBAL(op) :
+            elif OP.LOAD_GLOBAL(op) or OP.LOAD_NAME(op) :
                 # make sure we remember each global ref to check for unused
                 globalRefs[_getGlobalName(operand, func)] = operand
-                warn = _checkGlobal(operand, func, lastLineNum,
+                warn = _checkGlobal(operand, module, func, lastLineNum,
                                     _INVALID_GLOBAL)
 
                 # if there was from XXX import *, _* names aren't imported
@@ -309,15 +307,16 @@ def _checkFunction(module, func, c = None, main = None) :
                    hasattr(module.module, operand) :
                     operand = eval("module.module.%s.__name__" % operand)
                 stack.append(Stack.Item(operand, Stack.TYPE_GLOBAL))
-            elif OP.STORE_GLOBAL(op) :
-                warn = _checkGlobal(operand, func, lastLineNum,
-                                    _GLOBAL_DEFINED_NOT_DECLARED)
+            elif OP.STORE_GLOBAL(op) or OP.STORE_NAME(op) :
+                warn = _checkGlobal(operand, module, func, lastLineNum,
+                                    _GLOBAL_DEFINED_NOT_DECLARED, main)
                 if unpackCount :
                     unpackCount = unpackCount - 1
+                if not module.moduleLineNums.has_key(operand) and main :
+                    filename = func_code.co_filename
+                    module.moduleLineNums[operand] = (filename, lastLineNum)
             elif OP.LOAD_CONST(op) :
                 stack.append(Stack.Item(operand, type(operand), 1))
-            elif OP.LOAD_NAME(op) :
-                stack.append(Stack.Item(operand, type(operand)))
             elif OP.LOAD_FAST(op) :
                 stack.append(Stack.Item(operand, type(operand)))
                 unusedLocals[operand] = None
@@ -330,9 +329,16 @@ def _checkFunction(module, func, c = None, main = None) :
                                                  lastLineNum, topOfStack)
                 topOfStack.addAttribute(operand)
             elif OP.IMPORT_NAME(op) :
-                if module.modules.has_key(operand) :
-                    warn = Warning(func_code, lastLineNum,
-                                   _MODULE_IMPORTED_AGAIN % operand)
+                filename = func_code.co_filename
+                if not module.moduleLineNums.has_key(operand) :
+                    if main :
+                        module.moduleLineNums[operand] = (filename, lastLineNum)
+                else :
+                    lineInfo = module.moduleLineNums.get(operand)
+                    if lineInfo and (lineInfo[0] != filename or
+                                     lineInfo[1] != lastLineNum) :
+                        warn = Warning(func_code, lastLineNum,
+                                       _MODULE_IMPORTED_AGAIN % operand)
             elif OP.UNPACK_SEQUENCE(op) :
                 unpackCount = oparg
             elif OP.FOR_LOOP(op) :
@@ -365,7 +371,7 @@ def _checkFunction(module, func, c = None, main = None) :
             _addWarning(warnings, warn)
         else :
             debug("  " + OP.name[op])
-            if OP.name[op][0:len('BINARY_')] == 'BINARY_' :
+            if _startswith(OP.name[op], 'BINARY_') :
                 del stack[-1]
             elif OP.POP_TOP(op) :
                 if len(stack) > 0 :
@@ -373,7 +379,7 @@ def _checkFunction(module, func, c = None, main = None) :
             elif OP.DUP_TOP(op) :
                 if len(stack) > 0 :
                     stack.append(stack[-1])
-            elif OP.name[op][0:len('SLICE+')] == 'SLICE+' :
+            elif _startswith(OP.name[op], 'SLICE+') :
                 sliceCount = int(OP.name[op][6:])
                 if sliceCount > 0 :
                     popArgs = 1
@@ -413,15 +419,15 @@ def _checkFunction(module, func, c = None, main = None) :
     return warnings, globalRefs, functionsCalled
 
 
-def _getUnused(moduleName, globalRefs, dict, msg, filterPrefix = None) :
+def _getUnused(module, globalRefs, dict, msg, filterPrefix = None) :
     "Return a list of warnings for unused globals"
 
     warnings = []
     for ref in dict.keys() :
-        check = not filterPrefix or ref[0:len(filterPrefix)] == filterPrefix
+        check = not filterPrefix or _startswith(ref, filterPrefix)
         if check and globalRefs.get(ref) == None :
-            # FIXME: get real line #
-            warnings.append(Warning(moduleName, 1, msg % ref))
+            lineInfo = module.moduleLineNums.get(ref, (module.filename(), 1))
+            warnings.append(Warning(lineInfo[0], lineInfo[1], msg % ref))
     return warnings
 
 
@@ -462,10 +468,10 @@ def find(moduleList, cfg) :
 
         globalRefs = {}
 
-        if 0 :
-            # FIXME: process code at module level
+        # main_code can be null if there was a syntax error
+        if module.main_code != None :
             _updateFunctionWarnings(module, module.main_code, None,
-                                warnings, globalRefs, 1)
+                                    warnings, globalRefs, 1)
 
         moduleFilename = module.filename()
         for func in module.functions.values() :
@@ -534,11 +540,11 @@ def find(moduleList, cfg) :
                 prefix = "_"
             for ignoreVar in [ '__version__', '__all__', ] :
                 globalRefs[ignoreVar] = ignoreVar
-            warnings.extend(_getUnused(moduleFilename, globalRefs,
-                                    module.variables, _VAR_NOT_USED, prefix))
+            warnings.extend(_getUnused(module, globalRefs, module.variables,
+                                       _VAR_NOT_USED, prefix))
         if cfg.importUsed :
-            warnings.extend(_getUnused(moduleFilename, globalRefs,
-                                   module.modules, _IMPORT_NOT_USED))
+            warnings.extend(_getUnused(module, globalRefs, module.modules,
+                                       _IMPORT_NOT_USED))
 
     blacklist = []
     for badBoy in cfg.blacklist :

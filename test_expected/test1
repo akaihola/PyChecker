@@ -2,10 +2,10 @@ Processing test1...
 
 Warnings...
 
-test_input/test1.py:1 Imported module (imp) not used in any function
-test_input/test1.py:1 Imported module (re) not used in any function
 test_input/test1.py:1 No module doc string
-test_input/test1.py:1 Variable (_NOT_USED1) not used in any function
+test_input/test1.py:2 Imported module (imp) not used
+test_input/test1.py:3 Imported module (re) not used
+test_input/test1.py:5 Variable (_NOT_USED1) not used
 test_input/test1.py:10 Local variable (m) not used
 test_input/test1.py:10 No global (unknownList) found
 test_input/test1.py:13 self is argument in function

@@ -269,6 +269,9 @@ class FakeFunction :
         self.func_name = self.__name__ = "__main__"
         self.func_doc  = self.__doc__  = "ignore"
 
+        # Make sure the file is at the beginning
+        #   if python compiled the file, it will be at the end
+        file.seek(0)
         self.func_code = compile(file.read(), filename, 'exec')
         self.func_defaults = None
         self.func_globals = module.__dict__
@@ -283,6 +286,7 @@ class Module :
         self.functions = {}
         self.classes = {}
         self.modules = {}
+        self.moduleLineNums = {}
         self.attributes = None
         self.main_code = None
         self.module = None

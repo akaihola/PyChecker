@@ -1,6 +1,8 @@
 
 Version 0.5	- xx xxx 2001
-  * Add pychecker subdir and import from there so there's no filename conflicts
+  * Add checking of most module scoped code
+  * Add pychecker subdir for source code to prevent filename conflicts
+  * Don't produce unused local variable warning if variable name == '_'
   * Add -g/--allglobals option to report all global warnings, not just first
   * Add test script and expected results
   * Print all instructions when using debug (-d/--debug)
@@ -8,6 +10,7 @@ Version 0.5	- xx xxx 2001
   * Fix glob'ing problems (all args after glob were ignored)
   * Fix spurious Base class __init__ not called
   * Fix exception on code like:  ['xxx'].index('xxx')
+  * Fix line numbers for import statements
 
 Version 0.4	- 23 April 2001
   * Add .pycheckrc file processing to specify options (like on command line)

@@ -1,16 +1,16 @@
 
+* Check code in module scope (not in a function/method) - partially done
 * Add check that private functions are used in module
 * Add check for right # of args to object construction
 * Fix checking files in standard library before local file
 * Fix sys.exc_value, etc. generating No attribute warning in except clause
 * Fix Local variable (xxx) not used, when have:  "%(xxx)s" % locals()
-* Check format strings: "%s %d" % (strValue, intValue)
 * Check function return values
+* Check format strings: "%s %d" % (strValue, intValue)
 * Finer grain control of warnings/config options (per module/class/method)
-* Check code in module scope (not in a function/method)
-* Use real line numbers for import & class warnings
-* Spell check doc strings
+* Use real line numbers for class warnings
 * Allow import checker to catch errors, rather than starting checker.py
+* Spell check doc strings
 
 Eric's code review:
 
