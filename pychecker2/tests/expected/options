@@ -1,0 +1,13 @@
+Error: option -? not recognized
+Usage:
+ pychecker2/main.py [options] [--] file1.py file2.py ...
+available options:
+
+Error:
+ --reportUnusedSelf     ignore unused method "self" parameter
+ --shadowBuiltins       Produce warnings when builtin names are redefined
+ --unusedPrefixes       ignore unused identifiers that start with these values
+                        ['unused', 'empty', 'dummy']
+
+Miscellaneous:
+ --verbose              turn on verbose messages

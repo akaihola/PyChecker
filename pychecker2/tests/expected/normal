@@ -1,0 +1,25 @@
+
+tests/badparse.py:1 Unable to parse: could not parse string
+
+tests/global.py:1 Identifier (x) not used
+tests/global.py:1 Unknown identifier: y
+
+tests/import.py:1 Identifier (args) not used
+tests/import.py:1 Identifier (getopt) not used
+
+tests/op.py:2 Operator (+) normally has no effect
+tests/op.py:2 Operator (++) doesn't exist, statement has no effect
+tests/op.py:4 Scope (g) is redefined at line 7
+tests/op.py:5 Operator (+) normally has no effect
+tests/op.py:8 Operator (--) doesn't exist, statement has no effect
+
+tests/self.py:14 Identifier (a) not used
+
+tests/shadow.py:2 Scope (f) is redefined at line 8
+tests/shadow.py:15 Identifier (f) shadows definition in scope <ModuleScope: global>
+tests/shadow.py:15 Unknown identifier: c
+tests/shadow.py:15 Unknown identifier: d
+tests/shadow.py:16 Identifier (a) not used
+tests/shadow.py:16 Identifier (a) shadows definition in scope <FunctionScope: g>
+tests/shadow.py:16 Identifier (b) not used
+tests/shadow.py:16 Identifier (b) shadows definition in scope <FunctionScope: g>
