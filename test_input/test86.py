@@ -78,3 +78,11 @@ def f4(a):
     except k:
         pass
 
+tt = (KeyError, ValueError)
+
+def f5(a):
+    'should not warn'
+    try:
+        f2(a)
+    except tt:
+        pass

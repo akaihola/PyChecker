@@ -202,6 +202,15 @@ def _checkModifyDefaultArg(code, objectName, methodName=None) :
 def _isexception(object) :
     # FIXME: i have no idea why this function is necessary
     # it seems that the issubclass() should work, but it doesn't always
+
+    if hasattr(object, 'type'):
+        if object.type == types.TupleType:
+        # if we have a tuple, we can't check the contents (not enough info)
+##            for item in object.value:
+##                if not _isexception(item):
+##                    return 0
+            return 1
+
     try:
         # try/except is necessary for globals like NotImplemented
         if issubclass(object, Exception) :
@@ -1252,7 +1261,7 @@ def _getExceptionInfo(codeSource, item):
         else:
             v = codeSource.module.variables.get(item.data)
             if v is not None:
-                return v, 1
+                return v, (v.type == types.StringType)
     return e, 0
 
 _UNCHECKABLE_CATCH_TYPES = (Stack.TYPE_UNKNOWN, Stack.TYPE_ATTRIBUTE)
