@@ -41,5 +41,22 @@ class ExceptCheck(Check):
                     if exc is None:
                         file.warning(code.nodes[0], self.emptyExcept)
                 s.visitChildren(node)
-        if file.parseTree:        
+        if file.parseTree:
             compiler.walk(file.parseTree, ExceptVisitor())
+
+class CompareCheck(Check):
+    useIs = Warning('warn about "== None"',
+                    'use "is" when comparing with None')
+
+    def check(self, file, unused_checklist):
+        class CompareVisitor(BaseVisitor):
+            def visitCompare(s, node):
+                lt, op, rt = node.getChildren()
+                if op == '==':
+                    if (lt.__class__ == compiler.ast.Name
+                        and lt.name == "None"
+                        or rt.__class__ == compiler.ast.Name
+                        and rt.name == "None"):
+                        file.warning(node, self.useIs)
+        if file.parseTree:
+            compiler.walk(file.parseTree, CompareVisitor())

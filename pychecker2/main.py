@@ -38,6 +38,7 @@ def create_checklist(options):
     checks = [ ParseChecks.ParseCheck(),
                OpChecks.OpCheck(),
                OpChecks.ExceptCheck(),
+               OpChecks.CompareCheck(),
                ReachableChecks.ReachableCheck(),
                ConditionalChecks.ConstantCheck(),
                ClassChecks.ReprCheck(),
