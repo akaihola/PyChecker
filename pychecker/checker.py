@@ -34,6 +34,7 @@ from pychecker import printer
 from pychecker import warn
 from pychecker import OP
 from pychecker import Config
+from pychecker import function
 
 # Globals for storing a dictionary of info about modules and classes
 _allModules = {}
@@ -42,9 +43,6 @@ _cfg = None
 # Constants
 _DEFAULT_MODULE_TOKENS = [ '__builtins__', '__doc__', '__file__', '__name__', ]
 _DEFAULT_CLASS_TOKENS = [ '__doc__', '__name__', '__module__', ]
-
-_ARGS_ARGS_FLAG = 4
-_KW_ARGS_FLAG = 8
 
 
 def _flattenList(list) :
@@ -127,23 +125,6 @@ class Variable :
         self.type = type
 
 
-class Function :
-    "Class to hold all information about a function"
-
-    def __init__(self, function, isMethod = None) :
-        self.function = function
-        self.maxArgs = function.func_code.co_argcount
-        if isMethod :
-            self.maxArgs = self.maxArgs - 1
-        self.minArgs = self.maxArgs
-        if function.func_defaults != None :
-            self.minArgs = self.minArgs - len(function.func_defaults)
-        # if function uses *args, there is no max # args
-        if function.func_code.co_flags & _ARGS_ARGS_FLAG != 0 :
-            self.maxArgs = None
-        self.supportsKW = function.func_code.co_flags & _KW_ARGS_FLAG
-
-
 def _filterDir(object, ignoreList) :
     "Return a list of tokens (attributes) in a class, except for ignoreList"
 
@@ -210,7 +191,7 @@ class Class :
 
         if not methodName :
             methodName = self.__getMethodName(method.func_name, className)
-        self.methods[methodName] = Function(method, 1)
+        self.methods[methodName] = function.Function(method, 1)
 
     def addMethods(self, classObject) :
         for classToken in _getClassTokens(classObject) :
@@ -262,21 +243,6 @@ def importError(moduleName, info):
     sys.stderr.write("  Problem importing module %s - %s\n" % (moduleName, info))
 
 
-class FakeFunction :
-    "This is a holder class for turning code at module level into a function"
-
-    def __init__(self, file, filename, module) :
-        self.func_name = self.__name__ = "__main__"
-        self.func_doc  = self.__doc__  = "ignore"
-
-        # Make sure the file is at the beginning
-        #   if python compiled the file, it will be at the end
-        file.seek(0)
-        self.func_code = compile(file.read(), filename, 'exec')
-        self.func_defaults = None
-        self.func_globals = module.__dict__
-
-
 class Module :
     "Class to hold all information for a module"
 
@@ -298,7 +264,7 @@ class Module :
         self.variables[var] = Variable(var, varType)
 
     def addFunction(self, func) :
-        self.functions[func.__name__] = Function(func)
+        self.functions[func.__name__] = function.Function(func)
 
     def __addAttributes(self, c, classObject) :
         for base in classObject.__bases__ :
@@ -373,7 +339,7 @@ class Module :
 
     def setupMainCode(self, file, filename, module) :
         if file :
-            self.main_code = Function(FakeFunction(file, filename, module))
+            self.main_code = function.create_from_file(file, filename, module)
 
 
 def _getAllModules() :
@@ -416,8 +382,8 @@ def main(argv) :
         for module in _getAllModules() :
             printer.module(module)
 
-    print "\nWarnings...\n"
     warnings = warn.find(_getAllModules(), _cfg)
+    print "\nWarnings...\n"
     if warnings or importWarnings :
         _printWarnings(importWarnings + warnings)
         return 1

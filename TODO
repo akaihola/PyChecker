@@ -1,5 +1,6 @@
 
-* Check code in module scope (not in a function/method) - partially done
+* Add script to /usr/local/bin to invoke PyChecker
+* Add check that __init__ returns no values
 * Add check that private functions are used in module/class
 * Add check for right # of args to object construction
 * Fix deriving from class by alias name

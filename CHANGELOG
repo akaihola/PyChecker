@@ -1,4 +1,8 @@
 
+Version 0.5.1	- xx June 2001
+  * Don't produce unused global warnings when using a module in parameters
+  * Don't produce unused global warnings when using a module in class variables
+
 Version 0.5	- 29 May 2001
   * Catch internal errors "gracefully" and turn into a warning
   * Add checking of most module scoped code

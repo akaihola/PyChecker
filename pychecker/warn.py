@@ -14,6 +14,7 @@ import traceback
 
 from pychecker import OP
 from pychecker import Stack
+from pychecker import function
 
 _VAR_ARGS_BITS = 8
 _MAX_ARGS_MASK = ((1 << _VAR_ARGS_BITS) - 1)
@@ -293,11 +294,11 @@ def _handleImport(operand, module, func_code, lastLineNum, main) :
     return warn
 
 
-def _checkFunction(module, func, c = None, main = 0) :
+def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     "Return a list of Warnings found in a function/method."
 
-    warnings, globalRefs, unusedLocals, functionsCalled = [], {}, {}, {}
-
+    warnings, codeObjects = [], []
+    globalRefs, unusedLocals, functionsCalled = {}, {}, {}
     try :
         # check the code
         #  see dis.py in std python distribution
@@ -322,8 +323,9 @@ def _checkFunction(module, func, c = None, main = 0) :
                 elif OP.LOAD_GLOBAL(op) or OP.LOAD_NAME(op) :
                     # make sure we remember each global ref to check for unused
                     globalRefs[_getGlobalName(operand, func)] = operand
-                    warn = _checkGlobal(operand, module, func, lastLineNum,
-                                        _INVALID_GLOBAL)
+                    if not in_class :
+                        warn = _checkGlobal(operand, module, func, lastLineNum,
+                                            _INVALID_GLOBAL)
 
                     # if there was from XXX import *, _* names aren't imported
                     if module.modules.has_key(operand) and \
@@ -331,8 +333,9 @@ def _checkFunction(module, func, c = None, main = 0) :
                         operand = eval("module.module.%s.__name__" % operand)
                     stack.append(Stack.Item(operand, Stack.TYPE_GLOBAL))
                 elif OP.STORE_GLOBAL(op) or OP.STORE_NAME(op) :
-                    warn = _checkGlobal(operand, module, func, lastLineNum,
-                                        _GLOBAL_DEFINED_NOT_DECLARED, main)
+                    if not in_class :
+                        warn = _checkGlobal(operand, module, func, lastLineNum,
+                                            _GLOBAL_DEFINED_NOT_DECLARED, main)
                     if unpackCount :
                         unpackCount = unpackCount - 1
                     if not module.moduleLineNums.has_key(operand) and main :
@@ -340,6 +343,8 @@ def _checkFunction(module, func, c = None, main = 0) :
                         module.moduleLineNums[operand] = (filename, lastLineNum)
                 elif OP.LOAD_CONST(op) :
                     stack.append(Stack.Item(operand, type(operand), 1))
+                    if type(operand) == types.CodeType :
+                        codeObjects.append(operand)
                 elif OP.LOAD_FAST(op) :
                     stack.append(Stack.Item(operand, type(operand)))
                     unusedLocals[operand] = None
@@ -438,11 +443,11 @@ def _checkFunction(module, func, c = None, main = 0) :
     #    / 2 to approximate real branches
     branches = (len(branches.keys()) - (2 * loops)) / 2
     lines = (lastLineNum - func_code.co_firstlineno)
-    if not main :
+    if not main and not in_class :
         _checkComplex(warnings, _cfg.maxLines, lines, func, _FUNC_TOO_LONG)
     _checkComplex(warnings, _cfg.maxReturns, returns, func, _TOO_MANY_RETURNS)
     _checkComplex(warnings, _cfg.maxBranches, branches, func, _TOO_MANY_BRANCHES)
-    return warnings, globalRefs, functionsCalled
+    return warnings, globalRefs, functionsCalled, codeObjects
 
 
 def _getUnused(module, globalRefs, dict, msg, filterPrefix = None) :
@@ -476,13 +481,15 @@ def _checkBaseClassInit(moduleFilename, c, func_code, functionsCalled) :
     return warnings
 
 
-def _updateFunctionWarnings(module, func, c, warnings, globalRefs, main = 0) :
+def _updateFunctionWarnings(module, func, c, warnings, globalRefs,
+                            main = 0, in_class = 0) :
     "Update function warnings and global references"
 
-    newWarnings, newGlobalRefs, funcs = _checkFunction(module, func, c, main)
+    newWarnings, newGlobalRefs, funcs, codeObjects = \
+                 _checkFunction(module, func, c, main, in_class)
     warnings.extend(newWarnings)
     globalRefs.update(newGlobalRefs)
-    return funcs
+    return funcs, codeObjects
 
 
 def find(moduleList, cfg) :
@@ -496,17 +503,19 @@ def find(moduleList, cfg) :
         if module.moduleName in cfg.blacklist :
             continue
 
-        globalRefs = {}
+        globalRefs, classCodes = {}, {}
 
         # main_code can be null if there was a syntax error
         if module.main_code != None :
-            _updateFunctionWarnings(module, module.main_code, None,
-                                    warnings, globalRefs, 1)
+            _, codeObjects = _updateFunctionWarnings(module, module.main_code,
+                                                None, warnings, globalRefs, 1)
+            for code in codeObjects :
+                classCodes[code.co_name] = code
 
         moduleFilename = module.filename()
         for func in module.functions.values() :
             func_code = func.function.func_code
-            debug("in func:", func_code)
+            debug("function:", func_code)
 
             if cfg.noDocFunc and func.function.__doc__ == None :
                 warn = Warning(moduleFilename, func_code,
@@ -525,12 +534,19 @@ def find(moduleList, cfg) :
                     baseModuleDir = string.join(packages[:-1], '.')
                     globalRefs[baseModuleDir] = baseModule
 
+            # handle class variables
+            class_code = classCodes.get(c.name)
+            if class_code is not None :
+                func = function.create_fake(c.name, class_code)
+                _updateFunctionWarnings(module, func, c, warnings, globalRefs,
+                                        0, 1)
+
             func_code = None
             for method in c.methods.values() :
                 if method == None :
                     continue
                 func_code = method.function.func_code
-                debug("IN METHOD:", func_code)
+                debug("method:", func_code)
 
                 if cfg.noDocFunc and method.function.__doc__ == None :
                     warn = Warning(moduleFilename, func_code,
@@ -538,7 +554,7 @@ def find(moduleList, cfg) :
                     warnings.append(warn)
 
                 _addWarning(warnings, _checkSelfArg(method))
-                functionsCalled = _updateFunctionWarnings(module, method, c,
+                functionsCalled, _ = _updateFunctionWarnings(module, method, c,
                                                           warnings, globalRefs)
 
                 if func_code.co_name == '__init__' :

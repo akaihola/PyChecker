@@ -1,19 +1,4 @@
 
-Code at the class level (ie, not in a function/method) cannot be checked
-This means that some spurious unused warnings can occur.
-
-So code like this:
-
-	import re
-
-	class X:
-	    exp = re.compile('[abc]*')
-
-generates an unused module warning for re because
-checker currently cannot see the re.compile().
-
----------------------------------------------------------------------
-
 Crash when running on code that does:
 
 	from wxPython.wx import *
