@@ -60,7 +60,7 @@ def main():
 
     modules = {}
     for f in files:
-        print >>out, 'Checking file', file
+        print >>out, 'Checking file', f.name
         for checker in checks:
             out.write('.')
             out.flush()
