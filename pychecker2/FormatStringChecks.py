@@ -5,21 +5,29 @@ from compiler import ast, walk
 from types import *
 import re
 
-class Unknown(Exception): pass
+class UnknownError(Exception): pass
 
+def _compute_node(node, recurse):
+    if isinstance(node, ast.Add):
+        return recurse(node.left) + recurse(node.right)
+    elif isinstance(node, ast.Mul):
+        return recurse(node.left) * recurse(node.right)
+    else:
+        raise UnknownError
+
+# compute a simple forms of constant strings from an expression node
 def _compute_constant(node):
-    try:
-        if isinstance(node, ast.Const):
-            return node.value
-        if isinstance(node, ast.Add):
-            return _compute_constant(node.left) + \
-                   _compute_constant(node.right)
-        if isinstance(node, ast.Mul):
-            return _compute_constant(node.left) * \
-                   _compute_constant(node.right)
-    except TypeError:
-        pass
-    raise Unknown
+    if isinstance(node, ast.Const):
+        return node.value
+    else:
+        _compute_node(node, _compute_constant)
+
+# compute a the length of simple forms of tuples from an expression node
+def _compute_tuple_size(node):
+    if isinstance(node, ast.Tuple):
+        return len(node.nodes)
+    else:
+        _compute_node(node, _compute_tuple_size)
 
 format_re = re.compile('%([(]([a-zA-Z_]+)[)])?[ #+-]*'
                        '([0-9]*|[*])(|[.](|[*]|[0-9]*))([hlL])?'
@@ -47,20 +55,6 @@ def _check_format(s):
         pos = match.end(0)
     return specs
 
-def _compute_tuple_size(node):
-    try:
-        if isinstance(node, ast.Tuple):
-            return len(node.nodes)
-        if isinstance(node, ast.Add):
-            return _compute_constant(node.left) + \
-                   _compute_constant(node.right)
-        if isinstance(node, ast.Mul):
-            return _compute_constant(node.left) * \
-                   _compute_constant(node.right)
-    except TypeError:
-        pass
-    raise Unknown
-
 class FormatStringCheck(Check):
     "Look for warnings in format strings"
 
@@ -72,7 +66,8 @@ class FormatStringCheck(Check):
                       'Modifier %s is not necessary')
 
     mixedFormat = \
-              Warning('Report format strings which use both positional and named formats',
+              Warning('Report format strings which use both positional '
+                      'and named formats',
                       'Cannot mix positional and named formats (%s)')
     
     formatCount = \
@@ -101,7 +96,7 @@ class FormatStringCheck(Check):
             for mod in mods:
                 try:
                     s = _compute_constant(mod.left)
-                except Unknown:
+                except (UnknownError, TypeError):
                     continue
                 if not isinstance(s, StringType):
                     continue
@@ -142,7 +137,7 @@ class FormatStringCheck(Check):
                         n = _compute_tuple_size(mod.right) 
                         if n != count:
                             file.warning(mod, self.formatCount, n, count)
-                    except Unknown:
+                    except (UnknownError, TypeError):
                         pass
                 else:
                     if isinstance(mod.right, ast.CallFunc) and \
