@@ -85,8 +85,11 @@ if __name__ == "__main__":
         print 'profiling'
         import hotshot
         import hotshot.stats
+        import time
         hs = hotshot.Profile('logfile.dat')
+        now = time.time()
         hs.run('main()')
+        print 'total run time', time.time() - now
         hs.close()
         stats = hotshot.stats.load('logfile.dat')
         stats.sort_stats('time', 'cum').print_stats(50)
