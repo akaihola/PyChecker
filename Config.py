@@ -87,21 +87,18 @@ def setupFromArgs(argList) :
     shortArgs = [ opt[0] for opt in _OPTIONS if opt != None ]
     shortArgs = ''.join(shortArgs)
 
-    dict = {}
+    options = {}
     for opt in _OPTIONS :
         if opt != None :
             shortArg, longArg, member, description = opt
-            dict['-' + shortArg] = opt
-            dict['--' + longArg] = opt
+            options['-' + shortArg] = opt
+            options['--' + longArg] = opt
 
     try :
         args, files = getopt.getopt(argList, shortArgs, longArgs)
         cfg = Config()
-        for shortArg, longArg in args :
-            arg = shortArg
-            if not arg :
-                arg = longArg
-            shortArg, longArg, member, description = dict[arg]
+        for arg, value in args :
+            shortArg, longArg, member, description = options[arg]
             if member == None :
                 # FIXME: this is a hack
                 cfg.noDocModule = 0
