@@ -196,6 +196,11 @@ class AttributeCheck(Check):
                             'The %s method requires %d argument%s, '
                             'including self')
 
+    notSpecial = Warning('Report methods with "__" prefix and suffix '
+                         'which are not defined as special methods',
+                         'The method %s is not a special method, '
+                         'but is reserved.')
+
     def check(self, file, checker):
         def visit_with_self(Visitor, method):
             # find self
@@ -219,6 +224,12 @@ class AttributeCheck(Check):
                 if n:
                     file.warning(m.node, self.specialMethod, m.name, n,
                                  {1: ""}.get(n, "s"))
+                name = m.name
+                if len(name) > 4 and \
+                   name.startswith('__') and \
+                   name.endswith('__') and \
+                   not special.has_key(name):
+                    file.warning(m.node, self.notSpecial, name);
 
             for base in [scope] + bases:
                 for m in _get_methods(base):
