@@ -445,7 +445,7 @@ def _getFormatWarnings(code, module) :
     format = code.stack[-2]
     if format.type != types.StringType or not format.const :
         format = _getConstant(code, module, format)
-        if format is None :
+        if format is None or type(format) != types.StringType :
             return
     else :
         format = format.data
@@ -465,9 +465,15 @@ def _getFormatWarnings(code, module) :
         pass
     elif topOfStack.type not in [Stack.TYPE_UNKNOWN, Stack.TYPE_FUNC_RETURN] :
         args = 1
+        # if we have a variable reference
         if topOfStack.type == types.StringType and not topOfStack.const :
-            if code.typeMap.get(topOfStack.data, types.TupleType) != types.TupleType :
-                args = len(code.constants.get(topOfStack.data, (0,)))
+            # and if the type is a tuple, get the length
+            dataTypes = code.typeMap.get(topOfStack.data, [])
+            if types.TupleType in dataTypes :
+                if len(dataTypes) == 1 :
+                    args = len(code.constants.get(topOfStack.data, (0,)))
+                else :
+                    args = 0
 
     if args and count != args :
         code.addWarning(msgs.INVALID_FORMAT_COUNT % (count, args))
@@ -681,7 +687,11 @@ class Code :
 
         data = self.stack[-1].data
         if type(data) == types.TupleType :
-            return self.__getStringStackType(data[len(data)-self.unpackCount])
+            try :
+                return self.__getStringStackType(data[len(data)-self.unpackCount])
+            except IndexError :
+                # happens when unpacking a var for which we don't know the size
+                return Stack.TYPE_UNKNOWN
 
         return Stack.TYPE_UNKNOWN
 
@@ -887,6 +897,7 @@ def _BUILD_LIST(oparg, operand, codeSource, code) :
 
 def _UNARY_CONVERT(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
+        code.stack[-1].data = str(code.stack[-1].data)
         code.stack[-1].type = types.StringType
 
 def _UNARY_POSITIVE(oparg, operand, codeSource, code) :

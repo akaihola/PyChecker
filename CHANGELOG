@@ -1,5 +1,6 @@
 
 Version 0.9	- xx August 2001
+  * Fix internal errors when doing % on non-strings and other format problems
   * Fix spurious warning when using a constant {} with a format mapping
 
 Version 0.8.2	- 12 August 2001
