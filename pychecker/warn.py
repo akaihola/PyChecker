@@ -962,7 +962,8 @@ def find(moduleList, initialCfg) :
                 warnings.extend(_getUnused(module, globalRefs, module.modules,
                                            _IMPORT_NOT_USED))
 
-        popConfig()
+        if module.main_code != None :
+            popConfig()
 
     blacklist = []
     for badBoy in cfg().blacklist :
