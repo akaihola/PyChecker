@@ -43,7 +43,8 @@ def _checkFunctionArgCount(code, func_name, argCount, minArgs, maxArgs,
     if err :
         code.addWarning(err)
 
-def _checkFunctionArgs(code, func, objectReference, argCount, kwArgs) :
+def _checkFunctionArgs(code, func, objectReference, argCount, kwArgs,
+                       check_arg_count = 1) :
     func_name = func.function.func_code.co_name
     if kwArgs :
         func_args = func.function.func_code.co_varnames
@@ -58,14 +59,16 @@ def _checkFunctionArgs(code, func, objectReference, argCount, kwArgs) :
                   kwArgs[0] in func_args[origArgCount:] :
                 argCount = argCount + 1
                 kwArgs = kwArgs[1:]
-            _checkFunctionArgs(code, func, objectReference, argCount, kwArgs)
+            _checkFunctionArgs(code, func, objectReference, argCount, kwArgs,
+                               check_arg_count)
             return
 
         if not func.supportsKW :
             code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW % func_name)
 
-    _checkFunctionArgCount(code, func_name, argCount,
-                           func.minArgs, func.maxArgs, objectReference)
+    if check_arg_count :
+        _checkFunctionArgCount(code, func_name, argCount,
+                               func.minArgs, func.maxArgs, objectReference)
 
 def _getReferenceFromModule(module, identifier) :
     func = module.functions.get(identifier, None)
@@ -171,7 +174,7 @@ _GLOBAL_FUNC_INFO = { 'abs': (Stack.TYPE_UNKNOWN, 1, 1),
                       'zip': (types.ListType, 1, None),
                     }
 
-def _checkBuiltin(code, loadValue, argCount, kwArgs) :
+def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
     returnValue = Stack.makeFuncReturnValue(loadValue)
     func_name = loadValue.data
     if loadValue.type == Stack.TYPE_GLOBAL :
@@ -179,7 +182,7 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs) :
         if info is not None :
             if kwArgs :
                 code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW % func_name)
-            else :
+            elif check_arg_count :
                 _checkFunctionArgCount(code, func_name, argCount,
                                        info[1], info[2])
             returnValue = Stack.Item(func_name, info[0])
@@ -194,7 +197,8 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs) :
 
     return returnValue
 
-def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0) :
+def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
+                        check_arg_count = 1) :
     'Checks for warnings, returns function called (may be None)'
 
     if not code.stack :
@@ -225,7 +229,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0) :
         try :
             m = codeSource.classObject.methods[methodName]
             if m != None :
-                _checkFunctionArgs(code, m, 1, argCount, kwArgs)
+                _checkFunctionArgs(code, m, 1, argCount, kwArgs, check_arg_count)
         except KeyError :
             if cfg().callingAttribute :
                 code.addWarning(msgs.INVALID_METHOD % methodName)
@@ -237,7 +241,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0) :
         else :
             func, refClass, create = _getFunction(codeSource.module, loadValue)
             if func != None :
-                _checkFunctionArgs(code, func, create, argCount, kwArgs)
+                _checkFunctionArgs(code, func, create, argCount, kwArgs, check_arg_count)
                 if refClass and argCount > 0 and not create and \
                    code.stack[funcIndex].type == Stack.TYPE_ATTRIBUTE and \
                    code.stack[funcIndex+1].data != cfg().methodArgName :
@@ -250,7 +254,8 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0) :
                    not issubclass(refClass.classObject, Exception) :
                     code.addWarning(msgs.NO_CTOR_ARGS)
             else :
-                returnValue = _checkBuiltin(code, loadValue, argCount, kwArgs)
+                returnValue = _checkBuiltin(code, loadValue, argCount, kwArgs,
+                                            check_arg_count)
 
     code.stack = code.stack[:funcIndex] + [ returnValue ]
     if loadValue is not None :
@@ -799,8 +804,10 @@ def _LOAD_NAME(oparg, operand, codeSource, code) :
         operand = eval("codeSource.module.module.%s.__name__" % operand)
 
     opType, const = Stack.TYPE_GLOBAL, 0
-    if operand in [ 'None', 'Ellipsis', ] :
-        opType, const = type(operand), 1
+    if operand == 'None' :
+        opType, const = types.NoneType, 0
+    elif operand == 'Ellipsis' :
+        opType, const = types.EllipsisType, 1
     code.stack.append(Stack.Item(operand, opType, const))
 
 _LOAD_GLOBAL = _LOAD_DEREF = _LOAD_NAME
@@ -922,13 +929,13 @@ def _CALL_FUNCTION(oparg, operand, codeSource, code) :
     _handleFunctionCall(codeSource, code, oparg)
 
 def _CALL_FUNCTION_VAR(oparg, operand, codeSource, code) :
-    _handleFunctionCall(codeSource, code, oparg, 1)
+    _handleFunctionCall(codeSource, code, oparg, 1, 0)
 
 def _CALL_FUNCTION_KW(oparg, operand, codeSource, code) :
     _handleFunctionCall(codeSource, code, oparg, 1)
 
 def _CALL_FUNCTION_VAR_KW(oparg, operand, codeSource, code) :
-    _handleFunctionCall(codeSource, code, oparg, 2)
+    _handleFunctionCall(codeSource, code, oparg, 2, 0)
 
 def _MAKE_FUNCTION(oparg, operand, codeSource, code) :
     code.popStackItems(oparg+1)

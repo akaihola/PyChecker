@@ -85,7 +85,6 @@ def _checkReturnWarnings(code) :
             # always ignore None, None can be returned w/any other type
             # FIXME: if we stored func return values, we could do better
             if returnType is not None and not value.isNone() and \
-               not value.const and not returnData.const and \
                value.type not in _IGNORE_RETURN_TYPES and \
                returnData.type not in _IGNORE_RETURN_TYPES :
                 ok = (returnType == type(value.data))

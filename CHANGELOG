@@ -1,4 +1,8 @@
 
+Version 0.9	- xx October 2001
+  * Fix spurious warning from calling functions like:  zip(*args)
+  * Fix -F/--rcfile option so it really works
+
 Version 0.8.4	- 24 September 2001
   * Allow warning suppressions to be specified as regular expressions
   * Add -z/--no-varargsused to ignore *args for functions w/variable args
