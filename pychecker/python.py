@@ -281,6 +281,7 @@ _setupBuiltinAttrs()
 PENDING_DEPRECATED_MODULES = { 'string': None, 'types': None,
                              }
 DEPRECATED_MODULES = { 'audioop': None, 'FCNTL': 'fcntl', 'gopherlib': None,
+                       'macfs': 'Carbon.File or Carbon.Folder',
                        'posixfile': 'fcntl', 'pre': None, 'regsub': 're',
                        'statcache': 'os.stat()',
                        'stringold': None, 'tzparse': None,
