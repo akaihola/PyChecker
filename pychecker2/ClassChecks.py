@@ -63,23 +63,21 @@ def get_name(node):
 def get_base_names(scope):
     names = []
     for b in scope.node.bases:
-        if b:
-            try:
-                names.append(get_name(b))
-            except NotSimpleName:       # FIXME: hiding expressions
-                pass
+        try:
+            names.append(get_name(b))
+        except NotSimpleName:       # FIXME: hiding expressions
+            pass
     return names
 
 def find_in_module(package, names, checker):
     name = '.'.join(package.__name__.split(".") + names[:-1])
-    f = None
     try:
         module = __import__(name, globals(), {}, [''])
         f = checker.check_module(module)
+        if f:
+            return find_defs(f.root_scope, names[-1:], checker)
     except ImportError:
         pass
-    if f:
-        return find_defs(f.root_scope, names[-1:], checker)
     return None
                  
 def find_defs(scope, names, checker):
