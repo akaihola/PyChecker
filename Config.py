@@ -65,7 +65,7 @@ _OPTIONS = [
 def usage() :
     print "Usage for: checker.py [options] PACKAGE ...\n"
     print "    PACKAGEs can be a python package, module or filename\n"
-    print "  Options:          Toggle warning for"
+    print "  Options:          Toggle warning for ... [default value]"
     cfg = Config()
     for opt in _OPTIONS :
         if opt == None :
