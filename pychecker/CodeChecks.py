@@ -438,6 +438,11 @@ def _getConstant(code, module, data) :
         return format.value
     return None
 
+_UNCHECKABLE_FORMAT_STACK_TYPES = \
+    [
+      Stack.TYPE_UNKNOWN, Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,
+    ]
+
 def _getFormatWarnings(code, module) :
     if len(code.stack) <= 1 :
         return
@@ -463,7 +468,7 @@ def _getFormatWarnings(code, module) :
         args = topOfStack.length
     elif topOfStack.type == types.DictType and len(vars) > 0 :
         pass
-    elif topOfStack.type not in [Stack.TYPE_UNKNOWN, Stack.TYPE_FUNC_RETURN] :
+    elif topOfStack.type not in _UNCHECKABLE_FORMAT_STACK_TYPES :
         args = 1
         # if we have a variable reference
         if topOfStack.type == types.StringType and not topOfStack.const :
