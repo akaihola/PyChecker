@@ -231,22 +231,23 @@ class SelfCheck(Check):
         self.selfSuspicious = _str_value(self.selfSuspicious)
 
         for scope in file.scopes.values():
-            if isinstance(scope, symbols.FunctionScope) and \
-               len(scope.node.argnames) > 0:
-                function = scope.node
-                funcname = getattr(scope.node, 'name', 'lambda')
-                if not _is_method(scope):
-                    for arg in scope.node.argnames:
+            if isinstance(scope, symbols.FunctionScope):
+                argnames = scope.node.argnames
+                name = getattr(scope.node, 'name', 'lambda')
+                if _is_method(scope):
+                    if len(argnames) > 0 and argnames[0] in self.selfNames:
+                        file.warning(scope.node, self.selfName,
+                                     name, argnames[0], `self.selfNames`)
+                    if _first_arg_defaulted(scope.node):
+                        file.warning(scope.node, self.selfDefault,
+                                     name, argnames[0])
+                else:
+                    for arg in argnames:
                         if arg in self.selfSuspicious:
                             file.warning(scope.defs[arg], self.functionSelf,
-                                         funcname, arg)
-                elif function.argnames[0] not in self.selfNames:
-                    name = function.argnames[0]
-                    file.warning(function, self.selfName,
-                                 funcname, name, `self.selfNames`)
-                    if _first_arg_defaulted(function):
-                        file.warning(function, self.selfDefault,
-                                     funcname, name)
+                                         name, arg)
+
+                
 
 class UnpackCheck(Check):
     'Mark all unpacked variables as used'
