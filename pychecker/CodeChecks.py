@@ -427,6 +427,9 @@ def _handleImport(code, operand, module, main, fromName) :
 
 def _handleImportFrom(code, operand, module, main) :
     fromName = code.stack[-1].data
+    if utils.pythonVersion() < utils.PYTHON_2_0 and \
+       OP.POP_TOP(code.nextOpInfo()[0]):
+        code.popNextOp()
     code.pushStack(Stack.Item(operand, types.ModuleType))
     _handleImport(code, operand, module, main, fromName)
 
@@ -1230,9 +1233,9 @@ def _END_FINALLY(oparg, operand, codeSource, code) :
 
 def _LINE_NUM(oparg, operand, codeSource, code) :
     code.lastLineNum = oparg
+
 def _UNPACK_SEQUENCE(oparg, operand, codeSource, code) :
     code.unpackCount = oparg
-
 
 def _SLICE_1_ARG(oparg, operand, codeSource, code) :
     _popStackRef(code, operand)
