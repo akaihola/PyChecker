@@ -455,17 +455,23 @@ def _getConstant(code, module, data) :
 _UNCHECKABLE_FORMAT_STACK_TYPES = \
       (Stack.TYPE_UNKNOWN, Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,)
 
-def _getFormatWarnings(code, codeSource) :
+def _getFormatString(code, codeSource) :
     if len(code.stack) <= 1 :
-        return
+        return ''
 
     format = code.stack[-2]
     if format.type != types.StringType or not format.const :
         format = _getConstant(code, codeSource.module, format)
         if format is None or type(format) != types.StringType :
-            return
-    else :
-        format = format.data
+            return ''
+        return format
+    return format.data
+
+    
+def _getFormatWarnings(code, codeSource) :
+    format = _getFormatString(code, codeSource)
+    if not format :
+        return
 
     args = 0
     count, vars = _getFormatInfo(format, code)
@@ -987,8 +993,8 @@ def _popStackRef(code, operand, count = 2) :
 
 def _pop(oparg, operand, codeSource, code) :
     code.popStack()
-_POP_TOP = _BINARY_POWER = _BINARY_MULTIPLY = _BINARY_DIVIDE = \
-           _BINARY_SUBTRACT = _BINARY_LSHIFT = _BINARY_RSHIFT = \
+_POP_TOP = _BINARY_POWER = _BINARY_SUBTRACT = \
+           _BINARY_LSHIFT = _BINARY_RSHIFT = \
            _BINARY_AND = _BINARY_XOR = _BINARY_OR = _pop
 
 def _BINARY_ADD(oparg, operand, codeSource, code) :
@@ -1021,6 +1027,14 @@ def _BINARY_DIVIDE(oparg, operand, codeSource, code) :
     if cfg().intDivide and len(code.stack) >= 2 :
         if _isint(code.stack[-1], code) and _isint(code.stack[-2], code) :
             code.addWarning(msgs.INTEGER_DIVISION % tuple(code.stack[-2:]))
+
+    code.popStack()
+
+def _BINARY_MULTIPLY(oparg, operand, codeSource, code) :
+    if len(code.stack) >= 2 :
+        format = _getFormatString(code, codeSource)
+        if format and type(code.stack[-1].data) == types.IntType :
+            code.stack[-2].data = format * code.stack[-1].data
 
     code.popStack()
 

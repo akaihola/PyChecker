@@ -56,3 +56,13 @@ def YY(item):
     d = { 'a': '5', 'b': '7' }
     print '%(a)s %(b)s' % d
 
+def string_multiply():
+    # these are right
+    print '%d ' * 3 % (1, 2, 3)
+    print ('%d ' * 3) % (1, 2, 3)
+
+    # these are wrong
+    print '%d ' * 2 % (1, 2, 3)
+    print '%d ' * 3 % (1, 2, 3, 4)
+    print ('%d ' * 4) % (1, 2)
+
