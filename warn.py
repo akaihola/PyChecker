@@ -299,13 +299,17 @@ def _checkBaseClassInit(moduleName, moduleFilename, c, func_code, functionsCalle
        for each base class whose __init__() is not called"""
     
     warnings = []
+    moduleDepth = moduleName.count('.')
     for base in c.classObject.__bases__ :
         if hasattr(base, '__init__') :
-            # FIXME: this isn't right, we should just figure out the real name
-            initName1 = str(base) + '.__init__'
+            # create full name, make sure file is in name
+            modules = str(base).split('.')[moduleDepth:]
+            # handle import ...
+            initName1 = moduleName + '.' + '.'.join(modules) + '.__init__'
+            # handle from ... inport ...
             initName2 = moduleName + '.' + base.__name__ + '.__init__'
-            if functionsCalled.get(initName1) == None and \
-               functionsCalled.get(initName2) == None :
+            if not functionsCalled.has_key(initName1) and \
+               not functionsCalled.has_key(initName2) :
                 warn = Warning(moduleFilename, func_code.co_firstlineno,
                                _BASE_CLASS_NOT_INIT % str(base))
                 warnings.append(warn)
