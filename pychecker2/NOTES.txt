@@ -7,17 +7,16 @@ separate classes.  These classes are more self-contained: they hold
 onto the option variables and define the Warning objects they support.
 
 Items still missing:
+        Can't suppress vars defined at module level without
+        suppressing unused module imports
 
         Error suppression (errors may be suppressed globally)
 
         Line numbers for where identifiers are defined.
-        Ignoring variables created as a result of tuple unpacking
-            (This will probably entail a re-write of 
-             compiler.symbol.SymbolVisitor)
 
         Typing of any kind:
              consistent return types
-             consistent return styles (mplicit and explicit)
+             consistent return styles (implicit and explicit)
              object members
              object methods
 
