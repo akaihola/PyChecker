@@ -396,12 +396,15 @@ def _getGlobalName(name, func) :
     return name
 
 
+def _checkNoEffect(code):
+    if OP.POP_TOP(code.nextOpInfo()[0]) and cfg().noEffect:
+        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
+    
 def _makeConstant(code, index, factoryFunction) :
     "Build a constant on the stack ((), [], or {})"
     if index > 0 :
         code.stack[-index:] = [ factoryFunction(code.stack[-index:]) ]
-        if OP.POP_TOP(code.nextOpInfo()[0]) :
-            code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
+        _checkNoEffect(code)
     else :
         code.pushStack(factoryFunction())
 
@@ -744,8 +747,7 @@ class Code :
 
     def pushStack(self, item) :
         self.stack.append(item)
-        if OP.POP_TOP(self.nextOpInfo()[0]) :
-            self.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
+        _checkNoEffect(self)
 
     def popStack(self) :
         if self.stack :
@@ -1105,7 +1107,7 @@ def _LOAD_ATTR(oparg, operand, codeSource, code) :
 
         nextOp = code.nextOpInfo()[0]
         if not OP.LOAD_ATTR(nextOp) :
-            if OP.POP_TOP(nextOp) :
+            if OP.POP_TOP(nextOp) and cfg().noEffect:
                 code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
             else :
                 _checkExcessiveReferences(code, top)
@@ -1196,8 +1198,7 @@ def _COMPARE_OP(oparg, operand, codeSource, code) :
         _handleExceptionChecks(codeSource, code, compareValues)
     elif oparg < OP.IS_COMPARISON:
         _checkBoolean(code, compareValues)
-    if OP.POP_TOP(code.nextOpInfo()[0]) :
-        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
+    _checkNoEffect(code)
 
 def _IMPORT_NAME(oparg, operand, codeSource, code) :
     code.pushStack(Stack.Item(operand, types.ModuleType))
@@ -1316,9 +1317,7 @@ _NUMERIC_TYPES = (types.IntType, types.FloatType, ComplexType)
 
 # FIXME: This is pathetically weak, need to handle more types
 def _coerce_type(code) :
-    if OP.POP_TOP(code.nextOpInfo()[0]) :
-        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
-
+    _checkNoEffect(code)
     newItem = Stack.Item('<stack>', Stack.TYPE_UNKNOWN)
     if len(code.stack) >= 2 :
         s1, s2 = code.stack[-2:]
@@ -1349,9 +1348,7 @@ def _BINARY_SUBTRACT(oparg, operand, codeSource, code) :
 _BINARY_POWER = _BINARY_SUBTRACT
 
 def _BINARY_SUBSCR(oparg, operand, codeSource, code) :
-    if OP.POP_TOP(code.nextOpInfo()[0]) :
-        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
-
+    _checkNoEffect(code)
     if len(code.stack) >= 2 :
         stack = code.stack
         varType = code.typeMap.get(str(stack[-2].data), [])
@@ -1368,9 +1365,7 @@ def _isint(stackItem, code) :
     return types.IntType in stackTypes
 
 def _BINARY_DIVIDE(oparg, operand, codeSource, code) :
-    if OP.POP_TOP(code.nextOpInfo()[0]) :
-        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
-
+    _checkNoEffect(code)
     if cfg().intDivide and len(code.stack) >= 2 :
         if _isint(code.stack[-1], code) and _isint(code.stack[-2], code) :
             code.addWarning(msgs.INTEGER_DIVISION % tuple(code.stack[-2:]))
@@ -1389,9 +1384,7 @@ def _BINARY_MULTIPLY(oparg, operand, codeSource, code) :
         code.popStack()
 
 def _BINARY_MODULO(oparg, operand, codeSource, code) :
-    if OP.POP_TOP(code.nextOpInfo()[0]) :
-        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
-
+    _checkNoEffect(code)
     _getFormatWarnings(code, codeSource)
     code.popStack()
     if code.stack:

@@ -1,4 +1,5 @@
 Version 0.8.12   - xx October 2002
+  * Add -4/--noeffect option to disable warnings for 'Statement has no effect'
   * self is not first argument warning can be disabled with -S/--self ''
   * Don't print dupliate warnings when importing pychecker
   * Fix other spurious warnings when importing pychecker

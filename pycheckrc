@@ -82,6 +82,9 @@ unpackLength = 1
 #       other classes not derived from Exception to raise/catch exceptions
 badExceptions = 1
 
+# bool: warn when statements appear to have no effect
+noEffect = 1
+
 # bool: warn when using a deprecated module or function
 deprecated = 1
 

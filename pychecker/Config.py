@@ -23,6 +23,9 @@ _DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__',
                                   '__author__', '__email__', ]
 _DEFAULT_UNUSED_LIST = [ '_', 'empty', 'unused', 'dummy', ]
 
+# All these options are on even if -e/--errors is used
+_ERRORS = { 'noEffect': 1, }
+
 _OPTIONS = (
     ('Major Options', [
  ('e', 0, 'errors', None, 'turn off all warnings which are not likely errors'),
@@ -65,6 +68,7 @@ _OPTIONS = (
  ( '', 0, 'unpack', 'unpackNonSequence', 'check if unpacking a non-sequence'),
  ( '', 0, 'unpacklen', 'unpackLength', 'check if unpacking sequence with the wrong length'),
  ( '', 0, 'badexcept', 'badExceptions', 'check if raising or catching bad exceptions'),
+ ('4', 0, 'noeffect', 'noEffect', 'check if statement appears to have no effect'),
      ]),
     ('Possible Errors', [
  ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
@@ -223,6 +227,7 @@ class Config :
         self.unpackNonSequence = 1
         self.unpackLength = 1
         self.badExceptions = 1
+        self.noEffect = 1
         self.deprecated = 1
 
         self.unusedNames = _DEFAULT_UNUSED_LIST
@@ -358,7 +363,7 @@ def errors_only(complexity = 0) :
     "Return {} of Config with all warnings turned off"
     dict = Config().__dict__
     for k, v in dict.items() :
-        if type(v) == type(0) and v >= complexity :
+        if type(v) == type(0) and v >= complexity and not _ERRORS.has_key(k):
             dict[k] = 0
     return dict
 
