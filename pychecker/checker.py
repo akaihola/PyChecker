@@ -352,6 +352,7 @@ def importError(moduleName):
                 sys.stderr.write("      %s\n" % text)
 
         # And finally print the exception type and value.
+        # Getting exc_value can fail for some user exceptions
         try:
             sys.stderr.write("  %s: %s\n" % (exc_name, exc_value))
         except:
