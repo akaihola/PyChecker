@@ -106,6 +106,7 @@ WRONG_UNPACK_SIZE = "Unpacking %d values into %d variables"
 WRONG_UNPACK_FUNCTION = "Unpacking function (%s) which returns %d values into %d variables"
 UNPACK_NON_SEQUENCE = "Unpacking a non-sequence (%s) of type %s"
 
+USING_COERCE_IN_NEW_CLASS = "Using __coerce__ in new-style class (%s) will not work for binary operations"
 USING_PROPERTIES_IN_CLASSIC_CLASS = "Using property (%s) in classic class %s may not work"
 USING_SLOTS_IN_CLASSIC_CLASS = "Using __slots__ in classic class %s has no effect, consider deriving from object"
 EMPTY_SLOTS = "__slots__ are empty in %s"

@@ -1,5 +1,6 @@
-Version 0.8.11   - xx May 2002
+Version 0.8.11   - xx June 2002
   * Fix pychecker.bat so it should work now
+  * Add a warning for using __coerce__ in new-style classes
   * Add --deprecated option for using deprecated modules or functions
   * Add a warning for using functions with security problems (os.t[e]mpnam)
   * Add a warning for comparing against True/False or defining True/False

@@ -526,6 +526,12 @@ def _findClassWarnings(module, c, class_code,
                 err = msgs.USING_PROPERTIES_IN_CLASSIC_CLASS % (static, c.name)
                 warnings.append(Warning(filename, c.lineNums[static], err))
 
+    coerceMethod = c.methods.get('__coerce__')
+    if newStyleClass and coerceMethod:
+        lineNum = coerceMethod.function.func_code.co_firstlineno
+        err = msgs.USING_COERCE_IN_NEW_CLASS % c.name
+        warnings.append(Warning(filename, lineNum, err))
+        
     if cfg().noDocClass and c.classObject.__doc__ == None :
         method = c.methods.get(utils.INIT, None)
         if method != None :
