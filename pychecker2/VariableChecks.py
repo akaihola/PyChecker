@@ -1,7 +1,7 @@
 from pychecker2.Check import Check
 from pychecker2.Options import Opt, BoolOpt
 from pychecker2.Warning import Warning
-from pychecker2.util import parents
+from pychecker2.util import parents, BaseVisitor
 from pychecker2 import symbols
 
 from compiler import ast, walk
@@ -84,6 +84,7 @@ class UnusedCheck(Check):
 
     def __init__(self):
         self.reportUnusedSelf = None
+        self.unusedPrefixes = None
 
     def get_options(self, options):
         desc = 'Ignore unused identifiers that start with these values'
@@ -155,7 +156,7 @@ class UnusedCheck(Check):
                     if var.startswith(prefix):
                         break
                 else:
-                    if not used(var, scope):
+                    if not used(var, scope) and not scope.globals.has_key(var):
                         file.warning(scope.defs[var], self.unused, var)
 
 def _importedName(scope, name):
@@ -283,3 +284,66 @@ class UnpackCheck(Check):
 
         if file.root_scope:
             walk(file.root_scope.node, Visitor())
+
+def intersect2(a, b):
+    return [i for i in a if i in b]
+
+def intersect(items):
+    result = items[0]
+    for item in items[1:]:
+        result = intersect2(result, item)
+    return result
+
+class UsedBeforeSetCheck(Check):
+
+    usedBeforeDefined = \
+          Warning('Report variables that may be used before they are defined',
+                  'The local %s may be used before defined')
+
+    def check(self, file, unused_checker):
+        class Visitor(BaseVisitor):
+            def __init__(self, defines = None, uses = None):
+                # list of vars defined
+                self.defines = []
+                # name->node vars used before defined                    
+                self.uses = {}
+
+                if defines is not None:
+                    self.defines = defines[:]
+                if uses is not None:
+                    self.uses = uses.copy()
+            def visitFunction(self, node):
+                self.defines.append(node.name)
+            def visitClass(self, node):
+                self.defines.append(node.name)
+            def visitAssName(self, node):
+                self.defines.append(node.name)
+            def visitName(self, node):
+                if node.name not in self.defines:
+                    self.uses[node.name] = self.uses.get(node.name, node)
+            def visitIf(self, node):
+                if not node.else_:
+                    return
+                visits = []
+                for test, code in node.tests:
+                    visits.append(walk(code, Visitor(self.defines, self.uses)))
+                visits.append(walk(node.else_,
+                                   Visitor(self.defines, self.uses)))
+                # compute the intersection of defines
+                self.defines = intersect([v.defines for v in visits])
+                # compute the union of uses, perserving first occurances
+                union = {}
+                visits.reverse()
+                for v in visits:
+                    union.update(v.uses)
+                union.update(self.uses)
+                self.uses = union
+                        
+        for scope in file.scopes.values():
+            if isinstance(scope.node, ast.Function):
+                params = ast.flatten(scope.params)
+                for name, n in walk(scope.node, Visitor()).uses.items():
+                    if scope.defs.has_key(name) and \
+                       name not in params and \
+                       not scope.imports.has_key(name):
+                        file.warning(n, self.usedBeforeDefined, name)
