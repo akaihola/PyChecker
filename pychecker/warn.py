@@ -233,12 +233,14 @@ def _checkFunctionArgs(caller, func, objectReference, argCount, kwArgs,
 def _getReferenceFromModule(module, identifier) :
     func = module.functions.get(identifier, None)
     if func is not None :
-        return func, None
+        return func, None, 0
 
+    create = 0
     c = module.classes.get(identifier, None)
     if c is not None :
         func = c.methods.get(_INIT, None)
-    return func, c
+        create = 1
+    return func, c, create
 
 def _getFunction(module, stackValue) :
     'Return (function, class) from the stack value'
@@ -261,15 +263,15 @@ def _getFunction(module, stackValue) :
     # if we got to the end, there is only modules, nothing we can do
     # we also can't handle if there is more than 2 items left
     if i >= maxLen or (i+2) < maxLen :
-        return None, None
+        return None, None, 0
 
     if (i+1) == maxLen :
         return _getReferenceFromModule(module, identifier[-1])
 
     c = module.classes.get(identifier[-2], None)
     if c is None :
-        return None, None
-    return c.methods.get(identifier[-1], None), c
+        return None, None, 0
+    return c.methods.get(identifier[-1], None), c, 0
 
 
 def _addWarning(warningList, warning) :
@@ -322,12 +324,8 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
         if loadValue.data == 'apply' :
             loadValue = stack[funcIndex+1]
         else :
-            func, refClass = _getFunction(module, loadValue)
+            func, refClass, create = _getFunction(module, loadValue)
             if func != None :
-                # there is an implied argument for object creation
-                create = (refClass is not None and
-                          loadValue.data[-1] != _INIT and
-                          func.function.func_name == _INIT)
                 warn = _checkFunctionArgs(code, func, create, argCount,
                                           kwArgs, lastLineNum)
                 if refClass and argCount > 0 and not create and \
@@ -336,8 +334,8 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
                     w = Warning(func, lastLineNum,
                                 _SELF_NOT_FIRST_ARG % cfg().methodArgName)
                     warn.append(w)
-            elif refClass and (argCount > 0 or len(kwArgs) > 0) :
-                if refClass.methods.has_key(_INIT) or \
+            elif refClass and create and (argCount > 0 or len(kwArgs) > 0) :
+                if not refClass.methods.has_key(_INIT) and \
                    not issubclass(refClass.classObject, Exception) :
                     warn = Warning(code, lastLineNum, _NO_CTOR_ARGS)
 
@@ -609,6 +607,20 @@ _METHODLESS_OBJECTS = { types.NoneType : None, types.IntType : None,
                         types.BufferType : None, types.TupleType : None,
                         types.EllipsisType : None,
                       }
+
+def _checkAttributeType(typeMap, stackValue, attr) :
+    varTypes = typeMap.get(stackValue, None)
+    if not varTypes :
+        return None
+    for varType in varTypes :
+        # if varType has attr:
+        # return None
+        pass
+
+    # FIXME: remove when ready
+    return None
+    return Warning(func_code, lastLineNum, _OBJECT_HAS_NO_METHODS % attr)
+
 # number of instructions to check backwards if it was a return
 _BACK_RETURN_INDEX = 4
 
@@ -620,6 +632,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
 
     warnings, codeObjects = [], {}
     globalRefs, unusedLocals, functionsCalled = {}, {}, {}
+    localTypeMap = {}
 
     # initialize the arguments to unused
     for arg in func.arguments() :
@@ -711,9 +724,9 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                             warn = _checkModuleAttribute(operand, module,
                                        func_code, lastLineNum, topOfStack.data)
                         # FIXME: need to keep type of objects
-                        elif 0 and _METHODLESS_OBJECTS.has_key(topOfStack.type) :
-                            warn = Warning(func_code, lastLineNum,
-                                           _OBJECT_HAS_NO_METHODS % operand)
+                        else :
+                            warn = _checkAttributeType(localTypeMap,
+                                                       topOfStack, operand)
                         topOfStack.addAttribute(operand)
                 elif OP.IMPORT_NAME(op) :
                     stack.append(Stack.Item(operand, type(operand)))
