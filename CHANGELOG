@@ -1,6 +1,7 @@
 
 Version 0.4	- xx April 2001
   * Handle apply(BaseClass.__init__(self, args))
+  * Fix **kwArgs warning if named param is not first
 
 Version 0.3	- 17 April 2001
   * Fix some checker crashes (oops)

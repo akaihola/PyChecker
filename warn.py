@@ -116,15 +116,16 @@ def _checkFunctionArgs(func, argCount, kwArgs, lastLineNum) :
     if kwArgs :
         func_args = func.function.func_code.co_varnames
         func_args_len = len(func_args)
-        if argCount < func_args_len and kwArgs[0] == func_args[argCount] :
+        if argCount < func_args_len and kwArgs[0] in func_args[argCount:] :
             if _cfg.namedArgs :
                 warn = Warning(func, lastLineNum,
                                _FUNC_USES_NAMED_ARGS % func_name)
                 warnings.append(warn)
 
             # convert the named args into regular params, and really check
+            origArgCount = argCount
             while kwArgs and argCount < func_args_len and \
-                  kwArgs[0] == func_args[argCount] :
+                  kwArgs[0] in func_args[origArgCount:] :
                 argCount = argCount + 1
                 kwArgs = kwArgs[1:]
             return warnings + \

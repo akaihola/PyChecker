@@ -1,7 +1,6 @@
 
 * Fix spurious warnings (Base class __init__ not called)
 	(only known case is subclass from Exception)
-* Fix **kwArgs warning if named param is not first
 * Fix Local variable (xxx) not used, when have:  except Error, xxx:
 * Check function return values
 * Make a .rc file to specify options (like on cmd line)
