@@ -1,4 +1,4 @@
-# Sample defaults file for PyChecker 0.7.x
+# Sample defaults file for PyChecker 0.8.x
 # This file should be called:  .pycheckrc
 # It should be placed in your home directory (value of $HOME).
 # If $HOME is not set, it will look in the current directory.
@@ -86,4 +86,11 @@ debug = 0
 
 # bool: check consistent return values
 checkReturnValues = 0
+
+# dict: suppress warnings, key is module.class.method or module.function
+#	value is a string of command line arguments (can omit -- for long args)
+#       { 'module1': 'no-namedargs maxlines=0',
+#	  'module2.my_func': 'argsused',
+#	  'module3.my_class': 'no-initreturn', }
+suppressions = {}
 
