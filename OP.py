@@ -25,6 +25,7 @@ def BUILD_TUPLE(op):           return dis.opname[op] == 'BUILD_TUPLE'
 def RETURN_VALUE(op):          return dis.opname[op] == 'RETURN_VALUE'
 def COMPARE_OP(op):            return dis.opname[op] == 'COMPARE_OP'
 def POP_TOP(op):               return dis.opname[op] == 'POP_TOP'
+def DUP_TOP(op):               return dis.opname[op] == 'DUP_TOP'
 
 HAVE_ARGUMENT = dis.HAVE_ARGUMENT
 
