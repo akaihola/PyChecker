@@ -57,16 +57,15 @@ def _checkReturnWarnings(code) :
     if returnValuesLen < 2 :
         return
 
-    line, lastReturn, dummy = code.returnValues[-1]
-
     # if the last return is implicit, check if there are non None returns
-    if cfg().checkImplicitReturns and lastReturn.isImplicitNone() :
-        for line, rv, dummy in code.returnValues[:-1] :
-            if not rv.isNone() :
+    lastReturn = code.returnValues[-1]
+    if cfg().checkImplicitReturns and lastReturn[1].isImplicitNone() :
+        for line, retval, dummy in code.returnValues[:-1] :
+            if not retval.isNone() :
                 code.addWarning(msgs.IMPLICIT_AND_EXPLICIT_RETURNS,
-                                code.returnValues[-1][0]+1)
+                                lastReturn[0]+1)
                 break
-    
+
     returnType, returnData = None, None
     for line, value, dummy in code.returnValues :
         if not value.isNone() :
