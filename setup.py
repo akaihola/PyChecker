@@ -50,7 +50,9 @@ fairly infrequent."""
     script_suffix = ''
     script_str = '#! /bin/sh\n\n%s %s "$@"\n' % (py_exe, checker_py)
     if sys.platform == 'win32' :
+        # comment out this line and uncomment the next line if it works for you
         arg_str = '%1 %2 %3 %4 %5 %6 %7 %8 %9'
+        # arg_str = '%*'  # this doesn't work on Windows 98
         script_str = '%s %s %s\n' % (py_exe, checker_py, arg_str)
         script_suffix = '.bat'
 
