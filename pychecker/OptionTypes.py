@@ -16,6 +16,9 @@ class Base:
     def name(self):
         return self._name
 
+    def set(self, value):
+        self._var.set(value)
+
 class Boolean(Base):
     "A option type for editing boolean values"
 
@@ -36,9 +39,6 @@ class Boolean(Base):
         result.grid(sticky=Tkinter.W)
         frame.columnconfigure(0, weight=1)
         return frame
-
-    def set(self, value):
-        self._var.set(value)
 
     def arg(self):
         if bool(self._var.get()) != bool(self._default):
@@ -68,9 +68,6 @@ class Number(Base):
             frame.columnconfigure(i, weight=1)
         return frame
 
-    def set(self, value):
-        self._var.set(value)
-
     def arg(self):
         if self._var.get() != self._default:
             return "--%s=%d" % (self._name, self._var.get())
@@ -99,9 +96,6 @@ class Text(Base):
         for i in range(2):
             frame.columnconfigure(i, weight=1)
         return frame
-
-    def set(self, value):
-        self._var.set(value)
 
     def arg(self):
         if self._var.get() != self._default:
