@@ -98,6 +98,11 @@ def shouldUpdateArgs(operand) :
 def updateCheckerArgs(stack, func, lastLineNum, warnings) :
     try :
         argList = string.split(stack[-1].data)
+        # don't require long options to start w/--, we can add that for them
+        for i in range(0, len(argList)) :
+            if argList[i][0] != '-' :
+                argList[i] = '--' + argList[i]
+
         cfg().processArgs(argList)
     except Config.UsageError, detail :
         warn = Warning(func, lastLineNum, _INVALID_CHECKER_ARGS % detail)
@@ -562,7 +567,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     "Return a list of Warnings found in a function/method."
 
     # disable these checks for this crappy code
-    __pychecker__ = '--maxbranches=0 --maxlines=0'
+    __pychecker__ = 'maxbranches=0 maxlines=0'
 
     warnings, codeObjects = [], []
     globalRefs, unusedLocals, functionsCalled = {}, {}, {}
