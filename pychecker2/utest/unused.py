@@ -56,5 +56,7 @@ class UnusedTestCase(WarningTester):
                      1, VariableChecks.UnusedCheck.unused, '_y')
         self.warning('def f(a, (b, c)): print a, b\n',
                      1, VariableChecks.UnusedCheck.unused, 'c')
+        self.silent('def f(a):\n'
+                    '   "this is an empty function"\n')
 
         
