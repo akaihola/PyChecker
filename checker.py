@@ -39,24 +39,23 @@ def getModules(list) :
     return modules
 
 
-def findModule(name, path=sys.path):
+def findModule(name, path = sys.path) :
     """Returns the result of an imp.find_module(), ie, (file, filename, smt)
        name can be a module or a package name.  It is *not* a filename."""
 
-    assert type(name) == types.StringType
     packages = string.split(name, '.')
     if not packages:
         return imp.find_module(name, path)
 
-    for p in packages:
-        # load __init__
+    for p in packages :
+        # smt = (suffix, mode, type)
         file, filename, smt = imp.find_module(p, path)
-        if smt[-1] == imp.PKG_DIRECTORY:
+        if smt[-1] == imp.PKG_DIRECTORY :
             # package found - read path info from init file
             m = imp.load_module(p, file, filename, smt)
             path = m.__path__
         else:
-            if p is not packages[-1]:
+            if p is not packages[-1] :
                 raise ImportError, "No module named %s" % packages[-1]
             return file, filename, smt
 
@@ -84,6 +83,19 @@ class Function :
         if function.func_code.co_flags & _ARGS_ARGS_FLAG != 0 :
             self.maxArgs = None
         self.supportsKW = function.func_code.co_flags & _KW_ARGS_FLAG
+
+
+def _filterDir(object, ignoreList) :
+    "Return a list of tokens (attributes) in a class, except for ignoreList"
+
+    tokens = dir(object)
+    for token in ignoreList :
+        if token in tokens :
+            tokens.remove(token)
+    return tokens
+
+def _getClassTokens(c) :
+    return _filterDir(c, _DEFAULT_CLASS_TOKENS)
 
 
 class Class :
@@ -141,9 +153,7 @@ class Class :
         self.methods[methodName] = Function(method, 1)
 
     def addMethods(self, classObject) :
-        for classToken in dir(classObject):
-            if classToken in _DEFAULT_CLASS_TOKENS :
-                continue
+        for classToken in _getClassTokens(classObject) :
             token = getattr(classObject, classToken)
             if type(token) == types.MethodType :
                 self.addMethod(token.im_func, classObject.__name__)
@@ -156,9 +166,7 @@ class Class :
 
     def addMembers(self, classObject) :
         if not _cfg.onlyCheckInitForMembers :
-            for classToken in dir(classObject):
-                if classToken in _DEFAULT_CLASS_TOKENS :
-                    continue
+            for classToken in _getClassTokens(classObject) :
                 method = getattr(classObject, classToken)
                 if type(method) == types.MethodType :
                     self.addMembersFromMethod(method.im_func)
@@ -235,17 +243,13 @@ class Module :
 
     def load(self) :
         try :
-	    # smt = (suffix, mode, type)
 	    file, filename, smt = findModule(self.filename)
             self.module = imp.load_module(self.moduleName, file, filename, smt)
         except (ImportError, NameError, SyntaxError), detail:
             # not sure which errors we should check here, maybe all?
             return importError(self.moduleName, detail)
 
-        for tokenName in dir(self.module) :
-            if tokenName in _DEFAULT_MODULE_TOKENS :
-                continue
-
+        for tokenName in _filterDir(self.module, _DEFAULT_MODULE_TOKENS) :
             token = getattr(self.module, tokenName)
             tokenType = type(token)
             if tokenType == types.ModuleType :
