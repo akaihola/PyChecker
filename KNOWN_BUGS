@@ -1,0 +1,31 @@
+
+Code at the module level (ie, not in a function/method) cannot be checked
+This means that some spurious unused warnings can occur.
+
+So code like this:
+
+	import sys
+
+	if __name__ == '__main__':
+	    print sys.argv
+
+should be re-written to avoid an unused module warning for sys:
+
+	import sys
+
+	def main():
+	    print sys.argv
+
+	if __name__ == '__main__':
+	    main()
+
+Another problem this leads to is:
+
+	import re
+
+	class X:
+	    exp = re.compile('[abc]*')
+
+This code will also generate an unused module warning for re because
+checker currently cannot see the re.compile().
+
