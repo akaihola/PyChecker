@@ -15,3 +15,5 @@ def x():
     print d[1:3]
     print d[1:-3]
 
+    print [1, 2][1]
+
