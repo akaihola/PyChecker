@@ -280,8 +280,14 @@ def _checkModuleAttribute(attr, module, func_code, lastLineNum, ref) :
 def _getGlobalName(name, func) :
     # get the right name of global refs (for from XXX import YYY)
     opModule = func.function.func_globals.get(name)
-    if opModule and isinstance(opModule, types.ModuleType) :
-        name = opModule.__name__
+    try :
+        if opModule and isinstance(opModule, types.ModuleType) :
+            name = opModule.__name__
+    except :
+        # we have to do this in case the class raises an access exception
+        # due to overriding __special__() methods
+        pass
+
     return name
 
 
