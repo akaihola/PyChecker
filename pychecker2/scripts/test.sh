@@ -16,9 +16,10 @@ fi
 eval $CHECKER tests/*.py $OUTPUT tests/expected/normal  
 eval $CHECKER -?         $OUTPUT tests/expected/options 
 
-for opt in verbose shadowBuiltins reportUnusedSelf \
+for opt in incremental verbose shadowBuiltins reportUnusedSelf \
     no-operator no-operatorPlus no-redefinedScope no-shadowIdentifier \
-    no-syntaxErrors no-unknown no-unused no-selfName
+    no-syntaxErrors no-unknown no-unused no-selfName \
+    no-importError no-unpackedUsed 
 do
    echo $opt
    eval $CHECKER --${opt} tests/*.py tests/not_there.py $OUTPUT tests/expected/$opt

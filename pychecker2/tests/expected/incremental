@@ -9,17 +9,12 @@ tests/import.py:1 Unknown identifier: z
 tests/import.py:6 Unknown identifier: __all__
 tests/import.py:12 Error trying to import xYzZy: No module named xYzZy
 
-tests/not_there.py:[unknown line] Unable to parse: [Errno 2] No such file or directory: 'tests/not_there.py'
-
 tests/op.py:2 Operator (++) doesn't exist, statement has no effect
 tests/op.py:4 Scope (g) is redefined at line 7
 tests/op.py:5 Operator (+) normally has no effect
 tests/op.py:8 Operator (--) doesn't exist, statement has no effect
 
-tests/self.py:4 Identifier (self) not used
 tests/self.py:9 First argument to method f (x) is not in ['self', 'this', 's']
-tests/self.py:9 Identifier (x) not used
-tests/self.py:14 First argument to method f (x) is not in ['self', 'this', 's']
 tests/self.py:14 Identifier (a) not used
 
 tests/shadow.py:2 Scope (f) is redefined at line 8
@@ -33,9 +28,10 @@ tests/shadow.py:16 Identifier (b) not used
 tests/shadow.py:16 Identifier (a) shadows definition in scope <FunctionScope: g>
 tests/shadow.py:16 Identifier (b) shadows definition in scope <FunctionScope: g>
 
+tests/unusedImport.py:1 Identifier (sys) not used
+
 tests/unused.py:2 Identifier (a) not used
 tests/unused.py:5 Identifier (Test) not used
-tests/unused.py:9 Identifier (self) not used
 
-tests/unusedImport.py:1 Identifier (sys) not used
+tests/not_there.py:[unknown line] Unable to parse: [Errno 2] No such file or directory: 'tests/not_there.py'
 

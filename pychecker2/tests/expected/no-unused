@@ -3,8 +3,8 @@ tests/badparse.py:1 Unable to parse: could not parse string
 tests/global.py:1 Unknown identifier: y
 
 tests/import.py:1 Unknown identifier: z
-tests/import.py:5 Unknown identifier: __all__
-tests/import.py:11 Error trying to import xYzZy: No module named xYzZy
+tests/import.py:6 Unknown identifier: __all__
+tests/import.py:12 Error trying to import xYzZy: No module named xYzZy
 
 tests/not_there.py:[unknown line] Unable to parse: [Errno 2] No such file or directory: 'tests/not_there.py'
 
