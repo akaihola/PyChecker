@@ -438,17 +438,11 @@ try:
 except NameError:
     object = _SuppressionError
 
-# Create PropertyType for pre-2.2.1 interpreters
-try:
-    PropertyType = getattr(types, 'PropertyType', None)
-    if PropertyType is None:
-        class C:
-            def getp(self): pass
-            p = property(getp)
-        PropertyType = type(C.p)
-        del C
+# Create property for pre-2.2 interpreters
+try :
+    if property: pass
 except NameError:
-    pass
+    property = None
 
 def _findClassWarnings(module, c, class_code,
                        globalRefs, warnings, suppressions) :
@@ -516,10 +510,10 @@ def _findClassWarnings(module, c, class_code,
             err = msgs.EMPTY_SLOTS % c.name
             warnings.append(Warning(filename, lineNum, err))
 
-    if not newStyleClass and PropertyType is not None and \
+    if not newStyleClass and property is not None and \
        cfg().classicProperties:
         for static in c.statics.keys():
-            if type(getattr(c.classObject, static)) is PropertyType:
+            if type(getattr(c.classObject, static)) == property:
                 err = msgs.USING_PROPERTIES_IN_CLASSIC_CLASS % (static, c.name)
                 warnings.append(Warning(filename, c.lineNums[static], err))
 
