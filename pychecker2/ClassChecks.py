@@ -178,7 +178,7 @@ class AttributeCheck(Check):
         for scope in type_filter(file.scopes.values(), symbols.ClassScope):
             bases = get_base_classes(scope, checker)
             # get attributes defined on self
-            init_attributes = {}
+            init_attributes = None
             attributes = {}             # "self.foo = " kinda things
             methods = {}                # methods -> scopes
             inherited = {}              # all class defs (methods)
@@ -194,9 +194,11 @@ class AttributeCheck(Check):
                 methods[m.name] = m
 
             # complain about attributes not initialized in __init__
-            for name, node in attributes.items():
-                if not init_attributes.has_key(name):
-                    file.warning(line(node), self.attributeInitialized, name)
+            if init_attributes is not None:
+                for name, node in attributes.items():
+                    if not init_attributes.has_key(name):
+                        file.warning(line(node),
+                                     self.attributeInitialized, name)
 
             for base in [scope] + bases:
                 for m in _get_methods(base):
@@ -315,7 +317,8 @@ def check_special(scope):
            scope.node.varargs or scope.node.kwargs:
             return special[scope.name]
     except KeyError:
-        return None
+        pass
+    return None
 
 class SpecialCheck(Check):
 
@@ -344,11 +347,12 @@ class SpecialCheck(Check):
 
 class BackQuote(BaseVisitor):
 
-    def __init__(self):
+    def __init__(self, selfname):
         self.results = []
+        self.selfname = selfname
 
     def visitBackquote(self, node):
-        if isinstance(node.expr, ast.Name) and node.expr.name == 'self':
+        if isinstance(node.expr, ast.Name) and node.expr.name == self.selfname:
             self.results.append(node)
 
 class ReprCheck(Check):
@@ -358,6 +362,7 @@ class ReprCheck(Check):
     def check(self, file, unused_checker):
         for scope in type_filter(file.scopes.values(), symbols.ClassScope):
             for m in _get_methods(scope):
-                if m.name == '__repr__':
-                    for n in walk(m.node.code, BackQuote()).results:
+                if m.name == '__repr__' and m.node.argnames:
+                    visitor = BackQuote(m.node.argnames[0])
+                    for n in walk(m.node.code, visitor).results:
                         file.warning(line(n), self.backquoteSelf)
