@@ -82,3 +82,10 @@ def func11(x):
 def func12(x):
     'should not produce a warning'
     raise ValueError, 'test'
+
+def func13(x):
+    'should not produce a warning'
+    if x == 1:
+        return 1
+    else:
+        return 0
