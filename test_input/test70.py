@@ -52,3 +52,9 @@ def func5(need_quotes, text):
     'should not produce a warning'
     return (need_quotes) and ('"%s"' % text) or (text)
 
+def func6(x):
+    'should not produce warnings'
+    if x & 32:
+        print 'ya'
+    if 32 & x:
+        print 'ya'
