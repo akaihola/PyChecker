@@ -60,3 +60,23 @@ http://sourceforge.net/tracker/?func=detail&atid=109863&aid=417923&group_id=9863
 
 ---------------------------------------------------------------------
 
+exec statements are not checked.  Therefore, variables and modules used in 
+exec statements may cause spurious warnings.  To avoid the warnings,
+consider rewriting your code to use eval() or getattr().
+
+For example, consider rewriting this code:
+
+	exec 'var = object.' + member
+	print var
+
+to:
+
+	var = eval('object.' + member)
+	print var
+
+or:
+
+	var = getattr(object, member)
+	print var
+
+---------------------------------------------------------------------
