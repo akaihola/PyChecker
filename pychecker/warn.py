@@ -222,7 +222,7 @@ def _baseInitCalled(base, functionsCalled) :
     if not hasattr(base, utils.INIT) :
         return 1
 
-    initName = str(base)
+    initName = str(getattr(base, utils.INIT).im_class)
     # FIXME: this is a hack, oughta figure a better way to fix
     if utils.startswith(initName, 'exceptions.') :
         initName = string.join(string.split(initName, '.')[1:], '.')
