@@ -11,8 +11,8 @@ import imp
 import string
 import types
 
-import OP
-import Stack
+from pychecker import OP
+from pychecker import Stack
 
 _VAR_ARGS_BITS = 8
 _MAX_ARGS_MASK = ((1 << _VAR_ARGS_BITS) - 1)

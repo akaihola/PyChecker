@@ -1,5 +1,6 @@
 
 Version 0.5	- xx xxx 2001
+  * Add pychecker subdir and import from there so there's no filename conflicts
   * Add -g/--allglobals option to report all global warnings, not just first
   * Add test script and expected results
   * Print all instructions when using debug (-d/--debug)

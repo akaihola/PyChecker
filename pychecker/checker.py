@@ -17,10 +17,18 @@ import imp
 import os
 import glob
 
-import printer
-import warn
-import OP
-import Config
+def setupNamespace(path) :
+    checker_path = os.path.dirname(os.path.dirname(path))
+    if checker_path not in sys.path :
+        sys.path.append(checker_path)
+
+if __name__ == '__main__' :
+    setupNamespace(sys.argv[0])
+
+from pychecker import printer
+from pychecker import warn
+from pychecker import OP
+from pychecker import Config
 
 # Globals for storing a dictionary of info about modules and classes
 _allModules = {}
@@ -364,9 +372,6 @@ def _printWarnings(warnings) :
 
 
 def main(argv) :
-    if not '.' in sys.path :
-        sys.path.insert(1, '.')
-
     global _cfg
     _cfg, files = Config.setupFromArgs(argv[1:])
     importWarnings = []
