@@ -97,7 +97,7 @@ def shouldUpdateArgs(operand) :
 
 def updateCheckerArgs(stack, func, lastLineNum, warnings) :
     try :
-        argList = string.split(stack[-1].data, ' \t\n')
+        argList = string.split(stack[-1].data)
         cfg().processArgs(argList)
     except Config.UsageError, detail :
         warn = Warning(func, lastLineNum, _INVALID_CHECKER_ARGS % detail)
