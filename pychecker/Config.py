@@ -333,6 +333,14 @@ class Config :
                     newValue = int(newValue)
                 elif memberType == type([]) :
                     newValue = string.split(newValue, ',')
+                elif memberType == type('') and \
+                     newValue[0] in '\'"':
+                        try:
+                            newValue = eval(newValue)
+                        except:
+                            msg = 'Invalid option parameter: %s for %s\n' % \
+                                  (`newValue`, arg)
+                            sys.stderr.write(msg)
                 setattr(self, member, newValue)
             elif arg[0:2] == '--' :
                 setattr(self, member, arg[2:5] != 'no-')
