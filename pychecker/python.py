@@ -78,7 +78,7 @@ if utils.pythonVersion() >= utils.PYTHON_2_2 :
     GLOBAL_FUNC_INFO['compile'] = (types.CodeType, 3, 5)
     GLOBAL_FUNC_INFO['dict'] = (types.DictType, 0, 1, ['items'])
     GLOBAL_FUNC_INFO['file'] = GLOBAL_FUNC_INFO['open']
-    GLOBAL_FUNC_INFO['float'] = (types.IntType, 0, 1, ['x'])
+    GLOBAL_FUNC_INFO['float'] = (types.FloatType, 0, 1, ['x'])
     GLOBAL_FUNC_INFO['int'] = (types.IntType, 0, 2, ['x'])
     GLOBAL_FUNC_INFO['list'] = (types.ListType, 0, 1, ['sequence'])
     GLOBAL_FUNC_INFO['long'] = (types.LongType, 0, 2, ['x'])
@@ -96,11 +96,16 @@ if utils.pythonVersion() >= utils.PYTHON_2_2 :
 
     GLOBAL_FUNC_INFO['bool'] = (BOOL, 1, 1, ['x'])
 
-if globals().has_key('zip') :
-    GLOBAL_FUNC_INFO['zip'] = (types.ListType, 1, None)
+def tryAddGlobal(name, *args):
+    if globals().has_key(name):
+        GLOBAL_FUNC_INFO[name] = args
 
-if globals().has_key('enumerate'):
-    GLOBAL_FUNC_INFO['enumerate'] = (types.TupleType, 1, 1, ['sequence'])
+tryAddGlobal('zip', types.ListType, 1, None)
+tryAddGlobal('enumerate', types.TupleType, 1, 1, ['sequence'])
+# sum() could also return float/long
+tryAddGlobal('sum', types.IntType, 1, 2, ['start'])
+# reversed() always returns an iterator  (FIXME: support iterator)
+tryAddGlobal('reversed', Stack.TYPE_UNKNOWN, 1, 1)
 
 _STRING_METHODS = { 'capitalize': (types.StringType, 0, 0),
                     'center': (types.StringType, 1, 1),
