@@ -1,7 +1,3 @@
-Goals for next minor release (0.8.7):
--------------------------------------
-* Add/fix/finish check for unreachable code
-
 Goals for next major release (0.9):
 -----------------------------------
 * Improve handling when importing packages (ie, don't import modules)
@@ -12,7 +8,11 @@ Goals for next major release (0.9):
 
 * Check code in nested scopes - partially done (handles lambdas)
 	(get rid of unused warnings for identifiers used in nested scopes)
-	(see test64)
+	(see test64 not in CVS)
+
+* Fix spurious warnings for unreachable code checks
+* Fix spurious warnings for implicit return
+* Fix spurious warnings for (x and 'pass' or 'fail')
 * Fix most of the FIXMEs
 
 Longer Term goals:
