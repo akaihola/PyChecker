@@ -1,8 +1,8 @@
 "shouldn't produce any warnings"
 
-from xml.sax import saxlib
+from xml.sax import handler
 
-class GetGUI(saxlib.HandlerBase):
+class GetGUI(handler.DTDHandler):
   "shouldn't produce any warnings"
   pass
 

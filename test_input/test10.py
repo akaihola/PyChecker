@@ -1,8 +1,8 @@
 "doc"
 
-from xml.sax import saxexts
+from xml.sax import saxutils
 
 def afunc():
-    parser = saxexts.XMLValParserFactory.make_parser()
-    return parser
+    stuff = saxutils.escape.make_parser('junk')
+    return stuff
 
