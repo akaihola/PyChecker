@@ -8,6 +8,7 @@ fi
 
 error=0
 
+FAILED=""
 for test_file in $TESTS ; do
     echo "Testing $test_file ..."
     test_name=`basename $test_file .py`
@@ -17,13 +18,14 @@ for test_file in $TESTS ; do
     if [ $? -ne 0 ]; then
     	error=`expr $error + 1`
 	echo "  $test_name FAILED"
+	FAILED="$FAILED $test_name"
     fi
     rm -f $test_path
 done
 
 if [ $error -ne 0 ]; then
     echo ""
-    echo "$errors TESTS FAILED"
+    echo "$errors TESTS FAILED: $FAILED"
 else
     echo "ALL TESTS PASSED"
 fi
