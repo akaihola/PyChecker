@@ -31,6 +31,5 @@ def y():
     print '%(jjj)*.*f' % locals()
 
     fmt = '%d %s %d'
-    # can't check this yet
     print fmt % (aaa, bbb)
 

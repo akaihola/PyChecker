@@ -430,9 +430,13 @@ def _getFormatWarnings(code) :
 
     format = code.stack[-2]
     if format.type != types.StringType or not format.const :
-        return
+        format = code.constants.get(format.data)
+        if format is None :
+            return
+    else :
+        format = format.data
 
-    count, vars = _getFormatInfo(format.data, code)
+    count, vars = _getFormatInfo(format, code)
     topOfStack = code.stack[-1]
     if topOfStack.isLocals() :
         for varname in vars :
@@ -568,6 +572,7 @@ class Code :
         self.unusedLocals = {}
         self.functionsCalled = {}
         self.typeMap = {}
+        self.constants = {}
         self.codeObjects = {}
 
     def init(self, func) :
@@ -755,6 +760,12 @@ def _LOAD_FAST(oparg, operand, codeSource, code) :
 def _STORE_FAST(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :
         code.setType(operand)
+        if not code.unpackCount and code.stack[-1].const :
+            if code.constants.has_key(operand) :
+                del code.constants[operand]
+            else :
+                code.constants[operand] = code.stack[-1].data
+
         if not code.unusedLocals.has_key(operand) :
             errLine = code.lastLineNum
             if code.unpackCount and not cfg().unusedLocalTuple :
