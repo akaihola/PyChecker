@@ -90,6 +90,8 @@ LOCAL_DELETED = "(%s) cannot be used after being deleted on line %d"
 LOCAL_ALREADY_DELETED = "Local variable (%s) has already been deleted on line %d"
 VAR_DELETED_BEFORE_SET = "Variable (%s) deleted before being set"
 
+RAISE_BAD_EXCEPTION = "Raising an exception on a non-Exception object (%s)"
+RAISE_STR_EXCEPTION = "Raising string exceptions are deprecated (%s)"
 SET_EXCEPT_TO_BUILTIN = "Setting exception to builtin (%s), consider () around exceptions"
 USING_KEYWORD = "Using identifier (%s) which will become a keyword in version %s"
 MODIFYING_DEFAULT_ARG = "Modifying parameter (%s) with a default value may have unexpected consequences"

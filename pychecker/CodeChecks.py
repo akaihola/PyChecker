@@ -1435,8 +1435,32 @@ def _EXEC_STMT(oparg, operand, codeSource, code) :
         else :
             code.addWarning(msgs.USES_EXEC)
 
+def _checkStrException(code, varType, item):
+    if varType is types.StringType and cfg().badExceptions:
+        code.addWarning(msgs.RAISE_STR_EXCEPTION % item.data)
+    
 def _RAISE_VARARGS(oparg, operand, codeSource, code) :
     code.addRaise()
+    if oparg > 0 and len(code.stack) >= oparg:
+        item = code.stack[-oparg]
+        if item.type not in (Stack.TYPE_FUNC_RETURN, Stack.TYPE_UNKNOWN):
+            if item.type is Stack.TYPE_GLOBAL:
+                # FIXME: probably ought to try to handle raise module.Error
+                e = None
+                try:
+                    e = eval(item.data)
+                except NameError:
+                    c = codeSource.module.classes.get(item.data)
+                    if c is not None:
+                        e = c.classObject
+                    else:
+                        v = codeSource.module.variables.get(item.data)
+                        if v is not None:
+                            _checkStrException(code, v.type, item)
+                if e is not None and not _isexception(e) and cfg().badExceptions:
+                    code.addWarning(msgs.RAISE_BAD_EXCEPTION % item.data)
+            else:
+                _checkStrException(code, item.getType(code.typeMap), item)
 
 
 DISPATCH = [ None ] * 256

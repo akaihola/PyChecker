@@ -64,6 +64,7 @@ _OPTIONS = (
  ( '', 0, 'changetypes', 'inconsistentTypes', 'check if variables are set to different types'),
  ( '', 0, 'unpack', 'unpackNonSequence', 'check if unpacking a non-sequence'),
  ( '', 0, 'unpacklen', 'unpackLength', 'check if unpacking sequence with the wrong length'),
+ ( '', 0, 'badexcept', 'badExceptions', 'check if raising or catching bad exceptions'),
      ]),
     ('Possible Errors', [
  ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
@@ -220,6 +221,7 @@ class Config :
         self.inconsistentTypes = 0
         self.unpackNonSequence = 1
         self.unpackLength = 1
+        self.badExceptions = 1
 
         self.unusedNames = _DEFAULT_UNUSED_LIST
         self.variablesToIgnore = _DEFAULT_VARIABLE_IGNORE_LIST
