@@ -60,6 +60,7 @@ Jon Nelson                      fix setup.py, add MANIFEST.in
 Jason Orendorff                 suggestions
 Ian Parker                      suggestions
 Fernando Pérez                  bug reports
+Kenneth Pronovici               debian maintainer, bug reports, patches
 Eric S. Raymond                 bug reports and suggestions
 Terry Reedy                     suggestions
 Jon Ribbens                     bugs, bugs, bugs

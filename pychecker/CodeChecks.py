@@ -1101,7 +1101,8 @@ def _LOAD_FAST(oparg, operand, codeSource, code) :
 def _STORE_FAST(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :
         _checkFutureKeywords(code, operand)
-        if code.stack and code.stack[-1].type == types.StringType:
+        if code.stack and code.stack[-1].type == types.StringType and \
+               not code.stack[-1].const:
             _checkVariableOperationOnItself(code, operand,
                                             msgs.SET_VAR_TO_ITSELF)
         code.setType(operand)
