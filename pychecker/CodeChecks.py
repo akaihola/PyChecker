@@ -274,7 +274,8 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                 _checkAbstract(refClass, code, funcName)
 
             if func != None :
-                _checkFunctionArgs(code, func, method, argCount, kwArgs, check_arg_count)
+                _checkFunctionArgs(code, func, method, argCount, kwArgs,
+                                   check_arg_count)
                 if refClass :
                     if method :
                         # c'tor, return the class as the type
