@@ -492,6 +492,8 @@ def _getFormatWarnings(code, codeSource) :
     if args and count != args :
         code.addWarning(msgs.INVALID_FORMAT_COUNT % (count, args))
 
+# identifiers which will become a keyword in a future version
+_FUTURE_KEYWORDS = { 'yield': '2.2' }
 
 _METHODLESS_OBJECTS = { types.NoneType : None, types.IntType : None,
                         types.LongType : None, types.FloatType : None,
@@ -758,8 +760,13 @@ def _checkException(code, name) :
         if __builtins__.has_key(name) :
             code.addWarning(msgs.SET_EXCEPT_TO_BUILTIN % name)
 
+def _checkFutureKeywords(code, varname) :
+    if _FUTURE_KEYWORDS.has_key(varname) :
+        code.addWarning(msgs.USING_KEYWORD % (varname, _FUTURE_KEYWORDS[varname]))
+
 def _STORE_NAME(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :
+        _checkFutureKeywords(code, operand)
         module = codeSource.module
         if not codeSource.in_class :
             _checkGlobal(operand, module, codeSource.func, code,
@@ -780,6 +787,7 @@ def _STORE_NAME(oparg, operand, codeSource, code) :
 _STORE_GLOBAL = _STORE_NAME
 
 def _checkLoadGlobal(codeSource, code, varname) :
+    _checkFutureKeywords(code, varname)
     should_check = 1
     if code.func_code.co_name == utils.LAMBDA :
         # this could really be a local reference, check first
@@ -832,6 +840,7 @@ def _LOAD_CONST(oparg, operand, codeSource, code) :
 
 
 def _checkLoadLocal(code, func, varname, deletedWarn, usedBeforeSetWarn) :
+    _checkFutureKeywords(code, varname)
     deletedLine = code.deletedLocals.get(varname)
     if deletedLine :
         code.addWarning(deletedWarn % (varname, deletedLine))
@@ -849,6 +858,7 @@ def _LOAD_FAST(oparg, operand, codeSource, code) :
 
 def _STORE_FAST(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :
+        _checkFutureKeywords(code, operand)
         code.setType(operand)
         if not code.unpackCount and code.stack and \
            (code.stack[-1].const or code.stack[-1].type == types.TupleType) :
@@ -955,6 +965,9 @@ def _UNARY_CONVERT(oparg, operand, codeSource, code) :
 def _UNARY_POSITIVE(oparg, operand, codeSource, code) :
     if OP.UNARY_POSITIVE(code.nextOpInfo()[0]) :
         code.addWarning(msgs.STMT_WITH_NO_EFFECT % '++')
+        code.getNextOp()
+    elif cfg().unaryPositive and code.stack and not code.stack[-1].const :
+        code.addWarning(msgs.UNARY_POSITIVE_HAS_NO_EFFECT)
 
 def _UNARY_NEGATIVE(oparg, operand, codeSource, code) :
     if OP.UNARY_NEGATIVE(code.nextOpInfo()[0]) :

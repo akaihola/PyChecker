@@ -71,6 +71,7 @@ INTEGER_DIVISION = "Using integer division (%s / %s) may return integer or float
 USING_TUPLE_ACCESS_TO_LIST = "Using a tuple instead of slice as list accessor for (%s)"
 
 STMT_WITH_NO_EFFECT = "Operator (%s) doesn't exist, statement has no effect"
+UNARY_POSITIVE_HAS_NO_EFFECT = "Unary positive (+) usually has no effect"
 LIST_APPEND_ARGS = "[].append() only takes 1 argument in Python 1.6 and above for (%s)"
 
 LOCAL_DELETED = "(%s) cannot be used after being deleted on line %d"
@@ -78,3 +79,4 @@ LOCAL_ALREADY_DELETED = "Local variable (%s) has already been deleted on line %d
 VAR_DELETED_BEFORE_SET = "Variable (%s) deleted before being set"
 
 SET_EXCEPT_TO_BUILTIN = "Setting exception to builtin (%s), consider () around exceptions"
+USING_KEYWORD = "Using identifier (%s) which will become a keyword in version %s"

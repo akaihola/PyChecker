@@ -52,6 +52,7 @@ _OPTIONS = [
  ('G', 0, 'selfused', 'ignoreSelfUnused', 'ignore if self is unused in methods'),
  ('o', 0, 'override', 'checkOverridenMethods', 'check if overridden methods have the same signature'),
  ('U', 0, 'reuseattr', 'redefiningFunction', 'check if function/class/method names are reused'),
+ ('Y', 0, 'positive', 'unaryPositive', 'check if using unary positive (+) which is usually meaningless'),
      ]),
     ('Possible Errors', [
  ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
@@ -207,6 +208,7 @@ class Config :
         self.checkReturnValues = 1
         self.checkImplicitReturns = 0
         self.intDivide = 1
+        self.unaryPositive = 1
 
     def loadFile(self, filename) :
         suppressions = {}

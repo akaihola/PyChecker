@@ -19,7 +19,6 @@ Longer Term goals:
 * Recursive calls to __repr__ implementations
 * Make check for 'self' a list instead of a string
 * Check function return values - partially complete
-* Add check for using future keywords (e.g., yield)
 * Add check for unreachable code
 * Add check for except: pass
 * Add check that private functions are used in module/class

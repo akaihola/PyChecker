@@ -21,3 +21,8 @@ def y():
     # should generate a warning
     print ("format w/2 strings %s" + "=" + "'%s'") % ('a', 'b', 'c')
 
+def z():
+    i = -5
+    print +i, i, -i
+    print +5, 5, -5
+

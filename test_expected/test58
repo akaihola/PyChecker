@@ -1,0 +1,8 @@
+Processing test58...
+
+Warnings...
+
+test_input/test58.py:3: Using identifier (yield) which will become a keyword in version 2.2
+test_input/test58.py:6: Using identifier (yield) which will become a keyword in version 2.2
+test_input/test58.py:7: Using identifier (yield) which will become a keyword in version 2.2
+test_input/test58.py:10: Using identifier (yield) which will become a keyword in version 2.2
