@@ -1,4 +1,4 @@
-from pychecker2 import Check
+from pychecker2.Check import Check
 from pychecker2.Options import Opt, BoolOpt
 from pychecker2.Warning import Warning
 
@@ -8,8 +8,8 @@ def _is_method(scope):
     return scope.__class__ is compiler.symbols.FunctionScope and \
            scope.parent.__class__ is compiler.symbols.ClassScope
 
-def _is_self(scope, node, name):
-    return _is_method(scope) and name in node.argnames[:1]
+def _is_self(scope, name):
+    return _is_method(scope) and name in scope.node.argnames[:1]
 
 class Parents:
     def __init__(self, scope):
@@ -19,7 +19,7 @@ class Parents:
         self.scope = retval
         return retval
 
-class ShadowCheck(Check.Check):
+class ShadowCheck(Check):
     """Use symbol information to check that no scope defines a name
     already known to a parent scope"""
 
@@ -33,7 +33,7 @@ class ShadowCheck(Check.Check):
         # or even the builtins
         for scope in file.scopes.values():
             for name in scope.defs:
-                if _is_self(scope, file.scope_node[scope], name):
+                if _is_self(scope, name):
                     continue
                 if __builtins__.has_key(name):
                     file.warning(scope, self.shadowBuiltins, name)
@@ -41,7 +41,7 @@ class ShadowCheck(Check.Check):
                     if p.defs.has_key(name):
                         file.warning(scope, self.shadowIdentifier, name, `p`)
 
-class UnusedCheck(Check.Check):
+class UnusedCheck(Check):
     """Use symbol information to check that no scope defines a name
     not used in this or any child scope"""
 
@@ -49,7 +49,8 @@ class UnusedCheck(Check.Check):
 
     def get_options(self, options):
         desc = 'Ignore unused identifiers that start with these values'
-        default = ['unused', 'empty', 'dummy', '__pychecker__']
+        default = ['unused', 'empty', 'dummy',
+                   '__pychecker__', '__all__', '__version__']
         options.add(Opt(self, 'unusedPrefixes', desc, default))
         
         desc = 'Ignore unused method "self" parameter'
@@ -65,7 +66,7 @@ class UnusedCheck(Check.Check):
             if parent_scope in file.root_scope.get_children() and \
                parent_scope.__class__ in (compiler.symbols.ClassScope, \
                                           compiler.symbols.FunctionScope) and \
-               name == file.scope_node[parent_scope].name and \
+               name == parent_scope.node.name and \
                not name.startswith('_'):
                     return 1
 
@@ -95,7 +96,7 @@ class UnusedCheck(Check.Check):
             # ensure that every defined variable is used in some scope
             for var in scope.defs:
                 # check for method self
-                if not self.reportUnusedSelf and _is_self(scope, nodes, var):
+                if not self.reportUnusedSelf and _is_self(scope, var):
                     continue
 
                 for prefix in self.unusedPrefixes:
@@ -105,7 +106,7 @@ class UnusedCheck(Check.Check):
                     if not used(var, scope):
                         file.warning(scope, self.unused, var)
 
-class UnknownCheck(Check.Check):
+class UnknownCheck(Check):
     """Use symbol information to check that no scope uses a name
     not defined in a parent scope"""
 
@@ -129,7 +130,7 @@ class UnknownCheck(Check.Check):
                         if not UnknownCheck.builtins.has_key(var):
                             file.warning(scope, self.unknown, var)
 
-class SelfCheck(Check.Check):
+class SelfCheck(Check):
     'Report any methods whose first argument is not self'
     
     selfName = Warning(__doc__,
@@ -144,8 +145,8 @@ class SelfCheck(Check.Check):
         if type(self.selfNames) == type(''):
             self.selfNames = eval(self.selfNames)
 
-        for nodes, scope in file.scopes.items():
+        for scope in file.scopes.values():
             for var in scope.defs:
-                if _is_self(scope, nodes, var) and var not in self.selfNames:
+                if _is_self(scope, var) and var not in self.selfNames:
                     file.warning(scope, self.selfName,
-                                 nodes.name, var, `self.selfNames`)
+                                 scope.node.name, var, `self.selfNames`)
