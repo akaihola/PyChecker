@@ -901,7 +901,7 @@ def _CALL_FUNCTION_VAR_KW(oparg, operand, codeSource, code) :
     _handleFunctionCall(codeSource, code, oparg, 2)
 
 def _MAKE_FUNCTION(oparg, operand, codeSource, code) :
-    code.popStackItems(oparg)
+    code.popStackItems(oparg+1)
 
 def _BUILD_MAP(oparg, operand, codeSource, code) :
     _makeConstant(code.stack, oparg, Stack.makeDict)
@@ -998,11 +998,8 @@ def _FOR_LOOP(oparg, operand, codeSource, code) :
     _popStackRef(code, '<for_loop>', 2)
 
 def _jump(oparg, operand, codeSource, code) :
-    try :
+    if len(code.stack) > 0 :
         topOfStack = code.stack[-1]
-    except IndexError :
-        pass
-    else :
         if topOfStack.isMethodCall(codeSource.classObject, cfg().methodArgName) :
             name = topOfStack.data[-1]
             if codeSource.classObject.methods.has_key(name) :

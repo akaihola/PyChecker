@@ -27,3 +27,9 @@ class Q(Z):
         v = lambda : None
 	Z.__init__(self, v)
 
+
+class S(Z):
+   'd'
+   def __init__(self):
+       Z.__init__(self,lambda x: x in ['p','f'])
+
