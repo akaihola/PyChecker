@@ -13,7 +13,6 @@ ToDo:
 Items still missing:
         Error suppression (errors may be suppressed globally)
 
-        Format strings
         Member not used
         Return value from __init__
         Wrong # of args on function (including ctor)
