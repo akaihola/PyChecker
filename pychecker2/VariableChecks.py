@@ -104,12 +104,18 @@ class UnusedCheck(Check):
             # ignore names defined in a class scope
             if isinstance(scope, compiler.symbols.ClassScope):
                 continue
-                
+
             # ensure that every defined variable is used in some scope
             for var in scope.defs:
                 # check for method self
                 if not self.reportUnusedSelf and _is_self(scope, var):
                     continue
+
+                # ignore names in the root scope which are not imported:
+                # class defs, function defs, variables, etc.
+                if scope == file.root_scope:
+                    if not scope.imports.has_key(var):
+                        continue
 
                 for prefix in self.unusedPrefixes:
                     if var.startswith(prefix):
@@ -118,14 +124,11 @@ class UnusedCheck(Check):
                     if not used(var, scope):
                         file.warning(scope, self.unused, var)
 
-def _implicitlyImported(scope, name):
-    if name.startswith('_'):
-        return None
-    for module in scope.importStar.values():
-        if getattr(module, name, None):
-            return 1
+def _importedName(scope, name):
+    if scope.imports.has_key(name):
+        return 1
     if scope.parent:
-        return _implicitlyImported(scope.parent, name)
+        return _importedName(scope.parent, name)
     return None
 
 class UnknownCheck(Check):
@@ -149,7 +152,7 @@ class UnknownCheck(Check):
                         if p.defs.has_key(var):
                             break
                     else:
-                        if not _implicitlyImported(scope, var):
+                        if not _importedName(scope, var):
                             if not UnknownCheck.builtins.has_key(var):
                                 file.warning(scope, self.unknown, var)
 

@@ -33,9 +33,9 @@ class ParseCheck(Check):
                     c.parent = s
             file.root_scope.parent = None
 
-            # initialize the mapping of 'from name import *'
+            # initialize the mapping of imported names to modules
             for s in file.scopes.values():
-                s.importStar = {}
+                s.imports = {}
 
         except parser.ParserError, detail:
             file.warning(1, self.syntaxErrors, detail)
