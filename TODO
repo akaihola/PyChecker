@@ -1,4 +1,5 @@
 
+* Add check for multiple functions/methods/classes w/same name
 * Add check when using method as an attribute (if method and x == y:)
 * Add check that private functions are used in module/class
 * Check format strings: "%s %d" % (strValue, intValue)
