@@ -73,6 +73,15 @@ try:
 
         def buggy(self):
             return self.static(1,2)
+
+    class Slots(dict):
+        'doc'
+        pass
+
+    class Foo(object):
+        'doc'
+        __slots__ = Slots()
+
 except NameError:
     pass
 

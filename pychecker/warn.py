@@ -569,9 +569,14 @@ def _findClassWarnings(module, c, class_code,
         if not newStyleClass:
             err = msgs.USING_SLOTS_IN_CLASSIC_CLASS % c.name
             warnings.append(Warning(filename, lineNum, err))
-        elif len(slots.data) == 0 and cfg().emptySlots:
-            err = msgs.EMPTY_SLOTS % c.name
-            warnings.append(Warning(filename, lineNum, err))
+        elif cfg().emptySlots:
+            try:
+                if len(slots.data) == 0:
+                    err = msgs.EMPTY_SLOTS % c.name
+                    warnings.append(Warning(filename, lineNum, err))
+            except AttributeError:
+                # happens when slots is an instance of a class w/o __len__
+                pass
 
     if not newStyleClass and property is not None and cfg().classicProperties:
         for static in c.statics.keys():
