@@ -1,4 +1,10 @@
 
+Version 0.2.5	- 12 April 2001
+  * Add back support for Python 1.5.2 (again)
+  	(I sure like 2.0 more with the [ for ] and string methods.)
+  * Add new warning for unused local variables
+  * Add command line switches
+
 Version 0.2	- 10 April 2001
   * Move tests into a subdirectory so import test doesn't import pychecker/test
   * Add more test files
