@@ -1,5 +1,6 @@
 
 Version 0.5	- xx xxx 2001
+  * Catch internal errors "gracefully" and turn into a warning
   * Add checking of most module scoped code
   * Add pychecker subdir for source code to prevent filename conflicts
   * Don't produce unused local variable warning if variable name == '_'
@@ -10,6 +11,7 @@ Version 0.5	- xx xxx 2001
   * Fix glob'ing problems (all args after glob were ignored)
   * Fix spurious Base class __init__ not called
   * Fix exception on code like:  ['xxx'].index('xxx')
+  * Fix exception on code like:  func(kw=(a < b))
   * Fix line numbers for import statements
 
 Version 0.4	- 23 April 2001

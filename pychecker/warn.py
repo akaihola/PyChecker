@@ -10,6 +10,7 @@ import sys
 import imp
 import string
 import types
+import traceback
 
 from pychecker import OP
 from pychecker import Stack
@@ -22,6 +23,7 @@ _MAX_ARGS_MASK = ((1 << _VAR_ARGS_BITS) - 1)
 ### Warning Messages
 ###
 
+_CHECKER_BROKEN = "INTERNAL ERROR -- STOPPED PROCESSING FUNCTION --\n\t%s"
 _NO_MODULE_DOC = "No module doc string"
 _NO_CLASS_DOC = "No doc string for class %s"
 _NO_FUNC_DOC = "No doc string for function %s"
@@ -269,129 +271,138 @@ def _checkFunction(module, func, c = None, main = 0) :
 
     warnings, globalRefs, unusedLocals, functionsCalled = [], {}, {}, {}
 
-    # check the code
-    #  see dis.py in std python distribution
-    func_code, code, i, maxCode, extended_arg = OP.initFuncCode(func.function)
-    lastLineNum = func_code.co_firstlineno
-    stack, returnValues = [], []
-    unpackCount = 0
-    returns, loops, branches = 0, 0, {}
-    while i < maxCode :
-        op, oparg, i, extended_arg = OP.getInfo(code, i, extended_arg)
-        if op >= OP.HAVE_ARGUMENT :
-            warn = None
-            label = OP.getLabel(op, oparg, i)
-            if label != None :
-                branches[label] = 1
-            operand = OP.getOperand(op, func_code, oparg)
-            debug("  " + OP.name[op], oparg, operand)
-            if OP.LINE_NUM(op) :
-                lastLineNum = oparg
-            elif OP.COMPARE_OP(op) :
-                si = len(stack)
-                if si >= 2 :
-                    compareValues = stack[-si:]
-                elif si == 1 :
-                    compareValues = [ stack[-1], None ]
-                else :
-                    compareValues = [ None, None ]
-                stack[-si:] = [ Stack.makeComparison(compareValues, operand) ]
-            elif OP.LOAD_GLOBAL(op) or OP.LOAD_NAME(op) :
-                # make sure we remember each global ref to check for unused
-                globalRefs[_getGlobalName(operand, func)] = operand
-                warn = _checkGlobal(operand, module, func, lastLineNum,
-                                    _INVALID_GLOBAL)
+    try :
+        # check the code
+        #  see dis.py in std python distribution
+        func_code, code, i, maxCode, extended_arg = OP.initFuncCode(func.function)
+        lastLineNum = func_code.co_firstlineno
+        stack, returnValues = [], []
+        unpackCount = 0
+        returns, loops, branches = 0, 0, {}
+        while i < maxCode :
+            op, oparg, i, extended_arg = OP.getInfo(code, i, extended_arg)
+            if op >= OP.HAVE_ARGUMENT :
+                warn = None
+                label = OP.getLabel(op, oparg, i)
+                if label != None :
+                    branches[label] = 1
+                operand = OP.getOperand(op, func_code, oparg)
+                debug("  " + OP.name[op], oparg, operand)
+                if OP.LINE_NUM(op) :
+                    lastLineNum = oparg
+                elif OP.COMPARE_OP(op) :
+                    si = len(stack)
+                    if si >= 2 :
+                        si = 2
+                        compareValues = stack[-si:]
+                    elif si == 1 :
+                        compareValues = [ stack[-1], None ]
+                    else :
+                        compareValues = [ None, None ]
+                    stack[-si:] = [ Stack.makeComparison(compareValues, operand) ]
+                elif OP.LOAD_GLOBAL(op) or OP.LOAD_NAME(op) :
+                    # make sure we remember each global ref to check for unused
+                    globalRefs[_getGlobalName(operand, func)] = operand
+                    warn = _checkGlobal(operand, module, func, lastLineNum,
+                                        _INVALID_GLOBAL)
 
-                # if there was from XXX import *, _* names aren't imported
-                if module.modules.has_key(operand) and \
-                   hasattr(module.module, operand) :
-                    operand = eval("module.module.%s.__name__" % operand)
-                stack.append(Stack.Item(operand, Stack.TYPE_GLOBAL))
-            elif OP.STORE_GLOBAL(op) or OP.STORE_NAME(op) :
-                warn = _checkGlobal(operand, module, func, lastLineNum,
-                                    _GLOBAL_DEFINED_NOT_DECLARED, main)
-                if unpackCount :
-                    unpackCount = unpackCount - 1
-                if not module.moduleLineNums.has_key(operand) and main :
-                    filename = func_code.co_filename
-                    module.moduleLineNums[operand] = (filename, lastLineNum)
-            elif OP.LOAD_CONST(op) :
-                stack.append(Stack.Item(operand, type(operand), 1))
-            elif OP.LOAD_FAST(op) :
-                stack.append(Stack.Item(operand, type(operand)))
-                unusedLocals[operand] = None
-            elif OP.LOAD_ATTR(op) :
-                topOfStack = stack[-1]
-                if topOfStack.data == 'self' and c != None :
-                    warn = _checkAttribute(operand, c, func_code, lastLineNum)
-                elif type(topOfStack.type) == types.StringType :
-                    warn = _checkModuleAttribute(operand, module, func_code,
-                                                 lastLineNum, topOfStack)
-                topOfStack.addAttribute(operand)
-            elif OP.IMPORT_NAME(op) :
-                filename = func_code.co_filename
-                if not module.moduleLineNums.has_key(operand) :
-                    if main :
+                    # if there was from XXX import *, _* names aren't imported
+                    if module.modules.has_key(operand) and \
+                       hasattr(module.module, operand) :
+                        operand = eval("module.module.%s.__name__" % operand)
+                    stack.append(Stack.Item(operand, Stack.TYPE_GLOBAL))
+                elif OP.STORE_GLOBAL(op) or OP.STORE_NAME(op) :
+                    warn = _checkGlobal(operand, module, func, lastLineNum,
+                                        _GLOBAL_DEFINED_NOT_DECLARED, main)
+                    if unpackCount :
+                        unpackCount = unpackCount - 1
+                    if not module.moduleLineNums.has_key(operand) and main :
+                        filename = func_code.co_filename
                         module.moduleLineNums[operand] = (filename, lastLineNum)
-                else :
-                    lineInfo = module.moduleLineNums.get(operand)
-                    if lineInfo and (lineInfo[0] != filename or
-                                     lineInfo[1] != lastLineNum) :
-                        warn = Warning(func_code, lastLineNum,
-                                       _MODULE_IMPORTED_AGAIN % operand)
-            elif OP.UNPACK_SEQUENCE(op) :
-                unpackCount = oparg
-            elif OP.FOR_LOOP(op) :
-                loops = loops + 1
-            elif OP.STORE_FAST(op) :
-                if not unusedLocals.has_key(operand) :
-                    if not unpackCount or _cfg.unusedLocalTuple :
-                        unusedLocals[operand] = lastLineNum
-                if unpackCount :
-                    unpackCount = unpackCount - 1
-                stack = stack[:-2]
-            elif OP.STORE_ATTR(op) :
-                if unpackCount :
-                    unpackCount = unpackCount - 1
-                stack = stack[:-2]
-            elif OP.CALL_FUNCTION(op) :
-                warn, funcCalled = _handleFunctionCall(module, func_code, c,
-                                                    stack, oparg, lastLineNum)
-                # funcCalled can be empty in some cases (e.g., using a map())
-                if funcCalled :
-                    functionsCalled[funcCalled.getName(module)] = funcCalled
-            elif OP.BUILD_MAP(op) :
-                _makeConstant(stack, oparg, Stack.makeDict)
-            elif OP.BUILD_TUPLE(op) :
-                _makeConstant(stack, oparg, Stack.makeTuple)
-            elif OP.BUILD_LIST(op) :
-                _makeConstant(stack, oparg, Stack.makeList)
+                elif OP.LOAD_CONST(op) :
+                    stack.append(Stack.Item(operand, type(operand), 1))
+                elif OP.LOAD_FAST(op) :
+                    stack.append(Stack.Item(operand, type(operand)))
+                    unusedLocals[operand] = None
+                elif OP.LOAD_ATTR(op) :
+                    topOfStack = stack[-1]
+                    if topOfStack.data == 'self' and c != None :
+                        warn = _checkAttribute(operand, c, func_code, lastLineNum)
+                    elif type(topOfStack.type) == types.StringType :
+                        warn = _checkModuleAttribute(operand, module, func_code,
+                                                     lastLineNum, topOfStack)
+                    topOfStack.addAttribute(operand)
+                elif OP.IMPORT_NAME(op) :
+                    filename = func_code.co_filename
+                    if not module.moduleLineNums.has_key(operand) :
+                        if main :
+                            module.moduleLineNums[operand] = (filename, lastLineNum)
+                    else :
+                        lineInfo = module.moduleLineNums.get(operand)
+                        if lineInfo and (lineInfo[0] != filename or
+                                         lineInfo[1] != lastLineNum) :
+                            warn = Warning(func_code, lastLineNum,
+                                           _MODULE_IMPORTED_AGAIN % operand)
+                elif OP.UNPACK_SEQUENCE(op) :
+                    unpackCount = oparg
+                elif OP.FOR_LOOP(op) :
+                    loops = loops + 1
+                elif OP.STORE_FAST(op) :
+                    if not unusedLocals.has_key(operand) :
+                        if not unpackCount or _cfg.unusedLocalTuple :
+                            unusedLocals[operand] = lastLineNum
+                    if unpackCount :
+                        unpackCount = unpackCount - 1
+                    stack = stack[:-2]
+                elif OP.STORE_ATTR(op) :
+                    if unpackCount :
+                        unpackCount = unpackCount - 1
+                    stack = stack[:-2]
+                elif OP.CALL_FUNCTION(op) :
+                    warn, funcCalled = _handleFunctionCall(module, func_code, c,
+                                                        stack, oparg, lastLineNum)
+                    # funcCalled can be empty in some cases (eg, using a map())
+                    if funcCalled :
+                        functionsCalled[funcCalled.getName(module)] = funcCalled
+                elif OP.BUILD_MAP(op) :
+                    _makeConstant(stack, oparg, Stack.makeDict)
+                elif OP.BUILD_TUPLE(op) :
+                    _makeConstant(stack, oparg, Stack.makeTuple)
+                elif OP.BUILD_LIST(op) :
+                    _makeConstant(stack, oparg, Stack.makeList)
 
-            # Add a warning if there was any from any of the operations
-            _addWarning(warnings, warn)
-        else :
-            debug("  " + OP.name[op])
-            if _startswith(OP.name[op], 'BINARY_') :
-                del stack[-1]
-            elif OP.POP_TOP(op) :
-                if len(stack) > 0 :
+                # Add a warning if there was any from any of the operations
+                _addWarning(warnings, warn)
+            else :
+                debug("  " + OP.name[op])
+                if _startswith(OP.name[op], 'BINARY_') :
                     del stack[-1]
-            elif OP.DUP_TOP(op) :
-                if len(stack) > 0 :
-                    stack.append(stack[-1])
-            elif _startswith(OP.name[op], 'SLICE+') :
-                sliceCount = int(OP.name[op][6:])
-                if sliceCount > 0 :
-                    popArgs = 1
-                    if sliceCount == 3 :
-                        popArgs = 2
-                    stack = stack[:-popArgs]
-            elif OP.RETURN_VALUE(op) :
-                returns = returns + 1
-                # FIXME: this check shouldn't really be necessary
-                if len(stack) > 0 :
-                    returnValues.append((lastLineNum, stack[-1]))
-                    del stack[-1]
+                elif OP.POP_TOP(op) :
+                    if len(stack) > 0 :
+                        del stack[-1]
+                elif OP.DUP_TOP(op) :
+                    if len(stack) > 0 :
+                        stack.append(stack[-1])
+                elif _startswith(OP.name[op], 'SLICE+') :
+                    sliceCount = int(OP.name[op][6:])
+                    if sliceCount > 0 :
+                        popArgs = 1
+                        if sliceCount == 3 :
+                            popArgs = 2
+                        stack = stack[:-popArgs]
+                elif OP.RETURN_VALUE(op) :
+                    returns = returns + 1
+                    # FIXME: this check shouldn't really be necessary
+                    if len(stack) > 0 :
+                        returnValues.append((lastLineNum, stack[-1]))
+                        del stack[-1]
+    except :
+        exc_type, exc_value, exc_tb = sys.exc_info()
+        exc_list = traceback.format_exception(exc_type, exc_value, exc_tb)
+        for index in range(0, len(exc_list)) :
+            exc_list[index] = string.replace(exc_list[index], "\n", "\n\t")
+        warn = _CHECKER_BROKEN % string.join(exc_list, "")
+        warnings.append(Warning(func_code, lastLineNum, warn))
 
     # ignore last return of None, it's always there
     # FIXME: should only return if const (implicit), if global, it's explicit
