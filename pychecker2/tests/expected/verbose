@@ -1,20 +1,20 @@
-Checking file RedefineCheck
+Checking file <pychecker2.File.File instance at 0x81f12c4>
 .........
-Checking file RedefineCheck
+Checking file <pychecker2.File.File instance at 0x81ee944>
 .........
-Checking file RedefineCheck
+Checking file <pychecker2.File.File instance at 0x81f0aec>
 .........
-Checking file RedefineCheck
+Checking file <pychecker2.File.File instance at 0x81f154c>
 .........
-Checking file RedefineCheck
+Checking file <pychecker2.File.File instance at 0x81f16f4>
 .........
-Checking file RedefineCheck
+Checking file <pychecker2.File.File instance at 0x81f1cdc>
 .........
-Checking file RedefineCheck
+Checking file <pychecker2.File.File instance at 0x81f1e24>
 .........
-Checking file RedefineCheck
+Checking file <pychecker2.File.File instance at 0x81f1f8c>
 .........
-Checking file RedefineCheck
+Checking file <pychecker2.File.File instance at 0x81f10bc>
 .........
 tests/badparse.py:1 Unable to parse: could not parse string
 
