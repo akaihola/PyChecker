@@ -49,6 +49,7 @@ class UnusedTestCase(WarningTester):
     def testUnpack(self):
         self.silent('_x, _y = 1, 2\n')
         self.silent('def f(a, (b, c)): print a, b\n')
+        self.silent('def f(a, (b, (c, d))): print a, b\n')
         
         self.argv = ['--no-unpackedUsed']
         self.warning('_x, _y = 1, 2\n'
