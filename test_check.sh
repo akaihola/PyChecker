@@ -2,11 +2,13 @@
 
 TESTS="test_input/test[1-9]*.py"
 # comment out to use python from path
-PYTHON="python"
-#PYTHON="$HOME/build/python/clean/python"
-# PYTHON="$HOME/build/python/2.2/python"
-#PYTHON="/usr/bin/python"
-# PYTHON="$PYTHON -tt coverage.py -x"
+#PYTHON="python2"
+#PYTHON="$HOME/build/python/2_3/python"
+#PYTHON="$PYTHON -tt coverage.py -x"
+
+if [ "$PYTHON" == "" ]; then
+    PYTHON=python
+fi
 
 if [ $# -gt 0 ]; then
     TESTS=""
