@@ -1,4 +1,6 @@
 
+* Add check that private functions are used in module
+* Add check for right # of args to object construction
 * Fix sys.exc_value, etc. generating No attribute warning in except clause
 * Fix Local variable (xxx) not used, when have:  "%(xxx)s" % locals()
 * Check format strings: "%s %d" % (strValue, intValue)
