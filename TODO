@@ -1,17 +1,23 @@
 Goals for next minor release:
 -----------------------------
 * Add warning for a import b & b import a (import loops)
-* Handle classmethod/staticmethod better
-* Add warning about redefining a function/method with different signatures
-* Check for return from finally (disables exception, default off?)
 * Check that classes with __slots__ don't get/set any other attributes
+* Add warning if doing get/setattr(obj, 'constant-string', ...)
+* Add warning about redefining a function/method with different signatures
+* Expectations of __methods__, constness (don't modify in __nonzero__)
+* Add warning if using properties in non new-style class
+* Add warning for import overriding builtin (from os import *)
+
+* If arg has default value of None, check that arg is assigned some value
+* Handle classmethod/staticmethod better
+* Check for return from finally (disables exception, default off?)
 * Add another boolean warning for:    if bool(xxx):
-* Handle sys.exit() as non-returnable condition
-* Warn about non-escaping backslashes???
+
+* check for str1 in str2 == otherValue
 * Fix dependancy problem w/checkReturnValues & checkImplicitReturns
 * check for use of self.attr before setting self.attr in __init__ method
-* check for str1 in str2 == otherValue
-* Add warning if doing get/setattr(obj, 'constant-string', ...)
+* Handle sys.exit() as non-returnable condition
+* Warn about non-escaping backslashes???
 * vars() should use locals, like locals(), hmmm, it should already ...
 
 Goals for next major release (0.9):
@@ -49,6 +55,7 @@ Longer Term goals:
 * Spell check doc strings
 
 # need to read source code for these:
+* Add warning for unnecessary global stmts
 * Add check for implicit string concatentation
 * Add check for creating tuple when don't want a tuple, like: 1,
             or not creating tuple when want one, like: (1)
