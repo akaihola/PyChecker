@@ -16,6 +16,8 @@ from pychecker2 import ReturnChecks
 from pychecker2 import ConditionalChecks
 from pychecker2 import FormatStringChecks
 
+CACHE_FILE = '/tmp/t'
+
 def print_warnings(f, out):
     if not f.warnings:
         return 0
@@ -62,8 +64,14 @@ def create_checklist(options):
     return CheckList(checks)
 
 def main():
+    import cPickle
+    
     options = Options.Options()
-    checker = create_checklist(options)
+    try:
+        checker = cPickle.load(open(CACHE_FILE, 'rb'))
+    except (EOFError, IOError):
+        checker = create_checklist(options)
+
     try:
         files = options.process_options(sys.argv[1:])
     except Options.Error, detail:
@@ -84,6 +92,10 @@ def main():
 
         if not result and options.verbose:
             print >>sys.stdout, None
+
+    fp = open(CACHE_FILE, 'wb')
+    cPickle.dump(checker, fp)
+    fp.close()
 
     return result
 
