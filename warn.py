@@ -278,6 +278,9 @@ def _checkFunction(module, func, c = None) :
                                           stack, oparg, lastLineNum)
                 funcName = _getNameFromStack(funcCalled, module.moduleName)
                 functionsCalled[funcName] = funcCalled
+            elif OP.BUILD_MAP(op) :
+                debug("  build map", oparg)
+                stack = stack[:-oparg] + [ str(type({})) ]
             elif OP.BUILD_TUPLE(op) :
                 debug("  build tuple", oparg)
                 stack = stack[:-oparg] + [ tuple(stack[oparg:]) ]
