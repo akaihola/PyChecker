@@ -39,8 +39,7 @@ Items still missing:
 
 Important stuff:
 
-If you want to add new checks, there are some backs parts to be aware
-of:
+If you want to add new checks, there are some parts to be aware of:
 
         File
                 A stupid data structure to hold everything we know about 
