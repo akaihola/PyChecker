@@ -137,7 +137,7 @@ _SUPPRESSIONS_ERR = \
 '''\nWarning, error processing defaults file: %s
 \%s must be a dictionary ({}) -- ignoring suppressions\n'''
 
-def _getSuppressions(name, dict) :
+def _getSuppressions(name, dict, filename) :
     suppressions = dict.get(name, {})
     if type(suppressions) != type({}) :
         print _SUPPRESSIONS_ERR % (filename, name)
@@ -210,8 +210,8 @@ class Config :
                 elif key not in [ 'suppressions', 'suppressionRegexs' ] :
                     print "Warning, option (%s) doesn't exist, ignoring" % key
 
-            suppressions = _getSuppressions('suppressions', dict)
-            regexs = _getSuppressions('suppressionRegexs', dict)
+            suppressions = _getSuppressions('suppressions', dict, filename)
+            regexs = _getSuppressions('suppressionRegexs', dict, filename)
             suppressionRegexs = {}
             for regex_str in regexs.keys() :
                 regex = re.compile(regex_str)
