@@ -139,12 +139,13 @@ def printArg(shortArg, longArg, description, defaultValue, useValue) :
     args = "-%s, --%s" % (shortArg, longArg)
     print "  %-18s %s%s" % (args, description, defStr)
 
-def usage() :
+def usage(cfg = None) :
     print "Usage for: checker.py [options] PACKAGE ...\n"
     print "    PACKAGEs can be a python package, module or filename\n"
     print "Options:           Change warning for ... [default value]"
 
-    cfg = Config()
+    if cfg is None :
+        cfg = Config()
     for opt in _OPTIONS :
         if opt == None :
             print ""
@@ -176,31 +177,32 @@ def setupFromArgs(argList) :
             options['-' + shortArg] = opt
             options['--' + longArg] = opt
 
+    cfg = Config()
+    cfg.loadFile(_getRCfile(_RC_FILE))
     try :
         args, files = getopt.getopt(argList, shortArgs, longArgs)
-        cfg = Config()
-        cfg.loadFile(_getRCfile(_RC_FILE))
-        for arg, value in args :
-            shortArg, useValue, longArg, member, description = options[arg]
-            if member == None :
-                # FIXME: this is a hack
-                cfg.noDocModule = 0
-                cfg.noDocClass = 0
-                cfg.noDocFunc = 0
-                if longArg == 'errors' :
-                    cfg.__dict__.update(errors_only())
-            elif value  :
-                newValue = value
-                memberType = type(cfg.__dict__[member])
-                if memberType == type(0) :
-                    newValue = int(newValue)
-                elif memberType == type([]) :
-                    newValue = string.split(newValue, ',')
-                cfg.__dict__[member] = newValue
-            else :
-                cfg.__dict__[member] = not cfg.__dict__[member]
-        return cfg, files
     except getopt.error :
-        usage()
+        usage(cfg)
         raise UsageError
+
+    for arg, value in args :
+        shortArg, useValue, longArg, member, description = options[arg]
+        if member == None :
+            # FIXME: this is a hack
+            cfg.noDocModule = 0
+            cfg.noDocClass = 0
+            cfg.noDocFunc = 0
+            if longArg == 'errors' :
+                cfg.__dict__.update(errors_only())
+        elif value  :
+            newValue = value
+            memberType = type(cfg.__dict__[member])
+            if memberType == type(0) :
+                newValue = int(newValue)
+            elif memberType == type([]) :
+                newValue = string.split(newValue, ',')
+            cfg.__dict__[member] = newValue
+        else :
+            cfg.__dict__[member] = not cfg.__dict__[member]
+    return cfg, files
 
