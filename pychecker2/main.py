@@ -44,6 +44,7 @@ def main():
                OpChecks.ExceptCheck(),
                ReachableChecks.ReachableCheck(),
                ImportChecks.ImportCheck(),
+               FormatStringChecks.FormatStringCheck(),
                VariableChecks.ShadowCheck(),
                VariableChecks.UnpackCheck(),
                VariableChecks.UnusedCheck(),
@@ -51,7 +52,6 @@ def main():
                VariableChecks.SelfCheck(),
                ClassChecks.AttributeCheck(),
                ScopeChecks.RedefineCheck(),
-               FormatStringChecks.FormatStringCheck(),
                ]
     for checker in checks:
         checker.get_warnings(options)

@@ -31,13 +31,16 @@ def _compute_tuple_size(node):
     if isinstance(node, ast.Const):
         return node.value
     if isinstance(node, ast.Backquote):
-        return (None,)
+        return ''
     return _compute_node(node, _compute_tuple_size)
 
 # for details: http://www.python.org/doc/current/lib/typesseq-strings.html
-_FORMAT_REGEX = re.compile('%([(]([a-zA-Z_]+)[)])?[ #+-]*'
-                           '([0-9]*|[*])(|[.](|[*]|[0-9]*))([hlL])?'
-                           '([diouxXeEfFgGcrs%])')
+_MOD_AND_TYPE = '([hlL])?([diouxXeEfFgGcrs%])'
+_TUP_FORMAT_REGEX = re.compile('%(())?[ #+-]*'
+                               '([0-9]*|[*])(|[.](|[*]|[0-9]*))' +
+                               _MOD_AND_TYPE)
+_DICT_FORMAT_REGEX = re.compile('%([(]([a-zA-Z_]+)[)])?[ #+-]*'
+                                '([0-9]*)(|[.](|[0-9]*))' + _MOD_AND_TYPE)
 
 class FormatError(Exception):
     def __init__(self, position):
@@ -51,9 +54,11 @@ def _check_format(s):
         if pos < 0:
             return specs
 
-        match = _FORMAT_REGEX.search(s, pos)
+        match = _TUP_FORMAT_REGEX.search(s, pos)
         if not match or match.start(0) != pos:
-            raise FormatError(pos)
+            match = _DICT_FORMAT_REGEX.search(s, pos)
+            if not match or match.start(0) != pos:
+                raise FormatError(pos)
 
         if match.group(7) != '%':       # ignore "%%"
             specs.append( (match.group(2), match.group(3), match.group(5),
@@ -66,6 +71,16 @@ class _GetMod(BaseVisitor):
     def visitMod(self, node):
         self.mods.append(node)
         self.visitChildren(node)
+    # don't descend into other scopes
+    def visitFunction(self, node): pass
+    visitClass = visitFunction
+    visitLambda = visitFunction
+
+def get_mods(node):
+    try:
+        return walk(node.code, _GetMod()).mods
+    except AttributeError:
+        return walk(node.node, _GetMod()).mods
 
 _BAD_FORMAT_MAX = 10
 def _bad_format_str(s, pos):
@@ -95,7 +110,7 @@ class FormatStringCheck(Check):
     unknownFormatName = \
               Warning('Report unknown names if locals() or globals() '
                       'are used for format strings',
-                      'The name %s is not defined in %s')
+                      'The name "%s" is not defined in %s')
 
     badConstant = \
               Warning('Report bad constant expressions for format strings',
@@ -106,7 +121,7 @@ class FormatStringCheck(Check):
             return
 
         for scope in file.scopes.values():
-            for mod in walk(scope.node, _GetMod()).mods:
+            for mod in get_mods(scope.node):
                 formats = []
                 try:
                     s = _compute_constant(mod.left)
@@ -130,10 +145,13 @@ class FormatStringCheck(Check):
                     if precision == '*':
                         count += 1
 
-                names = [f[0] for f in formats if f[0] is not None]
+                names = [f[0] for f in formats if f[0]]
                 if len(names) == 0:     # tuple
                     try:
-                        n = len(_compute_tuple_size(mod.right))
+                        t = _compute_tuple_size(mod.right)
+                        n = 1
+                        if type(t) == TupleType:
+                            n = len(t)
                         if n != count:
                             file.warning(mod, self.formatCount, n, count)
                     except UnknownError:
@@ -142,20 +160,23 @@ class FormatStringCheck(Check):
                         file.warning(mod, self.badConstant, detail)
 
                 elif len(names) == len(formats): # dictionary
-                    defines = []
+                    defines = {}
+                    used = {}
                     if isinstance(mod.right, ast.CallFunc) and \
                        isinstance(mod.right.node, ast.Name):
-                        if mod.right.node.name == 'locals':
-                            defines = scope.defs.keys()
+                        if mod.right.node.name in ['locals', 'vars']:
+                            defines = scope.defs
+                            uses = scope.uses
                         if mod.right.node.name == 'globals':
-                            defines = scope.defs.keys()
-                            for p in parents(scope):
-                                defines.extend(p.defs.keys())
+                            defines = file.rootScope.defs
+                            uses = file.rootScope.uses
                     if defines:
                         for n in names:
-                            if not n in defines:
+                            if not defines.has_key(n):
                                 file.warning(mod, self.unknownFormatName,
                                              n, mod.right.node.name)
+                            else:
+                                uses[n] = uses.get(n, mod)
                 else:
                     file.warning(mod, self.mixedFormat, "(%s)" % names[0])
 
