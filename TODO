@@ -3,6 +3,10 @@ Goals for next minor release:
 * Limit output to N most important
 * Add severity and estimated difficulty to research/fix error
 * Add warning when using listcomp variable (x) outside of [... for x in ...]
+* Shouldn't warn about using return value for generators
+* Suppress argument (self) name warnings if func has no impl?
+* Add warning for a variable that is constant 
+    ie, initialized and used, but never changed
 
 * Check for "if s.find(str):" s/b "if s.find(str) >= 0:" where s is a string
 * Add warning for a import b & b import a (import loops)
