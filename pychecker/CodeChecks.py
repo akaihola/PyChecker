@@ -1406,6 +1406,9 @@ def _BUILD_CLASS(oparg, operand, codeSource, code) :
     code.popStackItems(3)
     code.pushStack(newValue)
 
+def _LIST_APPEND(oparg, operand, codeSource, code):
+    code.popStackItems(2)
+
 def _modifyStackName(code, suffix):
     if code.stack:
         tos = code.stack[-1]
@@ -1806,7 +1809,7 @@ DISPATCH[ 11] = _UNARY_NEGATIVE
 DISPATCH[ 12] = _UNARY_NOT
 DISPATCH[ 13] = _UNARY_CONVERT
 DISPATCH[ 15] = _UNARY_INVERT
-# FIXME: add LIST_APPEND: 18
+DISPATCH[ 18] = _LIST_APPEND
 DISPATCH[ 19] = _BINARY_POWER
 DISPATCH[ 20] = _BINARY_MULTIPLY
 DISPATCH[ 21] = _BINARY_DIVIDE
