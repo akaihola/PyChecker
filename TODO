@@ -10,6 +10,8 @@ Goals for next major release (0.9):
 * Fix spurious warnings for (x and 'pass' or 'fail')
 * Check that classes with __slots__ don't set any other attributes
 * Fix most of the FIXMEs
+* Handle sys.exit() as non-returnable condition
+* Read .pycheckrc from $HOME, ., and -F
 
 Longer Term goals:
 ------------------
