@@ -1,13 +1,7 @@
 from pychecker2.TestSupport import WarningTester
-from unittest import TestCase
-
 from pychecker2 import VariableChecks
 
-class UnusedTestCase(TestCase, WarningTester):
-    def __init__(self, arg):
-        TestCase.__init__(self, arg)
-        WarningTester.__init__(self)
-
+class UnusedTestCase(WarningTester):
     def testUnusedBasic(self):
         self.warning('def f(i, j): return i * 2\n',
                      1, VariableChecks.UnusedCheck.unused, 'j')
