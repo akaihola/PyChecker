@@ -11,30 +11,28 @@ Goals for next major release (0.9):
 	(see test64 not in CVS)
 
 * Fix spurious warnings for unreachable code checks
-* Fix spurious warnings for implicit return
 * Fix spurious warnings for (x and 'pass' or 'fail')
+* Handle __slots__ in Python 2.2
 * Fix most of the FIXMEs
 
 Longer Term goals:
 ------------------
+* Add check that subclass overrides method that only raises NotImplementedError
 * Add check for magic #s/consts
 	(need dict of consts, count, max count, consts to ignore)
 * Add check for unsupported operand type(s) for * + / etc
 * Store types of globals, class attributes, function & method return values
 * Output stats about pychecker's job, good, bad, otherwise...
 	annotate code for problem areas, well checked areas, etc.
-* Handle slots in Python 2.2
 * Add original line warnings for those that refer to another place
 	(e.g., overridden method doesn't match signature)
 * Add capability to check features from a specified version of python
 	which is different from runtime interpreter
 * Security checks for known issues.  Adrian Likins @redhat recommends 
   looking at http://www.securesw.com/rats/
-* When checking for unused vars, var list should be prefixes/regexes
 * Make check for 'self' a list instead of a string
 * Check function return values - partially complete
 * Add check that private functions are used in module/class
-* Add check that subclass overrides method that only raises NotImplementedError
 * Add check for using object members outside of class
 * Add portability checks for win32/unix
 * Fix deriving from class by alias name

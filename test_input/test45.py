@@ -19,3 +19,5 @@ class A:
     def y(self, other1, empty1, unused1):
         print 'nothing'
 
+def a():
+  _ = 5

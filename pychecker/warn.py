@@ -105,12 +105,18 @@ def _checkCode(code, codeSource) :
         if dispatch_func is not None :
             dispatch_func(oparg, operand, codeSource, code)
 
+def _name_unused(var) :
+    if var in cfg().unusedNames :
+        return 0
+    for name in cfg().unusedNames :
+        if name != '_' and utils.startswith(var, name) :
+            return 0
+    return 1
+
 def _checkUnusedParam(var, line, func, code) :
-    if line is not None and line == 0 :
-        config = cfg()
-        if (var not in config.unusedNames and
-            (config.ignoreSelfUnused or var != config.methodArgName) and
-            (config.varArgumentsUsed or func.varArgName() != var)) :
+    if line is not None and line == 0 and _name_unused(var) :
+        if ((cfg().ignoreSelfUnused or var != cfg().methodArgName) and
+            (cfg().varArgumentsUsed or func.varArgName() != var)) :
             code.addWarning(msgs.UNUSED_PARAMETER % var, code.func_code)
 
 def _handleLambda(func_code, code, codeSource):
@@ -187,7 +193,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
 
     if cfg().localVariablesUsed :
         for var, line in code.unusedLocals.items() :
-            if line is not None and line > 0 and var not in cfg().unusedNames :
+            if line is not None and line > 0 and _name_unused(var) :
                 code.addWarning(msgs.UNUSED_LOCAL % var, line)
 
     if cfg().argumentsUsed :
