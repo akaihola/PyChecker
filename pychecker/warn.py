@@ -130,7 +130,8 @@ def _handleLambda(func_code, code, codeSource):
         utils.debug(' handling lambda')
         varnames = None
         if nested and func_code.co_name != utils.LAMBDA:
-            varnames = codeSource.calling_code.function.func_code.co_varnames 
+            varnames = func_code.co_varnames + \
+                     codeSource.calling_code[-1].function.func_code.co_varnames
         code.init(function.create_fake(func_code.co_name, func_code, {},
                                        varnames))
                       
@@ -180,11 +181,10 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
         _checkCode(code, codeSource)
 
         # handle lambdas
-        old_callling_code = codeSource.calling_code
-        codeSource.calling_code = func
+        codeSource.calling_code.append(func)
         for func_code in code.codeObjects.values() :
             _handleLambda(func_code, code, codeSource)
-        codeSource.calling_code = old_callling_code
+        del codeSource.calling_code[-1]
 
         if not in_class :
             _findUnreachableCode(code)

@@ -738,7 +738,7 @@ class CodeSource :
         self.main = main
         self.in_class = in_class
         self.code = code
-        self.calling_code = None
+        self.calling_code = []
 
 def _checkException(code, name) :
     if code.stack and code.stack[-1].type == Stack.TYPE_EXCEPT :
@@ -782,11 +782,11 @@ def _checkLoadGlobal(codeSource, code, varname) :
     should_check = 1
     if code.func_code.co_name == utils.LAMBDA :
         # this could really be a local reference, check first
-        if not codeSource.main and \
-           hasattr(codeSource.calling_code, 'function') and \
-           varname in codeSource.calling_code.function.func_code.co_varnames :
-            _handleLoadLocal(code, codeSource, varname)
-            should_check = 0
+        if not codeSource.main and codeSource.calling_code:
+            func = getattr(codeSource.calling_code[-1], 'function', None)
+            if func is not None and varname in func.func_code.co_varnames :
+                _handleLoadLocal(code, codeSource, varname)
+                should_check = 0
 
     if should_check :
         # make sure we remember each global ref to check for unused
@@ -1180,7 +1180,7 @@ def _JUMP_FORWARD(oparg, operand, codeSource, code) :
     code.remove_unreachable_code(code.label)
 
 def _RETURN_VALUE(oparg, operand, codeSource, code) :
-    if codeSource.calling_code is None :
+    if not codeSource.calling_code :
         code.addReturn()
 
 def _EXEC_STMT(oparg, operand, codeSource, code) :

@@ -1,0 +1,6 @@
+Processing test76...
+
+Warnings...
+
+test_input/test76.py:6: Parameter (a) not used
+test_input/test76.py:6: Parameter (d) not used
