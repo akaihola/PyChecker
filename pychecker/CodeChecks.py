@@ -1328,6 +1328,20 @@ def _IMPORT_FROM(oparg, operand, codeSource, code) :
 def _IMPORT_STAR(oparg, operand, codeSource, code) :
     _handleImportFrom(code, '*', codeSource.module, codeSource.main)
 
+# Python 2.3 introduced some optimizations that create problems
+# this is a utility for ignoring these cases
+def _shouldIgnoreCodeOptimizations(code, bytecodes, offset, length=None):
+    if utils.pythonVersion() < utils.PYTHON_2_3:
+        return 0
+
+    if length is None:
+        length = offset - 1
+    try:
+        start = code.index - offset
+        return bytecodes == code.bytes[start:start+length]
+    except IndexError:
+        return 0
+
 # In Python 2.3, a, b = 1,2 generates this code:
 # ...
 # ROT_TWO
@@ -1336,20 +1350,11 @@ def _IMPORT_STAR(oparg, operand, codeSource, code) :
 # POP_TOP
 #
 # which generates a Possible stmt w/no effect
-# determine if this situation occurred and don't warn
 
 # ROT_TWO = 2; JUMP_FORWARD = 110; 2, 0 is the offset (2)
 _IGNORE_SEQ = '%c%c%c%c' % (2, 110, 2, 0)
 def _shouldIgnoreNoEffectWarning(code):
-    if utils.pythonVersion() < utils.PYTHON_2_3:
-        return 0
-
-    try:
-        index = code.index - 5
-        bytes = code.bytes[index:index+4]
-        return bytes == _IGNORE_SEQ
-    except IndexError:
-        return 0
+    return _shouldIgnoreCodeOptimizations(code, _IGNORE_SEQ, 5)
 
 def _DUP_TOP(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
@@ -1713,6 +1718,27 @@ def _is_unreachable(code, topOfStack, branch, if_false) :
         code.raiseValues.append((lastLineNum, None, i + oparg))
     return 1
 
+# In Python 2.3, while/if 1: gets optimized to
+# ...
+# JUMP_FORWARD 4
+# JUMP_IF_FALSE ?
+# POP_TOP
+#
+# which generates a Using a conditional statement with a constant value
+
+# JUMP_FORWARD = 110; 4, 0 is the offset (4)
+_IGNORE_BOGUS_JUMP = '%c%c%c' % (110, 4, 0)
+def _shouldIgnoreBogusJumps(code):
+    return _shouldIgnoreCodeOptimizations(code, _IGNORE_BOGUS_JUMP, 6, 3)
+
+def _checkConstantCondition(code, topOfStack, if_false):
+    # don't warn when doing (test and 'true' or 'false')
+    # still warn when doing (test and None or 'false')
+    if if_false or not OP.LOAD_CONST(code.nextOpInfo(1)[0]) or \
+       not topOfStack.data or topOfStack.type is types.NoneType:
+        if not _shouldIgnoreBogusJumps(code):
+            code.addWarning(msgs.CONSTANT_CONDITION % str(topOfStack))
+    
 def _jump_conditional(oparg, operand, codeSource, code, if_false) :
     # FIXME: this doesn't work in 2.3+ since constant conditions
     #        are optimized away by the compiler.
@@ -1720,12 +1746,8 @@ def _jump_conditional(oparg, operand, codeSource, code, if_false) :
         topOfStack = code.stack[-1]
         if (topOfStack.const or topOfStack.type is types.NoneType) and \
            cfg().constantConditions and \
-           (topOfStack.data != 1 or cfg().constant1) :
-            # don't warn when doing (test and 'true' or 'false')
-            # still warn when doing (test and None or 'false')
-            if if_false or not OP.LOAD_CONST(code.nextOpInfo(1)[0]) or \
-               not topOfStack.data or topOfStack.type is types.NoneType:
-                code.addWarning(msgs.CONSTANT_CONDITION % str(topOfStack))
+           (topOfStack.data != 1 or cfg().constant1):
+            _checkConstantCondition(code, topOfStack, if_false)
 
         if _is_unreachable(code, topOfStack, code.label, if_false) :
             code.removeBranch(code.label)
