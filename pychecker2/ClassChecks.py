@@ -224,12 +224,12 @@ class AttributeCheck(Check):
                     pass
 
             # find refs on self
-            refs = []
+            refs = {}
             for m in _get_methods(scope):
-                refs.extend(visit_with_self(GetRefs, m).items())
+                refs.update(visit_with_self(GetRefs, m))
 
             # Now complain about refs on self that aren't known
-            for name, node in refs:
+            for name, node in refs.items():
                 if not inherited_attributes.has_key(name) and \
                    not _ignorable.get(name, None) and \
                    not scope.defs.has_key(mangle(name, scope.name)) and \
@@ -237,15 +237,11 @@ class AttributeCheck(Check):
                     file.warning(line(node), self.unknownAttribute,
                                  scope.name, name)
 
-            for name, node in refs:
-                try:
-                    del attributes[name]
-                except KeyError:
-                    pass
             for name, node in attributes.items():
-                if name.startswith('__'):
-                    file.warning(line(node), self.unusedAttribute,
-                                 name, scope.name)
+                if not refs.has_key(name):
+                    if name.startswith('__'):
+                        file.warning(line(node), self.unusedAttribute,
+                                     name, scope.name)
 
 class GetReturns(BaseVisitor):
 
