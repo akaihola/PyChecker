@@ -386,6 +386,9 @@ def _printWarnings(warnings) :
 def main(argv) :
     global _cfg
     _cfg, files = Config.setupFromArgs(argv[1:])
+    if not files :
+        return 1
+
     importWarnings = []
     for moduleName in _getModules(files) :
         sys.stderr.write("Processing %s...\n" % moduleName)
