@@ -26,4 +26,4 @@ class ImplAbstract(import73.AbstractLib):
 
 def lib_example():
     _ = import73.AbstractLib()          # error
-    _ = ImplAbstract()                  # error
+    unused = ImplAbstract()             # error
