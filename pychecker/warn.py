@@ -75,12 +75,12 @@ def _checkReturnWarnings(code) :
 
         if returnNoneCount != returnValuesLen :
             code.addWarning(msgs.IMPLICIT_AND_EXPLICIT_RETURNS, line)
-
+    
     returnType, returnData = None, None
     for line, value in code.returnValues :
         if not value.isNone() :
             valueType = value.getType(code.typeMap)
-            if returnType is None :
+            if returnType is None and valueType not in _IGNORE_RETURN_TYPES :
                 returnData = value
                 returnType = valueType
 
