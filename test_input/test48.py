@@ -34,3 +34,16 @@ def y():
     for j in []:
         print j.a()
 
+
+class Z:
+    'd'
+    def __init__(self): pass
+    def x(self): pass
+    def y(self): pass
+
+def zz():
+    tt = Z()
+    tt.a()
+    tt.b()
+    tt.x()
+    tt.y()

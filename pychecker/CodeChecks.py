@@ -240,10 +240,14 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
 
             if func != None :
                 _checkFunctionArgs(code, func, method, argCount, kwArgs, check_arg_count)
-                if refClass and argCount > 0 and not method and \
-                   code.stack[funcIndex].type == Stack.TYPE_ATTRIBUTE and \
-                   code.stack[funcIndex+1].data != cfg().methodArgName :
-                    code.addWarning(msgs.SELF_NOT_FIRST_ARG % cfg().methodArgName)
+                if refClass :
+                    if method :
+                        # c'tor, return the class as the type
+                        returnValue = Stack.Item(loadValue, refClass)
+                    elif argCount > 0 and \
+                         code.stack[funcIndex].type == Stack.TYPE_ATTRIBUTE and \
+                         code.stack[funcIndex+1].data != cfg().methodArgName :
+                        code.addWarning(msgs.SELF_NOT_FIRST_ARG % cfg().methodArgName)
             elif refClass and method :
                 returnValue = Stack.Item(loadValue, refClass)
                 if (argCount > 0 or len(kwArgs) > 0) and \

@@ -1,5 +1,6 @@
 
-Version 0.8.6	- xx October 2001
+Version 0.8.6	- xx November 2001
+  * Fix problem where user defined classes weren't checked for valid attributes
   * Allow use of __pychecker__ in class scope
   * Fix a lot of global function arg counts for Python 2.2
   	(many constructors can take no arguments now)
