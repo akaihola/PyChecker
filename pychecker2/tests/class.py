@@ -115,3 +115,12 @@ class Node(compiler.ast.Node):
 class Node2(compiler.ast.Slice):
     def __init__(self):
         return self
+
+class BadSpecial:
+
+    def __del__(self, x):
+        return x
+
+    def __cmp__(self):
+        return 0
+

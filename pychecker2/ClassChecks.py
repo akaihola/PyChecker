@@ -147,6 +147,21 @@ def conforms(a, b):
         return None
     return a.node.kwargs == b.node.kwargs and a.node.varargs == b.node.varargs
 
+special = {
+    '__cmp__': 2,     '__del__': 1,     '__delitem__': 2, '__eq__': 2,
+    '__ge__': 2,      '__getitem__': 2, '__gt__': 2,      '__hash__': 1,
+    '__le__': 2,      '__len__': 1,     '__lt__': 2,      '__ne__': 2,
+    '__nonzero__': 1, '__repr__': 1,    '__setitem__': 3, '__str__': 1,
+    }
+
+def check_special(scope):
+    try:
+        if special[scope.name] != len(scope.node.argnames) or \
+           scope.node.varargs or not scope.node.kwargs:
+            return special[scope.name]
+    except KeyError:
+        return None
+
 class AttributeCheck(Check):
     "check `self.attr' expressions for attr"
 
@@ -161,6 +176,10 @@ class AttributeCheck(Check):
                                'match base class methods',
                                'Signature does not match method '
                                '%s in base class %s')
+    specialMethod = Warning('Report special methods with incorrect '
+                            'number of arguments',
+                            'The %s method requires %d argument%s, '
+                            'including self')
 
     def check(self, file, checker):
         def visit_with_self(Visitor, method):
@@ -181,6 +200,10 @@ class AttributeCheck(Check):
             for m in _get_methods(scope):
                 attributes.update(visit_with_self(GetDefs, m))
                 methods[m.name] = m
+                n = check_special(m)
+                if n:
+                    file.warning(m.node, self.specialMethod, m.name, n,
+                                 {1: ""}.get(n, "s"))
 
             for base in [scope] + bases:
                 for m in _get_methods(base):
