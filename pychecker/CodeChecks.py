@@ -1341,7 +1341,7 @@ _POP_TOP = _BINARY_LSHIFT = _BINARY_RSHIFT = \
            _PRINT_ITEM = _pop
 
 def _PRINT_ITEM_TO(oparg, operand, codeSource, code) :
-    _popStackRef(code, operand)
+    code.popStackItems(2)
 
 try:
     ComplexType = types.ComplexType

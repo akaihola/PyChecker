@@ -78,3 +78,7 @@ def jklasdflksdjf():
   d, d
   [d, d]
 
+def print_item_to(fp, boundary):
+    # this should not generate a warning, note comma at end
+    print >> fp, '\n--' + boundary + '--',
+

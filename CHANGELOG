@@ -8,6 +8,7 @@ Version 0.8.12   - xx October 2002
   * Don't print duplicate warnings when importing pychecker
   * Fix other spurious warnings when importing pychecker
   * Fix bug for spurious invalid arguments when passing a dict inline
+  * Fix bug for spurious Statement has no effect when print >> x, ... ,
   * Add @option_file command line argument to read options from a file
   	(used on platforms which can't have too many options, ie Windows)
   * Fix several crashes
