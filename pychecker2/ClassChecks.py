@@ -123,11 +123,11 @@ def find_imported_class(imports, names, checker):
             pass
     return None
 
-def find_scope_going_up(scope, parts, checker):
+def find_scope_going_up(scope, names, checker):
     "Search up to find scope defining x of x.y.z"
     for p in parents(scope):
-        if p.defs.has_key(parts[0]):
-            return find_scope_going_down(p, parts, checker)
+        if p.defs.has_key(names[0]):
+            return find_scope_going_down(p, names, checker)
     return None
 
 def get_base_classes(scope, checker):
