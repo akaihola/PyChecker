@@ -28,12 +28,9 @@ class FakeFunction :
 class Function :
     "Class to hold all information about a function"
 
-    def __init__(self, function, isMethod = None) :
+    def __init__(self, function) :
         self.function = function
-        self.maxArgs = function.func_code.co_argcount
-        if isMethod :
-            self.maxArgs = self.maxArgs - 1
-        self.minArgs = self.maxArgs
+        self.minArgs = self.maxArgs = function.func_code.co_argcount
         if function.func_defaults != None :
             self.minArgs = self.minArgs - len(function.func_defaults)
         # if function uses *args, there is no max # args

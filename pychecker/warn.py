@@ -181,7 +181,8 @@ def _checkNoSelfArg(func) :
         return Warning(code, code, _SELF_IS_ARG)
     return None
 
-def _checkFunctionArgs(caller, func, argCount, kwArgs, lastLineNum) :
+def _checkFunctionArgs(caller, func, objectReference, argCount, kwArgs,
+                       lastLineNum) :
     warnings = []
     func_name = func.function.func_code.co_name
     if kwArgs :
@@ -199,58 +200,78 @@ def _checkFunctionArgs(caller, func, argCount, kwArgs, lastLineNum) :
                   kwArgs[0] in func_args[origArgCount:] :
                 argCount = argCount + 1
                 kwArgs = kwArgs[1:]
-            return warnings + \
-                   _checkFunctionArgs(caller, func, argCount, kwArgs, lastLineNum)
+            return warnings + _checkFunctionArgs(caller, func, objectReference,
+                                                 argCount, kwArgs, lastLineNum)
 
         if not func.supportsKW :
             warn = Warning(caller, lastLineNum,
                            _FUNC_DOESNT_SUPPORT_KW % func_name)
             warnings.append(warn)
 
+    # there is an implied argument for object creation and self.xxx()
+    minArgs = func.minArgs
+    maxArgs = func.maxArgs
+    if objectReference :
+        minArgs = minArgs - 1
+        if maxArgs is not None :
+            maxArgs = maxArgs - 1
+
     err = None
     if func.maxArgs == None :
-        if argCount < func.minArgs :
-            err = _INVALID_ARG_COUNT2 % (func_name, argCount, func.minArgs)
-    elif argCount < func.minArgs or argCount > func.maxArgs :
+        if argCount < minArgs :
+            err = _INVALID_ARG_COUNT2 % (func_name, argCount, minArgs)
+    elif argCount < minArgs or argCount > maxArgs :
         if func.minArgs == func.maxArgs :
-            err = _INVALID_ARG_COUNT1 % (func_name, argCount, func.minArgs)
+            err = _INVALID_ARG_COUNT1 % (func_name, argCount, minArgs)
         else :
-            err = _INVALID_ARG_COUNT3 % (func_name, argCount, func.minArgs, func.maxArgs)
+            err = _INVALID_ARG_COUNT3 % (func_name, argCount, minArgs, maxArgs)
 
     if err :
         warnings.append(Warning(caller, lastLineNum, err))
 
     return warnings
 
+def _getReferenceFromModule(module, identifier) :
+    func = module.functions.get(identifier, None)
+    if func is not None :
+        return func, None
+
+    c = module.classes.get(identifier, None)
+    if c is not None :
+        func = c.methods.get(_INIT, None)
+    return func, c
+
 def _getFunction(module, stackValue) :
-    """Return the function from the stack value and a bool to indicate if
-       an object is being constructed or not"""
+    'Return (function, class) from the stack value'
 
-    c = None
-    idList = []
     identifier = stackValue.data
-    if type(identifier) != types.StringType :
-        for element in stackValue.data :
-            idList.append(str(element))
-        identifier = idList[-1]
+    if type(identifier) == types.StringType :
+        return _getReferenceFromModule(module, identifier)
 
-        ref = string.join(idList[:-1], '.')
-        refModule = module.modules.get(ref, None)
+    # find the module this references
+    i, maxLen = 0, len(identifier)
+    while i < maxLen :
+        id = str(identifier[i])
+        if module.classes.has_key(id) :
+            break
+        refModule = module.modules.get(id, None)
         if refModule is not None :
             module = refModule
-        else :
-            c = module.classes.get(ref, None)
-            if c is None :
-                identifier = None
+        i = i + 1
 
-    func = module.functions.get(identifier, None)
-    if func is None :
-        # if we didn't find the function, maybe this is object creation
-        if c is None :
-            c = module.classes.get(identifier, None)
-        if c is not None :
-            func = c.methods.get(_INIT, None)
-    return func, c
+    # if we got to the end, there is only modules, nothing we can do
+    # we also can't handle if there is more than 2 items left
+    if i >= maxLen or (i+2) < maxLen :
+        return None, None
+
+    if (i+1) == maxLen :
+        return _getReferenceFromModule(module, identifier[-1])
+
+    c = module.classes.get(identifier[-2], None)
+    if c is None :
+        return None, None
+    return c.methods.get(identifier[-1], None), c
+
 
 def _addWarning(warningList, warning) :
     if warning != None :
@@ -291,7 +312,8 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
         try :
             m = c.methods[methodName]
             if m != None :
-                warn = _checkFunctionArgs(code, m, argCount, kwArgs, lastLineNum)
+                warn = _checkFunctionArgs(code, m, 1, argCount, kwArgs,
+                                          lastLineNum)
         except KeyError :
             if cfg().callingAttribute :
                 warn = Warning(code, lastLineNum, _INVALID_METHOD % methodName)
@@ -301,20 +323,24 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
         if loadValue.data == 'apply' :
             loadValue = stack[funcIndex+1]
         else :
-            func, is_ctor = _getFunction(module, loadValue)
+            func, refClass = _getFunction(module, loadValue)
             if func != None :
-                ctor = is_ctor and loadValue.data[-1] == _INIT
-                if ctor :
-                    argCount = argCount - 1
-                warn = _checkFunctionArgs(code, func, argCount, kwArgs, lastLineNum)
-                if ctor and argCount >= 0 and \
+                # there is an implied argument for object creation
+                create = (refClass is not None and
+                          loadValue.data[-1] != _INIT and
+                          func.function.func_name == _INIT)
+                warn = _checkFunctionArgs(code, func, create, argCount,
+                                          kwArgs, lastLineNum)
+                # print stack[funcIndex].__dict__, lastLineNum, create
+                if refClass and argCount > 0 and not create and \
+                   stack[funcIndex].type == Stack.TYPE_ATTRIBUTE and \
                    stack[funcIndex+1].data != cfg().methodArgName :
                     w = Warning(func, lastLineNum,
                                 _SELF_NOT_FIRST_ARG % cfg().methodArgName)
                     warn.append(w)
-            elif is_ctor and (argCount > 0 or len(kwArgs) > 0) :
-                if is_ctor.methods.has_key(_INIT) or \
-                   not issubclass(is_ctor.classObject, Exception) :
+            elif refClass and (argCount > 0 or len(kwArgs) > 0) :
+                if refClass.methods.has_key(_INIT) or \
+                   not issubclass(refClass.classObject, Exception) :
                     warn = Warning(code, lastLineNum, _NO_CTOR_ARGS)
 
     stack[:] = stack[:funcIndex] + [ Stack.makeFuncReturnValue(loadValue) ]

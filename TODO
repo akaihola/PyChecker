@@ -14,7 +14,6 @@ Longer Term goals:
 * Add check that private functions are used in module/class
 * Add check that subclass overrides method that only raises NotImplementedError
 * Add check for using object members outside of class
-* Fix error msg to base constructors (msg count is wrong)
 * Fix deriving from class by alias name
 * Fix sys.exc_value, etc. generating No attribute warning in except clause
 	(does anyone see this???)

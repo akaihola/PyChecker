@@ -203,7 +203,7 @@ class Class :
 
         if not methodName :
             methodName = self.__getMethodName(method.func_name, className)
-        self.methods[methodName] = function.Function(method, 1)
+        self.methods[methodName] = function.Function(method)
 
     def addMethods(self, classObject) :
         for classToken in _getClassTokens(classObject) :
