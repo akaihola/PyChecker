@@ -30,11 +30,12 @@ Bugs:
         globals() should use globals
         exec may use locals/globals
 
-        class C:
-              def f(a, b): pass
-              def g(a, b): pass
-              h = f
-              h = g			# redef of h, not caught now
+        Aliases:
+            class C:
+                  def f(a, b): pass
+                  def g(a, b): pass
+                  h = f
+                  h = g			# redef of h, not caught now
 
         foo = 1
         del foo	                        # should not be unused
@@ -79,6 +80,10 @@ If you want to add new checks, there are some parts to be aware of:
         Warning
                 A description of a warning emitted by pychecker.
 
+        CheckList
+                Contains "global" check information: cached module
+                data and the list of Check objects.
 
         Command line options are pulled from each check.
         A Warning is also turned into a boolean-style command line option.
+
