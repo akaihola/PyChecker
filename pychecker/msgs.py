@@ -80,3 +80,4 @@ VAR_DELETED_BEFORE_SET = "Variable (%s) deleted before being set"
 
 SET_EXCEPT_TO_BUILTIN = "Setting exception to builtin (%s), consider () around exceptions"
 USING_KEYWORD = "Using identifier (%s) which will become a keyword in version %s"
+MODIFYING_DEFAULT_ARG = "Modifying parameter (%s) with a default value may have unexpected consequences"

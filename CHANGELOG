@@ -1,5 +1,6 @@
 
 Version 0.9	- xx October 2001
+  * Add check for modifying a parameter that has a default value
   * Add check for using future keywords (e.g., yield)
   * Add check for using unary positive on variables (e.g., +x)
   * Add -V/--version option for printing PyChecker version

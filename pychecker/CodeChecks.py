@@ -174,6 +174,8 @@ _GLOBAL_FUNC_INFO = { 'abs': (Stack.TYPE_UNKNOWN, 1, 1),
                       'zip': (types.ListType, 1, None),
                     }
 
+_MUTABLE_TYPES = (types.ListType, types.DictType, types.InstanceType,)
+
 def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
     returnValue = Stack.makeFuncReturnValue(loadValue)
     func_name = loadValue.data
@@ -239,6 +241,15 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
         if loadValue.data == 'apply' :
             loadValue = code.stack[funcIndex+1]
         else :
+            if type(loadValue.data) == types.TupleType :
+                objectName = loadValue.data[0]
+                try :
+                    value = code.func.defaultValue(objectName)
+                    if type(value) in _MUTABLE_TYPES :
+                        code.addWarning(msgs.MODIFYING_DEFAULT_ARG % objectName)
+                except ValueError :
+                    pass
+
             func, refClass, create = _getFunction(codeSource.module, loadValue)
             if func != None :
                 _checkFunctionArgs(code, func, create, argCount, kwArgs, check_arg_count)
@@ -596,6 +607,7 @@ class Code :
 
     def __init__(self) :
         self.bytes = None
+        self.func = None
         self.func_code = None
         self.index = 0
         self.extended_arg = 0
@@ -624,6 +636,7 @@ class Code :
         self.codeObjects = {}
 
     def init(self, func) :
+        self.func = func
         self.func_code, self.bytes, self.index, self.maxCode, self.extended_arg = \
                         OP.initFuncCode(func.function)
         self.lastLineNum = self.func_code.co_firstlineno

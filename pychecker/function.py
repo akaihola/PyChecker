@@ -49,6 +49,14 @@ class Function :
     def isParam(self, name) :
         return name in self.arguments()
 
+    def defaultValue(self, name) :
+        func_code = self.function.func_code
+        arg_names = list(func_code.co_varnames[:func_code.co_argcount])
+        i = arg_names.index(name)
+        if i < self.minArgs :
+            raise ValueError
+        return self.function.func_defaults[i - self.minArgs]
+
     def varArgName(self) :
         if self.maxArgs is not None :
             return None
