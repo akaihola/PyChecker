@@ -200,6 +200,10 @@ def _checkAbstract(refClass, code, name):
         names = string.join(name_list, ", ")
         code.addWarning(msgs.METHODS_NEED_OVERRIDE % (names, name))
 
+_SEQUENCE_TYPES = (types.TupleType, types.ListType, types.StringType)
+try: _SEQUENCE_TYPES = _SEQUENCE_TYPES + (types.UnicodeType,)
+except AttributeError: pass
+
 def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                         check_arg_count = 1) :
     'Checks for warnings, returns function called (may be None)'
@@ -1236,6 +1240,23 @@ def _LINE_NUM(oparg, operand, codeSource, code) :
 
 def _UNPACK_SEQUENCE(oparg, operand, codeSource, code) :
     code.unpackCount = oparg
+    if code.stack:
+        top = code.stack[-1]
+        # if we know we have a tuple, make sure we unpack it into the
+        # right # of variables
+        topType = top.getType(code.typeMap)
+        if topType in _SEQUENCE_TYPES:
+            length = top.length
+            # we don't know the length, maybe it's constant and we can find out
+            if length == 0:
+                value = code.constants.get(str(top.data))
+                if type(value) in _SEQUENCE_TYPES:
+                    length = len(value)
+            if length > 0 and length != oparg:
+                code.addWarning(msgs.WRONG_UNPACK_SIZE % (length, oparg))
+        elif topType not in _UNCHECKABLE_STACK_TYPES:
+            code.addWarning(msgs.UNPACK_NON_SEQUENCE %
+                            (top.data, _getTypeStr(topType)))
 
 def _SLICE_1_ARG(oparg, operand, codeSource, code) :
     _popStackRef(code, operand)
