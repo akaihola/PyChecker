@@ -225,8 +225,7 @@ class AttributeCheck(Check):
                     file.warning(m.node, self.specialMethod, m.name, n,
                                  n > 1 and "s" or "")
                 name = m.name
-                if len(name) > 4 and \
-                   name.startswith('__') and \
+                if name.startswith('__') and \
                    name.endswith('__') and \
                    not special.has_key(name):
                     file.warning(m.node, self.notSpecial, name);
