@@ -46,3 +46,9 @@ class Z4(X):
     def m5(self): pass
     def m6(self): pass
 
+class AAA:
+    'should generate 1 warning'
+    __pychecker__ = 'exec'
+    def m1(self, a, b, c, d): pass
+    def m2(self, a, b, c, d, *args): exec a in d
+    def m3(self, a, b, c, d, *args): exec a

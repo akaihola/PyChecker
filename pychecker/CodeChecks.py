@@ -1193,6 +1193,13 @@ def _RETURN_VALUE(oparg, operand, codeSource, code) :
     if codeSource.calling_code is None :
         code.addReturn()
 
+def _EXEC_STMT(oparg, operand, codeSource, code) :
+    if cfg().usesExec :
+        if code.stack and code.stack[-1].isNone() :
+            code.addWarning(msgs.USES_GLOBAL_EXEC)
+        else :
+            code.addWarning(msgs.USES_EXEC)
+
 def _RAISE_VARARGS(oparg, operand, codeSource, code) :
     code.addRaise()
 
@@ -1224,6 +1231,7 @@ DISPATCH[ 65] = _BINARY_XOR
 DISPATCH[ 66] = _BINARY_OR
 DISPATCH[ 83] = _RETURN_VALUE
 DISPATCH[ 84] = _IMPORT_STAR
+DISPATCH[ 85] = _EXEC_STMT
 DISPATCH[ 90] = _STORE_NAME
 DISPATCH[ 91] = _DELETE_NAME
 DISPATCH[ 92] = _UNPACK_SEQUENCE

@@ -18,3 +18,5 @@ test_input/test38.py:44: Overridden method (m3) doesn't match signature in class
 test_input/test38.py:45: Overridden method (m4) doesn't match signature in class (test38.X)
 test_input/test38.py:46: Overridden method (m5) doesn't match signature in class (test38.X)
 test_input/test38.py:47: Overridden method (m6) doesn't match signature in class (test38.X)
+test_input/test38.py:53: Using the exec statement
+test_input/test38.py:54: Using the exec statement in global namespace

@@ -147,6 +147,9 @@ unaryPositive = 1
 #       modifying the value may have undesirable/unexpected side-effects
 modifyDefaultValue = 1
 
+# bool: check if the exec statement is used (possible security problems
+usesExec = 0
+
 # bool: check consistent return values
 checkReturnValues = 0
 

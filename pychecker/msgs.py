@@ -96,3 +96,6 @@ USING_NONE_RETURN_VALUE = "Using the return value from (%s) which is always None
 
 USING_SLOTS_IN_CLASSIC_CLASS = "Using __slots__ in classic class %s is not used by Python"
 EMPTY_SLOTS = "__slots__ are empty in %s"
+
+USES_EXEC = "Using the exec statement"
+USES_GLOBAL_EXEC = "Using the exec statement in global namespace"
