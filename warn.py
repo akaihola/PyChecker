@@ -457,7 +457,9 @@ def find(moduleList, cfg) :
             for base in c.allBaseClasses() :
                 baseModule = str(base)
                 if '.' in baseModule :
-                    baseModuleDir = string.split(baseModule, '.')[0]
+                    # make sure we handle import x.y.z
+                    packages = string.split(baseModule, '.')
+                    baseModuleDir = string.join(packages[:-1], '.')
                     globalRefs[baseModuleDir] = baseModule
 
             func_code = None
