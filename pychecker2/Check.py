@@ -9,6 +9,7 @@ class WarningOpt(Options.BoolOpt):
     def __init__(self, longName, warning):
         self.warning = warning
         self.longName = longName
+        self.default = warning.value
 
     def set_value(self, unused):
         self.warning.value = not self.warning.value
@@ -18,6 +19,9 @@ class WarningOpt(Options.BoolOpt):
 
     def get_description(self):
         return self.warning.description
+
+    def reset(self):
+        self.warning.value = self.default
 
 class CheckList:
 

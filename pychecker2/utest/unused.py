@@ -50,11 +50,11 @@ class UnusedTestCase(WarningTester):
         self.silent('_x, _y = 1, 2\n')
         self.silent('def f(a, (b, c)): print a, b\n')
         
-        #self.argv = ['--no-unpackedUsed']
-        #self.warning('_x, _y = 1, 2\n'
-        #             'print _x\n',
-        #             1, VariableChecks.UnusedCheck.unused, '_y')
-        #self.warning('def f(a, (b, c)): print a, b\n',
-        #             1, VariableChecks.UnusedCheck.unused, 'c')
+        self.argv = ['--no-unpackedUsed']
+        self.warning('_x, _y = 1, 2\n'
+                     'print _x\n',
+                     1, VariableChecks.UnusedCheck.unused, '_y')
+        self.warning('def f(a, (b, c)): print a, b\n',
+                     1, VariableChecks.UnusedCheck.unused, 'c')
 
         

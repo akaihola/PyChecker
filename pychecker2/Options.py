@@ -7,6 +7,7 @@ class Opt:
         self.longName = longName
         self.description = description
         setattr(object, longName, default)
+        self.default = default
         
     def set_value(self, value):
         setattr(self.object, self.longName, value)
@@ -19,6 +20,9 @@ class Opt:
 
     def is_boolean(self):
         return None
+    
+    def reset(self):
+        setattr(self.object, self.longName, self.default)
 
 class BoolOpt(Opt):
 
@@ -30,6 +34,7 @@ class BoolOpt(Opt):
         
     def is_boolean(self):
         return 1
+
 
 MAJOR = 'Major'
 ERROR = 'Error'
@@ -55,6 +60,7 @@ class Options:
             longopts = {}
             for opts in self.options.values():
                 for opt in opts:
+                    opt.reset()
                     optname = opt.longName
                     if opt.is_boolean() and opt.get_value():
                         optname = "no-" + opt.longName
