@@ -9,24 +9,21 @@ Very similar to the dis module, but dis does not exist in Jython,
 so recreate the small portion we need here.
 """
 
-import dis
-
-name = dis.opname
-
-def LINE_NUM(op):              return name[op] == 'SET_LINENO'
-def LOAD_GLOBAL(op):           return name[op] == 'LOAD_GLOBAL'
-def LOAD_CONST(op):            return name[op] == 'LOAD_CONST'
-def LOAD_FAST(op):             return name[op] == 'LOAD_FAST'
-def LOAD_ATTR(op):             return name[op] == 'LOAD_ATTR'
-def STORE_ATTR(op):            return name[op] == 'STORE_ATTR'
-def IMPORT_FROM(op):           return name[op] == 'IMPORT_FROM'
-def IMPORT_STAR(op):           return name[op] == 'IMPORT_STAR'
-def UNARY_POSITIVE(op):        return name[op] == 'UNARY_POSITIVE'
-def UNARY_NEGATIVE(op):        return name[op] == 'UNARY_NEGATIVE'
-def UNARY_INVERT(op):          return name[op] == 'UNARY_INVERT'
-def RETURN_VALUE(op):          return name[op] == 'RETURN_VALUE'
-def JUMP_FORWARD(op):          return name[op] == 'JUMP_FORWARD'
-def RAISE_VARARGS(op):         return name[op] == 'RAISE_VARARGS'
+def LINE_NUM(op):              return op == 127
+def LOAD_GLOBAL(op):           return op == 116
+def LOAD_CONST(op):            return op == 100
+def LOAD_FAST(op):             return op == 124
+def LOAD_ATTR(op):             return op == 105
+def STORE_ATTR(op):            return op == 95
+def POP_TOP(op):               return op == 1
+def IMPORT_FROM(op):           return op == 108
+def IMPORT_STAR(op):           return op == 84
+def UNARY_POSITIVE(op):        return op == 10
+def UNARY_NEGATIVE(op):        return op == 11
+def UNARY_INVERT(op):          return op == 15
+def RETURN_VALUE(op):          return op == 83
+def JUMP_FORWARD(op):          return op == 110
+def RAISE_VARARGS(op):         return op == 130
 
 def UNPACK_SEQUENCE(op) :
     "Deal w/Python 1.5.2 (UNPACK_[LIST|TUPLE]) or 2.0 (UNPACK_SEQUENCE)"
@@ -90,3 +87,14 @@ def initFuncCode(func) :
     code = func_code.co_code
     return func_code, code, 0, len(code), 0
 
+# this code is here for debugging purposes.
+# Jython doesn't support dis, so don't rely on it
+try :
+    import dis
+    name = dis.opname
+except ImportError :
+    class Name:
+        'Turn name[x] into x'
+        def __getitem__(self, x):
+            return str(x)
+    name = Name()
