@@ -182,8 +182,16 @@ class Class :
 
     def __init__(self, name, module) :
         self.name = name
-        self.module = module
         self.classObject = getattr(module, name)
+
+        # Argh -- some ExtensionClasses don't have a __module__ attribute.
+        modname = getattr(self.classObject, '__module__', None)
+        self.module = sys.modules.get(modname)
+        if not self.module:
+            self.module = module
+            sys.stderr.write("warning: couldn't find real module for class %r "
+                             "(module name: %r)\n"
+                             % (self.classObject, modname))
         self.ignoreAttrs = 0
         self.methods = {}
         self.members = { '__class__': types.ClassType,
@@ -439,7 +447,8 @@ class Module :
             exc_type, exc_value, exc_tb = sys.exc_info()
             raise exc_type, exc_value
         except :
-            return importError(self.moduleName)
+            importError(self.moduleName)
+            return 0
 
     def initModule(self, module) :
         self.module = module
