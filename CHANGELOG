@@ -1,11 +1,14 @@
 
 Version 0.3	- xx April 2001
+  * Fix some checker crashes (oops)
   * Add warnings for code complexity (lines/branches/returns per func)
   * Add more configuration options
   * Don't produce spurious warning for:  x(y, { 'a': 'b' })
   * Fix warnings that indicate they are from a base class file,
     rather than real file
   * Fix warnings for **kwArgs not allowed, but using named args
+  * Add config option for warning when using attribute as a function
+  	(off by default, old behaviour was on)
 
 Version 0.2.5	- 12 April 2001
   * Add back support for Python 1.5.2 (again)

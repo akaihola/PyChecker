@@ -32,7 +32,8 @@ class Config :
         self.importUsed = 1
         self.localVariablesUsed = 1
         self.unusedLocalTuple = 0
-        self.initDefinedInSubclass = 1
+        self.initDefinedInSubclass = 0
+        self.callingAttribute = 0
         self.namedArgs = 1
         self.blacklist = _DEFAULT_BLACK_LIST
 
@@ -68,6 +69,7 @@ _OPTIONS = [
  ('n', 0, 'namedargs', 'namedArgs', 'functions called with named arguments (like keywords)'),
  ('a', 0, 'initattr', 'onlyCheckInitForMembers', 'Attributes (members) must be defined in __init__()'),
  ('I', 0, 'initsubclass', 'initDefinedInSubclass', 'Subclass.__init__() not defined'),
+ ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
  None,
  ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules'),
  ('L', 1, 'maxlines', 'maxLines', 'maximum lines in a function'),

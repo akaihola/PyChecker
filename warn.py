@@ -210,7 +210,8 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
             if m != None :
                 warn = _checkFunctionArgs(m, argCount, kwArgs, lastLineNum)
         except KeyError :
-            warn = Warning(code, lastLineNum, _INVALID_METHOD % loadValue[1])
+            if _cfg.callingAttribute :
+                warn = Warning(code, lastLineNum, _INVALID_METHOD % loadValue[1])
 
     stack[:] = stack[:funcIndex] + [ '0' ]
     return warn, loadValue
