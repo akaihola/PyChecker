@@ -50,6 +50,11 @@ class ClassTestCase(WarningTester):
                     '  def __init__(self): self.x = 1\n'
                     'class C(D):\n'
                     '  def f(self): return self.x\n')
+        self.silent('from pychecker2.utest.data import *\n'
+                    'class C(Data):\n'
+                    '  def get_value2(self):\n'
+                    '    return self.get_value()\n'
+                    '\n')
         imp = '\n\nimport'
         frm = '\n\nfrom'
         import_abuse = [
@@ -59,6 +64,7 @@ class ClassTestCase(WarningTester):
             (frm, 'pychecker2.utest import data as F',      'F.Data'),
             (frm, 'pychecker2.utest.data import Data',      'Data'),
             (frm, 'pychecker2.utest.data import Data as F', 'F'),
+            (frm, 'pychecker2.utest.data import *',         'Data'),
             ('class A:\n  class B:\n    import pychecker2.utest.data',
              '',
              'A.B.pychecker2.utest.data.Data'),
