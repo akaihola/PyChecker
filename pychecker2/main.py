@@ -14,7 +14,7 @@ from pychecker2 import ClassChecks
 from pychecker2 import ReachableChecks
 from pychecker2 import FormatStringChecks
 
-def _print_warnings(f):
+def _print_warnings(f, out):
     if not f.warnings:
         return 0
     f.warnings.sort()
@@ -24,10 +24,11 @@ def _print_warnings(f):
         if warning.value:
             msg = warning.message % args
             if msg != last_msg or line != last_line:
-                print '%s:%s %s' % (f.name, line or '[unknown line]', msg)
+                print >>out, \
+                      '%s:%s %s' % (f.name, line or '[unknown line]', msg)
                 last_msg, last_line = msg, line
     if last_msg:
-        print
+        print >>out
     return 1
 
 def create_checklist(options):
@@ -64,13 +65,13 @@ def main():
     for f in files:
         checker.check_file(f)
         if options.incremental and not options.profile:
-            _print_warnings(f)
+            _print_warnings(f, sys.stdout)
 
     result = 0
     if not options.incremental and not options.profile:
         files.sort()
         for f in files:
-            result |=  _print_warnings(f)
+            result |=  _print_warnings(f, sys.stdout)
 
         if not result and options.verbose:
             print >>sys.stdout, None
