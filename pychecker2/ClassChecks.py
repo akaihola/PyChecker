@@ -71,26 +71,21 @@ def get_base_names(scope):
     return names
 
 def find_in_module(package, names, checker):
-    if len(names) < 1:
-        return None
-    elif len(names) == 1:
-        f = checker.check_module(package)
-        if f:
-            return find_defs(f.root_scope, names[:1], checker)
-
-    else:
-        name = package.__name__ + "." + '.'.join(names[:-1])
+    name = '.'.join(package.__name__.split(".") + names[:-1])
+    f = None
+    try:
         module = __import__(name, globals(), {}, [''])
         f = checker.check_module(module)
-        if f:
-            return find_defs(f.root_scope, names[-1:], checker)
+    except ImportError:
+        pass
+    if f:
+        return find_defs(f.root_scope, names[-1:], checker)
     return None
                  
 def find_defs(scope, names, checker):
     "Drill down scopes to find definition of x.y.z"
     root = names[0]
-    for c in type_filter(scope.get_children(),
-                         symbols.FunctionScope, symbols.ClassScope):
+    for c in scope.get_children():
         if getattr(c, 'name', '') == root:
             if len(names) == 1:
                 return c
@@ -98,16 +93,17 @@ def find_defs(scope, names, checker):
     return find_imported_class(scope.imports, names, checker)
 
 def find_imported_class(imports, names, checker):
-    # maybe defined by import
+    # may be defined by import
     for i in range(1, len(names) + 1):
         name = ".".join(names[:i])
         if imports.has_key(name):
             ref = imports[name]
+            pathnames = names[i:]
             if ref.remotename:
-                return find_in_module(ref.module, [ref.remotename] + names[i:], checker)
-            else:
-                if names[i:]:
-                    return find_in_module(ref.module, names[i:], checker)
+                pathnames = [ref.remotename] + pathnames
+            result = find_in_module(ref.module, pathnames, checker)
+            if result:
+                return result
     return None
 
 def find_local_class(scope, name, checker):
