@@ -134,6 +134,10 @@ class UnusedCheck(Check):
             
             # ensure that every defined variable is used in some scope
             for var in scope.defs:
+                # ignore '_'... just because
+                if var == '_':
+                    continue
+
                 # check for method self
                 if not self.reportUnusedSelf and _is_self(scope, var):
                     continue
@@ -310,6 +314,10 @@ class UsedBeforeSetCheck(Check):
                 
             visitClass = visitFunction
             visitAssName = visitFunction
+
+            def visitGlobal(self, node):
+                for name in node.names:
+                    self.defines.append(name)
             
             def visitListComp(self, n):
                 # visit qualifiers before expression
