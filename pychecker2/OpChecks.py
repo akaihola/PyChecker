@@ -31,7 +31,7 @@ class OpCheck(Check):
             compiler.walk(file.parseTree, OpVisitor())
 
 class ExceptCheck(Check):
-    emptyExcept = Warning('Warn about "except:',
+    emptyExcept = Warning('Warn about "except:"',
                           'Empty except clauses can hide unexpected errors')
     
     def check(self, file, unused_checklist):
