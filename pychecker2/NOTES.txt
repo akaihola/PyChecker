@@ -6,29 +6,60 @@ Option handling.  In general, pychecker2 tries to distribute checks to
 separate classes.  These classes are more self-contained: they hold
 onto the option variables and define the Warning objects they support.
 
+ToDo:
+        All missing stuff
+        Always returning None
+
 Items still missing:
         Error suppression (errors may be suppressed globally)
 
-        Typing of any kind:
-             consistent return types
-             consistent return styles (implicit and explicit)
+        Self as arg in function
+        Format strings
+        Member not used
+        Return value from __init__
+        Wrong # of args on function (including ctor)
+        Member not initialized in __init__
+        Function arguments, kwargs
+        Not calling base class __init__
+        Explicit/implicit returns
+        Abstract methods
+        constant in conditional
+        Define None
+        Detail of exception is an exception
+        Local used after deleted, already deleted, deleted before set
+        Using `self` in __repr__
+        Using return value which is always None
+        locals() should use locals
+        globals() should use globals
+        exec may use locals/globals
 
+        Modifying a default parameter
+        Tuple access to list list[1, 2]
+        List .append() takes one argument
+        Return None from __getattr__
+        string iteration
+        Inconsistent return type
+        Object has no attr
+        Method read as attribute, but not called:
+        Function always returns None (use empty return)
+        Unpack wrong size
+        Unpack wrong type
+
+        Exec warnings
+        Security warning: input()
+
+        No __init__ in subclass
+        Module imports itself
+        Complexity
+        Doc strings
         New python features:
              slots
              properties
              integer division
 
-        Complexity
-
-        Doc strings
-
-        Speed
-
 Bugs:
+        Speed
         Is __file__ a builtin?
-        locals() should use locals
-        globals() should use globals
-        exec may use locals/globals
 
         Aliases:
             class C:
