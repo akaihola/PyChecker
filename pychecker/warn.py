@@ -68,7 +68,7 @@ _TOO_MANY_BRANCHES = "Function (%s) has too many branches (%d)"
 _TOO_MANY_RETURNS = "Function (%s) has too many returns (%d)"
 
 _IMPLICIT_AND_EXPLICIT_RETURNS = "Function returns a value and also implicitly returns None"
-_INCONSISTENT_RETURN_TYPE = "Fuction return types are inconsistent"
+_INCONSISTENT_RETURN_TYPE = "Function return types are inconsistent"
 
 _INVALID_FORMAT = "Invalid format string, problem starts near: '%s'"
 _INVALID_FORMAT_COUNT = "Format string argument count (%d) doesn't match arguments (%d)"
