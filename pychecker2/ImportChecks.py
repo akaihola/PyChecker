@@ -12,12 +12,13 @@ class ModuleReference:
         self.nodes = nodes
 
     def __getstate__(self):
+        print self.module.__name__, self.localname, self.remotename
         return (self.localname, self.remotename, self.module.__name__, 
                 self.nodes)
 
     def __setstate__(self, data):
-        (self.localname, self.remotename, self.module, self.nodes) = data
-        self.module = __import__(self.module)
+        (self.localname, self.remotename, module, self.nodes) = data
+        self.module = __import__(module, globals(), {}, [''])
 
 class ImportCheck(Check):
     '''
