@@ -21,13 +21,15 @@ _DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__',
                                   '__all__', ]
 _DEFAULT_UNUSED_LIST = [ '_', 'empty', 'unused', 'dummy', ]
 
-_OPTIONS = [ 
+_OPTIONS = [
+    ('Major Options', [
  ('e', 0, 'errors', None, 'turn off all warnings which are not likely errors'),
  ('s', 0, 'doc', None, 'turn off all warnings for no doc strings'),
  ('m', 0, 'moduledoc', 'noDocModule', 'no module doc strings'),
  ('c', 0, 'classdoc', 'noDocClass', 'no class doc strings'),
  ('f', 0, 'funcdoc', 'noDocFunc', 'no function/method doc strings'),
- None,
+     ]),
+    ('Error Control', [
  ('i', 0, 'import', 'importUsed', 'unused imports'),
  ('k', 0, 'pkgimport', 'packageImportUsed', 'unused imports from __init__.py'),
  ('M', 0, 'reimportself', 'reimportSelf', 'module imports itself'),
@@ -49,42 +51,47 @@ _OPTIONS = [
  ('G', 0, 'selfused', 'ignoreSelfUnused', 'ignore if self is unused in methods'),
  ('o', 0, 'override', 'checkOverridenMethods', 'check if overridden methods have the same signature'),
  ('U', 0, 'reuseattr', 'redefiningFunction', 'check if function/class/method names are reused'),
- None,
+     ]),
+    ('Possible Errors', [
  ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
  ('C', 0, 'implicitreturns', 'checkImplicitReturns', 'check if using implict and explicit return values'),
  ('O', 0, 'objattrs', 'checkObjectAttrs', 'check that attributes of objects exist'),
  ('D', 0, 'intdivide', 'intDivide', 'check if using integer division'),
- None,
+     ]),
+    ('Suppressions', [
  ('q', 0, 'stdlib', 'ignoreStandardLibrary', 'ignore warnings from files under standard library'),
  ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules\n\t\t\t'),
- ('V', 1, 'varlist', 'variablesToIgnore', 'ignore global variables not used if name is one of\n\t\t\t'),
- ('E', 1, 'unusednames', 'unusedNames', 'ignore unused locals/arguments if name is one of\n\t\t\t'),
+ ('V', 1, 'varlist', 'variablesToIgnore', 'ignore global variables not used if name is one of these values\n\t\t\t'),
+ ('E', 1, 'unusednames', 'unusedNames', 'ignore unused locals/arguments if name is one of these values\n\t\t\t'),
+     ]),
+    ('Complexity', [
  ('L', 1, 'maxlines', 'maxLines', 'maximum lines in a function'),
  ('B', 1, 'maxbranches', 'maxBranches', 'maximum branches in a function'),
  ('R', 1, 'maxreturns', 'maxReturns', 'maximum returns in a function'),
  ('J', 1, 'maxargs', 'maxArgs', 'maximum # of arguments to a function'),
  ('K', 1, 'maxlocals', 'maxLocals', 'maximum # of locals in a function'),
- None,
+     ]),
+    ('Debug', [
  ('F', 0, 'rcfile', None, 'print a .pycheckrc file generated from command line args'),
  ('P', 0, 'printparse', 'printParse', 'print internal checker parse structures'),
  ('d', 0, 'debug', 'debug', 'turn on debugging for checker'),
  ('Q', 0, 'quiet', None, 'turn off all output except warnings'),
- None,
+     ])
 ]
 
 def init() :
     GET_OPT_VALUE = [ ('', ''), (':', '='), ]
     shortArgs, longArgs = "", []
-    for opt in _OPTIONS :
-        if opt != None :
+    for _, group in _OPTIONS :
+        for opt in group:
             optStr = GET_OPT_VALUE[opt[1]]
             shortArgs = shortArgs + opt[0] + optStr[0]
             longArgs.append(opt[2] + optStr[1])
             longArgs.append('no-' + opt[2] + optStr[1])
 
     options = {}
-    for opt in _OPTIONS :
-        if opt != None :
+    for _, group in _OPTIONS :
+        for opt in group:
             shortArg, useValue, longArg, member, description = opt
             options['-' + shortArg] = opt
             options['--no-' + longArg] = options['--' + longArg] = opt
@@ -116,8 +123,8 @@ _RC_FILE_HEADER = '''#
 def outputRc(cfg) :
     import time
     output = _RC_FILE_HEADER % time.ctime(time.time())
-    for opt in _OPTIONS :
-        if opt != None :
+    for name, group in _OPTIONS :
+      for group in _OPTIONS :
             shortArg, useValue, longArg, member, description = opt
             if member is None :
                 continue
@@ -291,21 +298,21 @@ def usage(cfg = None) :
     print "Usage for: checker.py [options] PACKAGE ...\n"
     print "    PACKAGEs can be a python package, module or filename\n"
     print "Long options can be preceded with no- to turn off (e.g., no-namedargs)\n"
-    print "Options:           Change warning for ... [default value]"
-
+    print "Category and"
+    print "Options:               Change warning for ... [default value]"
+    
     if cfg is None :
         cfg = Config()
-    for opt in _OPTIONS :
-        if opt == None :
-            print ""
-            continue
+    for name, group in _OPTIONS :
+        print
+        print name + ":"
+        for opt in group:  
+            shortArg, useValue, longArg, member, description = opt
+            defValue = None
+            if member != None :
+                defValue = cfg.__dict__[member]
 
-        shortArg, useValue, longArg, member, description = opt
-        defValue = None
-        if member != None :
-            defValue = cfg.__dict__[member]
-
-        printArg(shortArg, longArg, description, defValue, useValue)
+            printArg(shortArg, longArg, description, defValue, useValue)
 
 
 def setupFromArgs(argList) :

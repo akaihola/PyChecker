@@ -13,30 +13,31 @@ class ConfigDialog:
         self._tk = tk
         self._cfg, _, _ = Config.setupFromArgs(sys.argv)
 
-        self._opts = []
         self._optMap = {}
-        for opt in Config._OPTIONS:
-            field = None
-            if opt:
-                _, useValue, longArg, member, description = opt
-                value = None
-                if member:
-                    value = getattr(self._cfg, member)
-                    description = member + ": " + description.capitalize()
-                tk.option_add('*' + longArg + ".help", description)
-                if useValue:
-                    if type(value) == type([]):
-                        field = List(longArg, value)
-                    elif type(value) == type(1):
-                        field = Number(longArg, int(value))
-                    elif type(value) == type(''):
-                        field = Text(longArg, value)
-                    else:
-                        field = Boolean(longArg, value)
-                else:
-                    field = Boolean(longArg, value)
-                self._optMap[longArg] = field
-            self._opts.append(field)
+        self._opts = []
+        for name, group in Config._OPTIONS:
+          opts = []
+          for _, useValue, longArg, member, description in group:
+              value = None
+              if member:
+                  value = getattr(self._cfg, member)
+                  description = member + ": " + description.capitalize()
+                  description = description.strip()
+              tk.option_add('*' + longArg + ".help", description)
+              if useValue:
+                  if type(value) == type([]):
+                      field = List(longArg, value)
+                  elif type(value) == type(1):
+                      field = Number(longArg, int(value))
+                  elif type(value) == type(''):
+                      field = Text(longArg, value)
+                  else:
+                      field = Boolean(longArg, value)
+              else:
+                  field = Boolean(longArg, value)
+              self._optMap[longArg] = field
+              opts.append(field)
+          self._opts.append( (name, opts))
         self._help = None
 
     def help(self, w):
@@ -57,14 +58,16 @@ class ConfigDialog:
         self._fields = {}
         row = 0
         col = 0
-        for opt in self._opts:
-            if opt:
-                f = opt.field(frame)
-                f.grid(row=row, col=col, sticky=Tkinter.E + Tkinter.W)
-                row += 1
-            else:
-                col += 1
-                row = 0
+        for name, opts in self._opts:
+          label = Tkinter.Label(frame, text=name + ":")
+          label.grid(row=row, col=col, sticky=Tkinter.W)
+          row += 1
+          for opt in opts:
+              f = opt.field(frame)
+              f.grid(row=row, col=col, sticky=Tkinter.E + Tkinter.W)
+              row += 1
+          col += 1
+          row = 0
         for c in range(col):
             frame.columnconfigure(c, weight=1)
 
