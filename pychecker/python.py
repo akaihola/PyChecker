@@ -25,14 +25,14 @@ GLOBAL_FUNC_INFO = { '__import__': (types.ModuleType, 1, 4),
                      'cmp': (types.IntType, 2, 2),
                      'coerce': ([ types.NoneType, types.TupleType ], 2, 2),
                      'compile': (types.CodeType, 3, 3),
-                     'complex': (types.ComplexType, 1, 2),
+                     'complex': (types.ComplexType, 1, 2, ['real', 'imag']),
                      'delattr': (types.NoneType, 2, 2),
                      'dir': (types.ListType, 0, 1),
                      'divmod': (types.TupleType, 2, 2),
                      'eval': (Stack.TYPE_UNKNOWN, 1, 3),
                      'execfile': (types.NoneType, 1, 3),
                      'filter': (types.ListType, 2, 2),
-                     'float': (types.FloatType, 1, 1),
+                     'float': (types.FloatType, 1, 1, ['x']),
                      'getattr': (Stack.TYPE_UNKNOWN, 2, 3),
                      'globals': (types.DictType, 0, 0),
                      'hasattr': (BOOL, 2, 2),
@@ -40,19 +40,19 @@ GLOBAL_FUNC_INFO = { '__import__': (types.ModuleType, 1, 4),
                      'hex': (types.StringType, 1, 1),
                      'id': (types.IntType, 1, 1),
                      'input': (Stack.TYPE_UNKNOWN, 0, 1),
-                     'int': (types.IntType, 1, 2),
+                     'int': (types.IntType, 1, 2, ['x']),
                      'intern': (types.StringType, 1, 1),
                      'isinstance': (BOOL, 2, 2),
                      'issubclass': (BOOL, 2, 2),
                      'len': (types.IntType, 1, 1),
-                     'list': (types.ListType, 1, 1),
+                     'list': (types.ListType, 1, 1, ['sequence']),
                      'locals': (types.DictType, 0, 0),
-                     'long': (types.LongType, 1, 2),
+                     'long': (types.LongType, 1, 2, ['x']),
                      'map': (types.ListType, 2, None),
                      'max': (Stack.TYPE_UNKNOWN, 1, None),
                      'min': (Stack.TYPE_UNKNOWN, 1, None),
                      'oct': (types.StringType, 1, 1),
-                     'open': (types.FileType, 1, 3),
+                     'open': (types.FileType, 1, 3, ['name', 'mode', 'buffering']),
                      'ord': (types.IntType, 1, 1),
                      'pow': (Stack.TYPE_UNKNOWN, 2, 3),
                      'range': (types.ListType, 1, 3),
@@ -63,16 +63,17 @@ GLOBAL_FUNC_INFO = { '__import__': (types.ModuleType, 1, 4),
                      'round': (types.FloatType, 1, 2),
                      'setattr': (types.NoneType, 3, 3),
                      'slice': (types.SliceType, 1, 3),
-                     'str': (types.StringType, 1, 1),
-                     'tuple': (types.TupleType, 1, 1),
-                     'type': (types.TypeType, 1, 1),
+                     'str': (types.StringType, 1, 1, ['object']),
+                     'tuple': (types.TupleType, 1, 1, ['sequence']),
+                     'type': (types.TypeType, 1, 1, ['name', 'bases', 'dict']),
                      'vars': (types.DictType, 0, 1),
                      'xrange': (types.ListType, 1, 3),
                    }
 
 if utils.pythonVersion() >= utils.PYTHON_2_2 :
     GLOBAL_FUNC_INFO['compile'] = (types.CodeType, 3, 5)
-    GLOBAL_FUNC_INFO['dict'] = (types.DictType, 0, 1)
+    GLOBAL_FUNC_INFO['dict'] = (types.DictType, 0, 1, ['items'])
+    GLOBAL_FUNC_INFO['file'] = GLOBAL_FUNC_INFO['open']
     GLOBAL_FUNC_INFO['int'] = (types.IntType, 0, 2)
     GLOBAL_FUNC_INFO['list'] = (types.ListType, 0, 1)
     GLOBAL_FUNC_INFO['long'] = (types.LongType, 0, 2)
@@ -82,18 +83,21 @@ if utils.pythonVersion() >= utils.PYTHON_2_2 :
 
     GLOBAL_FUNC_INFO['classmethod'] = (types.MethodType, 1, 1)
     GLOBAL_FUNC_INFO['iter'] = (Stack.TYPE_UNKNOWN, 1, 2)
-    GLOBAL_FUNC_INFO['property'] = (Stack.TYPE_UNKNOWN, 0, 4, ['getx', 'setx', 'delx', 'doc'])
+    GLOBAL_FUNC_INFO['property'] = (Stack.TYPE_UNKNOWN, 0, 4, ['fget', 'fset', 'fdel', 'doc'])
     GLOBAL_FUNC_INFO['super'] = (Stack.TYPE_UNKNOWN, 1, 2)
     GLOBAL_FUNC_INFO['staticmethod'] = (types.MethodType, 1, 1)
 
-    GLOBAL_FUNC_INFO['bool'] = (BOOL, 1, 1)
+    GLOBAL_FUNC_INFO['bool'] = (BOOL, 1, 1, ['x'])
 
 if hasattr(types, 'UnicodeType') :
     GLOBAL_FUNC_INFO['unichr'] = (types.UnicodeType, 1, 1)
-    GLOBAL_FUNC_INFO['unicode'] = (types.UnicodeType, 1, 3)
+    GLOBAL_FUNC_INFO['unicode'] = (types.UnicodeType, 1, 3, ['string', 'encoding', 'errors'])
 
 if globals().has_key('zip') :
     GLOBAL_FUNC_INFO['zip'] = (types.ListType, 1, None)
+
+if hasattr(types, 'enumerate'):
+    GLOBAL_FUNC_INFO['enumerate'] = (types.TupleType, 1, 1, ['sequence'])
 
 _STRING_METHODS = { 'capitalize': (types.StringType, 0, 0),
                     'center': (types.StringType, 1, 1),
