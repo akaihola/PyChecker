@@ -356,10 +356,10 @@ def getBlackList(moduleList) :
 
 def getStandardLibrary() :
     if cfg().ignoreStandardLibrary :
-        import os.path
-        from distutils import sysconfig
-
         try :
+            import os.path
+            from distutils import sysconfig
+
             std_lib = sysconfig.get_python_lib()
             path = os.path.split(std_lib)
             if path[1] == 'site-packages' :
