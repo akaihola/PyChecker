@@ -12,7 +12,6 @@ Longer Term goals:
 * Make check for 'self' a list instead of a string
 * Check function return values - partially complete
 * Add check for unreachable code
-* Add check for a[1,2] for lists (ok for dict)
 * Add check for except: pass
 * Add check that private functions are used in module/class
 * Add check that subclass overrides method that only raises NotImplementedError

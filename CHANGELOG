@@ -1,5 +1,6 @@
 
 Version 0.8	- xx August 2001
+  * Add check for accessing list as list[1,2], should be slice 1:2
   * Add -J/maxargs to warn when using too many arguments
   * Add -K/maxlocals to warn when using too many local variables
   * Add -D/intdivide to warn when using integer division
@@ -13,7 +14,7 @@ Version 0.8	- xx August 2001
 	(Instantiating object with arguments, but no constructor, etc)
   * Fix spurious warnings when using lambdas
   * Fix spurious warning (No global Y) when using: from X import Y
-	(problem in python 1.5 only)
+	(problem in python 1.5/1.6 only)
 
 Version 0.7.5	- 22 July 2001
   * Suppress warnings on a per module/function/class/method basis

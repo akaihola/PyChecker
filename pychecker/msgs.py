@@ -68,3 +68,4 @@ USING_STAR_IN_FORMAT_MAPPING = "Can't use * in formats when using a mapping (dic
 CANT_MIX_MAPPING_IN_FORMATS = "Can't mix tuple/mapping (dictionary) formats in same format string"
 
 INTEGER_DIVISION = "Using integer division (%s / %s) may return integer or float"
+USING_TUPLE_ACCESS_TO_LIST = "Using a tuple instead of slice as list accessor for (%s)"

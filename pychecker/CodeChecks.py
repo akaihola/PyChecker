@@ -729,6 +729,11 @@ _POP_TOP = _BINARY_POWER = _BINARY_MULTIPLY = _BINARY_DIVIDE = \
            _BINARY_AND = _BINARY_XOR = _BINARY_OR = _pop
 
 def _BINARY_SUBSCR(oparg, operand, codeSource, code) :
+    if len(code.stack) >= 2 :
+        stack = code.stack
+        varType = code.typeMap.get(stack[-2].data, [])
+        if types.ListType in varType and stack[-1].type == types.TupleType :
+            code.addWarning(msgs.USING_TUPLE_ACCESS_TO_LIST % stack[-2].data)
     _popStackRef(code, operand)
 
 def _isint(stackItem, code) :

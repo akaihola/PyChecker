@@ -1,0 +1,6 @@
+Processing test51...
+
+Warnings...
+
+test_input/test51.py:7: Using a tuple instead of slice as list accessor for (n)
+test_input/test51.py:8: Using a tuple instead of slice as list accessor for (n)
