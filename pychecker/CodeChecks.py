@@ -120,6 +120,16 @@ def _getFunction(module, stackValue) :
         return None, None, 0
     return c.methods.get(identifier[-1], None), c, 0
 
+def _validateKwArgs(code, info, func_name, kwArgs):
+    if len(info) < 4:
+        code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW % func_name)
+    elif not info[3]:
+        return
+
+    for arg in kwArgs:
+        if arg not in info[3]:
+            code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW_ARG % (func_name, arg))
+
 def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
     returnValue = Stack.makeFuncReturnValue(loadValue, argCount)
     func_name = loadValue.data
@@ -136,12 +146,7 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
                     code.addWarning(msgs.USES_CONST_ATTR % func_name)
 
             if kwArgs:
-                if len(info) < 4:
-                    code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW % func_name)
-                elif info[3]:
-                    for arg in kwArgs:
-                        if arg not in info[3]:
-                            code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW_ARG % (func_name, arg))
+                _validateKwArgs(code, info, func_name, kwArgs)
             elif check_arg_count :
                 _checkFunctionArgCount(code, func_name, argCount,
                                        info[1], info[2])
@@ -164,7 +169,7 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
                 methodInfo = builtinType.get(func_name[1])
                 # set func properly
                 if kwArgs :
-                    code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW % func_name[1])
+                    _validateKwArgs(code, methodInfo, func_name[1], kwArgs)
                 elif methodInfo :
                     returnValue = Stack.Item(func_name[1], methodInfo[0])
                     returnValue.setStringType(methodInfo[0])
