@@ -12,7 +12,7 @@ for test_file in $TESTS ; do
     echo "Testing $test_file ..."
     test_name=`basename $test_file .py`
     test_path=$TMP/$test_name
-    ./checker.py $test_file > $test_path
+    ./pychecker/checker.py $test_file > $test_path
     diff $test_path test_expected/$test_name
     if [ $? -ne 0 ]; then
     	error=`expr $error + 1`
