@@ -1,7 +1,8 @@
 
 * Check code in module scope (not in a function/method) - partially done
-* Add check that private functions are used in module
+* Add check that private functions are used in module/class
 * Add check for right # of args to object construction
+* Fix deriving from class by alias name
 * Fix checking files in standard library before local file
 * Fix sys.exc_value, etc. generating No attribute warning in except clause
 * Fix Local variable (xxx) not used, when have:  "%(xxx)s" % locals()
