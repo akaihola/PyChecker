@@ -326,7 +326,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                         # c'tor, return the class as the type
                         returnValue = Stack.Item(loadValue, refClass)
                 
-                    elif argCount > 0 and \
+                    elif argCount > 0 and cfg().methodArgName and \
                          code.stack[funcIndex].type == Stack.TYPE_ATTRIBUTE and \
                          code.stack[funcIndex+1].data != cfg().methodArgName :
                         code.addWarning(msgs.SELF_NOT_FIRST_ARG % cfg().methodArgName)
@@ -1117,7 +1117,7 @@ def _ok_to_set_attr(classObject, basename, attr) :
 
 def _STORE_ATTR(oparg, operand, codeSource, code) :
     if code.stack :
-        top = code.stack[-1]
+        top = code.stack.pop()
         _checkExcessiveReferences(code, top, operand)
         if _ok_to_set_attr(codeSource.classObject, top.data, operand) :
             code.addWarning(msgs.INVALID_SET_CLASS_ATTR % operand)
