@@ -120,6 +120,15 @@ def debug(*args) :
     if cfg().debug: print args
 
 
+_PYTHON_1_5 = 10500
+_PYTHON_2_0 = 20000
+
+def pythonVersion() :
+    major, minor, release = 1, 5, 0
+    if hasattr(sys, 'version_info') :
+        major, minor, release = sys.version_info[0:3]
+    return major * 10000 + minor * 100 + release
+
 def _startswith(s, substr) :
     "Ugh, supporting python 1.5 is a pain"
     return s[0:len(substr)] == substr
@@ -701,6 +710,8 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                         name = operand.co_name
                         obj = codeObjects.get(name, None)
                         if obj is None or name == '<lambda>' :
+                            # FIXME: iterate through lambdas to pick stuff
+                            #   off the stack if necessary (params to lambda)?
                             codeObjects[name] = operand
                         elif cfg().redefiningFunction :
                             warn = Warning(func_code, lastLineNum,
@@ -738,9 +749,13 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                     warn = _handleImportFrom(stack, operand, module, func_code,
                                              lastLineNum, main)
                     # this is necessary for python 1.5 (see STORE_GLOBAL/NAME)
-                    if not module.moduleLineNums.has_key(operand) and main :
-                        filename = func_code.co_filename
-                        module.moduleLineNums[operand] = (filename, lastLineNum)
+                    if pythonVersion() < _PYTHON_2_0 :
+                        del stack[-1]
+                        if not main :
+                            unusedLocals[operand] = None
+                        elif not module.moduleLineNums.has_key(operand) :
+                            filelist = (func_code.co_filename, lastLineNum)
+                            module.moduleLineNums[operand] = filelist
                 elif OP.UNPACK_SEQUENCE(op) :
                     unpackCount = oparg
                 elif OP.FOR_LOOP(op) :
