@@ -257,6 +257,18 @@ def importError(moduleName, info):
     sys.stderr.write("  Problem importing module %s - %s\n" % (moduleName, info))
 
 
+class FakeFunction :
+    "This is a holder class for turning code at module level into a function"
+
+    def __init__(self, file, filename, module) :
+        self.func_name = self.__name__ = "__main__"
+        self.func_doc  = self.__doc__  = "ignore"
+
+        self.func_code = compile(file.read(), filename, 'exec')
+        self.func_defaults = None
+        self.func_globals = module.__dict__
+
+
 class Module :
     "Class to hold all information for a module"
 
@@ -320,8 +332,7 @@ class Module :
 	    file, filename, smt = _findModule(self.moduleName)
             try :
                 module = imp.load_module(self.moduleName, file, filename, smt)
-                if file :
-                    self.main_code = compile(file.read(), filename, 'exec')
+                self.setupMainCode(file, filename, module)
             finally :
                 if file != None :
                     file.close()
@@ -347,6 +358,10 @@ class Module :
                 self.addVariable(tokenName, tokenType)
 
         return 1
+
+    def setupMainCode(self, file, filename, module) :
+        if file :
+            self.main_code = Function(FakeFunction(file, filename, module))
 
 
 def _getAllModules() :
