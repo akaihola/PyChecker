@@ -108,6 +108,8 @@ class UnusedCheck(Check):
         for nodes, scope in file.scopes.items():
             if isinstance(nodes, compiler.ast.Function):
                 code = nodes.code.nodes
+                if not code:
+                    continue
                 # functions which only raise exceptions are unlikely to use
                 # their local variables
                 if isinstance(code[0], compiler.ast.Raise):
