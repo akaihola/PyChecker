@@ -377,7 +377,7 @@ def getBlackList(moduleList) :
             file, path, flags = imp.find_module(badBoy)
             if file :
                 file.close()
-                blacklist.append(path)
+                blacklist.append(normalize_path(path))
         except ImportError :
             pass
     return blacklist
