@@ -184,8 +184,13 @@ def _checkModifyDefaultArg(code, objectName, methodName=None) :
 def _isexception(object) :
     # FIXME: i have no idea why this function is necessary
     # it seems that the issubclass() should work, but it doesn't always
-    if issubclass(object, Exception) :
-        return 1
+    try:
+        # try/except is necessary for globals like NotImplemented
+        if issubclass(object, Exception) :
+            return 1
+    except TypeError:
+        return 0
+
     for c in object.__bases__ :
         if utils.startswith(str(c), 'exceptions.') :
             return 1
@@ -986,13 +991,12 @@ def _LOAD_CONST(oparg, operand, codeSource, code) :
 
 
 def _checkLocalShadow(code, module, varname) :
-    if module.variables.has_key(varname) :
+    if module.variables.has_key(varname) and cfg().shadows :
         line = module.moduleLineNums.get(varname, ('<unknown>', 0))
-        if cfg().shadows :
-            w = code.getWarning(msgs.LOCAL_SHADOWS_GLOBAL % (varname, line[1]))
-            if line[0] != w.file:
-                w.err = '%s in file %s' % (w.err, line[0])
-            code.addWarning(w)
+        w = code.getWarning(msgs.LOCAL_SHADOWS_GLOBAL % (varname, line[1]))
+        if line[0] != w.file:
+            w.err = '%s in file %s' % (w.err, line[0])
+        code.addWarning(w)
 
 def _checkLoadLocal(code, codeSource, varname, deletedWarn, usedBeforeSetWarn) :
     _checkFutureKeywords(code, varname)
@@ -1178,8 +1182,9 @@ def _checkBoolean(code, checks):
             data = string.capitalize(item.data)
             if item.type is Stack.TYPE_GLOBAL and data in _BOOL_NAMES:
                 code.addWarning(msgs.BOOL_COMPARE % item.data)
-        except AttributeError:
-            pass # ignore items that are not a StackItem
+        except (AttributeError, TypeError):
+            # TypeError is necessary for Python 1.5.2
+            pass # ignore items that are not a StackItem or a string
 
 def _COMPARE_OP(oparg, operand, codeSource, code) :
     compareValues = _handleComparison(code.stack, operand)
