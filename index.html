@@ -1,0 +1,94 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <title>PyChecker: a python source code checking tool</title>
+</head>
+
+<body bgcolor="#505050">
+
+<p>&nbsp;</p>
+
+<center>
+<table width="95%" bgcolor="#f0f0f0">
+
+<tr><td align="center">
+
+<table width="95%" bgcolor="#f0f0f0">
+
+<tr><td>
+
+<p>&nbsp;</p>
+
+<p>
+PyChecker is a <a href="http://www.python.org">python</a> 
+source code checking tool to help you find
+common bugs.  It is meant to find problems that are typically caught
+by a compiler.  Because of the dynamic nature of python, some warnings
+may be incorrect; however, spurious warnings should be fairly infrequent.
+
+<p>
+PyChecker works in a combination of ways.  First, it imports each
+module.  If there is an import error, the module cannot be processed.
+The import provides some basic information about the module.  For each
+function, class, and method, the code within the function is checked
+for possible problems.
+
+<p>
+Types of problems that can be found include:
+
+<p>
+<ul>
+  <li> No doc strings in modules, classes, functions, and methods
+  <li> self not the first parameter to a method
+  <li> Wrong number of parameters passed to functions/methods
+  <li> No global found (e.g., using a module without importing it)
+  <li> Global not used (module or variable)
+</ul>
+
+<p>
+To use PyChecker, pass the python source files you want to check on
+the command line:
+
+<p>
+<pre>
+	python $PY_CHECKER_HOME/checker.py file1.py file2.py ...
+</pre>
+
+<p>
+If there are import dependencies in your source files, you should
+import those files first on the command line in order to get as many
+files checked as possible.
+
+<p>
+To look at a little example, you can use the two test files included:
+
+<p>
+<pre>
+	python checker.py test.py test2.py
+</pre>
+
+<p>
+Good Luck!  As always, feedback is greatly appreciated.
+
+<p>
+Neal
+<address>
+<a href="mailto:pychecker@metaslash.com">pychecker@metaslash.com</a>
+</address>
+
+<p>
+PyChecker can be found on 
+<a href="http://sourceforge.net/projects/pychecker">SourceForge</a>
+
+<p>&nbsp;</p>
+
+</td></tr>
+
+</table>
+</td></tr>
+</table>
+</center>
+
+</body>
+</html>
