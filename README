@@ -1,9 +1,8 @@
 
-PyChecker is a python source code checking tool.  Its purpose is to
-help you find common problems.  It is meant to find problems that are
-typically caught by a compiler.  Because of the dynamic nature of
-python, warnings can be produced which are incorrect; however,
-spurious warnings are fairly infrequent.
+PyChecker is a python source code checking tool to help you find
+common bugs.  It is meant to find problems that are typically caught
+by a compiler.  Because of the dynamic nature of python, some warnings
+may be incorrect; however, spurious warnings are fairly infrequent.
 
 PyChecker works in a combination of ways.  First, it imports each
 module.  If there is an import error, the module cannot be processed.
