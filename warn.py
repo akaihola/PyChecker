@@ -192,9 +192,12 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
     kwArgCount = argCount >> _VAR_ARGS_BITS
     argCount = argCount & _MAX_ARGS_MASK
 
-    funcIndex = -1 - argCount - 2 * kwArgCount
-    if (-funcIndex) > len(stack) :
+    # function call on stack is before the args, and keyword args
+    funcIndex = argCount + 2 * kwArgCount + 1
+    if funcIndex > len(stack) :
         funcIndex = 0
+    # to find on stack, we have to look backwards from top of stack (end)
+    funcIndex = -funcIndex
 
     # store the keyword names/keys to check if using named arguments
     kwArgs = []
