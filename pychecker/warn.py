@@ -321,9 +321,8 @@ def _findFunctionWarnings(module, globalRefs, warnings, suppressions) :
         name = '%s.%s' % (module.moduleName, func.function.__name__)
         suppress = getSuppression(name, suppressions, warnings)
         if cfg().noDocFunc and func.function.__doc__ == None :
-            warn = Warning(module.filename(), func_code,
-                           msgs.NO_FUNC_DOC % func.function.__name__)
-            warnings.append(warn)
+            err = msgs.NO_FUNC_DOC % func.function.__name__
+            warnings.append(Warning(module.filename(), func_code, err))
 
         _checkNoSelfArg(func, warnings)
         _updateFunctionWarnings(module, func, None, warnings, globalRefs)
@@ -345,9 +344,9 @@ def _findClassWarnings(module, c, class_code,
     # handle class variables
     if class_code is not None :
         func = function.create_fake(c.name, class_code)
-        _updateFunctionWarnings(module, func, c, warnings, globalRefs,
-                                0, 1)
+        _updateFunctionWarnings(module, func, c, warnings, globalRefs, 0, 1)
 
+    filename = module.filename()
     func_code = None
     for method in c.methods.values() :
         if method == None :
@@ -356,30 +355,24 @@ def _findClassWarnings(module, c, class_code,
         utils.debug("method:", func_code)
 
         name = str(c.classObject) + '.' + method.function.func_name
-        methodSuppress = getSuppression(name, suppressions,
-                                        warnings)
+        methodSuppress = getSuppression(name, suppressions, warnings)
 
         if cfg().checkOverridenMethods :
-            _checkOverridenMethods(method.function, baseClasses,
-                                   warnings)
+            _checkOverridenMethods(method.function, baseClasses, warnings)
 
         if cfg().noDocFunc and method.function.__doc__ == None :
-            warn = Warning(module.filename(), func_code,
-                           msgs.NO_FUNC_DOC % method.function.__name__)
-            warnings.append(warn)
+            err = msgs.NO_FUNC_DOC % method.function.__name__
+            warnings.append(Warning(filename, func_code, err))
 
         _checkSelfArg(method, warnings)
-        funcInfo = _updateFunctionWarnings(module, method, c,
-                                           warnings, globalRefs)
+        funcInfo = _updateFunctionWarnings(module, method, c, warnings, globalRefs)
         if func_code.co_name == utils.INIT :
             if utils.INIT in dir(c.classObject) :
-                warns = _checkBaseClassInit(module.filename(), c,
-                                            func_code, funcInfo)
+                warns = _checkBaseClassInit(filename, c, func_code, funcInfo)
                 warnings.extend(warns)
             elif cfg().initDefinedInSubclass :
-                warn = Warning(module.filename(), c.getFirstLine(),
-                               msgs.NO_INIT_IN_SUBCLASS % c.name)
-                warnings.append(warn)
+                err = msgs.NO_INIT_IN_SUBCLASS % c.name
+                warnings.append(Warning(filename, c.getFirstLine(), err))
         if methodSuppress is not None :
             utils.popConfig()
 
@@ -389,8 +382,9 @@ def _findClassWarnings(module, c, class_code,
             func_code = method.function.func_code
         # FIXME: check to make sure this is in our file,
         #        not a base class file???
-        warnings.append(Warning(module.filename(), func_code,
-                               msgs.NO_CLASS_DOC % c.classObject.__name__))
+        err = msgs.NO_CLASS_DOC % c.classObject.__name__
+        warnings.append(Warning(filename, func_code, err))
+                                
     if classSuppress is not None :
         utils.popConfig()
 
@@ -416,7 +410,7 @@ def find(moduleList, initialCfg, suppressions = {}) :
                 classCodes[code.co_name] = code
 
         _findFunctionWarnings(module, globalRefs, warnings, suppressions)
-        
+
         for c in module.classes.values() :
             _findClassWarnings(module, c, classCodes.get(c.name),
                                globalRefs, warnings, suppressions)
