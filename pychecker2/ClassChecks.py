@@ -1,4 +1,3 @@
-
 from pychecker2.Check import Check
 from pychecker2.Check import Warning
 from pychecker2 import symbols
@@ -139,49 +138,14 @@ def get_base_classes(scope, checker):
     return result
 
 def conforms(a, b):
-    if len(a.node.argnames) != len(b.node.argnames):
+    alen = len(a.node.argnames)
+    blen = len(b.node.argnames)
+    # f(a, *args) conforms to f(a, b, *args)
+    if alen < blen and a.node.varargs and b.node.varargs:
+        return None
+    if alen != blen:
         return None
     return a.node.kwargs == b.node.kwargs and a.node.varargs == b.node.varargs
-
-special = {
-    '__cmp__': 2,     '__del__': 1,     '__delitem__': 2, '__eq__': 2,
-    '__ge__': 2,      '__getitem__': 2, '__gt__': 2,      '__hash__': 1,
-    '__le__': 2,      '__len__': 1,     '__lt__': 2,      '__ne__': 2,
-    '__nonzero__': 1, '__repr__': 1,    '__setitem__': 3, '__str__': 1,
-    '__getattr__': 2, '__setattr__': 3,
-    '__delattr__': 2, '__len__': 1,     '__delitem__': 2, '__iter__': 1,
-    '__contains__': 2,'__setslice__': 4,'__delslice__': 3,
-    '__add__': 2,     '__sub__': 2,     '__mul__': 2,     '__floordiv__': 2,
-    '__mod__': 2,     '__divmod__': 2,  '__lshift__': 2,
-    '__rshift__': 2,  '__and__': 2,     '__xor__': 2,     '__or__': 2,
-    '__div__': 2,     '__truediv__': 2, '__radd__': 2,    '__rsub__': 2,
-    '__rmul__': 2,    '__rdiv__': 2,    '__rmod__': 2,    '__rdivmod__': 2,
-    '__rpow__': 2,    '__rlshift__': 2, '__rrshift__': 2, '__rand__': 2,
-    '__rxor__': 2,    '__ror__': 2,     '__iadd__': 2,    '__isub__': 2,
-    '__imul__': 2,    '__idiv__': 2,    '__imod__': 2,    '__ilshift__': 2,
-    '__irshift__': 2, '__iand__': 2,    '__ixor__': 2,    '__ior__': 2,
-    '__neg__': 1,     '__pos__': 1,     '__abs__': 1,     '__invert__': 1,
-    '__complex__': 1, '__int__': 1,     '__long__': 1,    '__float__': 1,
-    '__oct__': 1,     '__hex__': 1,     '__coerce__': 2,
-    '__getinitargs__': 1,
-    '__getstate__': 1,'__setstate__': 2,
-    '__copy__': 1,    '__deepcopy__': 1,
-    '__pow__': 2,     '__ipow__': 2,    # 2 or 3
-    '__call__': None,                   # any number > 1
-    '__getslice__': 3                   # deprecated
-    '__getattribute__': 2
-    }
-
-def check_special(scope):
-    try:
-        count = special[scope.name]
-        max_args = len(scope.node.argnames)
-        min_args = max_args - len(scope.node.defaults)
-        if min_args > count or max_args < count or \
-           scope.node.varargs or scope.node.kwargs:
-            return special[scope.name]
-    except KeyError:
-        return None
 
 class AttributeCheck(Check):
     "check `self.attr' expressions for attr"
@@ -311,6 +275,46 @@ class InitCheck(Check):
                         file.warning(r, self.initReturnsValue)
 
                             
+
+special = {
+    '__cmp__': 2,     '__del__': 1,     '__delitem__': 2, '__eq__': 2,
+    '__ge__': 2,      '__getitem__': 2, '__gt__': 2,      '__hash__': 1,
+    '__le__': 2,      '__len__': 1,     '__lt__': 2,      '__ne__': 2,
+    '__nonzero__': 1, '__repr__': 1,    '__setitem__': 3, '__str__': 1,
+    '__getattr__': 2, '__setattr__': 3,
+    '__delattr__': 2, '__len__': 1,     '__delitem__': 2, '__iter__': 1,
+    '__contains__': 2,'__setslice__': 4,'__delslice__': 3,
+    '__add__': 2,     '__sub__': 2,     '__mul__': 2,     '__floordiv__': 2,
+    '__mod__': 2,     '__divmod__': 2,  '__lshift__': 2,
+    '__rshift__': 2,  '__and__': 2,     '__xor__': 2,     '__or__': 2,
+    '__div__': 2,     '__truediv__': 2, '__radd__': 2,    '__rsub__': 2,
+    '__rmul__': 2,    '__rdiv__': 2,    '__rmod__': 2,    '__rdivmod__': 2,
+    '__rpow__': 2,    '__rlshift__': 2, '__rrshift__': 2, '__rand__': 2,
+    '__rxor__': 2,    '__ror__': 2,     '__iadd__': 2,    '__isub__': 2,
+    '__imul__': 2,    '__idiv__': 2,    '__imod__': 2,    '__ilshift__': 2,
+    '__irshift__': 2, '__iand__': 2,    '__ixor__': 2,    '__ior__': 2,
+    '__neg__': 1,     '__pos__': 1,     '__abs__': 1,     '__invert__': 1,
+    '__complex__': 1, '__int__': 1,     '__long__': 1,    '__float__': 1,
+    '__oct__': 1,     '__hex__': 1,     '__coerce__': 2,
+    '__getinitargs__': 1,
+    '__getstate__': 1,'__setstate__': 2,
+    '__copy__': 1,    '__deepcopy__': 1,
+    '__pow__': 2,     '__ipow__': 2,    # 2 or 3
+    '__call__': None,                   # any number > 1
+    '__getslice__': 3,                  # deprecated
+    '__getattribute__': 2,
+    }
+
+def check_special(scope):
+    try:
+        count = special[scope.name]
+        max_args = len(scope.node.argnames)
+        min_args = max_args - len(scope.node.defaults)
+        if min_args > count or max_args < count or \
+           scope.node.varargs or scope.node.kwargs:
+            return special[scope.name]
+    except KeyError:
+        return None
 
 class SpecialCheck(Check):
 
