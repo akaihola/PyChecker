@@ -60,13 +60,14 @@ def init() :
             optStr = GET_OPT_VALUE[opt[1]]
             shortArgs = shortArgs + opt[0] + optStr[0]
             longArgs.append(opt[2] + optStr[1])
+            longArgs.append('no-' + opt[2] + optStr[1])
 
     options = {}
     for opt in _OPTIONS :
         if opt != None :
             shortArg, useValue, longArg, member, description = opt
             options['-' + shortArg] = opt
-            options['--' + longArg] = opt
+            options['--no-' + longArg] = options['--' + longArg] = opt
 
     return shortArgs, longArgs, options
 
@@ -160,7 +161,12 @@ class Config :
                 elif memberType == type([]) :
                     newValue = string.split(newValue, ',')
                 setattr(self, member, newValue)
+            elif arg[0:5] == '--no-' :
+                setattr(self, member, 0)
+            elif arg[0:2] == '--' :
+                setattr(self, member, 1)
             else :
+                # for shortArgs we only toggle
                 setattr(self, member, not getattr(self, member))
 
         if self.variablesToIgnore.count(CHECKER_VAR) <= 0 :
