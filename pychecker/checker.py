@@ -265,7 +265,7 @@ class Module :
         self.classes = {}
         self.modules = {}
         self.moduleLineNums = {}
-        self.attributes = None
+        self.attributes = [ '__dict__' ]
         self.main_code = None
         self.module = None
         self.check = check
@@ -291,14 +291,17 @@ class Module :
             self.__addAttributes(c, c.classObject)
 
     def addModule(self, name) :
-        if not _allModules.has_key(name) :
+        module = _allModules.get(name, None)
+        if module is None :
             self.modules[name] = module = Module(name, 0)
             if imp.is_builtin(name) == 0 :
                 module.load()
             else :
                 globalModule = globals().get(name)
                 if globalModule :
-                    module.attributes = dir(globalModule)
+                    module.attributes.extend(dir(globalModule))
+        else :
+            self.modules[name] = module
 
     def filename(self) :
         if not self.module :
@@ -363,6 +366,24 @@ def _getAllModules() :
             modules.append(module)
     return modules
 
+_BUILTIN_MODULE_ATTRS = { 'sys': [ 'ps1', 'ps2', 'tracebacklimit', 
+                                   'exc_type', 'exc_value', 'exc_traceback',
+                                   'last_type', 'last_value', 'last_traceback',
+                                 ],
+                        }
+
+def _fixupBuiltinModules() :
+    for moduleName in sys.builtin_module_names :
+        module = _allModules.get(moduleName, None)
+        if module is not None :
+            try :
+                m = imp.init_builtin(moduleName)
+            except ImportError :
+                pass
+            else :
+                extra_attrs = _BUILTIN_MODULE_ATTRS.get(moduleName, [])
+                module.attributes = [ '__dict__' ] + dir(m) + extra_attrs
+                    
 
 def _printWarnings(warnings) :
     warnings.sort()
@@ -397,6 +418,7 @@ def main(argv) :
             w = warn.Warning(module.filename(), 1, "NOT PROCESSED UNABLE TO IMPORT")
             importWarnings.append(w)
 
+    _fixupBuiltinModules()
     if _cfg.printParse :
         for module in _getAllModules() :
             printer.module(module)

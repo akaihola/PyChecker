@@ -15,8 +15,6 @@ Longer Term goals:
 * Add check that subclass overrides method that only raises NotImplementedError
 * Add check for using object members outside of class
 * Fix deriving from class by alias name
-* Fix sys.exc_value, etc. generating No attribute warning in except clause
-	(does anyone see this???)
 
 * Allow import checker to catch errors, rather than starting checker.py
 * Find lines that end w/semi-colons (;)

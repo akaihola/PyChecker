@@ -20,6 +20,8 @@ Version 0.8	- xx July 2001
 	instantiating object with multiple arguments
   * Fix method argument checks when calling base class methods
   * Fix error msg to base constructors (msg count was wrong)
+  * Fix access to builtin module attributes (e.g., sys.exc_value)
+	generating 'No attribute warnings'
   * Fix tests (forgot to add : after line number in expected results)
 
 Version 0.7	- 16 July 2001
