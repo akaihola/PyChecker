@@ -677,7 +677,9 @@ class Code :
 
     def setType(self, name) :
         valueList = self.typeMap.get(name, [])
-        valueList.append(self.__getStackType())
+        newType = self.__getStackType()
+        if newType not in valueList :
+            valueList.append(newType)
         self.typeMap[name] = valueList
             
     def addReturn(self) :
@@ -1024,9 +1026,20 @@ def _popStackRef(code, operand, count = 2) :
 
 def _pop(oparg, operand, codeSource, code) :
     code.popStack()
-_POP_TOP = _BINARY_POWER = _BINARY_SUBTRACT = \
-           _BINARY_LSHIFT = _BINARY_RSHIFT = \
+_POP_TOP = _BINARY_LSHIFT = _BINARY_RSHIFT = \
            _BINARY_AND = _BINARY_XOR = _BINARY_OR = _pop
+
+_NUMERIC_TYPES = (types.IntType, types.FloatType)
+
+# FIXME: This is pathetically weak, need to handle more types
+def _coerce_type(code) :
+    if len(code.stack) >= 2 :
+        s1, s2 = code.stack[-2:]
+        s1type = s1.getType(code.typeMap)
+        s2type = s2.getType(code.typeMap)
+        if s1type != s2type :
+            if s1type in _NUMERIC_TYPES and s2type in _NUMERIC_TYPES :
+                code.setType(code.stack[-2].data)
 
 def _BINARY_ADD(oparg, operand, codeSource, code) :
     stack = code.stack
@@ -1036,10 +1049,16 @@ def _BINARY_ADD(oparg, operand, codeSource, code) :
         code.popStackItems(2)
         code.stack.append(Stack.Item(value, type(value), 1))
     else :
+        _coerce_type(code)
         code.popStack()
         if stack :
             # we know that the stack can't be const
             stack[-1].const = 0
+
+def _BINARY_SUBTRACT(oparg, operand, codeSource, code) :
+    _coerce_type(code)
+    code.popStack()
+_BINARY_POWER = _BINARY_SUBTRACT
 
 def _BINARY_SUBSCR(oparg, operand, codeSource, code) :
     if len(code.stack) >= 2 :
@@ -1052,7 +1071,10 @@ def _BINARY_SUBSCR(oparg, operand, codeSource, code) :
 def _isint(stackItem, code) :
     if type(stackItem.data) == types.IntType :
         return 1
-    return types.IntType in code.typeMap.get(stackItem.data, [])
+    stackTypes = code.typeMap.get(stackItem.data, [])
+    if len(stackTypes) != 1 :
+        return 0
+    return types.IntType in stackTypes
 
 def _BINARY_DIVIDE(oparg, operand, codeSource, code) :
     if cfg().intDivide and len(code.stack) >= 2 :
@@ -1066,6 +1088,8 @@ def _BINARY_MULTIPLY(oparg, operand, codeSource, code) :
         format = _getFormatString(code, codeSource)
         if format and type(code.stack[-1].data) == types.IntType :
             code.stack[-2].data = format * code.stack[-1].data
+
+        _coerce_type(code)
 
     code.popStack()
 
