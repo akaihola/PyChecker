@@ -41,7 +41,8 @@ _allModules = {}
 _cfg = None
 
 # Constants
-_DEFAULT_MODULE_TOKENS = [ '__builtins__', '__doc__', '__file__', '__name__', ]
+_DEFAULT_MODULE_TOKENS = [ '__builtins__', '__doc__', '__file__', '__name__',
+                           '__path__', ]
 _DEFAULT_CLASS_TOKENS = [ '__doc__', '__name__', '__module__', ]
 
 
@@ -92,24 +93,38 @@ def _findModule(name, path = sys.path) :
     """Returns the result of an imp.find_module(), ie, (file, filename, smt)
        name can be a module or a package name.  It is *not* a filename."""
 
+    if not '' in path :
+        path.append('')
+
     packages = string.split(name, '.')
     for p in packages :
         # smt = (suffix, mode, type)
         file, filename, smt = imp.find_module(p, path)
         if smt[-1] == imp.PKG_DIRECTORY :
-            # package found - read path info from init file
-            m = imp.load_module(p, file, filename, smt)
+            try :
+                # package found - read path info from init file
+                m = imp.load_module(p, file, filename, smt)
+            finally :
+                file.close()
 
             # importing xml plays a trick, which replaces itself with _xmlplus
             # both have subdirs w/same name, but different modules in them
             # we need to choose the real (replaced) version
             if m.__name__ != p :
-                file, filename, smt = imp.find_module(m.__name__, path)
-                m = imp.load_module(p, file, filename, smt)
-
-            path.insert(1, m.__path__)
+                try :
+                    file, filename, smt = imp.find_module(m.__name__, path)
+                    m = imp.load_module(p, file, filename, smt)
+                finally :
+                    file.close()
+        
+	    new_path = m.__path__
+	    if type(new_path) == types.ListType :
+	        new_path = filename
+            if new_path not in path :
+                path.insert(1, new_path)
         else:
             if p is not packages[-1] :
+                file.close()
                 raise ImportError, "No module named %s" % packages[-1]
             return file, filename, smt
 
