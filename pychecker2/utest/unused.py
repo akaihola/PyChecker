@@ -7,6 +7,10 @@ class UnusedTestCase(WarningTester):
                      1, VariableChecks.UnusedCheck.unused, 'j')
         self.warning('def _unused(): pass\n',
                      1, VariableChecks.UnusedCheck.unused, '_unused')
+        self.silent('def f(x):\n'
+                    '  def g():\n'
+                    '     x.y.z, = 1\n'
+                    '  g()\n')
 
     def testUnusedAbstract(self):
         self.silent('def f(i): assert 0\n')
@@ -74,3 +78,12 @@ class UnusedTestCase(WarningTester):
                      '    z = 2\n'
                      '  return L1, L2, L3, x, y, z\n',
                      11, w, 'y')
+        self.silent('def f():\n'
+                    '  import sys\n'
+                    '  return sys.argv\n')
+        self.silent('def f():\n'
+                    '  from sys import argv\n'
+                    '  return argv\n')
+        self.silent('def f():\n'
+                    '  from sys import *\n'
+                    '  return argv\n')
