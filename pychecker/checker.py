@@ -217,8 +217,15 @@ class Class :
         self.name = name
         self.classObject = getattr(module, name)
 
-        # Argh -- some ExtensionClasses don't have a __module__ attribute.
         modname = getattr(self.classObject, '__module__', None)
+        if modname is None:
+            # hm, some ExtensionClasses don't have a __module__ attribute
+            # so try parsing the type output
+            typerepr = repr(type(self.classObject))
+            mo = re.match("^<type ['\"](.+)['\"]>$", typerepr)
+            if mo:
+                modname = ".".join(mo.group(1).split(".")[:-1])
+
         self.module = sys.modules.get(modname)
         if not self.module:
             self.module = module
