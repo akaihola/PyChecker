@@ -69,15 +69,25 @@ def get_base_names(scope):
             pass
     return names
 
-def find_in_module(package, names, checker):
-    name = '.'.join(package.__name__.split(".") + names[:-1])
+def find_in_module(package, remotename, names, checker):
+    name = package.__name__
+    if not names:
+        f = checker.check_module(package)
+        if not f:
+            return
+        return find_defs(f.root_scope, [remotename], checker)
+    if remotename:
+        name += ".%s" % remotename
     try:
         module = __import__(name, globals(), {}, [''])
-        f = checker.check_module(module)
-        if f:
-            return find_defs(f.root_scope, names[-1:], checker)
+        submodule = getattr(module, names[0], None)
+        if type(submodule) == type(symbols):
+            return find_in_module(submodule, None, names[1:], checker)
     except ImportError:
-        pass
+        return None
+    f = checker.check_module(module)
+    if f:
+        return find_defs(f.root_scope, names, checker)
     return None
                  
 def find_defs(scope, names, checker):
@@ -96,10 +106,7 @@ def find_imported_class(imports, names, checker):
         name = ".".join(names[:i])
         if imports.has_key(name):
             ref = imports[name]
-            pathnames = names[i:]
-            if ref.remotename:
-                pathnames = [ref.remotename] + pathnames
-            result = find_in_module(ref.module, pathnames, checker)
+            result = find_in_module(ref.module, ref.remotename, names[i:], checker)
             if result:
                 return result
     return None

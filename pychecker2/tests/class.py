@@ -84,7 +84,7 @@ def zz(arg):
 
     class L(d.minidom.Node):
         def f(self):
-            print arg, self.childNodes
+            print arg, self.childNodes  # should fail
     print L()
 
 def zzz(arg):
@@ -95,7 +95,7 @@ def zzz(arg):
             print arg, self.childNodes
     print L()
 
-def zzz(arg):
+def zzzz(arg):
     from tests import nested
 
     class L(nested.N1.N2):
