@@ -1,11 +1,15 @@
 
 from pychecker2.Check import Check
+from pychecker2.Check import Warning
 from pychecker2.util import BaseVisitor
 
 from compiler import walk
 
 class ImportCheck(Check):
     "Get 'from module import *' names hauled into the file and modules"
+
+    importError = Warning('Report/ignore imports that may fail',
+                          'Error trying to import %s: %s')
 
     def check(self, unused_modules, file, unused_options):
 
@@ -29,8 +33,11 @@ class ImportCheck(Check):
             def visitFrom(self, node, *scopes):
                 if node.names[0][0] != '*':
                     return self.visitChildren(node)
-                m = __import__(node.modname, globals(), {}, [None])
-                scopes[-1].importStar[node.modname] = m
+                try:
+                    m = __import__(node.modname, globals(), {}, [None])
+                    scopes[-1].importStar[node.modname] = m
+                except ImportError, detail:
+                    file.warning(node, ImportCheck.importError, node.modname, detail)
 
         if file.root_scope:
             walk(file.root_scope.node, FromImportVisitor())
