@@ -11,6 +11,8 @@ ToDo:
         Always returning None
         More path analysis
             used before set for if/else try/except
+        Warn about unpacking args:
+             def f(a, (b, c)): pass
 
 Items still missing:
         Error suppression (errors may be suppressed globally)
