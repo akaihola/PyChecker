@@ -1,4 +1,4 @@
-# Sample defaults file for PyChecker 0.8.6
+# Sample defaults file for PyChecker 0.8.7
 # This file should be called:  .pycheckrc
 # It should be placed in your home directory (value of $HOME).
 # If $HOME is not set, it will look in the current directory.
