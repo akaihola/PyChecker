@@ -101,6 +101,19 @@ def _checkComplex(code, maxValue, value, func, err) :
         code.addWarning(err % (func.function.__name__, value), line)
 
 
+def _checkCode(code, codeSource) :
+    while code.index < code.maxCode :
+        op, oparg, operand = code.getNextOp()
+        dispatch_func = CodeChecks.DISPATCH[op]
+        if dispatch_func is not None :
+            dispatch_func(oparg, operand, codeSource, code)
+
+def _handleLambda(func_code, code, codeSource):
+    if func_code.co_name == utils.LAMBDA :
+        code.init(function.create_fake(func_code.co_name, func_code))
+        # I sure hope there can't be/aren't lambda's within lambda's
+        _checkCode(code, codeSource)
+
 def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     "Return a list of Warnings found in a function/method."
 
@@ -111,11 +124,14 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     code.init(func)
     codeSource = CodeChecks.CodeSource(module, func, c, main, in_class, code)
     try :
-        while code.index < code.maxCode :
-            op, oparg, operand = code.getNextOp()
-            dispatch_func = CodeChecks.DISPATCH[op]
-            if dispatch_func is not None :
-                dispatch_func(oparg, operand, codeSource, code)
+        _checkCode(code, codeSource)
+
+        # handle lambdas
+        old_callling_code = codeSource.calling_code
+        codeSource.calling_code = func
+        for func_code in code.codeObjects.values() :
+            _handleLambda(func_code, code, codeSource)
+        codeSource.calling_code = old_callling_code
 
         # FIXME: this isn't correct if there is a try/except :
         # check if last return is unreachable due to a raise just before
@@ -142,7 +158,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
 
     if cfg().checkReturnValues :
         _checkReturnWarnings(code)
-            
+
     if cfg().localVariablesUsed :
         for var, line in code.unusedLocals.items() :
             if line is not None and line > 0 and var not in cfg().unusedNames :
@@ -245,14 +261,6 @@ def _checkOverridenMethods(func, baseClasses, warnings) :
             break
 
 
-def _handleLambda(module, code, warnings, globalRefs, in_class = 0):
-    if code.co_name == utils.LAMBDA :
-        func = function.create_fake(code.co_name, code)
-        # I sure hope there can't be/aren't lambda's within lambda's
-        _updateFunctionWarnings(module, func, None, warnings,
-                                globalRefs, in_class)
-
-
 def _updateFunctionWarnings(module, func, c, warnings, globalRefs,
                             main = 0, in_class = 0) :
     "Update function warnings and global references"
@@ -261,9 +269,6 @@ def _updateFunctionWarnings(module, func, c, warnings, globalRefs,
                  _checkFunction(module, func, c, main, in_class)
     warnings.extend(newWarnings)
     globalRefs.update(newGlobalRefs)
-
-    for code in codeObjects :
-        _handleLambda(module, code, warnings, globalRefs, main)
 
     return funcs, codeObjects, returnValues
 

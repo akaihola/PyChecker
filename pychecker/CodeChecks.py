@@ -298,10 +298,13 @@ def _makeConstant(stack, index, factoryFunction) :
         stack.append(factoryFunction())
 
 
-def _checkGlobal(operand, module, func, code, err, main = 0) :
-    if (not (func.function.func_globals.has_key(operand) or
+def _hasGlobal(operand, module, func, main) :
+    return (func.function.func_globals.has_key(operand) or
              main or module.moduleLineNums.has_key(operand) or
-             __builtins__.has_key(operand))) :
+             __builtins__.has_key(operand))
+
+def _checkGlobal(operand, module, func, code, err, main = 0) :
+    if not _hasGlobal(operand, module, func, main) :
         code.addWarning(err % operand)
         if not cfg().reportAllGlobals :
             func.function.func_globals[operand] = operand
@@ -721,6 +724,7 @@ class CodeSource :
         self.main = main
         self.in_class = in_class
         self.code = code
+        self.calling_code = None
 
 
 def _STORE_NAME(oparg, operand, codeSource, code) :
@@ -744,11 +748,20 @@ def _STORE_NAME(oparg, operand, codeSource, code) :
 _STORE_GLOBAL = _STORE_NAME
 
 def _LOAD_NAME(oparg, operand, codeSource, code) :
-    # make sure we remember each global ref to check for unused
-    code.globalRefs[_getGlobalName(operand, codeSource.func)] = operand
-    if not codeSource.in_class :
-        _checkGlobal(operand, codeSource.module, codeSource.func,
-                     code, msgs.INVALID_GLOBAL)
+    check_global = 1
+    if codeSource.code.func_code.co_name == utils.LAMBDA :
+        # this could really be a local reference, check first
+        if not codeSource.main and \
+           operand in codeSource.calling_code.function.func_code.co_varnames :
+            _handleLoadLocal(code, codeSource.func, operand)
+            check_global = 0
+
+    if check_global :
+        # make sure we remember each global ref to check for unused
+        code.globalRefs[_getGlobalName(operand, codeSource.func)] = operand
+        if not codeSource.in_class :
+            _checkGlobal(operand, codeSource.module, codeSource.func,
+                         code, msgs.INVALID_GLOBAL)
 
     # if there was from XXX import *, _* names aren't imported
     if codeSource.module.modules.has_key(operand) and \
@@ -775,12 +788,14 @@ def _LOAD_CONST(oparg, operand, codeSource, code) :
         elif cfg().redefiningFunction :
             code.addWarning(msgs.REDEFINING_ATTR % (name, obj.co_firstlineno))
 
+def _handleLoadLocal(code, func, varname) :
+    if not code.unusedLocals.has_key(varname) and not func.isParam(varname) :
+        code.addWarning(msgs.VAR_USED_BEFORE_SET % varname)
+    code.unusedLocals[varname] = None
+
 def _LOAD_FAST(oparg, operand, codeSource, code) :
     code.stack.append(Stack.Item(operand, type(operand)))
-    if not code.unusedLocals.has_key(operand) and \
-       not codeSource.func.isParam(operand) :
-        code.addWarning(msgs.VAR_USED_BEFORE_SET % operand)
-    code.unusedLocals[operand] = None
+    _handleLoadLocal(code, codeSource.func, operand)
 
 def _STORE_FAST(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :

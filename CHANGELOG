@@ -1,5 +1,6 @@
 
 Version 0.9	- xx August 2001
+  * Fix spurious warnings when doing a local import and use module in lambda
   * Check format strings even if using global & local constants
   * Add check that [].append() only takes one argument
   * Add check that # parameters are correct for builtin functions
