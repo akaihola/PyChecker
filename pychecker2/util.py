@@ -1,5 +1,5 @@
 import types
-import compiler.ast
+from compiler import ast
 
 class BaseVisitor:
 
@@ -36,8 +36,7 @@ def enclosing_scopes(scopes, node):
 def under_simple_try_if(stmt_node1, stmt_node2):
     try:
         if stmt_node1.parent.parent == stmt_node2.parent.parent and \
-           isinstance(stmt_node1.parent.parent,
-                      (compiler.ast.TryExcept, compiler.ast.If)):
+           isinstance(stmt_node1.parent.parent, (ast.TryExcept, ast.If)):
             return 1
     except AttributeError:
         pass
