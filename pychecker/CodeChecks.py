@@ -723,8 +723,9 @@ class Code :
     def setType(self, name) :
         valueList = self.typeMap.get(name, [])
         newType = self.__getStackType()
+        # longs are being merged with ints, assume they are the same
         # comparisons are really ints anyways
-        if newType == Stack.TYPE_COMPARISON:
+        if newType in (types.LongType, Stack.TYPE_COMPARISON):
             newType = types.IntType
         if newType not in valueList :
             valueList.append(newType)
