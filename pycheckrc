@@ -97,8 +97,14 @@ debug = 0
 # bool: check that attributes of objects exist
 checkObjectAttrs = 1
 
+# bool: check for integer division (may be problem between Python versions)
+intDivide = 1
+
 # bool: check consistent return values
 checkReturnValues = 0
+
+# bool: check if using implict and explicit return values
+checkImplicitReturns = 0
 
 # dict: suppress warnings, key is module.class.method or module.function
 #	value is a string of command line arguments (can omit -- for long args)

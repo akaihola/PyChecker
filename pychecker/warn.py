@@ -47,6 +47,12 @@ def _checkNoSelfArg(func, warnings) :
         warnings.append(Warning(code, code, msgs.SELF_IS_ARG))
 
 
+def _implicitReturnUnreachable(code) :
+    if len(code.branches) < 1 :
+        return 1
+    return code.lastReturnLabel < max(code.branches.keys())
+
+
 _IGNORE_RETURN_TYPES = ( Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,
                          Stack.TYPE_GLOBAL )
 
@@ -58,9 +64,9 @@ def _checkReturnWarnings(code) :
 
     line, lastReturn = code.returnValues[-1]
 
-    # FIXME: disabled until it works properly
     # if the last return is implicit, check if there are non None returns
-    if 0 and lastReturn.data == None :
+    if cfg().checkImplicitReturns and \
+       lastReturn.data == None and lastReturn.const == 1 :
         returnNoneCount = 0
         for line, rv in code.returnValues :
             if rv.isNone() :
@@ -111,6 +117,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
             if dispatch_func is not None :
                 dispatch_func(oparg, operand, codeSource, code)
 
+        # FIXME: this isn't correct if there is a try/except :
         # check if last return is unreachable due to a raise just before
         i = code.index - utils.BACK_RETURN_INDEX - 3
         if i >= code.maxLabel and OP.RAISE_VARARGS(ord(code.bytes[i])) :
@@ -128,12 +135,10 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
 
     # ignore last return of None, it's always there
     # (when last 2 return lines are the same)
-    if len(code.returnValues) >= 2 and \
-       code.returnValues[-1][0] == code.returnValues[-2][0] :
-        if not code.branches.has_key(code.lastReturnLabel-1) :
-            if len(code.branches) <= 1 or \
-               not code.branches.has_key(code.lastReturnLabel) :
-                del code.returnValues[-1]
+    returnValues = code.returnValues
+    if len(returnValues) >= 2 and returnValues[-1][0] == returnValues[-2][0] :
+        if _implicitReturnUnreachable(code) :
+            del code.returnValues[-1]
 
     if cfg().checkReturnValues :
         _checkReturnWarnings(code)

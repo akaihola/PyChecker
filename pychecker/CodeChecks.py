@@ -731,6 +731,18 @@ _POP_TOP = _BINARY_POWER = _BINARY_MULTIPLY = _BINARY_DIVIDE = \
 def _BINARY_SUBSCR(oparg, operand, codeSource, code) :
     _popStackRef(code, operand)
 
+def _isint(stackItem, code) :
+    if type(stackItem.data) == types.IntType :
+        return 1
+    return types.IntType in code.typeMap.get(stackItem.data, [])
+
+def _BINARY_DIVIDE(oparg, operand, codeSource, code) :
+    if cfg().intDivide and len(code.stack) >= 2 :
+        if _isint(code.stack[-1], code) and _isint(code.stack[-2], code) :
+            code.addWarning(msgs.INTEGER_DIVISION % tuple(code.stack[-2:]))
+
+    code.popStack()
+
 def _BINARY_MODULO(oparg, operand, codeSource, code) :
     _getFormatWarnings(code)
     code.popStack()

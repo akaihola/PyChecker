@@ -64,3 +64,5 @@ INVALID_FORMAT_COUNT = "Format string argument count (%d) doesn't match argument
 TOO_MANY_STARS_IN_FORMAT = "Too many *s in format flags"
 USING_STAR_IN_FORMAT_MAPPING = "Can't use * in formats when using a mapping (dictionary), near: '%s'"
 CANT_MIX_MAPPING_IN_FORMATS = "Can't mix tuple/mapping (dictionary) formats in same format string"
+
+INTEGER_DIVISION = "Using integer division (%s / %s) may return integer or float"

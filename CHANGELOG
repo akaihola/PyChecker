@@ -1,5 +1,6 @@
 
 Version 0.8	- xx August 2001
+  * Add -D/intdivide to warn when using integer division
   * Add -O/objattrs to warn when using object.attribute that doesn't exist
   * Add -M/reimportself to warn when a module imports itself
   * Add -E/unusednames to provide a list of unused names to ignore
