@@ -1,4 +1,11 @@
 
+Version 0.5	- xx xxx 2001
+  * Print all instructions when using debug (-d/--debug)
+  * Overhaul internal stack handling so we can look for more problems
+  * Fix glob'ing problems (all args after glob were ignored)
+  * Fix spurious Base class __init__ not called
+  * Fix exception on code like:  ['xxx'].index('xxx')
+
 Version 0.4	- 23 April 2001
   * Add .pycheckrc file processing to specify options (like on command line)
   * Add new warning if module.Attribute doesn't exist

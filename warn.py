@@ -10,7 +10,9 @@ import sys
 import imp
 import string
 import types
+
 import OP
+import Stack
 
 _VAR_ARGS_BITS = 8
 _MAX_ARGS_MASK = ((1 << _VAR_ARGS_BITS) - 1)
@@ -160,30 +162,6 @@ def _addWarning(warningList, warning) :
         else :
             warningList.append(warning)
 
-def _getNameFromStack(value, prefix = None) :
-    if prefix == None :
-        prefix = ""
-    else :
-        prefix = prefix + '.'
-
-    valueType = type(value)
-    if valueType == types.StringType :
-        return prefix + value
-    if valueType == types.TupleType :
-        strValue = None
-        for item in value :
-            strValue = _getNameFromStack(item, strValue)
-            # FIXME: not sure why this is required, seems to be just for 1.5.2
-            if not strValue :
-                strValue = "-NONE FOUND-" 
-        return prefix + strValue
-    return prefix + `value`
-
-
-def _isMethodCall(stackValue, c) :
-    return type(stackValue) == types.TupleType and c != None and \
-           len(stackValue) == 2 and stackValue[0] == 'self'
-    
 def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
     """Checks for warnings, returns (warning, function called)
                                      warning can be None"""
@@ -206,30 +184,32 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
     if kwArgCount > 0 :
         # loop backwards by 2 (keyword, value) in stack to find keyword args
         for i in range(-2, (-2 * kwArgCount - 1), -2) :
-            kwArgs.append(stack[i])
+            kwArgs.append(stack[i].data)
         kwArgs.reverse()
 
     warn = None
     loadValue = stack[funcIndex]
-    if type(loadValue) == types.StringType :
-        # apply(func, (args)), can't check # of args, so just return func
-        if loadValue == 'apply' :
-            loadValue = stack[funcIndex+1]
-        else :
-            # already checked if module function w/this name exists
-            func = module.functions.get(loadValue, None)
-            if func != None :
-                warn = _checkFunctionArgs(func, argCount, kwArgs, lastLineNum)
-    elif _isMethodCall(loadValue, c) :
+    if loadValue.isMethodCall(c) :
+        methodName = loadValue.data[1]
         try :
-            m = c.methods[loadValue[1]]
+            m = c.methods[methodName]
             if m != None :
                 warn = _checkFunctionArgs(m, argCount, kwArgs, lastLineNum)
         except KeyError :
             if _cfg.callingAttribute :
-                warn = Warning(code, lastLineNum, _INVALID_METHOD % loadValue[1])
+                warn = Warning(code, lastLineNum, _INVALID_METHOD % methodName)
+    elif loadValue.type in [ Stack.TYPE_ATTRIBUTE, Stack.TYPE_GLOBAL, ] and \
+         type(loadValue.data) == types.StringType :
+        # apply(func, (args)), can't check # of args, so just return func
+        if loadValue.data == 'apply' :
+            loadValue = stack[funcIndex+1]
+        else :
+            # already checked if module function w/this name exists
+            func = module.functions.get(loadValue.data, None)
+            if func != None :
+                warn = _checkFunctionArgs(func, argCount, kwArgs, lastLineNum)
 
-    stack[:] = stack[:funcIndex] + [ '0' ]
+    stack[:] = stack[:funcIndex] + [ Stack.makeFuncReturnValue() ]
     return warn, loadValue
 
 
@@ -246,6 +226,14 @@ def _checkModuleAttribute(attr, module, func_code, lastLineNum, refModuleStr) :
     return None
                         
 
+def _getGlobalName(name, func) :
+    # get the right name of global refs (for from XXX import YYY)
+    opModule = func.function.func_globals.get(name)
+    if opModule and isinstance(opModule, types.ModuleType) :
+        name = opModule.__name__
+    return name
+
+
 def _checkFunction(module, func, c = None) :
     "Return a list of Warnings found in a function/method."
 
@@ -256,7 +244,7 @@ def _checkFunction(module, func, c = None) :
     firstLineNum = lastLineNum = func.function.func_code.co_firstlineno
 
     func_code, code, i, maxCode, extended_arg = OP.initFuncCode(func.function)
-    stack = []
+    stack, returnValues = [], []
     unpackCount = 0
     returns, loops, branches = 0, 0, {}
     while i < maxCode :
@@ -272,31 +260,24 @@ def _checkFunction(module, func, c = None) :
                 lastLineNum = oparg
             elif OP.COMPARE_OP(op) :
                 if len(stack) >= 2 :
-                    stack = stack[:-2] + [ (stack[-2], operand, stack[-1]) ]
+                    stack[-2:] = [ Stack.makeComparison(stack[-2:], operand) ]
                 else :
                     stack = []
             elif OP.LOAD_GLOBAL(op) :
-                # get the right name of global refs (for from XXX import YYY)
-                globalName = operand
-                opModule = func.function.func_globals.get(operand)
-                if opModule and isinstance(opModule, types.ModuleType) :
-                    globalName = opModule.__name__
                 # make sure we remember each global ref to check for unused
-                globalRefs[globalName] = operand
+                globalRefs[_getGlobalName(operand, func)] = operand
 
                 if not func.function.func_globals.has_key(operand) and \
                    not __builtins__.has_key(operand)  :
                     warn = Warning(func_code, lastLineNum,
                                    _INVALID_GLOBAL % operand)
                     func.function.func_globals[operand] = operand
-                if module.modules.has_key(operand) :
-                    try :
-                        # if there was from x import *, _ names aren't imported
-                        operand = eval("module.module.%s.__name__" % operand)
-                    except AttributeError :
-                        # it's ok, we can ignore
-                        pass
-                stack.append(operand)
+
+                # if there was from x import *, _ names aren't imported
+                if module.modules.has_key(operand) and \
+                   hasattr(module.module, operand) :
+                    operand = eval("module.module.%s.__name__" % operand)
+                stack.append(Stack.Item(operand, Stack.TYPE_GLOBAL))
             elif OP.STORE_GLOBAL(op) :
                 if not func.function.func_globals.has_key(operand) and \
                    not __builtins__.has_key(operand) :
@@ -306,24 +287,20 @@ def _checkFunction(module, func, c = None) :
                 if unpackCount :
                     unpackCount = unpackCount - 1
             elif OP.LOAD_CONST(op) :
-                stack.append(operand)
+                stack.append(Stack.Item(operand, type(operand), 1))
             elif OP.LOAD_NAME(op) :
-                stack.append(operand)
+                stack.append(Stack.Item(operand, type(operand)))
             elif OP.LOAD_FAST(op) :
-                stack.append(operand)
+                stack.append(Stack.Item(operand, type(operand)))
                 unusedLocals[operand] = None
             elif OP.LOAD_ATTR(op) :
-                last = stack[-1]
-                if last == 'self' and c != None :
+                topOfStack = stack[-1]
+                if topOfStack.data == 'self' and c != None :
                     warn = _checkAttribute(operand, c, func_code, lastLineNum)
-                elif type(last) == types.StringType :
+                elif type(topOfStack.type) == types.StringType :
                     warn = _checkModuleAttribute(operand, module, func_code,
-                                                 lastLineNum, last)
-                if type(last) == types.TupleType :
-                    last = last + (operand,)
-                else :
-                    last = (last, operand)
-                stack[-1] = last
+                                                 lastLineNum, topOfStack)
+                topOfStack.addAttribute(operand)
             elif OP.IMPORT_NAME(op) :
                 if module.modules.has_key(operand) :
                     warn = Warning(func_code, lastLineNum,
@@ -346,24 +323,18 @@ def _checkFunction(module, func, c = None) :
             elif OP.CALL_FUNCTION(op) :
                 warn, funcCalled = _handleFunctionCall(module, func_code, c,
                                                     stack, oparg, lastLineNum)
-                # funcCalled can be () in some cases (e.g., using a map())
+                # funcCalled can be empty in some cases (e.g., using a map())
                 if funcCalled :
-                    tmpModuleName = None
-                    # funcCalled[0] may not be a string
-                    if not (type(funcCalled) == types.TupleType and 
-                            sys.modules.has_key(str(funcCalled[0]))) :
-                        tmpModuleName = module.moduleName
-                    funcName = _getNameFromStack(funcCalled, tmpModuleName)
-                    functionsCalled[funcName] = funcCalled
+                    functionsCalled[funcCalled.getName(module)] = funcCalled
             elif OP.BUILD_MAP(op) :
-                stack = stack[:-oparg] + [ str(type({})) ]
+                stack[-oparg:] = [ Stack.makeDict(stack[oparg:]) ]
             elif OP.BUILD_TUPLE(op) :
-                stack = stack[:-oparg] + [ tuple(stack[oparg:]) ]
+                stack[-oparg:] = [ Stack.makeTuple(stack[oparg:]) ]
             elif OP.BUILD_LIST(op) :
                 if oparg > 0 :
-                    stack = stack[:-oparg] + [ stack[oparg:] ]
+                    stack[-oparg:] = [ Stack.makeList(stack[oparg:]) ]
                 else :
-                    stack.append([])
+                    stack.append(Stack.makeList([]))
 
             _addWarning(warnings, warn)
 
@@ -388,8 +359,18 @@ def _checkFunction(module, func, c = None) :
                 returns = returns + 1
                 # FIXME: this check shouldn't really be necessary
                 if len(stack) > 0 :
+                    returnValues.append((lastLineNum, stack[-1]))
                     del stack[-1]
 
+    # ignore last return of None, it's always there
+    # there must be at least 2 real return values to check for consistency
+    # FIXME: handle this when we store more info about the type in the stack
+    if len(returnValues) > 2 :
+        if type(returnValues[0][1]) == types.TupleType :
+            lastReturnLen = len(returnValues[0][1])
+            for value in returnValues[1:-1] :
+                pass
+            
     if _cfg.localVariablesUsed :
         for var, line in unusedLocals.items() :
             if line :
@@ -430,22 +411,15 @@ def _getUnused(moduleName, globalRefs, dict, msg, filterPrefix = None) :
     return warnings
 
 
-def _checkBaseClassInit(moduleName, moduleFilename, c, func_code, functionsCalled) :
+def _checkBaseClassInit(moduleFilename, c, func_code, functionsCalled) :
     """Return a list of warnings that occur
        for each base class whose __init__() is not called"""
 
     warnings = []
-    moduleDepth = string.count(moduleName, '.')
     for base in c.classObject.__bases__ :
         if hasattr(base, '__init__') :
-            # create full name, make sure file is in name
-            modules = string.split(str(base), '.')[moduleDepth:]
-            # handle import ...
-            initName1 = string.join(modules, '.') + '.__init__'
-            # handle from ... import ...
-	    initName2 = str(base) + '.__init__'
-            if not functionsCalled.has_key(initName1) and \
-               not functionsCalled.has_key(initName2) :
+            initName = str(base) + '.__init__'
+            if not functionsCalled.has_key(initName) :
                 warn = Warning(moduleFilename, func_code,
                                _BASE_CLASS_NOT_INIT % str(base))
                 warnings.append(warn)
@@ -491,7 +465,7 @@ def find(moduleList, cfg) :
                 if method == None :
                     continue
                 func_code = method.function.func_code
-                debug("in method:", func_code)
+                debug("IN METHOD:", func_code)
 
                 if cfg.noDocFunc and method.function.__doc__ == None :
                     warn = Warning(moduleFilename, func_code,
@@ -506,8 +480,7 @@ def find(moduleList, cfg) :
 
                 if func_code.co_name == '__init__' :
                     if '__init__' in dir(c.classObject) :
-                        warns = _checkBaseClassInit(module.moduleName,
-                                                    moduleFilename, c,
+                        warns = _checkBaseClassInit(moduleFilename, c,
                                                     func_code, functionsCalled)
                         warnings.extend(warns)
                     elif cfg.initDefinedInSubclass :
@@ -519,6 +492,8 @@ def find(moduleList, cfg) :
                 method = c.methods.get('__init__', None)
                 if method != None :
                     func_code = method.function.func_code
+                # FIXME: check to make sure this is in our file,
+                #        not a base class file???
                 warnings.append(Warning(moduleFilename, func_code,
                                        _NO_CLASS_DOC % c.classObject.__name__))
 

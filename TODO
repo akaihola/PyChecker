@@ -1,7 +1,4 @@
 
-* Fix spurious warnings (Base class __init__ not called)
-	known cases: subclass from Exception or
-	             subclass from YYY where from XXX import YYYY
 * Fix sys.exc_value, etc. generating No attribute warning in except clause
 * Fix Local variable (xxx) not used, when have:  "%(xxx)s" % locals()
 * Check format strings: "%s %d" % (strValue, intValue)

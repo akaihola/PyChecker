@@ -31,25 +31,6 @@ checker currently cannot see the re.compile().
 
 ---------------------------------------------------------------------
 
-Spurious warnings (Base class __init__ not called) can be produced
-when processing multiple files at once.
-
-This should be fixed except for two known cases:
-
-	class NewException(Exception):
-	    def __init__(self, name):
-	    	Exception.__init__(self, name)
-
-or:
-
-	from UserDict import UserDict
-
-	class NewDict(UserDict) :
-	    def __init__(self):
-	        UserDict.__init__(self)
-
----------------------------------------------------------------------
-
 Crash when running on code that does:
 
 	from wxPython.wx import *
