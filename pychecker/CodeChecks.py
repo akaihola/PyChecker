@@ -372,7 +372,6 @@ _BUILTINS_ATTRS = { types.StringType : dir(''),
                     types.ClassType : dir(Stack.Item),
                     types.UnboundMethodType : dir(Stack.Item.__init__),
                     types.LambdaType : dir(lambda: None),
-                    types.XRangeType : dir(xrange(0)),
                     types.SliceType : dir(slice(0)),
                   }
 
@@ -380,6 +379,16 @@ def _setupBuiltinAttrs() :
     w = Warning.Warning('', 0, '')
     _BUILTINS_ATTRS[types.MethodType] = dir(w.__init__)
     del w
+
+    try :
+        import warnings
+        _MSG = "xrange object's 'start', 'stop' and 'step' attributes are deprecated"
+        warnings.filterwarnings('ignore', _MSG)
+        del warnings, _MSG
+    except ImportError :
+        pass
+    _BUILTINS_ATTRS[types.XRangeType] = dir(xrange(0))
+
     try: _BUILTINS_ATTRS[types.ComplexType] = dir(complex(0, 1))
     except: pass
 
