@@ -9,6 +9,7 @@ class Tester:
         self.modules = []
         self.exit_status = 0
         self.verbosity = 1
+        self.coverage = None
 
     def __call__(self):
         for m in self.modules:
@@ -46,10 +47,12 @@ def _root_path_to_file(fname):
 
 def main(args):
     import getopt
-    opts, files = getopt.getopt(args, 'v')
+    opts, files = getopt.getopt(args, 'vc')
     for opt, arg in opts:
         if opt == '-v':
             test.verbosity += 1
+        if opt == '-c':
+            test.coverage = 1
         else:
             raise Usage('unknown option ' + opt)
         
@@ -63,14 +66,18 @@ def main(args):
     try:
         import trace
     except Exception, detail:
-        print 'Error: %s, not tracing' % `detail`
-        test()
-    else:
+        if test.coverage:
+            print 'Error: not tracing (%s)' % detail
+        coverage = None
+
+    if test.coverage:
         ignore = trace.Ignore(dirs = [sys.prefix, sys.exec_prefix])
         coverage = trace.Coverage(ignore)
         trace.run(coverage.trace, 'test()')
         trace.create_results_log(coverage.results(),
                                  os.path.join(root, 'coverage'))
+    else:
+        test()
         
 
 if __name__ == '__main__':
@@ -80,7 +87,7 @@ if __name__ == '__main__':
         err = sys.stderr
         print >>err, "Error: " + detail
         print >>err
-        print >>err, "Usage: %s [-v]" % sys.argv[0]
+        print >>err, "Usage: %s [-v] [-c]" % sys.argv[0]
         sys.exit(1)
     else:
         sys.exit(test.exit_status)
