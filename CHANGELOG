@@ -1,3 +1,7 @@
+Version 0.8.12   - xx August 2002
+  * Add @option_file command line argument to read options from a file
+  	(used on platforms which can't have too many options, ie Windows)
+
 Version 0.8.11   - 06 June 2002
   * Improve error message for syntax errors from user files
   * Fix pychecker.bat so it should work now

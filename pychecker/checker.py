@@ -600,6 +600,23 @@ def main(argv) :
         sys.stderr.write(_VERSION_MISMATCH_ERROR)
         sys.exit(100)
 
+    # if the first arg starts with an @, read options from the file
+    # after the @ (this is mostly for windows)
+    if len(argv) >= 2 and argv[1][0] == '@':
+        # read data from the file
+        command_file = argv[1][1:]
+        try:
+            f = open(command_file, 'r')
+            command_line = f.read()
+            f.close()
+        except IOError, err:
+            sys.stderr.write("Unable to read commands from file: %s\n  %s\n" % \
+                             (command_file, err))
+            sys.exit(101)
+
+        # convert to an argv list, keeping argv[0] and the files to process
+        argv = argv[:1] + string.split(command_line) + argv[2:]
+ 
     global _cfg
     _cfg, files, suppressions = Config.setupFromArgs(argv[1:])
     if not files :
