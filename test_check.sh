@@ -5,7 +5,7 @@ TESTS="test_input/test[1-9]*.py"
 # PYTHON="$HOME/local/bin/python2.2 -tt"
 # PYTHON="$HOME/build/python/dist/src/python -tt"
 # PYTHON="/usr/bin/python -tt"
-PYTHON="/usr/bin/python2.1 -tt"
+PYTHON="python -tt"
 # PYTHON="$PYTHON coverage.py -x"
 
 if [ $# -gt 0 ]; then
