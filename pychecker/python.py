@@ -66,12 +66,17 @@ GLOBAL_FUNC_INFO = { '__import__': (types.ModuleType, 1, 4),
                      'str': (types.StringType, 1, 1),
                      'tuple': (types.TupleType, 1, 1),
                      'type': (types.TypeType, 1, 1),
-                     'unichr': (types.StringType, 1, 1),  # FIXME: unicode
-                     'unicode': (types.StringType, 1, 3), # FIXME: unicode
                      'vars': (types.DictType, 0, 1),
                      'xrange': (types.ListType, 1, 3),
                      'zip': (types.ListType, 1, None),
                    }
+
+if utils.pythonVersion() >= utils.PYTHON_2_2 :
+    GLOBAL_FUNC_INFO['compile'] = (types.CodeType, 3, 5)
+
+if hasattr(types, 'UnicodeType') :
+    GLOBAL_FUNC_INFO['unichr'] = (types.UnicodeType, 1, 1)
+    GLOBAL_FUNC_INFO['unicode'] = (types.UnicodeType, 1, 3)
 
 _STRING_METHODS = { 'capitalize': (types.StringType, 0, 0),
                     'center': (types.StringType, 1, 1),
