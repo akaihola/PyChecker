@@ -34,9 +34,6 @@ Bugs:
             with default variables a lot, too.  Pychecker works as
             intended, but this is a common idiom.
 
-        Assigning to globals in local scope should mark them as used
-        Argument unpacking doesn't mark a name as used
-
         Is __file__ a builtin?
         locals() should use locals
         globals() should use globals
@@ -46,6 +43,9 @@ Bugs:
               def g(a, b): pass
               h = f
               h = g			# redef of h, not caught now
+
+        foo = 1
+        del foo	                        # should not be unused
 
 Important stuff:
 
