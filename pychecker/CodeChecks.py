@@ -965,9 +965,6 @@ def _IMPORT_NAME(oparg, operand, codeSource, code) :
     code.pushStack(Stack.Item(operand, types.ModuleType))
     nextOp = code.nextOpInfo()[0]
     if not OP.IMPORT_FROM(nextOp) and not OP.IMPORT_STAR(nextOp) :
-        # handle import xml.sax as sax
-        if OP.LOAD_ATTR(nextOp) :
-            operand = code.popNextOp()[2]
         _handleImport(code, operand, codeSource.module, codeSource.main, None)
 
 def _IMPORT_FROM(oparg, operand, codeSource, code) :

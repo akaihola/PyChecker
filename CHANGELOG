@@ -1,14 +1,15 @@
 Version 0.8.9   - xx February 2002
   * Add -3/--properties warning when using properties with classic classes
   * Add more warnings for statements with no effect
+  * Fix crash due to import module problems
+  * Fix crash with nested scopes
+  * Fix spurious warnings about module attributes and importing
   * Fix spurious warnings in Python 2.2 when using builtin classes (eg, socket)
   * Fix spurious warning for format string problem when using % at module scope
   * Fix spurious warning for implicit returns when doing while 1:
-  * Don't warn about inconsistent return types from __getattr[ibute]__
   * Fix spurious warning for inconsistent return types 
         when objects are subclasses
-  * Fix crash due to import module problems
-  * Fix crash with nested scopes
+  * Don't warn about inconsistent return types from __getattr[ibute]__
   * Always assume readline module is used if input/raw_input is used
 
 Version 0.8.8   - 13 January 2002
