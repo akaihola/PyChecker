@@ -16,6 +16,7 @@ import imp
 from pychecker import OP
 from pychecker import Stack
 from pychecker import function
+from pychecker import python
 
 from pychecker import msgs
 from pychecker import utils
@@ -500,6 +501,24 @@ def _findClassWarnings(module, c, class_code,
             continue
         methodSuppress = getSuppression(name, suppressions, warnings)
 
+        if cfg().checkSpecialMethods:
+            funcname = method.function.func_name
+            if funcname[:2] == '__' == funcname[-2:] and \
+               funcname != '__init__':
+                err = None
+                argCount = python.SPECIAL_METHODS.get(funcname, -1)
+                if argCount != -1:
+                    # if the args are None, it can be any # of args
+                    if argCount is not None:
+                        minArgs = maxArgs = argCount
+                        err = CodeChecks.getFunctionArgErr(funcname,
+                                     func_code.co_argcount, minArgs, maxArgs)
+                else:
+                    err = msgs.NOT_SPECIAL_METHOD % funcname
+
+                if err is not None:
+                    warnings.append(Warning(filename, func_code, err))
+                
         if cfg().checkOverridenMethods :
             _checkOverridenMethods(method.function, baseClasses, warnings)
 

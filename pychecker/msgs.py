@@ -108,6 +108,7 @@ WRONG_UNPACK_SIZE = "Unpacking %d values into %d variables"
 WRONG_UNPACK_FUNCTION = "Unpacking function (%s) which returns %d values into %d variables"
 UNPACK_NON_SEQUENCE = "Unpacking a non-sequence (%s) of type %s"
 
+NOT_SPECIAL_METHOD = "%s is not a special method"
 USING_COERCE_IN_NEW_CLASS = "Using __coerce__ in new-style class (%s) will not work for binary operations"
 USING_GETATTRIBUTE_IN_OLD_CLASS = "Using __getattribute__ in old-style class (%s) does not work"
 USING_PROPERTIES_IN_CLASSIC_CLASS = "Using property (%s) in classic class %s may not work"

@@ -124,6 +124,10 @@ redefiningFunction = 1
 #	 as base class method (__init__() methods are not checked)
 checkOverridenMethods = 1
 
+# bool:  check if a special (reserved) method has the correct signature
+#	 and is known (these are methods that begin and end with __
+checkSpecialMethods = 1
+
 # int: warnings for code complexity, max value before generating a warning
 maxLines = 200
 maxBranches = 50

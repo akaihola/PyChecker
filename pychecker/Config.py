@@ -62,6 +62,7 @@ _OPTIONS = (
  ('z', 0, 'varargsused', 'varArgumentsUsed', 'unused method/function variable arguments'),
  ('G', 0, 'selfused', 'ignoreSelfUnused', 'ignore if self is unused in methods'),
  ('o', 0, 'override', 'checkOverridenMethods', 'check if overridden methods have the same signature'),
+ ('',  0, 'special', 'checkSpecialMethods', 'check if __special__ methods exist and have the correct signature'),
  ('U', 0, 'reuseattr', 'redefiningFunction', 'check if function/class/method names are reused'),
  ('Y', 0, 'positive', 'unaryPositive', 'check if using unary positive (+) which is usually meaningless'),
  ('j', 0, 'moddefvalue', 'modifyDefaultValue', 'check if modify (call method) on a parameter that has a default value'),
@@ -242,6 +243,7 @@ class Config :
         self.methodArgName = 'self'
         self.classmethodArgNames = ['cls', 'klass']
         self.checkOverridenMethods = 1
+        self.checkSpecialMethods = 1
 
         self.argumentsUsed = 1
         self.varArgumentsUsed = 1

@@ -22,6 +22,18 @@ __pychecker__ = 'no-argsused'
 def cfg() :
     return utils.cfg()
 
+def getFunctionArgErr(func_name, argCount, minArgs, maxArgs):
+    err = None
+    if maxArgs == None:
+        if argCount < minArgs :
+            err = msgs.INVALID_ARG_COUNT2 % (func_name, argCount, minArgs)
+    elif argCount < minArgs or argCount > maxArgs:
+        if minArgs == maxArgs:
+            err = msgs.INVALID_ARG_COUNT1 % (func_name, argCount, minArgs)
+        else:
+            err = msgs.INVALID_ARG_COUNT3 % (func_name, argCount, minArgs, maxArgs)
+    return err
+
 def _checkFunctionArgCount(code, func_name, argCount, minArgs, maxArgs,
                            objectReference = 0) :
     # there is an implied argument for object creation and self.xxx()
@@ -30,16 +42,7 @@ def _checkFunctionArgCount(code, func_name, argCount, minArgs, maxArgs,
         if maxArgs is not None :
             maxArgs = maxArgs - 1
 
-    err = None
-    if maxArgs == None :
-        if argCount < minArgs :
-            err = msgs.INVALID_ARG_COUNT2 % (func_name, argCount, minArgs)
-    elif argCount < minArgs or argCount > maxArgs :
-        if minArgs == maxArgs :
-            err = msgs.INVALID_ARG_COUNT1 % (func_name, argCount, minArgs)
-        else :
-            err = msgs.INVALID_ARG_COUNT3 % (func_name, argCount, minArgs, maxArgs)
-
+    err = getFunctionArgErr(func_name, argCount, minArgs, maxArgs)
     if err :
         code.addWarning(err)
 
