@@ -878,7 +878,10 @@ def _LOAD_DEREF(oparg, operand, codeSource, code) :
         func_code = code.func_code
         if codeSource.calling_code :
             func_code = codeSource.calling_code[-1].function.func_code
-        argname = func_code.co_varnames[oparg]
+        try:
+            argname = func_code.co_cellvars[oparg]
+        except IndexError:
+            argname = func_code.co_freevars[oparg - len(func_code.co_cellvars)]
         code.pushStack(Stack.Item(argname, types.StringType))
         if code.func_code.co_name != utils.LAMBDA :
             code.unusedLocals[argname] = None
