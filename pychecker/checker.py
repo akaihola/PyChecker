@@ -360,11 +360,17 @@ class Class :
             return None
         func_code, bytes, i, maxCode, extended_arg = \
                    OP.initFuncCode(self.methods[m].function)
-        # abstract if the first conditional is RAISE_VARARGS
+        # abstract if the first opcode is RAISE_VARARGS and it raises
+        # NotImplementedError
+        arg = ""
         while i < maxCode:
             op, oparg, i, extended_arg = OP.getInfo(bytes, i, extended_arg)
-            if OP.RAISE_VARARGS(op):
-                return 1
+            if OP.LOAD_GLOBAL(op):
+                arg = func_code.co_names[oparg]
+            elif OP.RAISE_VARARGS(op):
+                # if we saw NotImplementedError sometime before the raise
+                # assume it's related to this raise stmt
+                return arg == "NotImplementedError"
             if OP.conditional(op):
                 break
         return None
