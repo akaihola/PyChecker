@@ -179,24 +179,26 @@ def _getFunction(module, stackValue) :
     """Return the function from the stack value and a bool to indicate if
        an object is being constructed or not"""
 
+    c = None
+    idList = []
     identifier = stackValue.data
     if type(identifier) != types.StringType :
-        identifier = ''
         for element in stackValue.data :
-            identifier = identifier + '.' + str(element)
-        identifier = identifier[1:]
+            idList.append(str(element))
+        identifier = idList[-1]
 
-        idList = string.split(identifier, '.')
-        refModule, identifier = string.join(idList[:-1], '.'), idList[-1]
-        module = module.modules.get(refModule, None)
-        if module is None :
-            return None, 0
+        ref = string.join(idList[:-1], '.')
+        refModule = module.modules.get(ref, None)
+        if refModule is not None :
+            module = refModule
+        else :
+            c = module.classes.get(ref, None)
 
-    c = None
     func = module.functions.get(identifier, None)
     if func is None :
         # if we didn't find the function, maybe this is object creation
-        c = module.classes.get(identifier, None)
+        if c is None :
+            c = module.classes.get(identifier, None)
         if c is not None :
             func = c.methods.get('__init__', None)
     return func, c
@@ -252,7 +254,15 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
         else :
             func, is_ctor = _getFunction(module, loadValue)
             if func != None :
+                ctor = is_ctor and loadValue.data[-1] == '__init__'
+                if ctor :
+                    argCount = argCount - 1
                 warn = _checkFunctionArgs(code, func, argCount, kwArgs, lastLineNum)
+                if ctor and argCount >= 0 and \
+                   stack[funcIndex+1].data != _cfg.methodArgName :
+                    w = Warning(func, lastLineNum,
+                                _SELF_NOT_FIRST_ARG % _cfg.methodArgName)
+                    warn.append(w)
             elif is_ctor and (argCount > 0 or len(kwArgs) > 0) :
                 warn = Warning(code, lastLineNum, _NO_CTOR_ARGS)
 

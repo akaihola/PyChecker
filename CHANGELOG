@@ -1,5 +1,7 @@
 
 Version 0.7	- xx July 2001
+  * Check arguments to constructors
+  * Check that self is first arg to base constructor
   * Add -e/--errors option to only warn about likely errors
   * Make 'self' configurable as the first argument to methods
   * Add check that there is a c'tor when instantiating an object and 
