@@ -231,6 +231,19 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
     return warn, loadValue
 
 
+def _checkAttribute(attr, c, func_code, lastLineNum) :
+    if not c.methods.has_key(attr) and not c.members.has_key(attr) :
+        return Warning(func_code, lastLineNum, _INVALID_ATTR % attr)
+    return None
+
+def _checkModuleAttribute(attr, module, func_code, lastLineNum, refModuleStr) :
+    refModule = module.modules.get(refModuleStr)
+    if refModule and refModule.attributes != None :
+        if attr not in refModule.attributes :
+            return Warning(func_code, lastLineNum, _INVALID_ATTR % attr)
+    return None
+                        
+
 def _checkFunction(module, func, c = None) :
     "Return a list of Warnings found in a function/method."
 
@@ -293,10 +306,10 @@ def _checkFunction(module, func, c = None) :
                 debug("  load attr", operand)
                 last = stack[-1]
                 if last == 'self' and c != None :
-                    if not c.methods.has_key(operand) and \
-                       not c.members.has_key(operand) :
-                        warn = Warning(func_code, lastLineNum,
-                                       _INVALID_ATTR % operand)
+                    warn = _checkAttribute(operand, c, func_code, lastLineNum)
+                elif type(last) == types.StringType :
+                    warn = _checkModuleAttribute(operand, module, func_code,
+                                                 lastLineNum, last)
                 if type(last) == types.TupleType :
                     last = last + (operand,)
                 else :

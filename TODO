@@ -3,7 +3,6 @@
 	(only known case is subclass from Exception)
 * Fix Local variable (xxx) not used, when have:  "%(xxx)s" % locals()
 * Fix Local variable (xxx) not used, when have:  except Error, xxx:
-* Check module.Attribute exists (e.g., except getopt.GetoptError:)
 * Check function return values
 * Finer grain control of warnings/config options (per module/class/method)
 * Check code in module scope (not in a function/method)

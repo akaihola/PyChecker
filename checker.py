@@ -233,15 +233,15 @@ def importError(moduleName, info):
 class Module :
     "Class to hold all information for a module"
 
-    def __init__(self, moduleName) :
-    # def __init__(self, filename, moduleName) :
-        # self.filename = filename
+    def __init__(self, moduleName, check = 1) :
         self.moduleName = moduleName
         self.variables = {}
         self.functions = {}
         self.classes = {}
         self.modules = {}
+        self.attributes = None
         self.module = None
+        self.check = check
         global _allModules
         _allModules[moduleName] = self
 
@@ -263,7 +263,13 @@ class Module :
 
     def addModule(self, name) :
         if not _allModules.has_key(name) :
-            self.modules[name] = Module(name)
+            self.modules[name] = module = Module(name, 0)
+            if imp.is_builtin(name) == 0 :
+                module.load()
+            else :
+                globalModule = globals().get(name)
+                if globalModule :
+                    module.attributes = dir(globalModule)
 
     def filename(self) :
         if not self.module :
@@ -276,16 +282,21 @@ class Module :
     def load(self) :
         try :
 	    file, filename, smt = findModule(self.moduleName)
-            self.module = imp.load_module(self.moduleName, file, filename, smt)
+            if file != None :
+                self.module = imp.load_module(self.moduleName, file, filename, smt)
+                file.close()
         except (ImportError, NameError, SyntaxError), detail:
             # not sure which errors we should check here, maybe all?
             return importError(self.moduleName, detail)
 
+        self.attributes = dir(self.module)
         for tokenName in _filterDir(self.module, _DEFAULT_MODULE_TOKENS) :
             token = getattr(self.module, tokenName)
             tokenType = type(token)
             if tokenType == types.ModuleType :
-                self.addModule(tokenName)
+                # get the real module name, tokenName could be an alias
+                moduleName = getattr(self.module, tokenName).__name__
+                self.addModule(moduleName)
             elif tokenType == types.FunctionType :
                 self.addFunction(token)
             elif tokenType == types.ClassType :
@@ -294,6 +305,15 @@ class Module :
                 self.addVariable(tokenName, tokenType)
 
         return 1
+
+
+def _getAllModules() :
+    "Returns a list of all modules that should be checked."
+    modules = []
+    for module in _allModules.values() :
+        if module.check :
+            modules.append(module)
+    return modules
 
 
 def main(argv) :
@@ -311,11 +331,11 @@ def main(argv) :
             importWarnings.append(w)
 
     if _cfg.printParse :
-        for module in _allModules.values() :
+        for module in _getAllModules() :
             printer.module(module)
 
     print "\nWarnings...\n"
-    warnings = warn.find(_allModules.values(), _cfg)
+    warnings = warn.find(_getAllModules(), _cfg)
     if warnings or importWarnings :
         warnings.sort()
         lastWarning = None
