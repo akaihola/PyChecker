@@ -24,6 +24,8 @@ def UNARY_INVERT(op):          return op == 15
 def RETURN_VALUE(op):          return op == 83
 def JUMP_FORWARD(op):          return op == 110
 def JUMP_ABSOLUTE(op):         return op == 113
+def FOR_ITER(op):              return op == 93
+def FOR_LOOP(op):              return op == 114
 def SETUP_LOOP(op):            return op == 120
 def BREAK_LOOP(op):            return op == 80
 def RAISE_VARARGS(op):         return op == 130

@@ -1191,6 +1191,22 @@ def _jump(oparg, operand, codeSource, code) :
                 code.addWarning(msgs.USING_METHOD_AS_ATTR % name)
 _JUMP_ABSOLUTE = _jump
 
+def _skip_loops(bytes, i, lastLineNum, max) :
+    extended_arg = 0
+    blockCount = 1
+    while i < max :
+        op, oparg, i, extended_arg = OP.getInfo(bytes, i, extended_arg)
+        if OP.LINE_NUM(op) :
+            lastLineNum = oparg
+        elif OP.FOR_LOOP(op) or OP.FOR_ITER(op) or OP.SETUP_LOOP(op) :
+            blockCount = blockCount + 1
+        elif OP.POP_BLOCK(op) :
+            blockCount = blockCount - 1
+            if blockCount <= 0 :
+                break
+
+    return lastLineNum, i
+
 def _is_unreachable(code, topOfStack, branch, if_false) :
     # Are we are checking exceptions, but we not catching all exceptions?
     if (topOfStack.type == Stack.TYPE_COMPARISON and 
@@ -1215,8 +1231,11 @@ def _is_unreachable(code, topOfStack, branch, if_false) :
         op, oparg, i, extended_arg = OP.getInfo(code.bytes, i, extended_arg)
         if OP.LINE_NUM(op) :
             lastLineNum = oparg
-        if OP.BREAK_LOOP(op) :
+        elif OP.BREAK_LOOP(op) :
             return 0
+        elif OP.FOR_LOOP(op) or OP.FOR_ITER(op) or OP.SETUP_LOOP(op) :
+            lastLineNum, i = _skip_loops(code.bytes, i, lastLineNum, branch)
+
     i = code.index - 3*4
     op, oparg, i, extended_arg = OP.getInfo(code.bytes, i, 0)
     if OP.SETUP_LOOP(op) :

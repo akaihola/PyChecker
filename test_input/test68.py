@@ -149,3 +149,11 @@ def func21(x):
     finally:
         print 'do nothing'
 
+def func22(x):
+    'should not produce a warning'
+    while 1:
+        for _ in range(10) :
+            x = x / 2
+            break
+        return 1
+
