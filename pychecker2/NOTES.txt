@@ -12,8 +12,6 @@ Items still missing:
         Typing of any kind:
              consistent return types
              consistent return styles (implicit and explicit)
-             object members
-             object methods
 
         New python features:
              slots
