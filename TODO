@@ -1,5 +1,9 @@
 Goals for next minor release:
 -----------------------------
+* Limit output to N most important
+* Add severity and estimated difficulty to research/fix error
+* Add warning when using listcomp variable (x) outside of [... for x in ...]
+
 * Check for "if s.find(str):" s/b "if s.find(str) >= 0:" where s is a string
 * Add warning for a import b & b import a (import loops)
 * Check that classes with __slots__ don't get/set any other attributes
@@ -7,11 +11,13 @@ Goals for next minor release:
 * Expectations of __methods__, constness (don't modify in __nonzero__)
 * Add warning for import overriding builtin (from os import *)
 * Add warning if dict has duplicate keys when creating from literals
+* __new__ should use cls, not self???
 
 * If arg has default value of None, check that arg is assigned some value
 * Check for return from finally (disables exception, default off?)
 * Add another boolean warning for:    if bool(xxx):
 
+* check if returning self from __str__()
 * check for str1 in str2 == otherValue
 * Fix dependancy problem w/checkReturnValues & checkImplicitReturns
 * check for use of self.attr before setting self.attr in __init__ method
@@ -28,8 +34,11 @@ Goals for next major release (0.9):
   - Finish tests: 44
 * Add a config option to ignore certain cantankerous modules
 
+* Add warning for global statement inside a conditional
 * Fix spurious warnings for unreachable code checks
 * Fix most of the FIXMEs
+* Add check for import module (from within package p-should be import p.module)
+  - don't use relative imports, should always use absolute paths
 
 Longer Term goals:
 ------------------
@@ -61,4 +70,5 @@ Longer Term goals:
 * Warn when using () with statements (assert, print, del, if, while)
 * Add check for <>, should use !=
 * Find lines that end w/semi-colons (;)
+* inconsistent camel-case
 
