@@ -80,18 +80,22 @@ def find_in_module(package, remotename, names, checker):
         return None
 
     # complex name lookup
-    #  first, get the real name of the package
-    name = package.__name__
+    try:
+        #  first, get the real name of the package
+        name = package.__name__
+        module = __import__(name, globals(), {}, [''])
+    except AttributeError:
+        #  ok, so its a fake module... go with that
+        module = package
     if remotename:
         name += "." + remotename
     #  now import it, and chase down any other modules
-    module = __import__(name, globals(), {}, [''])
     submodule = getattr(module, names[0], None)
     if type(submodule) == type(symbols):
         return find_in_module(submodule, None, names[1:], checker)
-    
+
     #  object in the module is not another module, so chase down the source
-    f = checker.check_module(module)
+    f = checker.check_module(submodule)
     if f:
         return find_scope_going_down(f.root_scope, names, checker)
     return None
@@ -141,16 +145,19 @@ def get_base_classes(scope, checker):
             result.extend(get_base_classes(base, checker))
     return result
 
-def conforms(a, b):
+def conformsTo(a, b):
     alen = len(a.node.argnames)
     blen = len(b.node.argnames)
+    # f(a, *args, **kw) conforms to f(a, b, *args, **kw)
     # f(a, *args) conforms to f(a, b, *args)
-    if alen != blen:
-        if alen < blen:
-            return None
-        elif not a.node.varargs or not b.node.varargs:
-            return None
-    return a.node.kwargs == b.node.kwargs and a.node.varargs == b.node.varargs
+    # f(a, *args) conforms to f(a, b, c)
+    # f(a, b, c, *args) does not conform to f(a, b)
+    if alen == blen:
+        if a.node.kwargs == b.node.kwargs and a.node.varargs == b.node.varargs:
+            return 1
+    if a.node.varargs and alen - 1 <= blen:
+        return a.node.kwargs == b.node.kwargs
+    return None
 
 class AttributeCheck(Check):
     "check `self.attr' expressions for attr"
@@ -204,7 +211,7 @@ class AttributeCheck(Check):
                     mname = mangle(m.name, base.name)
                     if m.name != "__init__" and \
                        methods.has_key(mname) and \
-                       not conforms(m, methods[mname]):
+                       not conformsTo(methods[mname], m):
                         file.warning(methods[mname].node,
                                      self.signatureChanged, m.name, base.name)
                     else:
