@@ -201,7 +201,7 @@ def _first_arg_defaulted(function_node):
         count -= 1
     if function_node.kwargs:
         count -= 1
-    if len(function_node.defaults) == count:
+    if count > 0 and len(function_node.defaults) == count:
         return 1
     return None
 
