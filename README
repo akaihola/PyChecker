@@ -111,7 +111,9 @@ If you find a bug in PyChecker, meaning you see something like:
             kwArgs.append(stack[i].data)
         IndexError: list index out of range
 
-Please send mail indicating the version of PyChecker, *your source file*
+Please post a bug in the SourceForge Tracker
+(https://sourceforge.net/tracker/?atid=382217&group_id=24686&func=browse)
+or send mail indicating the version of PyChecker, *your source file*
 which broke PyChecker (myfile.py in the example above), and the traceback.
 It is very helpful to provide a simple test case to demonstrate the problem.
 It helps to have the entire file and all the dependencies if you cannot
@@ -122,7 +124,7 @@ which broke PyChecker (myfile.py:13 in the example above).
 Good Luck!  As always, feedback is greatly appreciated.
 
 Neal
-pychecker@metaslash.com
+pychecker-list@lists.sourceforge.net
 
 PyChecker can be found on SourceForge at:
 	http://pychecker.sourceforge.net/
