@@ -44,6 +44,7 @@ class Options:
             self.options[c] = []
         self.add(BoolOpt(self, 'verbose', 'turn on verbose messages'), MISC)
         self.add(BoolOpt(self, 'incremental', 'print warnings as they are created'), MISC)
+        self.add(BoolOpt(self, 'profile', 'print a profile of pychecker', 0), MISC)
 
     def add(self, option, category=ERROR):
         self.options[category].append(option)

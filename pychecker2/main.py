@@ -52,7 +52,7 @@ def main():
         err = sys.stderr
         print >> err, "Error: %s" % detail
         options.usage(sys.argv[0], err)
-        sys.exit(1)
+        return 1
 
     out = NullWriter()
     if options.verbose:
@@ -60,17 +60,17 @@ def main():
 
     modules = {}
     for f in files:
-        print >>out, 'Checking file', checker
+        print >>out, 'Checking file', file
         for checker in checks:
             out.write('.')
             out.flush()
             checker.check(modules, f, options)
         print >>out
-        if options.incremental:
+        if options.incremental and not options.profile:
             _print_warnings(f)
 
     result = 0
-    if not options.incremental:
+    if not options.incremental and not options.profile:
         files.sort()
         for f in files:
             result |=  _print_warnings(f)
@@ -78,7 +78,17 @@ def main():
         if not result:
             print >>out, None
 
-    sys.exit(result)
+    return result
 
 if __name__ == "__main__":
-    main()
+    if '--profile' in sys.argv:
+        print 'profiling'
+        import hotshot
+        import hotshot.stats
+        hs = hotshot.Profile('logfile.dat')
+        hs.run('main()')
+        hs.close()
+        stats = hotshot.stats.load('logfile.dat')
+        stats.sort_stats('time', 'cum').print_stats(50)
+    else:
+        sys.exit(main())
