@@ -45,7 +45,7 @@ def f7():
     except KeyError:
         v1 = 7
     else:
-        raise v1
+        raise v1                        # unreachable
     return 0
 
 def f8():
