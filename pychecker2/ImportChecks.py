@@ -1,7 +1,7 @@
 
 from pychecker2.Check import Check
 from pychecker2.Check import Warning
-from pychecker2.util import ScopeVisitor
+from pychecker2 import util
 
 from compiler import walk
 
@@ -25,10 +25,13 @@ Figure out which names come from 'import name'.
             except ImportError, detail:
                 file.warning(node, ImportCheck.importError, name, detail)
                 return None
-        def add_import(scopes, node, name, module):
+        def add_import(node, name, module):
+            scopes = util.enclosing_scopes(file.scopes, node)
             for scope in scopes:
                 try:
                     smodule, snode = scope.imports[name]
+                    if util.under_simple_try_if(snode, node):
+                        raise KeyError('a lie')
                     if smodule == module:
                         if scope == scopes[0]:
                             extra = " in current scope"
@@ -45,27 +48,25 @@ Figure out which names come from 'import name'.
             
         class FromImportVisitor:
 
-            def visitFrom(self, node, *scopes):
+            def visitFrom(self, node):
                 m = try_import(node.modname, node)
                 if m:
                     for module_name, local_name in node.names:
                         if module_name == '*':
                             for name in dir(m):
                                 if not name.startswith('_'):
-                                   add_import(scopes, node, name, m)
+                                   add_import(node, name, m)
                         else:
-                            add_import(scopes, node,
-                                       local_name or module_name, m)
+                            add_import(node, local_name or module_name, m)
 
-            def visitImport(self, node, *scopes):
+            def visitImport(self, node):
                 for module, name in node.names:
                     m = try_import(module, node)
                     if m:
                         # example: os.path stored under "os" or supplied name
                         base = module.split('.')[0]
-                        add_import(scopes, node, name or base, m)
+                        add_import(node, name or base, m)
 
 
         if file.root_scope:
-            walk(file.root_scope.node,
-                 ScopeVisitor(file.scopes, FromImportVisitor()))
+            walk(file.root_scope.node, FromImportVisitor())
