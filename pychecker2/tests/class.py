@@ -1,11 +1,14 @@
 import compiler.ast
 
-class B(compiler.ast.Const):
-    inherited2 = 1
-    def x(self):
-        self.inherited1 = 1
+func = lambda x: x
 
-class A(B):
+class D:
+    class B(compiler.ast.Const):
+        inherited2 = 1
+        def x(self):
+            self.inherited1 = 1
+
+class A(D.B):
     def __init__(self):
         self.x = 1                      # define x on A
         self.w.q = 1
