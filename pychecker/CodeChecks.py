@@ -263,7 +263,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                             if func is not None :
                                 method = 1
 
-            if cfg().abstractClasses and refClass:
+            if cfg().abstractClasses and refClass and method:
                 _checkAbstract(refClass, code, funcName)
 
             if func != None :

@@ -20,7 +20,9 @@ def f():
     _ = MoreBad()                       # FIXME, error not caught
 
 import import73
-class ImplAbstract(import73.AbstractLib): pass
+class ImplAbstract(import73.AbstractLib):
+    def __init__(self):
+        import73.AbstractLib.__init__(self)
 
 def lib_example():
     _ = import73.AbstractLib()          # error
