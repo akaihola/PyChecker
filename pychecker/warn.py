@@ -62,7 +62,7 @@ _TOO_MANY_RETURNS = "Function (%s) has too many returns (%d)"
 _IMPLICIT_AND_EXPLICIT_RETURNS = "Function returns a value and also implicitly returns None"
 _INCONSISTENT_RETURN_TYPE = "Fuction return types are inconsistent"
 
-_INVALID_FORMAT = "Invalid format"
+_INVALID_FORMAT = "Invalid format string"
 _INVALID_FORMAT_COUNT = "Format string argument count (%d) doesn't match arguments (%d)"
 
 _cfg = None
