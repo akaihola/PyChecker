@@ -376,7 +376,11 @@ def importError(moduleName):
         sys.stderr.write("  Caught exception importing module %s:\n" %
                          moduleName)
 
-        tbinfo = traceback.extract_tb(tb)
+        try:
+            tbinfo = traceback.extract_tb(tb)
+        except:
+            tbinfo = []
+            sys.stderr.write("      Unable to format traceback\n")
         for filename, line, func, text in tbinfo[1:]:
             sys.stderr.write("    File \"%s\", line %d" % (filename, line))
             if func != "?":
