@@ -669,7 +669,7 @@ class Code :
                 return self.__getStringStackType(data[len(data)-self.unpackCount])
             except IndexError :
                 # happens when unpacking a var for which we don't know the size
-                return Stack.TYPE_UNKNOWN
+                pass
 
         return Stack.TYPE_UNKNOWN
 
