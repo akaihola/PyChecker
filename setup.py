@@ -31,20 +31,19 @@ dynamic languages, like C and C++. Because of the dynamic nature of python,
 some warnings may be incorrect; however, spurious warnings should be
 fairly infrequent."""
 
-    script_suffix = ''
-    if sys.platform == 'win32' :
-        script_suffix = '.bat'
-    LOCAL_SCRIPT = 'pychecker' + script_suffix
-    LOCAL_SCRIPT = os.path.join(tempfile.gettempdir(), LOCAL_SCRIPT)
-    remove_file(LOCAL_SCRIPT)
-
     install_dir = sysconfig.get_python_lib() + os.sep + 'pychecker'
     checker_py = install_dir + os.sep + 'checker.py'
     py_exe = sys.executable
 
+    script_suffix = ''
     script_str = '#! /bin/sh\n\n%s %s "$@"\n' % (py_exe, checker_py)
     if sys.platform == 'win32' :
         script_str = '%s %s %%*\n' % (py_exe, checker_py)
+        script_suffix = '.bat'
+
+    LOCAL_SCRIPT = 'pychecker' + script_suffix
+    LOCAL_SCRIPT = os.path.join(tempfile.gettempdir(), LOCAL_SCRIPT)
+    remove_file(LOCAL_SCRIPT)
 
     try :
         fp = open(LOCAL_SCRIPT, "w")
