@@ -540,20 +540,21 @@ class Code :
 
     def setType(self, name) :
         valueList = self.typeMap.get(name, [])
-        type = Stack.TYPE_UNKNOWN
+        stackType = Stack.TYPE_UNKNOWN
         if self.stack :
             if not self.unpackCount :
-                type = self.stack[-1].type
+                stackType = self.stack[-1].type
             else :
                 data = self.stack[-1].data
-                try :
-                    type = data[len(data)-self.unpackCount].type
-                except (TypeError, AttributeError) :
-                    # len(data) fails if we don't know what data is
-                    #   (eg, for loop), or it may not be a Stack.Item
-                    pass
+                if type(data) == types.TupleType :
+                    try :
+                        stackType = data[len(data)-self.unpackCount].type
+                    except (AttributeError, IndexError) :
+                        # we may not have a Stack.Item (no .type) (AttrError)
+                        # or no size (IndexError)
+                        pass
 
-        valueList.append(type)
+        valueList.append(stackType)
         self.typeMap[name] = valueList
             
     def addReturn(self) :
@@ -713,6 +714,10 @@ def _BUILD_TUPLE(oparg, operand, codeSource, code) :
 def _BUILD_LIST(oparg, operand, codeSource, code) :
     _makeConstant(code.stack, oparg, Stack.makeList)
 
+def _UNARY_CONVERT(oparg, operand, codeSource, code) :
+    if len(code.stack) > 0 :
+        code.stack[-1].type = types.StringType
+
 def _popStackRef(code, operand, count = 2) :
     code.popStackItems(count)
     code.stack.append(Stack.Item(operand, Stack.TYPE_UNKNOWN))
@@ -775,6 +780,7 @@ def _RETURN_VALUE(oparg, operand, codeSource, code) :
 DISPATCH = [ None ] * 256
 DISPATCH[  1] = _POP_TOP
 DISPATCH[  4] = _DUP_TOP
+DISPATCH[ 13] = _UNARY_CONVERT
 DISPATCH[ 19] = _BINARY_POWER
 DISPATCH[ 20] = _BINARY_MULTIPLY
 DISPATCH[ 21] = _BINARY_DIVIDE
