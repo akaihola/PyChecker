@@ -4,6 +4,7 @@ Usage:
 available options:
 
 Error:
+ --no-duplicateImport   Report/ignore duplicate imports
  --no-importError       Report/ignore imports that may fail
  --no-operator          Check for (++) and (--) which are legal, but not useful
  --no-operatorPlus      Check for unary +
@@ -14,6 +15,7 @@ Error:
                         ['self', 'this', 's']
  --shadowBuiltins       Report names that shadow builtins
  --no-shadowIdentifier  Report names already defined in outer scopes
+ --no-shadowImport      Report imports which shadow names from other imports
  --no-syntaxErrors      Report/ignore syntax errors
  --no-unknown           Report names that are not defined
  --no-unpackedUsed      Do not treat variables used in tuple assignment as used
