@@ -12,7 +12,7 @@ class Y:
         if x == 0 :
 	    return 0
 	if x == 1 :
-	    return []
+	    return 53
 	return None
 
 class Z:
