@@ -259,6 +259,13 @@ def _checkGlobal(operand, func, lastLineNum, err) :
     return None
 
 
+def _checkComplex(warnings, maxValue, value, func, err) :
+    if maxValue and value > maxValue :
+        line = func.function.func_code.co_firstlineno
+        warn = Warning(func, line, err % (func.function.__name__, value))
+        warnings.append(warn)
+
+
 def _checkFunction(module, func, c = None) :
     "Return a list of Warnings found in a function/method."
 
@@ -266,9 +273,8 @@ def _checkFunction(module, func, c = None) :
 
     # check the code
     #  see dis.py in std python distribution
-    firstLineNum = lastLineNum = func.function.func_code.co_firstlineno
-
     func_code, code, i, maxCode, extended_arg = OP.initFuncCode(func.function)
+    lastLineNum = func_code.co_firstlineno
     stack, returnValues = [], []
     unpackCount = 0
     returns, loops, branches = 0, 0, {}
@@ -284,7 +290,14 @@ def _checkFunction(module, func, c = None) :
             if OP.LINE_NUM(op) :
                 lastLineNum = oparg
             elif OP.COMPARE_OP(op) :
-                stack[-2:] = [ Stack.makeComparison(stack[-2:], operand) ]
+                si = len(stack)
+                if si >= 2 :
+                    compareValues = stack[-si:]
+                elif si == 1 :
+                    compareValues = [ stack[-1], None ]
+                else :
+                    compareValues = [ None, None ]
+                stack[-si:] = [ Stack.makeComparison(compareValues, operand) ]
             elif OP.LOAD_GLOBAL(op) :
                 # make sure we remember each global ref to check for unused
                 globalRefs[_getGlobalName(operand, func)] = operand
@@ -376,39 +389,28 @@ def _checkFunction(module, func, c = None) :
                     del stack[-1]
 
     # ignore last return of None, it's always there
+    # FIXME: should only return if const (implicit), if global, it's explicit
     # there must be at least 2 real return values to check for consistency
     # FIXME: handle this when we store more info about the type in the stack
     if len(returnValues) > 2 :
         if type(returnValues[0][1]) == types.TupleType :
-            lastReturnLen = len(returnValues[0][1])
             for value in returnValues[1:-1] :
-                pass
+                if value: pass
             
     if _cfg.localVariablesUsed :
         for var, line in unusedLocals.items() :
             if line :
                 warnings.append(Warning(func_code, line, _UNUSED_LOCAL % var))
 
-    lines = (lastLineNum - firstLineNum)
-    if _cfg.maxLines and lines > _cfg.maxLines :
-        warn = Warning(func_code, firstLineNum,
-                       _FUNC_TOO_LONG % (func.function.__name__, lines))
-        warnings.append(warn)
-
-    # loops should be counted as one branch, but there are typically 3
-    # branches in byte code to setup a loop, so subtract off 2/3's of them
-    # / 2 to approximate real branches
+    # Check code complexity:
+    #   loops should be counted as one branch, but there are typically 3
+    #   branches in byte code to setup a loop, so subtract off 2/3's of them
+    #    / 2 to approximate real branches
     branches = (len(branches.keys()) - (2 * loops)) / 2
-    if _cfg.maxBranches and branches > _cfg.maxBranches :
-        warn = Warning(func_code, firstLineNum,
-                       _TOO_MANY_BRANCHES % (func.function.__name__, branches))
-        warnings.append(warn)
-
-    if _cfg.maxReturns and returns > _cfg.maxReturns :
-        warn = Warning(func_code, firstLineNum,
-                       _TOO_MANY_RETURNS % (func.function.__name__, returns))
-        warnings.append(warn)
-
+    lines = (lastLineNum - func_code.co_firstlineno)
+    _checkComplex(warnings, _cfg.maxLines, lines, func, _FUNC_TOO_LONG)
+    _checkComplex(warnings, _cfg.maxReturns, returns, func, _TOO_MANY_RETURNS)
+    _checkComplex(warnings, _cfg.maxBranches, branches, func, _TOO_MANY_BRANCHES)
     return warnings, globalRefs, functionsCalled
 
 
