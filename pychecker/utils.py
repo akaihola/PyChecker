@@ -64,16 +64,13 @@ def debug(*args) :
     if cfg().debug: print args
 
 
-PYTHON_1_5 = 10500
-PYTHON_2_0 = 20000
-PYTHON_2_1 = 20100
-PYTHON_2_2 = 20200
+PYTHON_1_5 = 0x10502
+PYTHON_2_0 = 0x20000
+PYTHON_2_1 = 0x20100
+PYTHON_2_2 = 0x20200
 
 def pythonVersion() :
-    major, minor, release = 1, 5, 0
-    if hasattr(sys, 'version_info') :
-        major, minor, release = sys.version_info[0:3]
-    return major * 10000 + minor * 100 + release
+    return sys.hexversion >> 8
 
 def startswith(s, substr) :
     "Ugh, supporting python 1.5 is a pain"
