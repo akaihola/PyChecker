@@ -42,6 +42,7 @@ _OPTIONS = [
  ('u', 0, 'callinit', 'baseClassInitted', 'Subclass.__init__() not called'),
  ('N', 0, 'initreturn', 'returnNoneFromInit', 'Return None from __init__()'),
  ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
+ ('y', 0, 'classattr', 'classAttrExists', 'class attribute does not exist'),
  ('S', 1, 'self', 'methodArgName', 'First argument to methods'),
  ('T', 0, 'argsused', 'argumentsUsed', 'unused method/function arguments'),
  ('G', 0, 'selfused', 'ignoreSelfUnused', 'ignore if self is unused in methods'),
@@ -66,6 +67,7 @@ _OPTIONS = [
  ('F', 0, 'rcfile', None, 'print a .pycheckrc file generated from command line args'),
  ('P', 0, 'printparse', 'printParse', 'print internal checker parse structures'),
  ('d', 0, 'debug', 'debug', 'turn on debugging for checker'),
+ ('Q', 0, 'quiet', None, 'turn off all output except warnings'),
  None,
 ]
 
@@ -141,6 +143,7 @@ class Config :
         "Initialize configuration with default values."
 
         self.debug = 0
+        self.quiet = 0
         self.onlyCheckInitForMembers = 0
         self.printParse = 0
 
@@ -160,6 +163,7 @@ class Config :
         self.initDefinedInSubclass = 0
         self.baseClassInitted = 1
         self.callingAttribute = 0
+        self.classAttrExists = 1
         self.namedArgs = 1
         self.returnNoneFromInit = 1
 
@@ -212,12 +216,16 @@ class Config :
         except getopt.error, detail :
             raise UsageError, detail
 
+        quiet = self.quiet
         for arg, value in args :
             shortArg, useValue, longArg, member, description = _OPTIONS_DICT[arg]
             if member == None :
                 # FIXME: this whole block is a hack
                 if longArg == 'printrc' :
                     sys.stdout.write(outputRc(self))
+                    continue
+                elif longArg == 'quiet' :
+                    quiet = 1
                     continue
 
                 self.noDocModule = 0
@@ -241,6 +249,7 @@ class Config :
                 # for shortArgs we only toggle
                 setattr(self, member, not getattr(self, member))
 
+        self.quiet = quiet
         if self.variablesToIgnore.count(CHECKER_VAR) <= 0 :
             self.variablesToIgnore.append(CHECKER_VAR)
 

@@ -175,7 +175,7 @@ def _classHasAttribute(c, attr) :
             hasattr(c.classObject, attr))
 
 def _checkAttribute(attr, c, code) :
-    if not _classHasAttribute(c, attr) :
+    if not _classHasAttribute(c, attr) and cfg().classAttrExists :
         code.addWarning(msgs.INVALID_CLASS_ATTR % attr)
 
 def _checkModuleAttribute(attr, module, code, ref) :

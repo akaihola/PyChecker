@@ -1,5 +1,8 @@
 
 Version 0.9	- xx August 2001
+  * Add -Q/--quiet to be real quiet, only output warning msgs, nothing else
+  * Add -y/--classattr config option (warning was not configurable before)
+  	(warn if class attribute doesn't exist)
   * Add -x/--miximport config option (warning was not configurable before)
   	(warn if mixing: import/from ... import)
   * Add -u/--callinit config option (warning was not configurable before)

@@ -436,7 +436,8 @@ def getWarnings(files, cfg = None, suppressions = {}):
 
 
 def _print_processing(name) :
-    sys.stderr.write("Processing %s...\n" % name)
+    if not _cfg.quiet :
+        sys.stderr.write("Processing %s...\n" % name)
 
 
 def main(argv) :
@@ -455,13 +456,15 @@ def main(argv) :
             printer.module(module)
 
     warnings = warn.find(getAllModules(), _cfg, suppressions)
-    print "\nWarnings...\n"
+    if not _cfg.quiet :
+        print "\nWarnings...\n"
     if warnings or importWarnings :
         _printWarnings(importWarnings + warnings)
         return 1
-    else :
+
+    if not _cfg.quiet :
         print "None"
-        return 0
+    return 0
 
 
 if __name__ == '__main__' :
