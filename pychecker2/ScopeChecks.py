@@ -1,6 +1,9 @@
 
 from pychecker2.Check import Check
 from pychecker2.Warning import Warning
+from pychecker2 import util
+
+from compiler.ast import *
 
 class RedefineCheck(Check):
     redefinedScope = Warning('Report redefined scopes',
@@ -15,6 +18,9 @@ class RedefineCheck(Check):
                     # oops, another scope has the same name and parent
                     first = node
                     second = names[key]
+                    # but don't warn if the parent node is the same If or Try
+                    if util.under_simple_try_if(first, second):
+                        continue
                     if first.lineno > second.lineno:
                         second, first = first, second
                     file.warning(first, self.redefinedScope,
