@@ -35,6 +35,7 @@ from pychecker import warn
 from pychecker import OP
 from pychecker import Config
 from pychecker import function
+from pychecker.Warning import Warning
 
 # Globals for storing a dictionary of info about modules and classes
 _allModules = {}
@@ -425,12 +426,12 @@ def processFiles(files, cfg = None, pre_process_cb = None) :
             pre_process_cb(moduleName)
         module = Module(moduleName)
         if not module.load() :
-            w = warn.Warning(module.filename(), 1, "NOT PROCESSED UNABLE TO IMPORT")
+            w = Warning(module.filename(), 1, "NOT PROCESSED UNABLE TO IMPORT")
             warnings.append(w)
     return warnings
 
 
-def getWarnings(files, cfg = None, suppressions = {}):
+def getWarnings(files, cfg = None, suppressions = None):
     warnings = processFiles(files, cfg)
     fixupBuiltinModules()
     return warnings + warn.find(getAllModules(), _cfg, suppressions)
