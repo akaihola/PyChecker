@@ -690,7 +690,14 @@ else :
                 _warnings_cache[w] = 1
         return warnings
 
-    def __import__(name, globals={}, locals={}, fromlist=[]) :
+    def __import__(name, globals=None, locals=None, fromlist=None):
+        if globals is None:
+            globals = {}
+        if locals is None:
+            locals = {}
+        if fromlist is None:
+            fromlist = []
+
         check = not sys.modules.has_key(name) and name[:10] != 'pychecker.'
         pymodule = _orig__import__(name, globals, locals, fromlist)
         if check :
