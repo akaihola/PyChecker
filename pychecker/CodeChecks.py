@@ -431,8 +431,9 @@ def _getGlobalName(name, func) :
     return name
 
 
-def _checkNoEffect(code):
-    if OP.POP_TOP(code.nextOpInfo()[0]) and cfg().noEffect:
+def _checkNoEffect(code, ignoreStmtWithNoEffect=0):
+    if (not ignoreStmtWithNoEffect and
+        OP.POP_TOP(code.nextOpInfo()[0]) and cfg().noEffect):
         code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
     
 def _makeConstant(code, index, factoryFunction) :
@@ -813,9 +814,9 @@ class Code :
                     return op
         raise RuntimeError('Could not find first opcode in function')
 
-    def pushStack(self, item) :
+    def pushStack(self, item, ignoreStmtWithNoEffect=0):
         self.stack.append(item)
-        _checkNoEffect(self)
+        _checkNoEffect(self, ignoreStmtWithNoEffect)
 
     def popStack(self) :
         if self.stack :
@@ -1327,9 +1328,32 @@ def _IMPORT_FROM(oparg, operand, codeSource, code) :
 def _IMPORT_STAR(oparg, operand, codeSource, code) :
     _handleImportFrom(code, '*', codeSource.module, codeSource.main)
 
+# In Python 2.3, a, b = 1,2 generates this code:
+# ...
+# ROT_TWO
+# JUMP_FORWARD 2
+# DUP_TOP
+# POP_TOP
+#
+# which generates a Possible stmt w/no effect
+# determine if this situation occurred and don't warn
+
+# ROT_TWO = 2; JUMP_FORWARD = 110; 2, 0 is the offset (2)
+_IGNORE_SEQ = '%c%c%c%c' % (2, 110, 2, 0)
+def _shouldIgnoreNoEffectWarning(code):
+    if utils.pythonVersion() < utils.PYTHON_2_3:
+        return 0
+
+    try:
+        index = code.index - 5
+        bytes = code.bytes[index:index+4]
+        return bytes == _IGNORE_SEQ
+    except IndexError:
+        return 0
+
 def _DUP_TOP(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
-        code.pushStack(code.stack[-1])
+        code.pushStack(code.stack[-1], _shouldIgnoreNoEffectWarning(code))
 
 def _popn(code, n) :
     if len(code.stack) >= 2 :
@@ -1690,6 +1714,8 @@ def _is_unreachable(code, topOfStack, branch, if_false) :
     return 1
 
 def _jump_conditional(oparg, operand, codeSource, code, if_false) :
+    # FIXME: this doesn't work in 2.3+ since constant conditions
+    #        are optimized away by the compiler.
     if code.stack :
         topOfStack = code.stack[-1]
         if (topOfStack.const or topOfStack.type is types.NoneType) and \
