@@ -607,7 +607,10 @@ def fixupBuiltinModules(needs_init=0):
                 module.attributes = [ '__dict__' ] + dir(m) + extra_attrs
 
 
-def _printWarnings(warnings, stream = sys.stdout) :
+def _printWarnings(warnings, stream=None):
+    if stream is None:
+        stream = sys.stdout
+    
     warnings.sort()
     lastWarning = None
     for warning in warnings :
