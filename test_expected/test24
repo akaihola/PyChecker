@@ -1,0 +1,7 @@
+Processing test24...
+
+Warnings...
+
+test_input/import24.py:4 No doc string for class Aaa
+test_input/import24.py:8 Base class (import24.Aaa) __init__() not called
+test_input/import24.py:8 No doc string for class Bbb

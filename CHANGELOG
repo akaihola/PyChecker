@@ -1,4 +1,10 @@
 
+Version 0.7	- xx July 2001
+  * Fix wrong filename in 'Base class (xxx) __init__() not called'
+  	when doing a from X import *
+  * Fix 'No attribute found' for very dynamic classes
+  	(may also work for classes that use __getattr__)
+
 Version 0.6.1	- 27 June 2001
   * Fix bug which caused an exception from some import code
   * Fix bug in determining if there is an implicit return
