@@ -1,6 +1,6 @@
 
 Version 0.8.8   - xx January 2002
-  * Allow pychecker to be imported (import pychecker.check)
+  * Allow pychecker to be imported (in your code do: import pychecker.check)
   * Using vars() for format string argument works like locals()
   * Fix -a/--initattr warning to actually warn when attributes 
         are set outside of __init__(), but not in __init__()
