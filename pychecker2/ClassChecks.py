@@ -23,6 +23,9 @@ class GetDefs(BaseVisitor):
            isinstance(node.parent, (ast.Assign, ast.AssTuple)):
             self.result[node.attrname] = node
 
+    def visitClass(self, node):         # ignore nested classes
+        pass
+
 class GetRefs(BaseVisitor):
     "Record references to a attribute of self, who's name is provided"
     def __init__(self, name):
@@ -31,7 +34,8 @@ class GetRefs(BaseVisitor):
 
     def visitAssAttr(self, node):
         if isinstance(node.expr, ast.Name) and \
-           node.expr.name == self.selfname:
+           node.expr.name == self.selfname and \
+           not isinstance(node.parent, (ast.Assign, ast.AssTuple)):
             self.result[node.attrname] = node
         self.visitChildren(node)
 
@@ -40,6 +44,9 @@ class GetRefs(BaseVisitor):
            node.expr.name == self.selfname:
             self.result[node.attrname] = node
         self.visitChildren(node)
+
+    def visitClass(self, node):         # ignore nested classes
+        pass
 
 
 def _get_methods(class_scope):
@@ -187,6 +194,8 @@ class AttributeCheck(Check):
 
     unknownAttribute = Warning('Report unknown object attributes in methods',
                            'Class %s has no attribute %s')
+    unusedAttribute = Warning('Report attributes unused in methods',
+                              'Attribute %s is not used in class %s')
     missingSelf = Warning('Report methods without "self"',
                           'Method %s is missing self parameter')
     methodRedefined = Warning('Report the redefinition of class methods',
@@ -218,7 +227,8 @@ class AttributeCheck(Check):
             # get attributes defined on self
             attributes = {}             # "self.foo = " kinda things
             methods = {}                # methods -> scopes
-            inherited = {}              # all class defs
+            inherited = {}              # all class defs (methods)
+            inherited_attributes = {}
             
             for m in _get_methods(scope):
                 if not m.node.argnames:
@@ -238,7 +248,7 @@ class AttributeCheck(Check):
 
             for base in [scope] + bases:
                 for m in _get_methods(base):
-                    attributes.update(visit_with_self(GetDefs, m))
+                    inherited_attributes.update(visit_with_self(GetDefs, m))
                     if m.name != "__init__" and \
                        methods.has_key(m.name) and \
                        not conforms(m, methods[m.name]):
@@ -250,7 +260,7 @@ class AttributeCheck(Check):
                 inherited.update(base.defs)
 
             # complain about defs with the same name as methods
-            for name, node in attributes.items():
+            for name, node in inherited_attributes.items():
                 try:
                     orig = methods[mangle(name, scope.name)]
                     file.warning(line(node), self.methodRedefined,
@@ -266,9 +276,52 @@ class AttributeCheck(Check):
 
             # Now complain about refs on self that aren't known
             for name, node in refs:
-                if not attributes.has_key(name) and \
+                if not inherited_attributes.has_key(name) and \
                    not _ignorable.get(name, None) and \
                    not scope.defs.has_key(mangle(name, scope.name)) and \
                    not inherited.has_key(name):
                     file.warning(line(node), self.unknownAttribute,
                                  scope.name, name)
+
+            for name, node in refs:
+                try:
+                    del attributes[name]
+                except KeyError:
+                    pass
+            for name, node in attributes.items():
+                if name.startswith('__'):
+                    file.warning(line(node), self.unusedAttribute,
+                                 name, scope.name)
+
+class GetReturns(BaseVisitor):
+
+    def __init__(self):
+        self.result = []
+
+    def visitReturn(self, node):
+        self.result.append(node)
+
+    def visitFunction(self, node): pass
+    visitClass = visitFunction
+
+class InitCheck(Check):
+
+    initReturnsValue = Warning('Report value returned from __init__',
+                               'Method __init__ should not return a value')
+
+    def check(self, file, unused_checker):
+
+        for scope in type_filter(file.scopes.values(), symbols.ClassScope):
+            for m in _get_methods(scope):
+                if m.name == '__init__':
+                    for r in walk(m.node.code, GetReturns()).result:
+                        if isinstance(r.value, ast.Const) and \
+                           r.value.value is None:
+                            continue
+                        if isinstance(r.value, ast.Name) and \
+                           r.value.name == 'None':
+                            continue
+                        file.warning(r, self.initReturnsValue)
+
+                            
+
