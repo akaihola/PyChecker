@@ -1,5 +1,6 @@
 
 Version 0.7	- xx July 2001
+  * Add warning for variable used before being set
   * Improve format string checks/warnings
   * Check arguments to constructors
   * Check that self is first arg to base constructor

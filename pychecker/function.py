@@ -41,6 +41,9 @@ class Function :
             self.maxArgs = None
         self.supportsKW = function.func_code.co_flags & _KW_ARGS_FLAG
 
+    def isParam(self, name) :
+        numArgs = self.function.func_code.co_argcount
+        return name in self.function.func_code.co_varnames[:numArgs]
 
 def create_fake(name, code, func_globals = {}) :
     return Function(FakeFunction(name, code, func_globals))

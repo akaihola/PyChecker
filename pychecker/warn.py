@@ -33,6 +33,7 @@ _VAR_NOT_USED = "Variable (%s) not used"
 _IMPORT_NOT_USED = "Imported module (%s) not used"
 _UNUSED_LOCAL = "Local variable (%s) not used"
 _NO_LOCAL_VAR = "No local variable (%s)"
+_VAR_USED_BEFORE_SET = "Variable (%s) used before being set"
 
 _MODULE_IMPORTED_AGAIN = "Module (%s) re-imported"
 
@@ -550,6 +551,10 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                         codeObjects.append(operand)
                 elif OP.LOAD_FAST(op) :
                     stack.append(Stack.Item(operand, type(operand)))
+                    if not unusedLocals.has_key(operand) and \
+                       not func.isParam(operand) :
+                        warn = Warning(func_code, lastLineNum,
+                                       _VAR_USED_BEFORE_SET % operand)
                     unusedLocals[operand] = None
                 elif OP.LOAD_ATTR(op) :
                     topOfStack = stack[-1]
