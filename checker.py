@@ -79,7 +79,15 @@ def _findModule(name, path = sys.path) :
         if smt[-1] == imp.PKG_DIRECTORY :
             # package found - read path info from init file
             m = imp.load_module(p, file, filename, smt)
-            path = m.__path__
+
+            # importing xml plays a trick, which replaces itself with _xmlplus
+            # both have subdirs w/same name, but different modules in them
+            # we need to choose the real (replaced) version
+            if m.__name__ != p :
+                file, filename, smt = imp.find_module(m.__name__, path)
+                m = imp.load_module(p, file, filename, smt)
+
+            path = path + m.__path__
         else:
             if p is not packages[-1] :
                 raise ImportError, "No module named %s" % packages[-1]
