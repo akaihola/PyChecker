@@ -1,3 +1,6 @@
+Version 0.8.14   - XX XXX 2004
+  * Fix spurious warning when doing x = not x
+
 Version 0.8.13   - 18 November 2003
   * Add -s/--shadowbuiltin option to warn when overriding a builtin
   * Add warning when assigning a variable to itself

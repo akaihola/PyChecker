@@ -28,3 +28,7 @@ def g():
     a = `a`
     a = -a
     a = ~a
+
+def h():
+  a = 1
+  a = not a

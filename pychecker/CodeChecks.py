@@ -1386,6 +1386,9 @@ def _UNARY_NEGATIVE(oparg, operand, codeSource, code) :
         code.addWarning(msgs.STMT_WITH_NO_EFFECT % '--')
     _modifyStackName(code, '-neg')
 
+def _UNARY_NOT(oparg, operand, codeSource, code) :
+    _modifyStackName(code, '-not')
+
 def _UNARY_INVERT(oparg, operand, codeSource, code) :
     if OP.UNARY_INVERT(code.nextOpInfo()[0]) :
         code.addWarning(msgs.STMT_WITH_NO_EFFECT % '~~')
@@ -1721,6 +1724,7 @@ DISPATCH[  2] = _ROT_TWO
 DISPATCH[  4] = _DUP_TOP
 DISPATCH[ 10] = _UNARY_POSITIVE
 DISPATCH[ 11] = _UNARY_NEGATIVE
+DISPATCH[ 12] = _UNARY_NOT
 DISPATCH[ 13] = _UNARY_CONVERT
 DISPATCH[ 15] = _UNARY_INVERT
 DISPATCH[ 19] = _BINARY_POWER
