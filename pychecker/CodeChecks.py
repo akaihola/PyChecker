@@ -943,7 +943,7 @@ def _LOAD_NAME(oparg, operand, codeSource, code) :
     # if there was from XXX import *, _* names aren't imported
     if codeSource.module.modules.has_key(operand) and \
        hasattr(codeSource.module.module, operand) :
-        operand = eval("codeSource.module.module.%s.__name__" % operand)
+        operand = getattr(codeSource.module.module, operand).__name__
 
     opType, const = Stack.TYPE_GLOBAL, 0
     if operand == 'None' :
