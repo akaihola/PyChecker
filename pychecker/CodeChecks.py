@@ -1278,7 +1278,7 @@ def _MAKE_FUNCTION(oparg, operand, codeSource, code) :
     code.pushStack(newValue)
 
 def _MAKE_CLOSURE(oparg, operand, codeSource, code) :
-    _MAKE_FUNCTION(oparg - 1, operand, codeSource, code)
+    _MAKE_FUNCTION(max(0, oparg - 1), operand, codeSource, code)
 
 def _BUILD_MAP(oparg, operand, codeSource, code) :
     _makeConstant(code, oparg, Stack.makeDict)
