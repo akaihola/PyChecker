@@ -1,5 +1,6 @@
 
 Version 0.7	- xx July 2001
+  * Check in lambda functions for module/variable use
   * Fix inability to evaluate { 1: 'a' } inline,
 	led to incorrect __init__() not called warnings
   * Fix exception when class overrides __special__() methods & raise exception

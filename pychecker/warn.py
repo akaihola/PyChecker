@@ -671,6 +671,14 @@ def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
     return warnings
 
 
+def _handleLambda(module, code, warnings, globalRefs, in_class = 0):
+    if code.co_name == '<lambda>' :
+        func = function.create_fake(code.co_name, code)
+        # I sure hope there can't/aren't lambda's within lambda's
+        _updateFunctionWarnings(module, func, None, warnings,
+                                globalRefs, in_class)
+
+
 def _updateFunctionWarnings(module, func, c, warnings, globalRefs,
                             main = 0, in_class = 0) :
     "Update function warnings and global references"
@@ -679,6 +687,10 @@ def _updateFunctionWarnings(module, func, c, warnings, globalRefs,
                  _checkFunction(module, func, c, main, in_class)
     warnings.extend(newWarnings)
     globalRefs.update(newGlobalRefs)
+
+    for code in codeObjects :
+        _handleLambda(module, code, warnings, globalRefs, main)
+
     return funcs, codeObjects, returnValues
 
 
