@@ -90,7 +90,10 @@ class Item :
 
 
 def makeDict(values = (), const = 1) :
-    return Item(tuple(values), types.DictType, const, len(values))
+    values = tuple(values)
+    if not values:
+        values = ('<on-stack>',)
+    return Item(values, types.DictType, const, len(values))
 
 def makeTuple(values = (), const = 1) :
     return Item(tuple(values), types.TupleType, const, len(values))
