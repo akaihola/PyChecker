@@ -1,13 +1,13 @@
 
 "doc"
 
-from metaslash.db import db
+from xml.dom import pulldom
 
-class X(db.Record) :
+class X(pulldom.PullDOM) :
     "doc"
     def __init__(self):
 	"shouldn't be a warning"
-        db.Record.__init__(self, "")
+        pulldom.PullDOM.__init__(self)
 
 class Y(Exception):
     "doc"
