@@ -59,13 +59,13 @@ class Item :
         self.type = TYPE_ATTRIBUTE
 
 
-def makeDict(values, const = 1) :
+def makeDict(values = (), const = 1) :
     return Item(tuple(values), types.DictType, const, len(values))
 
-def makeTuple(values, const = 1) :
+def makeTuple(values = (), const = 1) :
     return Item(tuple(values), types.TupleType, const, len(values))
 
-def makeList(values, const = 1) :
+def makeList(values = [], const = 1) :
     return Item(values, types.ListType, const, len(values))
 
 def makeFuncReturnValue() :
