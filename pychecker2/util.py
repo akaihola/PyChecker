@@ -5,7 +5,7 @@ class BaseVisitor:
 
     def visit(self, unused_node):
         "method is really overridden by compiler.visitor.ASTVisitor"
-        pass
+        raise AssertionError('Unreachable')
 
     def visitChildren(self, n):
         for c in n.getChildNodes():
@@ -19,14 +19,17 @@ def try_if_exclusive(stmt_node1, stmt_node2):
         parent = stmt_node1.parent.parent
         if parent == stmt_node2.parent.parent:
             if isinstance(parent, ast.If):
-                return 1
+                parts = [code for test, code in parent.tests]
+                parts.append(parent.else_)
+                for part in parts:
+                    if stmt_node1 in part.nodes:
+                        return stmt_node2 not in part.nodes
             if isinstance(parent, ast.TryExcept):
-                # code in try/else are not exclusive
-                if ((stmt_node1.parent in parent.body.nodes and 
-                     stmt_node2.nodes in parent.else_.nodes)
-                    or
-                    (stmt_node2.parent in parent.body.nodes and 
-                     stmt_node1.nodes in parent.else_.nodes)):
+                parts = []
+                parts.extend(parent.body.nodes)
+                parts.extend(parent.else_.nodes)
+                if stmt_node1 in parts and \
+                   stmt_node2 in parts:
                     return None
                 return 1
     except AttributeError:
