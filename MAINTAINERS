@@ -9,7 +9,14 @@ Barry Scott		barry@scottb.demon.co.uk
 				Fix Base class not init spurious warning
 				Other misc suggestions and fixes
 
-Jeff Collins			checker.findModule
-Nicolas Chauvat			setup.py
 Riaan Booysen			bug reports, suggestions, etc.
+Loris Caren			testing, etc.
+Nicolas Chauvat			setup.py
+Jeff Collins			checker.findModule
+Walter Doerwald			bug reports and fixes
 Mark Favas			bug reports
+Ben Hutchings			bug reports
+Jonathan Mark 			bug reports and suggestions
+Rich Salz			bug reports and suggestions
+Matt Wilson			bug reports and fixes
+
