@@ -130,7 +130,7 @@ class FormatStringCheck(Check):
                     file.warning(mod, self.badFormat, detail.position,
                                  _bad_format_str(s, detail.position))
                 except TypeError, detail:
-                    file.warning(mod, self.badConstant, detail)
+                    file.warning(mod, self.badConstant, str(detail))
                 except UnknownError:
                     pass
                 if not formats:
@@ -157,10 +157,10 @@ class FormatStringCheck(Check):
                     except UnknownError:
                         pass
                     except TypeError, detail:
-                        file.warning(mod, self.badConstant, detail)
+                        file.warning(mod, self.badConstant, str(detail))
 
                 elif len(names) == len(formats): # dictionary
-                    defines = {}
+                    defines = None
                     used = {}
                     if isinstance(mod.right, ast.CallFunc) and \
                        isinstance(mod.right.node, ast.Name):
@@ -168,9 +168,9 @@ class FormatStringCheck(Check):
                             defines = scope.defs
                             uses = scope.uses
                         if mod.right.node.name == 'globals':
-                            defines = file.rootScope.defs
-                            uses = file.rootScope.uses
-                    if defines:
+                            defines = file.root_scope.defs
+                            uses = file.root_scope.uses
+                    if defines is not None:
                         for n in names:
                             if not defines.has_key(n):
                                 file.warning(mod, self.unknownFormatName,
