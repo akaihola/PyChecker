@@ -268,7 +268,9 @@ class Module :
 
     def addClass(self, name) :
         self.classes[name] = c = Class(name, self.module)
-        self.__addAttributes(c, c.classObject)
+        packages = string.split(str(c.classObject), '.')
+        if packages[0] not in _cfg.blacklist :
+            self.__addAttributes(c, c.classObject)
 
     def addModule(self, name) :
         if not _allModules.has_key(name) :
@@ -290,14 +292,17 @@ class Module :
 
     def load(self) :
         try :
+            # there's no need to reload modules we already have
+            if sys.modules.has_key(self.moduleName) :
+                return 1
+
 	    file, filename, smt = _findModule(self.moduleName)
             if file != None :
                 module = imp.load_module(self.moduleName, file, filename, smt)
                 file.close()
                 return self.initModule(module)
-        except (ImportError, NameError, SyntaxError), detail:
-            # not sure which errors we should check here, maybe all?
-            return importError(self.moduleName, detail)
+        except :
+            return importError(self.moduleName, sys.exc_value)
 
     def initModule(self, module) :
         self.module = module
