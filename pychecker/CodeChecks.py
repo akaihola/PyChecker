@@ -787,6 +787,11 @@ def _LOAD_NAME(oparg, operand, codeSource, code) :
 
 _LOAD_GLOBAL = _LOAD_DEREF = _LOAD_NAME
 
+def _DELETE_NAME(oparg, operand, codeSource, code) :
+    # FIXME: check if operand exists in globals, otherwise, warn
+    pass
+_DELETE_GLOBAL = _DELETE_NAME
+
 def _LOAD_CONST(oparg, operand, codeSource, code) :
     code.stack.append(Stack.Item(operand, type(operand), 1))
     if type(operand) == types.CodeType :
@@ -826,6 +831,10 @@ def _STORE_FAST(oparg, operand, codeSource, code) :
             code.unusedLocals[operand] = errLine
         code.unpack()
 
+def _DELETE_FAST(oparg, operand, codeSource, code) :
+    # FIXME: check if operand exists in locals, otherwise, warn
+    pass
+
 def _LOAD_ATTR(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
         top = code.stack[-1]
@@ -840,6 +849,10 @@ def _LOAD_ATTR(oparg, operand, codeSource, code) :
 
 def _STORE_ATTR(oparg, operand, codeSource, code) :
     code.unpack()
+
+def _DELETE_ATTR(oparg, operand, codeSource, code) :
+    # FIXME: do same checks as LOAD_ATTR, but don't addAttr to stack item
+    pass
 
 def _COMPARE_OP(oparg, operand, codeSource, code) :
     _handleComparison(code.stack, operand)
@@ -870,8 +883,10 @@ def _DUP_TOP(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
         code.stack.append(code.stack[-1])
 
-def _STORE_SUBSCR(oparg, operand, codeSource, code) :
+def _pop2(oparg, operand, codeSource, code) :
     code.popStackItems(2)
+_STORE_SUBSCR = _DELETE_SUBSCR = _pop2
+
 
 def _CALL_FUNCTION(oparg, operand, codeSource, code) :
     _handleFunctionCall(codeSource, code, oparg)
@@ -1025,6 +1040,7 @@ DISPATCH[ 31] = _SLICE1
 DISPATCH[ 32] = _SLICE2
 DISPATCH[ 33] = _SLICE3
 DISPATCH[ 60] = _STORE_SUBSCR
+DISPATCH[ 61] = _DELETE_SUBSCR
 DISPATCH[ 62] = _BINARY_LSHIFT
 DISPATCH[ 63] = _BINARY_RSHIFT
 DISPATCH[ 64] = _BINARY_AND
@@ -1033,9 +1049,12 @@ DISPATCH[ 66] = _BINARY_OR
 DISPATCH[ 83] = _RETURN_VALUE
 DISPATCH[ 84] = _IMPORT_STAR
 DISPATCH[ 90] = _STORE_NAME
+DISPATCH[ 91] = _DELETE_NAME
 DISPATCH[ 92] = _UNPACK_SEQUENCE
 DISPATCH[ 95] = _STORE_ATTR
+DISPATCH[ 96] = _DELETE_ATTR
 DISPATCH[ 97] = _STORE_GLOBAL
+DISPATCH[ 98] = _DELETE_GLOBAL
 DISPATCH[100] = _LOAD_CONST
 DISPATCH[101] = _LOAD_NAME
 DISPATCH[102] = _BUILD_TUPLE
