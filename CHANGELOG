@@ -1,4 +1,5 @@
-Version 0.9.0   - xx March 2002
+Version 0.8.10   - xx March 2002
+  * Add warnings for unpacking sequence of wrong size
   * Fix spurious warning with globals that start w/__
   * Add --changetypes option to warn when setting a variable to different types
   * Add --stringiter option to warn when iterating over a string
@@ -12,6 +13,7 @@ Version 0.9.0   - xx March 2002
   * Fix spurious warnings for implicit returns when using try/finally:
   * Fix spurious warnings for modifying default arguments 
         when calling {}.get(), {}.has_key(), [].index(), [].count(), etc.
+  * Fix spurious warnings in Python 1.5.2 when using from/import
 
 Version 0.8.9   - 02 February 2002
   * Add -3/--properties warning when using properties with classic classes
