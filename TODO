@@ -1,5 +1,6 @@
 
 * Fix check in format strings when using '%*g %*.*g', etc
+* Add check in lambda functions for module/variable use
 * Add check for multiple functions/methods/classes w/same name
 * Add check that private functions are used in module/class
 * Add check that subclass overrides method that only raises NotImplementedError
