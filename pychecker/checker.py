@@ -18,6 +18,11 @@ import os
 import glob
 
 def setupNamespace(path) :
+    # remove pychecker if it's the first component, it needs to be last
+    if sys.path[0][-9:] == 'pychecker' :
+        del sys.path[0]
+
+    # make sure pychecker is last in path, so we can import
     checker_path = os.path.dirname(os.path.dirname(path))
     if checker_path not in sys.path :
         sys.path.append(checker_path)
