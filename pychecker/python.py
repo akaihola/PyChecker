@@ -295,6 +295,8 @@ DEPRECATED_ATTRS = { 'array.read': None, 'array.write': None,
 DEPRECATED_METHODS = { 
                        'htmllib.HTMLParser.do_nextid': None,
                        'pstats.Stats.ignore': None,
+                       'random.Random.cunifvariate': None,
+                       'random.Random.stdgamma': 'Random.gammavariate',
                      }
 
 _OS_AND_POSIX_FUNCS = { 'tempnam': None, 'tmpnam': None }
