@@ -1,10 +1,10 @@
 from pychecker2.Check import Check
 from pychecker2.Options import Opt, BoolOpt
 from pychecker2.Warning import Warning
-from pychecker2.util import flatten, parents
+from pychecker2.util import parents
 from pychecker2 import symbols
 
-import compiler
+from compiler import ast, walk
 
 def _is_method(scope):
     return scope.__class__ is symbols.FunctionScope and \
@@ -30,7 +30,7 @@ def is_arg_and_defaulted_to_same_name(name, scope):
                 # get the corresponding default arg value
                 default = scope.node.defaults[args.index(name)]
                 # must be a Name node of the same name
-                if isinstance(default, compiler.ast.Name) and \
+                if isinstance(default, ast.Name) and \
                    default.name == name:
                     return 1
             except ValueError:
@@ -51,7 +51,7 @@ class ShadowCheck(Check):
         # or even the builtins
         for scope in file.scopes.values():
             # skip methods of classes
-            if isinstance(scope.node, compiler.ast.Class):
+            if isinstance(scope.node, ast.Class):
                 continue
             for name in scope.defs:
                 if name in scope.globals:
@@ -101,30 +101,30 @@ class UnusedCheck(Check):
             return 0
 
         for nodes, scope in file.scopes.items():
-            if isinstance(nodes, compiler.ast.Function):
+            if isinstance(nodes, ast.Function):
                 code = nodes.code.nodes
                 if not code:
                     continue
                 # functions which only raise exceptions are unlikely to use
                 # their local variables
-                if isinstance(code[0], compiler.ast.Raise):
+                if isinstance(code[0], ast.Raise):
                     continue
                 # functions which do nothing are unlikely to use their
                 # local variables
-                if len(code) == 1 and isinstance(code[0], compiler.ast.Pass):
+                if len(code) == 1 and isinstance(code[0], ast.Pass):
                     continue
                 # functions which just return a constant (such as None)
                 # probably won't use locals,
                 if len(code) == 1 and \
-                   isinstance(code[0], compiler.ast.Return) and \
-                   isinstance(code[0].value, compiler.ast.Const):
+                   isinstance(code[0], ast.Return) and \
+                   isinstance(code[0].value, ast.Const):
                     continue
                 # functions which only assert falsehood are unlikely to use
                 # their local variables
-                if isinstance(code[0], compiler.ast.Assert):
-                    if (isinstance(code[0].test, compiler.ast.Const) and \
+                if isinstance(code[0], ast.Assert):
+                    if (isinstance(code[0].test, ast.Const) and \
                         not code[0].test.value) or \
-                        (isinstance(code[0].test, compiler.ast.Name) and \
+                        (isinstance(code[0].test, ast.Name) and \
                          code[0].test.name == 'None'):
                         continue
             
@@ -269,12 +269,12 @@ class UnpackCheck(Check):
 
         # local args unpacked on the `def' line are used, too
         for scope in file.scopes.values():
-            if isinstance(scope.node, compiler.ast.Function):
+            if isinstance(scope.node, ast.Function):
                 for arg in scope.node.argnames:
                     if isinstance(arg, tuple):
-                        for unpacked in flatten(arg):
+                        for unpacked in ast.flatten(arg):
                             scope.uses[unpacked] = scope.uses.get(unpacked,
                                                                   scope.node)
 
         if file.root_scope:
-            compiler.walk(file.root_scope.node, Visitor())
+            walk(file.root_scope.node, Visitor())
