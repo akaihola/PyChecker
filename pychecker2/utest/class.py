@@ -32,7 +32,7 @@ class ClassTestCase(WarningTester):
                      '  def f(self): return self.x\n', 2, w, 'C', 'x')
         self.silent('class C:\n'
                     '  def f(self): return self.x\n'
-                    '  def g(self, v): self.x = v\n')
+                    '  def __init__(self, v): self.x = v\n')
         self.silent('class D:\n'
                     '  def __init__(self): self.x = 1\n'
                     'class C(D):\n'
@@ -90,7 +90,7 @@ class ClassTestCase(WarningTester):
             self.warning('class C:\n'
                          '  def %s(%s):\n'
                          '     pass\n' % fmt[0:2],
-                         2, ClassChecks.AttributeCheck.specialMethod,
+                         2, ClassChecks.SpecialCheck.specialMethod,
                          fmt[0], fmt[2], fmt[2] > 1 and "s" or "")
         for fmt in [('__del__', 'self'),
                     ('__ge__', 'self, a, b = None, c = None'),
@@ -101,17 +101,17 @@ class ClassTestCase(WarningTester):
         self.warning('class C:\n'
                      '  def __not_special__(self):\n'
                      '     pass\n',
-                     2, ClassChecks.AttributeCheck.notSpecial,
+                     2, ClassChecks.SpecialCheck.notSpecial,
                      '__not_special__')
 
     def testUncheckableAttribute(self):
         # inherit from local variable
         self.silent('def f(klass):\n'
                     '  class C(klass):\n'
-                    '      def f(self, x):\n'
+                    '      def __init__(self, x):\n'
                     '          self.foo = x\n'
                     '      def g(self): return self.foo\n'
-                    '  return C()\n')
+                    '  return C(1)\n')
         # inherit from an expression
         self.silent('class A:\n'
                     '  def __add__(self, unused):\n'
@@ -159,13 +159,23 @@ class ClassTestCase(WarningTester):
                      '    self.x = 1\n')
 
     def testInit(self):
+        w = ClassChecks.InitCheck.initReturnsValue
         self.warning('class C:\n'
                      '  def __init__(self):\n'
-                     '    return 1\n',
-                     3, ClassChecks.InitCheck.initReturnsValue)
+                     '    return 1\n', 3, w)
         self.warning('class C:\n'
                      '  def __init__(self):\n'
                      '    def f(x):\n'
                      '        return f(x - 1)\n'
-                     '    return f(1)\n',
-                     5, ClassChecks.InitCheck.initReturnsValue)
+                     '    return f(1)\n', 5, w)
+
+        w = ClassChecks.AttributeCheck.attributeInitialized
+        self.silent('class C:\n'
+                    '  def f(self):\n'
+                    '    self.value = 1\n'
+                    '  def __init__(self):\n'
+                    '    self.value = None\n')
+        self.warning('class C:\n'
+                     '  def f(self):\n'
+                     '    self.value = 1',
+                     3, w, 'value')
