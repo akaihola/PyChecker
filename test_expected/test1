@@ -1,4 +1,6 @@
 Processing test1...
+test_input/test1.py:67: SyntaxWarning: local name 'b' in 'test_kw_lambda' shadows use of 'b' as global in nested scope 'lambda'
+  def test_kw_lambda(a, b, c):
 
 Warnings...
 

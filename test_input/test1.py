@@ -63,3 +63,6 @@ def renderElement(a, b=2, c=3, **kw):
 
 def renderItem(text):
     return renderElement(1, contents=text, z=1, y=2, x=3)
+
+def test_kw_lambda(a, b, c):
+    return renderElement(a, ff=lambda value: '=' + renderItem(b))
