@@ -66,6 +66,9 @@ constantConditions = 1
 # bool: warn when 1 is used in a conditional statement, (if 1: while 1: etc)
 constant1 = 0
 
+# bool: warn when iterating over a string in a for loop
+stringIteration = 1
+
 # bool: warn when the class attribute does not exist
 classAttrExists = 1
 

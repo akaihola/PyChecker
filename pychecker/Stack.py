@@ -28,6 +28,7 @@ class Item :
         self.type = dataType
         self.const = const
         self.length = length
+        self.is_really_string = 0
 
     def __str__(self) :
         if type(self.data) == types.TupleType :
@@ -53,8 +54,11 @@ class Item :
     def isLocals(self) :
         return self.type == types.DictType and self.data == LOCALS
 
+    def setStringType(self, value = types.StringType):
+        self.is_really_string = value == types.StringType
+
     def getType(self, typeMap) :
-        if self.type != types.StringType :
+        if self.type != types.StringType or self.is_really_string:
             return self.type
         if self.const :
             return type(self.data)

@@ -50,6 +50,7 @@ _OPTIONS = (
  ('8', 0, 'unreachable', 'unreachableCode', 'unreachable code'),
  ('2', 0, 'constCond', 'constantConditions', 'a constant is used in a conditional statement'),
  ('1', 0, 'constant1', 'constant1', '1 is used in a conditional statement (if 1: or while 1:)'),
+ ( '', 0, 'stringiter', 'stringIteration', 'check if iterating over a string'),
  ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
  ('y', 0, 'classattr', 'classAttrExists', 'class attribute does not exist'),
  ('S', 1, 'self', 'methodArgName', 'First argument to methods'),
@@ -212,6 +213,7 @@ class Config :
         self.unreachableCode = 0
         self.constantConditions = 1
         self.constant1 = 0
+        self.stringIteration = 1
 
         self.unusedNames = _DEFAULT_UNUSED_LIST
         self.variablesToIgnore = _DEFAULT_VARIABLE_IGNORE_LIST

@@ -133,6 +133,7 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
                 _checkFunctionArgCount(code, func_name, argCount,
                                        info[1], info[2])
             returnValue = Stack.Item(returnValue.data, info[0])
+            returnValue.setStringType(info[0])
     elif type(func_name) == types.TupleType and len(func_name) <= 2 :
         objType = code.typeMap.get(str(func_name[0]), [])
         if types.ListType in objType :
@@ -153,6 +154,7 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
                     code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW % func_name[1])
                 elif methodInfo :
                     returnValue = Stack.Item(func_name[1], methodInfo[0])
+                    returnValue.setStringType(methodInfo[0])
                     if check_arg_count and methodInfo is not None :
                         _checkFunctionArgCount(code, func_name[1], argCount,
                                                methodInfo[1], methodInfo[2])
@@ -685,9 +687,7 @@ class Code :
 
     def __getStringStackType(self, data) :
         try :
-            if data.type == types.StringType and not data.const :
-                return Stack.TYPE_UNKNOWN
-            return data.type
+            return data.getType({})
         except AttributeError :
             return Stack.TYPE_UNKNOWN
 
@@ -1195,6 +1195,12 @@ def _SLICE3(oparg, operand, codeSource, code) :
 
 def _FOR_LOOP(oparg, operand, codeSource, code) :
     code.loops = code.loops + 1
+    try:
+        if code.stack[-2].getType(code.typeMap) == types.StringType and \
+           cfg().stringIteration:
+            code.addWarning(msgs.STRING_ITERATION % code.stack[-2].data)
+    except IndexError:
+        pass
     _popStackRef(code, '<for_loop>', 2)
 _FOR_ITER = _FOR_LOOP
 
