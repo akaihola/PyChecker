@@ -54,6 +54,7 @@ Items still missing:
              slots
              properties
              integer division
+        Warning for string raising
 
 Bugs:
         Speed
