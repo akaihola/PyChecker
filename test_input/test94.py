@@ -24,3 +24,7 @@ def g():
     a = a << b
     a = b << a
     print c
+    a = str(a)
+    a = `a`
+    a = -a
+    a = ~a

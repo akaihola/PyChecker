@@ -1331,9 +1331,19 @@ def _BUILD_CLASS(oparg, operand, codeSource, code) :
     newValue = Stack.makeFuncReturnValue(code.stack[-1], types.ClassType)
     code.popStackItems(3)
     code.pushStack(newValue)
-    
+
+def _modifyStackName(code, suffix):
+    if code.stack:
+        tos = code.stack[-1]
+        tos_type = type(tos.data)
+        if tos_type == types.StringType:
+            tos.data = tos.data + suffix
+        elif tos_type == types.TupleType and \
+             type(tos.data[-1]) == types.StringType:
+            tos.data = tos.data[:-1] + (tos.data[-1] + suffix,)
+
 def _UNARY_CONVERT(oparg, operand, codeSource, code) :
-    if len(code.stack) > 0 :
+    if code.stack:
         stackValue = code.stack[-1]
         if stackValue.data == cfg().methodArgName and \
            stackValue.const == 0 and codeSource.classObject is not None and \
@@ -1341,6 +1351,7 @@ def _UNARY_CONVERT(oparg, operand, codeSource, code) :
             code.addWarning(msgs.USING_SELF_IN_REPR)
         stackValue.data = str(stackValue.data)
         stackValue.type = types.StringType
+    _modifyStackName(code, '-repr')
 
 def _UNARY_POSITIVE(oparg, operand, codeSource, code) :
     if OP.UNARY_POSITIVE(code.nextOpInfo()[0]) :
@@ -1348,14 +1359,17 @@ def _UNARY_POSITIVE(oparg, operand, codeSource, code) :
         code.popNextOp()
     elif cfg().unaryPositive and code.stack and not code.stack[-1].const :
         code.addWarning(msgs.UNARY_POSITIVE_HAS_NO_EFFECT)
+    _modifyStackName(code, '-pos')
 
 def _UNARY_NEGATIVE(oparg, operand, codeSource, code) :
     if OP.UNARY_NEGATIVE(code.nextOpInfo()[0]) :
         code.addWarning(msgs.STMT_WITH_NO_EFFECT % '--')
+    _modifyStackName(code, '-neg')
 
 def _UNARY_INVERT(oparg, operand, codeSource, code) :
     if OP.UNARY_INVERT(code.nextOpInfo()[0]) :
         code.addWarning(msgs.STMT_WITH_NO_EFFECT % '~~')
+    _modifyStackName(code, '-invert')
 
 
 def _popStackRef(code, operand, count = 2) :
@@ -1364,13 +1378,7 @@ def _popStackRef(code, operand, count = 2) :
 
 def _popModifiedStack(code, suffix=' '):
     code.popStack()
-    if code.stack:
-        tos = code.stack[-1]
-        tos_type = type(tos.data)
-        if tos_type == types.StringType:
-            tos.data = tos.data + suffix
-        elif tos_type == types.TupleType and type(tos[-1]) == types.StringType:
-            tos.data = tos.data[:-1] + (tos.data[-1] + suffix,)
+    _modifyStackName(code, suffix)
 
 def _pop(oparg, operand, codeSource, code) :
     code.popStack()
@@ -1466,7 +1474,6 @@ def _BINARY_DIVIDE(oparg, operand, codeSource, code) :
 
 def _BINARY_TRUE_DIVIDE(oparg, operand, codeSource, code) :
     _checkNoEffect(code)
-    print code.stack[-1].getName, operand
     _checkVariableOperationOnItself(code, operand, msgs.DIVIDE_VAR_BY_ITSELF)
     _popModifiedStack(code, '/')
 _BINARY_FLOOR_DIVIDE = _BINARY_TRUE_DIVIDE
