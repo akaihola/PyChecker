@@ -1,4 +1,5 @@
 
+* Improve handling when importing packages
 * Fix error msg to base constructors (msg count is wrong)
 * Make check for 'self' a list instead of a string
 * Add option to ignore all warnings in standard library
