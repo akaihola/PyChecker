@@ -21,6 +21,9 @@ class Parents:
         self.scope = retval
         return retval
 
+def parents(scope):
+    return iter(Parents, None)
+
 class ShadowCheck(Check):
     """Use symbol information to check that no scope defines a name
     already known to a parent scope"""
@@ -44,7 +47,7 @@ class ShadowCheck(Check):
                     continue
                 if __builtins__.has_key(name):
                     file.warning(scope.defs[name], self.shadowBuiltins, name)
-                for p in iter(Parents(scope), None):
+                for p in parents(scope):
                     if p.defs.has_key(name) and not isinstance(p, symbols.ClassScope):
                         file.warning(scope.defs[name], self.shadowIdentifier, name, `p`)
 
@@ -153,7 +156,7 @@ class UnknownCheck(Check):
         for scope in file.scopes.values():
             for var in scope.uses:
                 if not scope.defs.has_key(var):
-                    for p in iter(Parents(scope), None):
+                    for p in parents(scope):
                         if p.defs.has_key(var):
                             break
                     else:
