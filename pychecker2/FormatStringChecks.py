@@ -12,32 +12,28 @@ def _compute_node(node, recurse):
         return recurse(node.left) + recurse(node.right)
     elif isinstance(node, ast.Mul):
         return recurse(node.left) * recurse(node.right)
-    else:
-        raise UnknownError
+    raise UnknownError
 
-# compute a simple forms of constant strings from an expression node
 def _compute_constant(node):
+    "Compute a simple forms of constant strings from an expression node"
     if isinstance(node, ast.Const):
         return node.value
-    else:
-        return _compute_node(node, _compute_constant)
+    return _compute_node(node, _compute_constant)
 
-# compute a the length of simple forms of tuples from an expression node
 def _compute_tuple_size(node):
+    "Compute the length of simple forms of tuples from an expression node"
     if isinstance(node, ast.Tuple):
         return len(node.nodes)
-    else:
-        return _compute_node(node, _compute_tuple_size)
+    return _compute_node(node, _compute_tuple_size)
 
-format_re = re.compile('%([(]([a-zA-Z_]+)[)])?[ #+-]*'
-                       '([0-9]*|[*])(|[.](|[*]|[0-9]*))([hlL])?'
-                       '([diouxXeEfFgGcrs%])')
+# for details: http://www.python.org/doc/current/lib/typesseq-strings.html
+_FORMAT_REGEX = re.compile('%([(]([a-zA-Z_]+)[)])?[ #+-]*'
+                           '([0-9]*|[*])(|[.](|[*]|[0-9]*))([hlL])?'
+                           '([diouxXeEfFgGcrs%])')
 
 class FormatError(Exception):
     def __init__(self, position):
         self.position = position
-
-FORMAT_UNKNOWN, FORMAT_DICTIONARY, FORMAT_TUPLE = range(3)
 
 def _check_format(s):
     pos = 0
@@ -45,20 +41,28 @@ def _check_format(s):
     while 1:
         pos = s.find('%', pos)
         if pos < 0:
-            break
-        match = format_re.search(s, pos)
+            return specs
+
+        match = _FORMAT_REGEX.search(s, pos)
         if not match or match.start(0) != pos:
             raise FormatError(pos)
+
         if match.group(7) != '%':       # ignore "%%"
             specs.append( (match.group(2), match.group(3), match.group(5),
                            match.group(6)) )
         pos = match.end(0)
-    return specs
 
-def _example(s, pos):
-    more = 10
-    result = s[pos : pos + more]
-    return result + (len(s) > pos + more and "..." or "")
+class _GetMod(BaseVisitor):
+    def __init__(self):
+        self.mods = []
+    def visitMod(self, node):
+        self.mods.append(node)
+        self.visitChildren(node)
+
+_BAD_FORMAT_MAX = 10
+def _bad_format_str(s, pos):
+    result = s[pos : pos + _BAD_FORMAT_MAX]
+    return result + (len(s) > pos + _BAD_FORMAT_MAX and "..." or "")
 
 class FormatStringCheck(Check):
     "Look for warnings in format strings"
@@ -90,21 +94,13 @@ class FormatStringCheck(Check):
             return
 
         for scope in file.scopes.values():
-            class GetMod(BaseVisitor):
-                def __init__(self):
-                    self.mods = []
-                def visitMod(self, node):
-                    self.mods.append(node)
-                    self.visitChildren(node)
-
-            mods = walk(scope.node, GetMod()).mods
-            for mod in mods:
+            for mod in walk(scope.node, _GetMod()).mods:
                 try:
                     s = _compute_constant(mod.left)
                     formats = _check_format(s)
                 except FormatError, detail:
                     file.warning(mod, self.badFormat, detail.position,
-                                 _example(s, detail.position))
+                                 _bad_format_str(s, detail.position))
                     continue
                 except (UnknownError, TypeError):
                     continue

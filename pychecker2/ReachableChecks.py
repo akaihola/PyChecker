@@ -2,8 +2,7 @@ from pychecker2.Check import Check
 from pychecker2.util import BaseVisitor
 from pychecker2.Warning import Warning
 
-from compiler import parseFile, walk
-from compiler import ast
+from compiler import ast, walk
 
 class ReachableCheck(Check):
 
@@ -68,8 +67,8 @@ class ReachableCheck(Check):
                 s.visit(node.code)
                 s.always_returns = tmp
 
-            def visitWhile(s, node):    # while's may never execute,
-                                        # and not return
+            def visitWhile(s, node):
+                # FIXME: while's may never execute and not return
                 s.always_returns = 0
 
             visitFor = visitWhile
