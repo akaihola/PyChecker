@@ -1,11 +1,10 @@
 tests/badparse.py:1 Unable to parse: could not parse string
 
-tests/class.py:10 Class definition x at line 18 redefined
+tests/class.py:10 Method x defined at line 18 in class A redefined
 tests/class.py:11 Class A has no attribute w
 tests/class.py:18 Method x is missing self parameter
 tests/class.py:28 Class A has no attribute w
-tests/class.py:29 Class A has no attribute known
-tests/class.py:30 Class A has no attribute value
+tests/class.py:31 Class A has no attribute value
 
 tests/import.py:1 Identifier (bar) not used
 tests/import.py:3 Identifier (nifty) not used
