@@ -20,6 +20,7 @@ _VAR_ARGS_BITS = 8
 _MAX_ARGS_MASK = ((1 << _VAR_ARGS_BITS) - 1)
 
 _INIT = '__init__'
+_LAMBDA = '<lambda>'
 
 
 ###
@@ -100,7 +101,7 @@ def popConfig() :
 def shouldUpdateArgs(operand) :
     return operand == Config.CHECKER_VAR
 
-def updateCheckerArgs(argStr, func, lastLineNum, warnings) :
+def _updateCheckerArgs(argStr, func, lastLineNum, warnings) :
     try :
         argList = string.split(argStr)
         # don't require long options to start w/--, we can add that for them
@@ -168,39 +169,36 @@ class Warning :
         print "%s:%d: %s" % (self.file, self.line, self.err)
 
 
-def _checkSelfArg(method) :
+def _checkSelfArg(method, warnings) :
     """Return a Warning if there is no self parameter or
        the first parameter to a method is not self."""
 
     code = method.function.func_code
-    warn = None
+    err = None
     if code.co_argcount < 1 :
-        warn = Warning(code, code, _NO_METHOD_ARGS % cfg().methodArgName)
+        err = _NO_METHOD_ARGS % cfg().methodArgName
     elif code.co_varnames[0] != cfg().methodArgName :
-        warn = Warning(code, code, _SELF_NOT_FIRST_ARG % cfg().methodArgName)
-    return warn
+        err = _SELF_NOT_FIRST_ARG % cfg().methodArgName
+
+    if err is not None :
+        warnings.append(Warning(code, code, err))
 
 
-def _checkNoSelfArg(func) :
+def _checkNoSelfArg(func, warnings) :
     "Return a Warning if there is a self parameter to a function."
 
     code = func.function.func_code
     if code.co_argcount > 0 and cfg().methodArgName in code.co_varnames :
-        return Warning(code, code, _SELF_IS_ARG)
-    return None
+        warnings.append(Warning(code, code, _SELF_IS_ARG))
 
-def _checkFunctionArgs(caller, func, objectReference, argCount, kwArgs,
-                       lastLineNum) :
-    warnings = []
+def _checkFunctionArgs(code, func, objectReference, argCount, kwArgs) :
     func_name = func.function.func_code.co_name
     if kwArgs :
         func_args = func.function.func_code.co_varnames
         func_args_len = len(func_args)
         if argCount < func_args_len and kwArgs[0] in func_args[argCount:] :
             if cfg().namedArgs :
-                warn = Warning(caller, lastLineNum,
-                               _FUNC_USES_NAMED_ARGS % func_name)
-                warnings.append(warn)
+                code.addWarning(_FUNC_USES_NAMED_ARGS % func_name)
 
             # convert the named args into regular params, and really check
             origArgCount = argCount
@@ -208,13 +206,11 @@ def _checkFunctionArgs(caller, func, objectReference, argCount, kwArgs,
                   kwArgs[0] in func_args[origArgCount:] :
                 argCount = argCount + 1
                 kwArgs = kwArgs[1:]
-            return warnings + _checkFunctionArgs(caller, func, objectReference,
-                                                 argCount, kwArgs, lastLineNum)
+            _checkFunctionArgs(code, func, objectReference, argCount, kwArgs)
+            return
 
         if not func.supportsKW :
-            warn = Warning(caller, lastLineNum,
-                           _FUNC_DOESNT_SUPPORT_KW % func_name)
-            warnings.append(warn)
+            code.addWarning(_FUNC_DOESNT_SUPPORT_KW % func_name)
 
     # there is an implied argument for object creation and self.xxx()
     minArgs = func.minArgs
@@ -235,9 +231,8 @@ def _checkFunctionArgs(caller, func, objectReference, argCount, kwArgs,
             err = _INVALID_ARG_COUNT3 % (func_name, argCount, minArgs, maxArgs)
 
     if err :
-        warnings.append(Warning(caller, lastLineNum, err))
+        code.addWarning(err)
 
-    return warnings
 
 def _getReferenceFromModule(module, identifier) :
     func = module.functions.get(identifier, None)
@@ -283,26 +278,18 @@ def _getFunction(module, stackValue) :
     return c.methods.get(identifier[-1], None), c, 0
 
 
-def _addWarning(warningList, warning) :
-    if warning != None :
-        if type(warning) == types.ListType :
-            warningList.extend(warning)
-        else :
-            warningList.append(warning)
+def _handleFunctionCall(module, code, c, argCount) :
+    'Checks for warnings, returns function called (may be None)'
 
-def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
-    """Checks for warnings, returns (warning, function called)
-                                     warning can be None"""
-
-    if not stack :
-        return None, None
+    if not code.stack :
+        return None
 
     kwArgCount = argCount >> _VAR_ARGS_BITS
     argCount = argCount & _MAX_ARGS_MASK
 
     # function call on stack is before the args, and keyword args
     funcIndex = argCount + 2 * kwArgCount + 1
-    if funcIndex > len(stack) :
+    if funcIndex > len(code.stack) :
         funcIndex = 0
     # to find on stack, we have to look backwards from top of stack (end)
     funcIndex = -funcIndex
@@ -312,67 +299,58 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
     if kwArgCount > 0 :
         # loop backwards by 2 (keyword, value) in stack to find keyword args
         for i in range(-2, (-2 * kwArgCount - 1), -2) :
-            kwArgs.append(stack[i].data)
+            kwArgs.append(code.stack[i].data)
         kwArgs.reverse()
 
-    warn = None
-    loadValue = stack[funcIndex]
+    loadValue = code.stack[funcIndex]
     if loadValue.isMethodCall(c, cfg().methodArgName) :
         methodName = loadValue.data[1]
         try :
             m = c.methods[methodName]
             if m != None :
-                warn = _checkFunctionArgs(code, m, 1, argCount, kwArgs,
-                                          lastLineNum)
+                _checkFunctionArgs(code, m, 1, argCount, kwArgs)
         except KeyError :
             if cfg().callingAttribute :
-                warn = Warning(code, lastLineNum, _INVALID_METHOD % methodName)
+                code.addWarning(_INVALID_METHOD % methodName)
     elif loadValue.type in [ Stack.TYPE_ATTRIBUTE, Stack.TYPE_GLOBAL, ] and \
          type(loadValue.data) in [ types.StringType, types.TupleType ] :
         # apply(func, (args)), can't check # of args, so just return func
         if loadValue.data == 'apply' :
-            loadValue = stack[funcIndex+1]
+            loadValue = code.stack[funcIndex+1]
         else :
             func, refClass, create = _getFunction(module, loadValue)
             if func != None :
-                warn = _checkFunctionArgs(code, func, create, argCount,
-                                          kwArgs, lastLineNum)
+                _checkFunctionArgs(code, func, create, argCount, kwArgs)
                 if refClass and argCount > 0 and not create and \
-                   stack[funcIndex].type == Stack.TYPE_ATTRIBUTE and \
-                   stack[funcIndex+1].data != cfg().methodArgName :
-                    w = Warning(func, lastLineNum,
-                                _SELF_NOT_FIRST_ARG % cfg().methodArgName)
-                    warn.append(w)
+                   code.stack[funcIndex].type == Stack.TYPE_ATTRIBUTE and \
+                   code.stack[funcIndex+1].data != cfg().methodArgName :
+                    code.addWarning(_SELF_NOT_FIRST_ARG % cfg().methodArgName)
             elif refClass and create and (argCount > 0 or len(kwArgs) > 0) :
                 if not refClass.methods.has_key(_INIT) and \
                    not issubclass(refClass.classObject, Exception) :
-                    warn = Warning(code, lastLineNum, _NO_CTOR_ARGS)
+                    code.addWarning(_NO_CTOR_ARGS)
 
-    stack[:] = stack[:funcIndex] + [ Stack.makeFuncReturnValue(loadValue) ]
-    return warn, loadValue
+    code.stack = code.stack[:funcIndex] + [ Stack.makeFuncReturnValue(loadValue) ]
+    return loadValue
 
 
-def _checkAttribute(attr, c, func_code, lastLineNum) :
+def _checkAttribute(attr, c, code) :
     if not c.methods.has_key(attr) and not c.members.has_key(attr) and \
        not hasattr(c.classObject, attr) :
-        return Warning(func_code, lastLineNum, _INVALID_CLASS_ATTR % attr)
-    return None
+        code.addWarning(_INVALID_CLASS_ATTR % attr)
 
-def _checkModuleAttribute(attr, module, func_code, lastLineNum, ref) :
-    err = []
-
+def _checkModuleAttribute(attr, module, code, ref) :
     refModule = module.modules.get(ref)
     if refModule and refModule.attributes != None :
         if attr not in refModule.attributes :
-            err.append(Warning(func_code, lastLineNum, _INVALID_MODULE_ATTR % attr))
+            code.addWarning(_INVALID_MODULE_ATTR % attr)
 
     refClass = module.classes.get(ref)
     if refClass :
         if not refClass.members.has_key(attr) and \
            not refClass.methods.has_key(attr) :
-            err.append(Warning(func_code, lastLineNum, _INVALID_CLASS_ATTR % attr))
-    return err
-                        
+            code.addWarning(_INVALID_CLASS_ATTR % attr)
+
 
 def _getGlobalName(name, func) :
     # get the right name of global refs (for from XXX import YYY)
@@ -396,48 +374,45 @@ def _makeConstant(stack, index, factoryFunction) :
         stack.append(factoryFunction())
 
 
-def _checkGlobal(operand, module, func, lastLineNum, err, main = 0) :
-    if (not func.function.func_globals.has_key(operand) and
-        (not module.moduleLineNums.has_key(operand) and not main) and
-        not __builtins__.has_key(operand)) :
+def _checkGlobal(operand, module, func, code, err, main = 0) :
+    if (not (func.function.func_globals.has_key(operand) or
+             main or module.moduleLineNums.has_key(operand) or
+             __builtins__.has_key(operand))) :
+        code.addWarning(err % operand)
         if not cfg().reportAllGlobals :
             func.function.func_globals[operand] = operand
-        return Warning(func.function.func_code, lastLineNum, err % operand)
-    return None
 
 
-def _checkComplex(warnings, maxValue, value, func, err) :
+def _checkComplex(code, maxValue, value, func, err) :
     if maxValue and value > maxValue :
         line = func.function.func_code.co_firstlineno
-        warn = Warning(func, line, err % (func.function.__name__, value))
-        warnings.append(warn)
+        code.addWarning(err % (func.function.__name__, value), line)
 
 
 _IGNORE_RETURN_TYPES = ( Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,
                          Stack.TYPE_GLOBAL )
 
-def _checkReturnWarnings(returnValues, func_code) :
+def _checkReturnWarnings(code) :
     # there must be at least 2 real return values to check for consistency
-    if len(returnValues) < 2 :
-        return None
+    returnValuesLen = len(code.returnValues)
+    if returnValuesLen < 2 :
+        return
 
-    warnings = []
-    line, lastReturn = returnValues[-1]
+    line, lastReturn = code.returnValues[-1]
 
     # FIXME: disabled until it works properly
     # if the last return is implicit, check if there are non None returns
     if 0 and lastReturn.data == None :
         returnNoneCount = 0
-        for line, rv in returnValues :
+        for line, rv in code.returnValues :
             if rv.isNone() :
                 returnNoneCount = returnNoneCount + 1
 
-        if returnNoneCount != len(returnValues) :
-            warn = Warning(func_code, line, _IMPLICIT_AND_EXPLICIT_RETURNS)
-            warnings.append(warn)
+        if returnNoneCount != returnValuesLen :
+            code.addWarning(_IMPLICIT_AND_EXPLICIT_RETURNS, line)
 
     returnType, returnData = None, None
-    for line, value in returnValues :
+    for line, value in code.returnValues :
         if not value.isNone() :
             if returnType is None :
                 returnData = value
@@ -453,10 +428,8 @@ def _checkReturnWarnings(returnValues, func_code) :
                 if ok and returnType == types.TupleType :
                     ok = returnData.length == value.length
                 if not ok :
-                    warn = Warning(func_code, line, _INCONSISTENT_RETURN_TYPE)
-                    warnings.append(warn)
+                    code.addWarning(_INCONSISTENT_RETURN_TYPE, line)
 
-    return warnings
 
 
 def _handleComparison(stack, operand) :
@@ -467,7 +440,7 @@ def _handleComparison(stack, operand) :
     stack[-si:] = [ Stack.makeComparison(compareValues, operand) ]
 
 
-def _handleImport(operand, module, func_code, lastLineNum, main, fromName) :
+def _handleImport(code, operand, module, main, fromName) :
     # FIXME: this function should be refactored/cleaned up
     key = operand
     tmpOperand = tmpFromName = operand
@@ -481,8 +454,6 @@ def _handleImport(operand, module, func_code, lastLineNum, main, fromName) :
         key2 = (tmpFromName, operand)
     modline3 = module.moduleLineNums.get(key2, None)
 
-    warn = None
-    fileline = (func_code.co_filename, lastLineNum)
     if modline1 is not None or modline2 is not None or modline3 is not None :
         err = None
 
@@ -501,22 +472,23 @@ def _handleImport(operand, module, func_code, lastLineNum, main, fromName) :
                 err = _MODULE_MEMBER_ALSO_STAR_IMPORTED % fromName
 
         # filter out warnings when files are different (ie, from X import ...)
-        code = module.main_code
-        if err and (code is None or 
-                    code.function.func_code.co_filename == fileline[0]) :
-                warn = Warning(func_code, lastLineNum, err)
+        if err :
+            bytes = module.main_code
+            if bytes is None or \
+               bytes.function.func_code.co_filename == code.func_code.co_filename :
+                code.addWarning(err)
 
     if main :
+        fileline = (code.func_code.co_filename, code.lastLineNum)
         module.moduleLineNums[key] = fileline
         if fromName is not None :
             module.moduleLineNums[(fromName,)] = fileline
 
-    return warn
 
-def _handleImportFrom(stack, operand, module, func_code, lastLineNum, main) :
-    fromName = stack[-1].data
-    stack.append(Stack.Item(operand, type(operand)))
-    return _handleImport(operand, module, func_code, lastLineNum, main, fromName)
+def _handleImportFrom(code, operand, module, main) :
+    fromName = code.stack[-1].data
+    code.stack.append(Stack.Item(operand, type(operand)))
+    _handleImport(code, operand, module, main, fromName)
 
 
 # http://www.python.org/doc/current/lib/typesseq-strings.html
@@ -524,9 +496,8 @@ _FORMAT_CONVERTERS = 'diouxXeEfFgGcrs'
 # NOTE: lLh are legal in the flags, but are ignored by python, we warn
 _FORMAT_FLAGS = '*#- +.' + string.digits
 
-def _getFormatInfo(format, func_code, lastLineNum) :
+def _getFormatInfo(format, code) :
     vars = []
-    warns = []
 
     # first get rid of all the instances of %% in the string, they don't count
     format = string.replace(format, "%%", "")
@@ -540,9 +511,8 @@ def _getFormatInfo(format, func_code, lastLineNum) :
         if section[0] == '(' :
             mappingFormatCount = mappingFormatCount + 1
             varname = string.split(section, ')')
-            if varname[1] == ''  :
-                warns.append(Warning(func_code, lastLineNum,
-                                     _INVALID_FORMAT % section))
+            if varname[1] == '' :
+                code.addWarning(_INVALID_FORMAT % section)
             vars.append(varname[0][1:])
             section = varname[1]
 
@@ -560,55 +530,38 @@ def _getFormatInfo(format, func_code, lastLineNum) :
                 if section[i] == '*' :
                     stars = stars + 1
                     if mappingFormatCount > 0 :
-                        w = Warning(func_code, lastLineNum,
-                                    _USING_STAR_IN_FORMAT_MAPPING % section)
-                        warns.append(w)
+                        code.addWarning(_USING_STAR_IN_FORMAT_MAPPING % section)
 
         if stars > 2 :
-            warns.append(Warning(func_code, lastLineNum,
-                                 _TOO_MANY_STARS_IN_FORMAT))
+            code.addWarning(_TOO_MANY_STARS_IN_FORMAT)
 
         formatCount = formatCount + stars
         if section[i] not in _FORMAT_CONVERTERS :
-            warns.append(Warning(func_code, lastLineNum,
-                                 _INVALID_FORMAT % section))
+            code.addWarning(_INVALID_FORMAT % section)
 
     if mappingFormatCount > 0 and mappingFormatCount != percentFormatCount :
-        warns.append(Warning(func_code, lastLineNum,
-                             _CANT_MIX_MAPPING_IN_FORMATS))
+        code.addWarning(_CANT_MIX_MAPPING_IN_FORMATS)
 
-    return formatCount, vars, warns
+    return formatCount, vars
 
-def _getFormatWarnings(stack, func_code, lastLineNum, unusedLocals) :
-    format = stack[-2]
+def _getFormatWarnings(code) :
+    if len(code.stack) <= 1 :
+        return
+
+    format = code.stack[-2]
     if format.type != types.StringType or not format.const :
-        return None
+        return
 
-    count, vars, warnings = _getFormatInfo(format.data, func_code, lastLineNum)
-    if stack[-1].isLocals() :
+    count, vars = _getFormatInfo(format.data, code)
+    topOfStack = code.stack[-1]
+    if topOfStack.isLocals() :
         for varname in vars :
-            if not unusedLocals.has_key(varname) :
-                warn = Warning(func_code, lastLineNum, _NO_LOCAL_VAR % varname)
-                warnings.append(warn)
+            if not code.unusedLocals.has_key(varname) :
+                code.addWarning(_NO_LOCAL_VAR % varname)
             else :
-                unusedLocals[varname] = None
-    elif stack[-1].type == types.TupleType :
-        if count != stack[-1].length :
-            warn = Warning(func_code, lastLineNum,
-                           _INVALID_FORMAT_COUNT % (count, stack[-1].length))
-            warnings.append(warn)
-        
-    return warnings
-
-def _getFirstOp(code, maxCode) :
-    # find the first real op, maybe we should not check if params are used
-    i = extended_arg = 0
-    while i < maxCode :
-        op, oparg, i, extended_arg = OP.getInfo(code, i, extended_arg)
-        if not OP.LINE_NUM(op) :
-            if not (OP.LOAD_CONST(op) or OP.LOAD_GLOBAL(op)) :
-                return op
-    return 0
+                code.unusedLocals[varname] = None
+    elif topOfStack.type == types.TupleType and count != topOfStack.length :
+        code.addWarning(_INVALID_FORMAT_COUNT % (count, topOfStack.length))
 
 
 _METHODLESS_OBJECTS = { types.NoneType : None, types.IntType : None,
@@ -617,8 +570,8 @@ _METHODLESS_OBJECTS = { types.NoneType : None, types.IntType : None,
                         types.EllipsisType : None,
                       }
 
-def _checkAttributeType(typeMap, stackValue, attr) :
-    varTypes = typeMap.get(stackValue, None)
+def _checkAttributeType(code, stackValue, attr) :
+    varTypes = code.typeMap.get(stackValue, None)
     if not varTypes :
         return None
     for varType in varTypes :
@@ -628,7 +581,123 @@ def _checkAttributeType(typeMap, stackValue, attr) :
         if hasattr(varType, 'attributes') and attr in varType.attributes :
             return None
 
-    return Warning(func_code, lastLineNum, _OBJECT_HAS_NO_METHODS % attr)
+    code.addWarning(_OBJECT_HAS_NO_METHODS % attr)
+
+
+
+class Code :
+    'Hold all the code state information necessary to find warnings'
+
+    def __init__(self) :
+        self.bytes = None
+        self.func_code = None
+        self.index = 0
+        self.extended_arg = 0
+        self.lastLineNum = 0
+        self.maxCode = 0
+
+        self.lastReturnLabel = 0
+        self.maxLabel = 0
+
+        self.returnValues = []
+        self.stack = []
+
+        self.unpackCount = 0
+        self.loops = 0
+        self.branches = {}
+
+        self.warnings = []
+
+        self.globalRefs = {}
+        self.unusedLocals = {}
+        self.functionsCalled = {}
+        self.typeMap = {}
+        self.codeObjects = {}
+
+    def init(self, func) :
+        self.func_code, self.bytes, self.index, self.maxCode, self.extended_arg = \
+                        OP.initFuncCode(func.function)
+        self.lastLineNum = self.func_code.co_firstlineno
+
+        # initialize the arguments to unused
+        for arg in func.arguments() :
+            self.unusedLocals[arg] = 0
+
+    def addWarning(self, err, line = None) :
+        if line is None :
+            line = self.lastLineNum
+        self.warnings.append(Warning(self.func_code, line, err))
+
+    def getNextOp(self) :
+        operand = None
+        label = None
+
+        info = OP.getInfo(self.bytes, self.index, self.extended_arg)
+        op, oparg, self.index, self.extended_arg = info
+        if op >= OP.HAVE_ARGUMENT :
+            operand = OP.getOperand(op, self.func_code, oparg)
+            label = OP.getLabel(op, oparg, self.index)
+            debug("  " + str(self.index) + " " + OP.name[op], oparg, operand)
+            if label != None :
+                self.maxLabel = max(label, self.maxLabel)
+                if self.branches.has_key(label) :
+                    self.branches[label] = self.branches[label] + 1
+                else :
+                    self.branches[label] = 1
+        return op, oparg, operand, label
+
+    def nextOpInfo(self) :
+        info = OP.getInfo(self.bytes, self.index, 0)
+        return info[0:2]
+
+    def getFirstOp(self) :
+        # find the first real op, maybe we should not check if params are used
+        i = extended_arg = 0
+        while i < self.maxCode :
+            op, oparg, i, extended_arg = OP.getInfo(self.bytes, i, extended_arg)
+            if not OP.LINE_NUM(op) :
+                if not (OP.LOAD_CONST(op) or OP.LOAD_GLOBAL(op)) :
+                    return op
+        raise RuntimeError('Could not find first opcode in function')
+
+    def popStack(self) :
+        if self.stack :
+            del self.stack[-1]
+
+    def popStackItems(self, count) :
+        stackLen = len(self.stack)
+        if stackLen > 0 :
+            count = min(count, stackLen)
+            del self.stack[(-1 - count):-1]
+
+    def unpack(self) :
+        if self.unpackCount :
+            self.unpackCount = self.unpackCount - 1
+        self.popStack()
+
+    def functionCalled(self, funcCalled, module) :
+        if funcCalled :
+            self.functionsCalled[funcCalled.getName(module)] = funcCalled
+
+    def removeBranch(self, label) :
+        branch = self.branches.get(label, None)
+        if branch is not None :
+            if branch == 1 :
+                del self.branches[label]
+            else :
+                self.branches[label] = branch - 1
+
+    def updateCheckerArgs(self, operand) :
+        rc = shouldUpdateArgs(operand)
+        if rc :
+            _updateCheckerArgs(self.stack[-1].data, self.func_code,
+                               self.lastLineNum, self.warnings)
+        return rc
+        
+    def updateModuleLineNums(self, module, operand) :
+        filelist = (self.func_code.co_filename, self.lastLineNum)
+        module.moduleLineNums[operand] = filelist
+
 
 # number of instructions to check backwards if it was a return
 _BACK_RETURN_INDEX = 4
@@ -639,227 +708,158 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     # disable these checks for this crappy code
     __pychecker__ = 'maxbranches=0 maxlines=0'
 
-    warnings, codeObjects = [], {}
-    globalRefs, unusedLocals, functionsCalled = {}, {}, {}
-    localTypeMap = {}
-
-    # initialize the arguments to unused
-    for arg in func.arguments() :
-        unusedLocals[arg] = 0
-
     # push a new config object, so we can pop at end of function
     pushConfig()
 
-    code = maxCode = 0
+    returns = 0
+    code = Code()
     try :
-        # check the code
-        #  see dis.py in std python distribution
-        func_code, code, i, maxCode, extended_arg = OP.initFuncCode(func.function)
-        lastLineNum = func_code.co_firstlineno
-        stack, returnValues = [], []
-        lastReturnLabel, maxLabel = 0, 0
-        unpackCount = 0
-        returns, loops, branches = 0, 0, {}
-        while i < maxCode :
-            op, oparg, i, extended_arg = OP.getInfo(code, i, extended_arg)
+        code.init(func)
+        while code.index < code.maxCode :
+            op, oparg, operand, label = code.getNextOp()
             if op >= OP.HAVE_ARGUMENT :
-                warn = None
-                label = OP.getLabel(op, oparg, i)
-                if label != None :
-                    maxLabel = max(label, maxLabel)
-                    if branches.has_key(label) :
-                        branches[label] = branches[label] + 1
-                    else :
-                        branches[label] = 1
-                operand = OP.getOperand(op, func_code, oparg)
-                debug("  " + str(i) + " " +OP.name[op], oparg, operand)
                 if OP.LINE_NUM(op) :
-                    lastLineNum = oparg
+                    code.lastLineNum = oparg
                 elif OP.COMPARE_OP(op) :
-                    _handleComparison(stack, operand)
+                    _handleComparison(code.stack, operand)
                 elif OP.LOAD_GLOBAL(op) or OP.LOAD_NAME(op) or OP.LOAD_DEREF(op) :
                     # make sure we remember each global ref to check for unused
-                    globalRefs[_getGlobalName(operand, func)] = operand
+                    code.globalRefs[_getGlobalName(operand, func)] = operand
                     if not in_class :
-                        warn = _checkGlobal(operand, module, func, lastLineNum,
-                                            _INVALID_GLOBAL)
+                        _checkGlobal(operand, module, func,
+                                     code, _INVALID_GLOBAL)
 
                     # if there was from XXX import *, _* names aren't imported
                     if module.modules.has_key(operand) and \
                        hasattr(module.module, operand) :
                         operand = eval("module.module.%s.__name__" % operand)
-                    stack.append(Stack.Item(operand, Stack.TYPE_GLOBAL))
+                    code.stack.append(Stack.Item(operand, Stack.TYPE_GLOBAL))
                 elif OP.STORE_GLOBAL(op) or OP.STORE_NAME(op) :
-                    if shouldUpdateArgs(operand) :
-                        updateCheckerArgs(stack[-1].data, func, lastLineNum, warnings)
-                    else :
+                    if not code.updateCheckerArgs(operand) :
                         if not in_class :
-                            warn = _checkGlobal(operand, module, func, lastLineNum,
-                                            _GLOBAL_DEFINED_NOT_DECLARED, main)
-                        if unpackCount :
-                            unpackCount = unpackCount - 1
-                        elif stack :
-                            del stack[-1]
+                            _checkGlobal(operand, module, func, code,
+                                         _GLOBAL_DEFINED_NOT_DECLARED, main)
+                        if code.unpackCount :
+                            code.unpackCount = code.unpackCount - 1
+                        else:
+                            code.popStack()
                         if not module.moduleLineNums.has_key(operand) and main :
-                            filename = func_code.co_filename
-                            module.moduleLineNums[operand] = (filename, lastLineNum)
+                            code.updateModuleLineNums(module, operand)
                             
                 elif OP.LOAD_CONST(op) :
-                    stack.append(Stack.Item(operand, type(operand), 1))
+                    code.stack.append(Stack.Item(operand, type(operand), 1))
                     if type(operand) == types.CodeType :
                         name = operand.co_name
-                        obj = codeObjects.get(name, None)
-                        if name == '<lambda>' :
+                        obj = code.codeObjects.get(name, None)
+                        if name == _LAMBDA :
                             # use a unique key, so we can have multiple lambdas
-                            codeObjects[i] = operand
-                            if OP.name[ord(code[i])] == 'MAKE_FUNCTION' :
-                                op, oparg, i, extended_arg = \
-                                    OP.getInfo(code, i, extended_arg)
-                                if oparg > 0 :
-                                    del stack[(-1 - oparg):-1]
+                            code.codeObjects[code.index] = operand
+                            tmpOp, tmpOpArg = code.nextOpInfo()
+                            if OP.name[tmpOp] == 'MAKE_FUNCTION' and \
+                               tmpOpArg > 0 :
+                                code.popStackItems(oparg)
                         elif obj is None :
-                            codeObjects[name] = operand
+                            code.codeObjects[name] = operand
                         elif cfg().redefiningFunction :
-                            warn = Warning(func_code, lastLineNum,
-                                           _REDEFINING_ATTR % \
-                                           (name, obj.co_firstlineno))
-                            warnings.append(warn)
+                            code.addWarning(_REDEFINING_ATTR %
+                                               (name, obj.co_firstlineno))
                 elif OP.LOAD_FAST(op) :
-                    stack.append(Stack.Item(operand, type(operand)))
-                    if not unusedLocals.has_key(operand) and \
+                    code.stack.append(Stack.Item(operand, type(operand)))
+                    if not code.unusedLocals.has_key(operand) and \
                        not func.isParam(operand) :
-                        warn = Warning(func_code, lastLineNum,
-                                       _VAR_USED_BEFORE_SET % operand)
-                    unusedLocals[operand] = None
+                        code.addWarning(_VAR_USED_BEFORE_SET % operand)
+                    code.unusedLocals[operand] = None
                 elif OP.LOAD_ATTR(op) :
-                    if len(stack) > 0 :
-                        topOfStack = stack[-1]
+                    if len(code.stack) > 0 :
+                        topOfStack = code.stack[-1]
                         if topOfStack.data == cfg().methodArgName and c != None :
-                            warn = _checkAttribute(operand, c, func_code,
-                                                   lastLineNum)
+                            _checkAttribute(operand, c, code)
                         elif type(topOfStack.type) == types.StringType :
-                            warn = _checkModuleAttribute(operand, module,
-                                       func_code, lastLineNum, topOfStack.data)
+                            _checkModuleAttribute(operand, module,
+                                                  code, topOfStack.data)
                         # FIXME: need to keep type of objects
                         else :
-                            warn = _checkAttributeType(localTypeMap,
-                                                       topOfStack, operand)
+                            _checkAttributeType(code, topOfStack, operand)
                         topOfStack.addAttribute(operand)
                 elif OP.IMPORT_NAME(op) :
-                    stack.append(Stack.Item(operand, type(operand)))
-                    if not OP.IMPORT_FROM(ord(code[i])) and \
-                       not OP.IMPORT_STAR(ord(code[i])) :
-                        warn = _handleImport(operand, module, func_code,
-                                             lastLineNum, main, None)
+                    code.stack.append(Stack.Item(operand, type(operand)))
+                    nextOp = code.nextOpInfo()[0]
+                    if not OP.IMPORT_FROM(nextOp) and \
+                       not OP.IMPORT_STAR(nextOp) :
+                        _handleImport(code, operand, module, main, None)
                 elif OP.IMPORT_FROM(op) :
-                    warn = _handleImportFrom(stack, operand, module, func_code,
-                                             lastLineNum, main)
+                    _handleImportFrom(code, operand, module, main)
                     # this is necessary for python 1.5 (see STORE_GLOBAL/NAME)
                     if pythonVersion() < _PYTHON_2_0 :
-                        del stack[-1]
+                        code.popStack()
                         if not main :
-                            unusedLocals[operand] = None
+                            code.unusedLocals[operand] = None
                         elif not module.moduleLineNums.has_key(operand) :
-                            filelist = (func_code.co_filename, lastLineNum)
-                            module.moduleLineNums[operand] = filelist
+                            code.updateModuleLineNums(module, operand)
                 elif OP.UNPACK_SEQUENCE(op) :
-                    unpackCount = oparg
+                    code.unpackCount = oparg
                 elif OP.FOR_LOOP(op) :
-                    loops = loops + 1
+                    code.loops = code.loops + 1
                 elif OP.STORE_FAST(op) :
-                    if shouldUpdateArgs(operand) :
-                        updateCheckerArgs(stack[-1].data, func, lastLineNum, warnings)
-                    else :
-                        if not unusedLocals.has_key(operand) :
-                            errLine = lastLineNum
-                            if unpackCount and not cfg().unusedLocalTuple :
+                    if not code.updateCheckerArgs(operand) :
+                        if not code.unusedLocals.has_key(operand) :
+                            errLine = code.lastLineNum
+                            if code.unpackCount and not cfg().unusedLocalTuple :
                                 errLine = -errLine
-                            unusedLocals[operand] = errLine
-                        if unpackCount :
-                            unpackCount = unpackCount - 1
-                        if len(stack) > 0 :
-                            del stack[-1]
+                            code.unusedLocals[operand] = errLine
+                        code.unpack()
                 elif OP.STORE_ATTR(op) :
-                    if unpackCount :
-                        unpackCount = unpackCount - 1
-                    if len(stack) > 0 :
-                        del stack[-1]
+                    code.unpack()
                 elif OP.CALL_FUNCTION(op) :
-                    warn, funcCalled = _handleFunctionCall(module, func_code,
-                                                  c, stack, oparg, lastLineNum)
-                    # funcCalled can be empty in some cases (eg, using a map())
-                    if funcCalled :
-                        funcName = funcCalled.getName(module)
-                        functionsCalled[funcName] = funcCalled
+                    funcCalled = _handleFunctionCall(module, code, c, oparg)
+                    code.functionCalled(funcCalled, module)
                 elif _startswith(OP.name[op], 'JUMP_') :
-                    if len(stack) > 0 and \
-                       stack[-1].isMethodCall(c, cfg().methodArgName) :
-                        name = stack[-1].data[-1]
+                    if len(code.stack) > 0 and \
+                       code.stack[-1].isMethodCall(c, cfg().methodArgName) :
+                        name = code.stack[-1].data[-1]
                         if c.methods.has_key(name) :
-                            warn = Warning(func_code, lastLineNum,
-                                           _USING_METHOD_AS_ATTR % name)
+                            code.addWarning(_USING_METHOD_AS_ATTR % name)
                                        
                     if OP.JUMP_FORWARD(op) :
                         # remove unreachable branches
-                        lastOp = ord(code[i - _BACK_RETURN_INDEX])
+                        lastOp = ord(code.bytes[code.index - _BACK_RETURN_INDEX])
                         if OP.RETURN_VALUE(lastOp) :
-                            b = branches.get(label, None)
-                            if b is not None :
-                                if b == 1 :
-                                    del branches[label]
-                                else :
-                                    branches[label] = b - 1
+                            code.removeBranch(label)
                 elif OP.BUILD_MAP(op) :
-                    _makeConstant(stack, oparg, Stack.makeDict)
+                    _makeConstant(code.stack, oparg, Stack.makeDict)
                 elif OP.BUILD_TUPLE(op) :
-                    _makeConstant(stack, oparg, Stack.makeTuple)
+                    _makeConstant(code.stack, oparg, Stack.makeTuple)
                 elif OP.BUILD_LIST(op) :
-                    _makeConstant(stack, oparg, Stack.makeList)
-
-                # Add a warning if there was any from any of the operations
-                _addWarning(warnings, warn)
+                    _makeConstant(code.stack, oparg, Stack.makeList)
             else :
-                debug("  " + str(i) + " " + OP.name[op])
+                debug("  " + str(code.index) + " " + OP.name[op])
                 if _startswith(OP.name[op], 'BINARY_') :
-                    if OP.name[op] == 'BINARY_MODULO' and len(stack) > 1 :
-                        warn = _getFormatWarnings(stack, func_code,
-                                                  lastLineNum, unusedLocals)
-                        _addWarning(warnings, warn)
-                    del stack[-1]
+                    if OP.name[op] == 'BINARY_MODULO' :
+                        _getFormatWarnings(code)
+                    code.popStack()
                 elif OP.IMPORT_STAR(op) :
-                    warn = _handleImportFrom(stack, '*', module, func_code,
-                                             lastLineNum, main)
-                    _addWarning(warnings, warn)
+                    _handleImportFrom(code, '*', module, main)
                 elif OP.POP_TOP(op) :
-                    if len(stack) > 0 :
-                        del stack[-1]
+                    code.popStack()
                 elif OP.DUP_TOP(op) :
-                    if len(stack) > 0 :
-                        stack.append(stack[-1])
+                    if len(code.stack) > 0 :
+                        code.stack.append(code.stack[-1])
                 elif OP.STORE_SUBSCR(op) :
-                    popCount = len(stack)
-                    if popCount > 0 :
-                        popCount = min(popCount, 3)
-                        stack = stack[:-popCount]
+                    code.popStackItems(3)
                 elif _startswith(OP.name[op], 'SLICE+') :
-                    # len('SLICE+') == 6
-                    sliceCount = int(OP.name[op][6:])
-                    if sliceCount > 0 :
-                        popArgs = 1
-                        if sliceCount == 3 :
-                            popArgs = 2
-                        stack = stack[:-popArgs]
+                    #                len('SLICE+') == 6
+                    code.popStackItems(int(OP.name[op][6:]))
                 elif OP.RETURN_VALUE(op) :
                     returns = returns + 1
-                    lastReturnLabel = i - _BACK_RETURN_INDEX
-                    if len(stack) > 0 :
-                        returnValues.append((lastLineNum, stack[-1]))
-                        del stack[-1]
+                    code.lastReturnLabel = code.index - _BACK_RETURN_INDEX
+                    if len(code.stack) > 0 :
+                        code.returnValues.append((code.lastLineNum, code.stack[-1]))
+                        code.popStack()
 
         # check if last return is unreachable due to a raise just before
-        tmpIndex = i - _BACK_RETURN_INDEX - 3
-        if tmpIndex >= maxLabel and OP.RAISE_VARARGS(ord(code[tmpIndex])) :
-            del returnValues[-1]
+        tmpIndex = code.index - _BACK_RETURN_INDEX - 3
+        if tmpIndex >= code.maxLabel and OP.RAISE_VARARGS(ord(code.bytes[tmpIndex])) :
+            del code.returnValues[-1]
 
     except (SystemExit, KeyboardInterrupt) :
         exc_type, exc_value, exc_tb = sys.exc_info()
@@ -869,50 +869,51 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
         exc_list = traceback.format_exception(exc_type, exc_value, exc_tb)
         for index in range(0, len(exc_list)) :
             exc_list[index] = string.replace(exc_list[index], "\n", "\n\t")
-        warn = _CHECKER_BROKEN % string.join(exc_list, "")
-        warnings.append(Warning(func_code, lastLineNum, warn))
+        code.addWarning(_CHECKER_BROKEN % string.join(exc_list, ""))
 
     # ignore last return of None, it's always there
     # (when last 2 return lines are the same)
-    if len(returnValues) >= 2 and returnValues[-1][0] == returnValues[-2][0] :
-        if not branches.has_key(lastReturnLabel-1) :
-            if len(branches) <= 1 or not branches.has_key(lastReturnLabel) :
-                del returnValues[-1]
+    if len(code.returnValues) >= 2 and \
+       code.returnValues[-1][0] == code.returnValues[-2][0] :
+        if not code.branches.has_key(code.lastReturnLabel-1) :
+            if len(code.branches) <= 1 or \
+               not code.branches.has_key(code.lastReturnLabel) :
+                del code.returnValues[-1]
 
     if cfg().checkReturnValues :
-        _addWarning(warnings, _checkReturnWarnings(returnValues, func_code))
+        _checkReturnWarnings(code)
             
     if cfg().localVariablesUsed :
-        for var, line in unusedLocals.items() :
+        for var, line in code.unusedLocals.items() :
             if line is not None and line > 0 and var != '_' :
-                warnings.append(Warning(func_code, line, _UNUSED_LOCAL % var))
+                code.addWarning(_UNUSED_LOCAL % var, line)
 
     if cfg().argumentsUsed :
-        op = _getFirstOp(code, maxCode)
+        op = code.getFirstOp()
         if not (OP.RAISE_VARARGS(op) or OP.RETURN_VALUE(op)) :
-            for var, line in unusedLocals.items() :
+            for var, line in code.unusedLocals.items() :
                 should_warn = line is not None and line == 0
                 if should_warn :
                     should_warn = cfg().ignoreSelfUnused or \
-                                  not var == cfg().methodArgName
+                                  var != cfg().methodArgName
                 if should_warn :
-                    warn = Warning(func_code, func_code, _UNUSED_PARAMETER % var)
-                    warnings.append(warn)
+                    code.addWarning(_UNUSED_PARAMETER % var, code.func_code)
 
     # Check code complexity:
     #   loops should be counted as one branch, but there are typically 3
     #   branches in byte code to setup a loop, so subtract off 2/3's of them
     #    / 2 to approximate real branches
-    branches = (len(branches.keys()) - (2 * loops)) / 2
-    lines = (lastLineNum - func_code.co_firstlineno)
+    branches = (len(code.branches.keys()) - (2 * code.loops)) / 2
+    lines = (code.lastLineNum - code.func_code.co_firstlineno)
     if not main and not in_class :
-        _checkComplex(warnings, cfg().maxLines, lines, func, _FUNC_TOO_LONG)
-    _checkComplex(warnings, cfg().maxReturns, returns, func, _TOO_MANY_RETURNS)
-    _checkComplex(warnings, cfg().maxBranches, branches, func, _TOO_MANY_BRANCHES)
+        _checkComplex(code, cfg().maxLines, lines, func, _FUNC_TOO_LONG)
+    _checkComplex(code, cfg().maxReturns, returns, func, _TOO_MANY_RETURNS)
+    _checkComplex(code, cfg().maxBranches, branches, func, _TOO_MANY_BRANCHES)
 
     if not main :
         popConfig()
-    return warnings, globalRefs, functionsCalled, codeObjects.values(), returnValues
+    return (code.warnings, code.globalRefs, code.functionsCalled,
+            code.codeObjects.values(), code.returnValues)
 
 
 def _getUnused(module, globalRefs, dict, msg, filterPrefix = None) :
@@ -963,9 +964,9 @@ def _checkOverridenMethods(func, baseClasses, warnings) :
 
 
 def _handleLambda(module, code, warnings, globalRefs, in_class = 0):
-    if code.co_name == '<lambda>' :
+    if code.co_name == _LAMBDA :
         func = function.create_fake(code.co_name, code)
-        # I sure hope there can't/aren't lambda's within lambda's
+        # I sure hope there can't be/aren't lambda's within lambda's
         _updateFunctionWarnings(module, func, None, warnings,
                                 globalRefs, in_class)
 
@@ -1025,7 +1026,7 @@ def getSuppression(name, suppressions, warnings) :
     suppress = suppressions.get(name, None)
     if suppress is not None :
         pushConfig()
-        if not updateCheckerArgs(suppress, 'suppressions', 0, warnings) :
+        if not _updateCheckerArgs(suppress, 'suppressions', 0, warnings) :
             suppress = None
             popConfig()
     return suppress
@@ -1064,7 +1065,7 @@ def find(moduleList, initialCfg, suppressions = {}) :
                                _NO_FUNC_DOC % func.function.__name__)
                 warnings.append(warn)
 
-            _addWarning(warnings, _checkNoSelfArg(func))
+            _checkNoSelfArg(func, warnings)
             _updateFunctionWarnings(module, func, None, warnings, globalRefs)
             if suppress is not None :
                 popConfig()
@@ -1108,7 +1109,7 @@ def find(moduleList, initialCfg, suppressions = {}) :
                                    _NO_FUNC_DOC % method.function.__name__)
                     warnings.append(warn)
 
-                _addWarning(warnings, _checkSelfArg(method))
+                _checkSelfArg(method, warnings)
                 funcInfo = _updateFunctionWarnings(module, method, c,
                                                    warnings, globalRefs)
                 if func_code.co_name == _INIT :
