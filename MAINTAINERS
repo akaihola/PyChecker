@@ -8,5 +8,8 @@ Other Contributors:
 Barry Scott		barry@scottb.demon.co.uk
 				Fix Base class not init spurious warning
 				Other misc suggestions and fixes
-Jeff Collins			checker.findModule
 
+Jeff Collins			checker.findModule
+Nicolas Chauvat			setup.py
+Riaan Booysen			bug reports, suggestions, etc.
+Mark Favas			bug reports
