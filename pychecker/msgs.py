@@ -26,6 +26,7 @@ MODULE_IMPORTED_AGAIN = "Module (%s) re-imported"
 MODULE_MEMBER_IMPORTED_AGAIN = "Module member (%s) re-imported"
 MODULE_MEMBER_ALSO_STAR_IMPORTED = "Module member (%s) re-imported with *"
 MIX_IMPORT_AND_FROM_IMPORT = "Using import and from ... import for (%s)"
+IMPORT_SELF = "Module (%s) imports itself"
 
 NO_METHOD_ARGS = "No method arguments, should have %s as argument"
 SELF_NOT_FIRST_ARG = "%s is not first method argument"

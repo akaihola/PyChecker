@@ -227,6 +227,10 @@ def _handleImport(code, operand, module, main, fromName) :
     if fromName is not None :
         tmpOperand = tmpFromName = fromName
         key = (fromName, operand)
+
+    if cfg().reimportSelf and tmpOperand == module.module.__name__ :
+        code.addWarning(msgs.IMPORT_SELF % tmpOperand)
+
     modline1 = module.moduleLineNums.get(tmpOperand, None)
     modline2 = module.moduleLineNums.get((tmpFromName, '*'), None)
     key2 = (tmpFromName,)
