@@ -48,6 +48,7 @@ def create_checklist(options):
                VariableChecks.UnusedCheck(),
                VariableChecks.UnknownCheck(),
                VariableChecks.SelfCheck(),
+               VariableChecks.UsedBeforeSetCheck(),
                ReturnChecks.MixedReturnCheck(),
                ClassChecks.AttributeCheck(),
                ClassChecks.SpecialCheck(),
