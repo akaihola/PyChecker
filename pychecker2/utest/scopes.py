@@ -38,3 +38,10 @@ class RedefinedTestCase(WarningTester):
                      'else:\n'
                      '   pass\n',
                      2, w, 'f', 3)
+
+        self.silent('try:\n'
+                    '   def f(): return 1\n'
+                    'except Exception:\n'
+                    '   def f(): return 0\n'
+                    'else:\n'
+                    '   pass\n')
