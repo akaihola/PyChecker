@@ -177,6 +177,13 @@ def _isexception(object) :
             return 1
     return 0
 
+def _checkAbstract(refClass, code, name):
+    name_list = refClass.isAbstract()
+    if name_list:
+        name_list.sort()
+        names = string.join(name_list, ", ")
+        code.addWarning(msgs.METHODS_NEED_OVERRIDE % (names, name))
+
 def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                         check_arg_count = 1) :
     'Checks for warnings, returns function called (may be None)'
@@ -205,15 +212,6 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
     loadValue = code.stack[funcIndex]
     funcName = loadValue.getName(codeSource.module)
     returnValue = Stack.makeFuncReturnValue(loadValue, argCount)
-
-    if cfg().abstractClasses:
-        _, refClass, _ = _getFunction(codeSource.module, loadValue)
-        if refClass:
-            name_list = refClass.isAbstract()
-            if name_list:
-                name_list.sort()
-                names = string.join(name_list, ", ")
-                code.addWarning(msgs.METHODS_NEED_OVERRIDE % (names, funcName))
 
     if loadValue.isMethodCall(codeSource.classObject, cfg().methodArgName) :
         methodName = loadValue.data[1]
@@ -265,12 +263,16 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                             if func is not None :
                                 method = 1
 
+            if cfg().abstractClasses and refClass:
+                _checkAbstract(refClass, code, funcName)
+
             if func != None :
                 _checkFunctionArgs(code, func, method, argCount, kwArgs, check_arg_count)
                 if refClass :
                     if method :
                         # c'tor, return the class as the type
                         returnValue = Stack.Item(loadValue, refClass)
+                
                     elif argCount > 0 and \
                          code.stack[funcIndex].type == Stack.TYPE_ATTRIBUTE and \
                          code.stack[funcIndex+1].data != cfg().methodArgName :
