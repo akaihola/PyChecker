@@ -18,11 +18,11 @@ def is_arg_and_defaulted_to_same_name(name, scope):
         if name in scope.node.argnames and scope.node.defaults:
             # compute default args
             args = scope.node.argnames[:]
-            # knock off varags 
-            if scope.node.varargs:
-                args = args[:-1]
             # knock off kwargs
             if scope.node.kwargs:
+                args = args[:-1]
+            # knock off varags 
+            if scope.node.varargs:
                 args = args[:-1]
             # take the last args as the defaults
             args = args[-len(scope.node.defaults):]
@@ -231,9 +231,7 @@ class UnpackCheck(Check):
                         try:
                             file.scopes[n].uses[c.name] = node.lineno
                             break
-                        except AttributeError:
-                            pass
-                        except KeyError:
+                        except (AttributeError, KeyError):
                             pass
                         n = n.parent
             visitAssList = visitAssTuple
