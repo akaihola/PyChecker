@@ -6,7 +6,7 @@ def xx(**kw):
 def yy():
     c = yy
     g, h = 1, 2
-    xx(a='', b=c.a.d.f, e=5, jj=xx(j=5), f=(g+h))
+    xx(a='', b=c.a.d.f, e=5, jj=xx(j=5), f=(g+h), k=("%s" % "df"))
 
 def zz():
     b = zz
