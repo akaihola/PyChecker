@@ -2,5 +2,6 @@ from os.path import *
 from sys import path as foo
 import getopt                           # unused
 
-args = join(foo)
-args = args + [__all__]
+def f(v):
+    v.append(join(foo))                 # join from os.path
+    v.append(__all__)                   # __all__ is unknown
