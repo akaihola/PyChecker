@@ -7,6 +7,7 @@ Version 0.4	- xx April 2001
   * Fix command line handling so you can pass module, package, or filename
   * Add glob'ing support for windows
   * Don't exit from checker when import checker from interpreter
+  * Add new warning:  Module (%s) re-imported locally
 
 Version 0.3	- 17 April 2001
   * Fix some checker crashes (oops)

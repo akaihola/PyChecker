@@ -28,6 +28,8 @@ _VAR_NOT_USED = "Variable (%s) not used in any function"
 _IMPORT_NOT_USED = "Imported module (%s) not used in any function"
 _UNUSED_LOCAL = "Local variable (%s) not used"
 
+_MODULE_IMPORTED_AGAIN = "Module (%s) re-imported locally"
+
 _NO_METHOD_ARGS = "No method arguments, should have self as argument"
 _SELF_NOT_FIRST_ARG = "self is not first method argument"
 _SELF_IS_ARG = "self is argument in function"
@@ -315,6 +317,11 @@ def _checkFunction(module, func, c = None) :
                 else :
                     last = (last, operand)
                 stack[-1] = last
+            elif OP.IMPORT_NAME(op) :
+                debug("  import", operand)
+                if module.modules.has_key(operand) :
+                    warn = Warning(func_code, lastLineNum,
+                                   _MODULE_IMPORTED_AGAIN % operand)
             elif OP.UNPACK_SEQUENCE(op) :
                 debug("  unpack seq", oparg)
                 unpackCount = oparg
