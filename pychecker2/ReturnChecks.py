@@ -19,7 +19,7 @@ class Returns(BaseVisitor):
     visitLambda = visitFunction
 
 def _is_implicit(node):
-    if isinstance(node, ast.Const) and node.value == None:
+    if isinstance(node, ast.Const) and node.value is None:
         return 1
     return None
 
