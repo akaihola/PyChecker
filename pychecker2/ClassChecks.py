@@ -144,7 +144,6 @@ def conforms(a, b):
         return None
     return a.node.kwargs == b.node.kwargs and a.node.varargs == b.node.varargs
 
-# FIXME: __pow*__ sometimes takes 3 args
 special = {
     '__cmp__': 2,     '__del__': 1,     '__delitem__': 2, '__eq__': 2,
     '__ge__': 2,      '__getitem__': 2, '__gt__': 2,      '__hash__': 1,
@@ -165,6 +164,7 @@ special = {
     '__neg__': 1,     '__pos__': 1,     '__abs__': 1,     '__invert__': 1,
     '__complex__': 1, '__int__': 1,     '__long__': 1,    '__float__': 1,
     '__oct__': 1,     '__hex__': 1,     '__coerce__': 2,
+    '__pow__': 2,     '__ipow__': 2,
     }
 
 def check_special(scope):
