@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2001, MetaSlash Inc.  All rights reserved.
+# Copyright (c) 2001-2002, MetaSlash Inc.  All rights reserved.
 
 """
 Print out warnings from Python source files.
@@ -360,7 +360,7 @@ def getSuppression(name, suppressions, warnings) :
 
         return suppress
     except _SuppressionError :
-        return 0
+        return None
 
 def _findFunctionWarnings(module, globalRefs, warnings, suppressions) :
     for func in module.functions.values() :
