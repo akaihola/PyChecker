@@ -20,7 +20,7 @@ Gary Capell                     refactoring suggestions
 Loris Caren                     testing, etc.
 Nicolas Chauvat                 setup.py
 Jeff Collins                    checker.findModule
-Tom Culliton                    suggestions
+Tom Culliton                    bug reports and suggestions
 André Dahlqvist                 bug reports
 Walter Doerwald                 bug reports and fixes
 Jeff Epler                      bug reports
@@ -40,6 +40,7 @@ Jonathan Mark                   bug reports and suggestions
 Skip Montanaro                  bug reports and suggestions
 Michele Moore                   many suggestions
 Jon Nelson                      fix setup.py, add MANIFEST.in
+Jason Orendorff                 suggestions
 Fernando Pérez                  bug reports
 Eric S. Raymond                 bug reports and suggestions
 Terry Reedy                     suggestions

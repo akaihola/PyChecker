@@ -58,3 +58,23 @@ def abc(a, b, c):
     zz.func_doc
     str
 
+def j343():
+    d = {}
+    d['HOME']
+    l = []
+    l[5]
+    d, l
+
+def jklasdflksdjf():
+  d = {}
+  5 + 3
+  5 - 3
+  5 / 3.
+  5 * 3
+  5 ** 3
+  d.get
+  d[1]
+  d[1:2]
+  d, d
+  [d, d]
+

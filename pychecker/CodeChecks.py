@@ -326,12 +326,14 @@ def _getGlobalName(name, func) :
     return name
 
 
-def _makeConstant(stack, index, factoryFunction) :
+def _makeConstant(code, index, factoryFunction) :
     "Build a constant on the stack ((), [], or {})"
     if index > 0 :
-        stack[-index:] = [ factoryFunction(stack[-index:]) ]
+        code.stack[-index:] = [ factoryFunction(code.stack[-index:]) ]
+        if OP.POP_TOP(code.nextOpInfo()[0]) :
+            code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
     else :
-        stack.append(factoryFunction())
+        code.pushStack(factoryFunction())
 
 
 def _hasGlobal(operand, module, func, main) :
@@ -406,7 +408,7 @@ def _handleImport(code, operand, module, main, fromName) :
 
 def _handleImportFrom(code, operand, module, main) :
     fromName = code.stack[-1].data
-    code.stack.append(Stack.Item(operand, types.ModuleType))
+    code.pushStack(Stack.Item(operand, types.ModuleType))
     _handleImport(code, operand, module, main, fromName)
 
 
@@ -634,6 +636,11 @@ class Code :
                     return op
         raise RuntimeError('Could not find first opcode in function')
 
+    def pushStack(self, item) :
+        self.stack.append(item)
+        if OP.POP_TOP(self.nextOpInfo()[0]) :
+            self.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
+
     def popStack(self) :
         if self.stack :
             del self.stack[-1]
@@ -797,8 +804,6 @@ def _checkLoadGlobal(codeSource, code, varname) :
 
 def _LOAD_NAME(oparg, operand, codeSource, code) :
     _checkLoadGlobal(codeSource, code, operand)
-    if OP.POP_TOP(code.nextOpInfo()[0]) :
-        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
 
     # if there was from XXX import *, _* names aren't imported
     if codeSource.module.modules.has_key(operand) and \
@@ -810,17 +815,16 @@ def _LOAD_NAME(oparg, operand, codeSource, code) :
         opType, const = types.NoneType, 0
     elif operand == 'Ellipsis' :
         opType, const = types.EllipsisType, 1
-    code.stack.append(Stack.Item(operand, opType, const))
+    code.pushStack(Stack.Item(operand, opType, const))
 
 _LOAD_GLOBAL = _LOAD_NAME
 
 def _LOAD_DEREF(oparg, operand, codeSource, code) :
     if type(oparg) == types.IntType :
+        argname = code.func_code.co_varnames[oparg]
+        code.pushStack(Stack.Item(argname, types.StringType))
         if code.func_code.co_name != utils.LAMBDA :
-            argused = code.func_code.co_varnames[oparg]
-            code.unusedLocals[argused] = None
-        if OP.POP_TOP(code.nextOpInfo()[0]) :
-            code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
+            code.unusedLocals[argname] = None
     else :
         _LOAD_GLOBAL(oparg, operand, codeSource, code)
 
@@ -832,7 +836,7 @@ def _DELETE_NAME(oparg, operand, codeSource, code) :
 _DELETE_GLOBAL = _DELETE_NAME
 
 def _LOAD_CONST(oparg, operand, codeSource, code) :
-    code.stack.append(Stack.Item(operand, type(operand), 1))
+    code.pushStack(Stack.Item(operand, type(operand), 1))
     if type(operand) == types.CodeType :
         name = operand.co_name
         obj = code.codeObjects.get(name, None)
@@ -843,8 +847,6 @@ def _LOAD_CONST(oparg, operand, codeSource, code) :
             code.codeObjects[name] = operand
         elif cfg().redefiningFunction :
             code.addWarning(msgs.REDEFINING_ATTR % (name, obj.co_firstlineno))
-    elif OP.POP_TOP(code.nextOpInfo()[0]) :
-        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
 
 
 def _checkLocalShadow(code, module, varname) :
@@ -869,10 +871,8 @@ def _handleLoadLocal(code, codeSource, varname) :
                     msgs.LOCAL_DELETED, msgs.VAR_USED_BEFORE_SET)
 
 def _LOAD_FAST(oparg, operand, codeSource, code) :
-    code.stack.append(Stack.Item(operand, type(operand)))
+    code.pushStack(Stack.Item(operand, type(operand)))
     _handleLoadLocal(code, codeSource, operand)
-    if OP.POP_TOP(code.nextOpInfo()[0]) :
-        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
 
 def _STORE_FAST(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :
@@ -960,7 +960,7 @@ def _COMPARE_OP(oparg, operand, codeSource, code) :
     _handleComparison(code.stack, operand)
 
 def _IMPORT_NAME(oparg, operand, codeSource, code) :
-    code.stack.append(Stack.Item(operand, types.ModuleType))
+    code.pushStack(Stack.Item(operand, types.ModuleType))
     nextOp = code.nextOpInfo()[0]
     if not OP.IMPORT_FROM(nextOp) and not OP.IMPORT_STAR(nextOp) :
         # handle import xml.sax as sax
@@ -983,7 +983,7 @@ def _IMPORT_STAR(oparg, operand, codeSource, code) :
 
 def _DUP_TOP(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
-        code.stack.append(code.stack[-1])
+        code.pushStack(code.stack[-1])
 
 def _pop2(oparg, operand, codeSource, code) :
     if len(code.stack) >= 2 :
@@ -1009,15 +1009,15 @@ def _CALL_FUNCTION_VAR_KW(oparg, operand, codeSource, code) :
 def _MAKE_FUNCTION(oparg, operand, codeSource, code) :
     newValue = Stack.makeFuncReturnValue(code.stack[-1], oparg)
     code.popStackItems(oparg+1)
-    code.stack.append(newValue)
+    code.pushStack(newValue)
 _MAKE_CLOSURE = _MAKE_FUNCTION
 
 def _BUILD_MAP(oparg, operand, codeSource, code) :
-    _makeConstant(code.stack, oparg, Stack.makeDict)
+    _makeConstant(code, oparg, Stack.makeDict)
 def _BUILD_TUPLE(oparg, operand, codeSource, code) :
-    _makeConstant(code.stack, oparg, Stack.makeTuple)
+    _makeConstant(code, oparg, Stack.makeTuple)
 def _BUILD_LIST(oparg, operand, codeSource, code) :
-    _makeConstant(code.stack, oparg, Stack.makeList)
+    _makeConstant(code, oparg, Stack.makeList)
 
 def _UNARY_CONVERT(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
@@ -1047,7 +1047,7 @@ def _UNARY_INVERT(oparg, operand, codeSource, code) :
 
 def _popStackRef(code, operand, count = 2) :
     code.popStackItems(count)
-    code.stack.append(Stack.Item(operand, Stack.TYPE_UNKNOWN))
+    code.pushStack(Stack.Item(operand, Stack.TYPE_UNKNOWN))
 
 def _pop(oparg, operand, codeSource, code) :
     code.popStack()
@@ -1058,6 +1058,9 @@ _NUMERIC_TYPES = (types.IntType, types.FloatType)
 
 # FIXME: This is pathetically weak, need to handle more types
 def _coerce_type(code) :
+    if OP.POP_TOP(code.nextOpInfo()[0]) :
+        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
+
     if len(code.stack) >= 2 :
         s1, s2 = code.stack[-2:]
         s1type = s1.getType(code.typeMap)
@@ -1072,7 +1075,7 @@ def _BINARY_ADD(oparg, operand, codeSource, code) :
                             stack[-1].type == stack[-2].type) :
         value = stack[-2].data + stack[-1].data
         code.popStackItems(2)
-        code.stack.append(Stack.Item(value, type(value), 1))
+        code.pushStack(Stack.Item(value, type(value), 1))
     else :
         _coerce_type(code)
         code.popStack()
@@ -1086,6 +1089,9 @@ def _BINARY_SUBTRACT(oparg, operand, codeSource, code) :
 _BINARY_POWER = _BINARY_SUBTRACT
 
 def _BINARY_SUBSCR(oparg, operand, codeSource, code) :
+    if OP.POP_TOP(code.nextOpInfo()[0]) :
+        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
+
     if len(code.stack) >= 2 :
         stack = code.stack
         varType = code.typeMap.get(str(stack[-2].data), [])
@@ -1102,6 +1108,9 @@ def _isint(stackItem, code) :
     return types.IntType in stackTypes
 
 def _BINARY_DIVIDE(oparg, operand, codeSource, code) :
+    if OP.POP_TOP(code.nextOpInfo()[0]) :
+        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
+
     if cfg().intDivide and len(code.stack) >= 2 :
         if _isint(code.stack[-1], code) and _isint(code.stack[-2], code) :
             code.addWarning(msgs.INTEGER_DIVISION % tuple(code.stack[-2:]))
@@ -1119,6 +1128,9 @@ def _BINARY_MULTIPLY(oparg, operand, codeSource, code) :
     code.popStack()
 
 def _BINARY_MODULO(oparg, operand, codeSource, code) :
+    if OP.POP_TOP(code.nextOpInfo()[0]) :
+        code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
+
     _getFormatWarnings(code, codeSource)
     code.popStack()
 
@@ -1127,8 +1139,8 @@ def _ROT_TWO(oparg, operand, codeSource, code) :
         del code.stack[-2]
 
 def _SETUP_EXCEPT(oparg, operand, codeSource, code) :
-    code.stack.append(Stack.Item(None, Stack.TYPE_EXCEPT))
-    code.stack.append(Stack.Item(None, Stack.TYPE_EXCEPT))
+    code.pushStack(Stack.Item(None, Stack.TYPE_EXCEPT))
+    code.pushStack(Stack.Item(None, Stack.TYPE_EXCEPT))
 
 def _LINE_NUM(oparg, operand, codeSource, code) :
     code.lastLineNum = oparg
