@@ -195,6 +195,16 @@ class UnknownCheck(Check):
                             if not UnknownCheck.builtins.has_key(var):
                                 file.warning(scope.uses[var], self.unknown, var)
 
+def _first_arg_defaulted(function_node):
+    count = len(function_node.argnames)
+    if function_node.varargs:
+        count -= 1
+    if function_node.kwargs:
+        count -= 1
+    if len(function_node.defaults) == count:
+        return 1
+    return None
+
 class SelfCheck(Check):
     'Check for simple self parameter'
     
@@ -223,25 +233,20 @@ class SelfCheck(Check):
         for scope in file.scopes.values():
             if isinstance(scope, symbols.FunctionScope) and \
                len(scope.node.argnames) > 0:
+                function = scope.node
+                funcname = getattr(scope.node, 'name', 'lambda')
                 if not _is_method(scope):
-                    for name in scope.node.argnames:
-                        if name in self.selfSuspicious:
-                            funcname = getattr(scope.node, 'name', 'lambda')
-                            file.warning(scope.defs[name], self.functionSelf,
-                                         funcname, name)
-                elif scope.node.argnames[0] not in self.selfNames:
-                    function = scope.node
+                    for arg in scope.node.argnames:
+                        if arg in self.selfSuspicious:
+                            file.warning(scope.defs[arg], self.functionSelf,
+                                         funcname, arg)
+                elif function.argnames[0] not in self.selfNames:
                     name = function.argnames[0]
-                    file.warning(scope.defs[name], self.selfName,
-                                 function.name, name, `self.selfNames`)
-                    count = len(function.argnames)
-                    if function.varargs:
-                        count -= 1
-                    if function.kwargs:
-                        count -= 1
-                    if len(function.defaults) == count:
+                    file.warning(function, self.selfName,
+                                 funcname, name, `self.selfNames`)
+                    if _first_arg_defaulted(function):
                         file.warning(function, self.selfDefault,
-                                     function.name, var)
+                                     funcname, name)
 
 class UnpackCheck(Check):
     'Mark all unpacked variables as used'
