@@ -15,6 +15,9 @@ class ParseCheck(Check):
 
     syntaxErrors = Warning('Report/ignore syntax errors',
                            'Unable to parse: %s')
+
+    def __init__(self):
+        self.main = None
     
     def get_options(self, options):
         desc = 'Ignore module-level code protected by __name__ == "__main__"'
