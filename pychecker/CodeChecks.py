@@ -174,8 +174,6 @@ _GLOBAL_FUNC_INFO = { 'abs': (Stack.TYPE_UNKNOWN, 1, 1),
                       'zip': (types.ListType, 1, None),
                     }
 
-_MUTABLE_TYPES = (types.ListType, types.DictType, types.InstanceType,)
-
 def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
     returnValue = Stack.makeFuncReturnValue(loadValue)
     func_name = loadValue.data
@@ -198,6 +196,16 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
                 pass
 
     return returnValue
+
+_MUTABLE_TYPES = (types.ListType, types.DictType, types.InstanceType,)
+
+def _checkModifyDefaultArg(code, objectName) :
+    try :
+        value = code.func.defaultValue(objectName)
+        if type(value) in _MUTABLE_TYPES :
+            code.addWarning(msgs.MODIFYING_DEFAULT_ARG % objectName)
+    except ValueError :
+        pass
 
 def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                         check_arg_count = 1) :
@@ -243,13 +251,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
         else :
             if cfg().modifyDefaultValue and \
                type(loadValue.data) == types.TupleType :
-                objectName = loadValue.data[0]
-                try :
-                    value = code.func.defaultValue(objectName)
-                    if type(value) in _MUTABLE_TYPES :
-                        code.addWarning(msgs.MODIFYING_DEFAULT_ARG % objectName)
-                except ValueError :
-                    pass
+                _checkModifyDefaultArg(code, loadValue.data[0])
 
             func, refClass, create = _getFunction(codeSource.module, loadValue)
             if func != None :
@@ -946,6 +948,11 @@ def _DUP_TOP(oparg, operand, codeSource, code) :
         code.stack.append(code.stack[-1])
 
 def _pop2(oparg, operand, codeSource, code) :
+    if len(code.stack) >= 2 :
+        loadValue = code.stack[-2]
+        if cfg().modifyDefaultValue and loadValue.type == types.StringType :
+            _checkModifyDefaultArg(code, loadValue.data)
+
     code.popStackItems(2)
 _STORE_SUBSCR = _DELETE_SUBSCR = _pop2
 

@@ -18,3 +18,7 @@ class X:
 def zz(x = X()):
     print x.x()
 
+def zz2(a = [], b = {}):
+    a[0] = b
+    b[0] = a
+
