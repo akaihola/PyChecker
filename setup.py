@@ -24,11 +24,9 @@ dynamic languages, like C and C++. Because of the dynamic nature of python,
 some warnings may be incorrect; however, spurious warnings should be
 fairly infrequent."""
 
-    script_arg = '"$@"'
     script_suffix = 'sh'
     if sys.platform == 'win32' :
         script_suffix = 'bat'
-        script_arg = '%*'
     LOCAL_SCRIPT = 'pychecker.' + script_suffix
     try :
         os.unlink(LOCAL_SCRIPT)
@@ -38,7 +36,10 @@ fairly infrequent."""
     install_dir = sysconfig.get_python_lib() + os.sep + 'pychecker'
     checker_py = install_dir + os.sep + 'checker.py'
     py_exe = sys.executable
-    script_str = '#! /bin/sh\n\n%(py_exe)s %(checker_py)s %(script_arg)s\n' % locals()
+
+    script_str = '#! /bin/sh\n\n%s %s "$@"\n' % (py_exe, checker_py)
+    if sys.platform == 'win32' :
+        script_str = '%s %s %%*\n' % (py_exe, checker_py)
 
     try :
         fp = open(LOCAL_SCRIPT, "w")
