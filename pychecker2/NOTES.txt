@@ -7,9 +7,6 @@ separate classes.  These classes are more self-contained: they hold
 onto the option variables and define the Warning objects they support.
 
 Items still missing:
-        Can't suppress vars defined at module level without
-        suppressing unused module imports
-
         Error suppression (errors may be suppressed globally)
 
         Line numbers for where identifiers are defined.
