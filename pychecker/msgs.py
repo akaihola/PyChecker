@@ -41,7 +41,7 @@ INVALID_CLASS_ATTR = "No class attribute (%s) found"
 INVALID_MODULE_ATTR = "No module attribute (%s) found"
 USING_METHOD_AS_ATTR = "Using method (%s) as an attribute (not invoked)"
 OBJECT_HAS_NO_ATTR = "Object (%s) has no attribute (%s)"
-METHOD_SIGNATURE_MISMATCH = "Overriden method (%s) doesn't match signature in class (%s)"
+METHOD_SIGNATURE_MISMATCH = "Overridden method (%s) doesn't match signature in class (%s)"
 
 INVALID_ARG_COUNT1 = "Invalid arguments to (%s), got %d, expected %d"
 INVALID_ARG_COUNT2 = "Invalid arguments to (%s), got %d, expected at least %d"
