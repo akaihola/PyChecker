@@ -12,16 +12,16 @@ for each function, class, and method is checked for possible problems.
 
 Types of problems that can be found include:
 
-  * No doc strings in modules, classes, functions, and methods
-  * self not the first parameter to a method
-  * Wrong number of parameters passed to functions/methods
   * No global found (e.g., using a module without importing it)
-  * Global not used (module or variable)
-  * Local variable not used
-  * Format strings don't match arguments
+  * Passing the wrong number of parameters to functions/methods/constructors
+  * Using format strings that don't match arguments
+  * Using class methods and attributes that don't exist
+  * self not the first parameter to a method
+  * Unused globals and locals (module or variable)
+  * No doc strings in modules, classes, functions, and methods
 
-To use PyChecker, pass the python source files you want to check on
-the command line:
+To use PyChecker, pass the python source files you want to check
+on the command line:
 
 	python pychecker/checker.py file1.py file2.py ...
 
