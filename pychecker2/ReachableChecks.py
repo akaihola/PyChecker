@@ -1,5 +1,5 @@
 from pychecker2.Check import Check
-from pychecker2.util import BaseVisitor, line
+from pychecker2.util import BaseVisitor
 from pychecker2.Warning import Warning
 
 from compiler import ast, walk
@@ -72,7 +72,7 @@ class ReachableCheck(Check):
                        not s.check_returns(node.nodes[-1]) and \
                        isinstance(node.parent, ast.Function) and \
                        s.has_returns:
-                        file.warning(line(node.nodes[-1]), self.implicitReturn,
+                        file.warning(node.nodes[-1], self.implicitReturn,
                                      node.parent.name)
                 
             def visitFunction(s, node):
