@@ -1,5 +1,7 @@
 
 * Fix spurious warnings (Base class __init__ not called)
+* Fix **kwArgs warning if named param is not first
+* Fix Local variable (xxx) not used, when have:  except Error, xxx:
 * Handle apply() like a function call, when possible
 * Check function return values
 * Finer grain control of warnings/config options (per module/class/method)
