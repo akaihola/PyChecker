@@ -106,6 +106,12 @@ class UnusedCheck(Check):
                     if not used(var, scope):
                         file.warning(scope, self.unused, var)
 
+def _implicitlyImported(scope, name):
+    for module in scope.importStar.values():
+        if getattr(module, name, None):
+            return 1
+    return None
+
 class UnknownCheck(Check):
     """Use symbol information to check that no scope uses a name
     not defined in a parent scope"""
@@ -127,8 +133,9 @@ class UnknownCheck(Check):
                         if p.defs.has_key(var):
                             break
                     else:
-                        if not UnknownCheck.builtins.has_key(var):
-                            file.warning(scope, self.unknown, var)
+                        if not _implicitlyImported(scope, var):
+                            if not UnknownCheck.builtins.has_key(var):
+                                file.warning(scope, self.unknown, var)
 
 class SelfCheck(Check):
     'Report any methods whose first argument is not self'
