@@ -46,6 +46,9 @@ _OPTIONS = (
  ('I', 0, 'initsubclass', 'initDefinedInSubclass', 'Subclass.__init__() not defined'),
  ('u', 0, 'callinit', 'baseClassInitted', 'Subclass.__init__() not called'),
  ('N', 0, 'initreturn', 'returnNoneFromInit', 'Return None from __init__()'),
+ ('8', 0, 'unreachable', 'unreachableCode', 'unreachable code'),
+ ('2', 0, 'constCond', 'constantConditions', 'a constant is used in a conditional statement'),
+ ('1', 0, 'constant1', 'constant1', '1 is used in a conditional statement (if 1: or while 1:)'),
  ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
  ('y', 0, 'classattr', 'classAttrExists', 'class attribute does not exist'),
  ('S', 1, 'self', 'methodArgName', 'First argument to methods'),
@@ -192,6 +195,9 @@ class Config :
         self.classAttrExists = 1
         self.namedArgs = 1
         self.returnNoneFromInit = 1
+        self.unreachableCode = 0
+        self.constantConditions = 1
+        self.constant1 = 0
 
         self.unusedNames = _DEFAULT_UNUSED_LIST
         self.variablesToIgnore = _DEFAULT_VARIABLE_IGNORE_LIST

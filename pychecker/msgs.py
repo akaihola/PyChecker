@@ -64,6 +64,8 @@ TOO_MANY_REFERENCES = 'Law of Demeter violated, more than %d references for (%s)
 
 IMPLICIT_AND_EXPLICIT_RETURNS = "Function returns a value and also implicitly returns None"
 INCONSISTENT_RETURN_TYPE = "Function return types are inconsistent"
+CODE_UNREACHABLE = "Code appears to be unreachable"
+CONSTANT_CONDITION = "Using a conditional statement with a constant value (%s)"
 
 INVALID_FORMAT = "Invalid format string, problem starts near: '%s'"
 INVALID_FORMAT_COUNT = "Format string argument count (%d) doesn't match arguments (%d)"

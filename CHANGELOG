@@ -1,5 +1,9 @@
 
-Version 0.8.7	- xx January 2002
+Version 0.8.7   - xx January 2002
+  * Add -2/--constcond option to warn if using a constant 
+        in a conditional statement (if '': ; while 'str': ; etc)
+  * Add -1/--constant1 option to warn when using if 1: or while 1: etc.
+  * Add -8/--unreachable option to warn about unreachable code
   * Fix -C/--implicitreturns option so it works, turn it on by default
   * Fix spurious warning when accessing 'static' class members that are methods
         (e.g. class C(B): __super_init = B.__init__)
@@ -10,28 +14,28 @@ Version 0.8.7	- xx January 2002
   * Add warning statements with no effect (load var, but do nothing)
   * Add -w/--shadow for local variable shadowing global variable
   * Handle nested scopes better, includes fixing a crash and
-	eliminating spurious warnings
+        eliminating spurious warnings
 
-Version 0.8.6	- 16 November 2001
+Version 0.8.6   - 16 November 2001
   * Add -5/--maxrefs for maximum # of identifier references (Law of Demeter)
   * Fix problem where user defined classes weren't checked for valid attributes
   * Allow use of __pychecker__ in class scope
   * Fix a lot of global function arg counts for Python 2.2
-  	(many constructors can take no arguments now)
+        (many constructors can take no arguments now)
   * Fix spurious warning (Function return types are inconsistent)
-	when multiple returns w/a constant & a local variable of same type
+        when multiple returns w/a constant & a local variable of same type
   * Fix spurious warning for format strings when using a dict local variable
   * Rename pychecker.sh script to pychecker on Unix
 
-Version 0.8.5	- 17 October 2001
+Version 0.8.5   - 17 October 2001
   * Add check for using builtin function/method const (None) return value
-  	(e.g., not_a_new_list = [].sort())
+        (e.g., not_a_new_list = [].sort())
   * Add check for builtin object method calls for right # args
-  	(e.g., [].count(), {}.keys(), file.seek(0))
+        (e.g., [].count(), {}.keys(), file.seek(0))
   * Add check for object method calls for right # args
-  	(calling object when type is known, ie instatiated locally)
+        (calling object when type is known, ie instatiated locally)
   * Add check for modifying a parameter that has a default value
-  	(e.g., def func(mutable = []): mutable.append(0))
+        (e.g., def func(mutable = []): mutable.append(0))
   * Add check for using future keywords (e.g., yield)
   * Add check for using unary positive on variables (e.g., +x)
   * Add check for recursive calls to __repr__ implementations (`self`)
@@ -41,7 +45,7 @@ Version 0.8.5	- 17 October 2001
   * Fix spurious warning from calling functions like:  zip(*args)
   * Fix -F/--rcfile option so it really works
 
-Version 0.8.4	- 24 September 2001
+Version 0.8.4   - 24 September 2001
   * Allow warning suppressions to be specified as regular expressions
   * Add -z/--no-varargsused to ignore *args for functions w/variable args
   * Add warning checks when deleting variables
@@ -51,23 +55,23 @@ Version 0.8.4	- 24 September 2001
   * Add check that pychecker/checker.py is same version as other files
   * Get setup.py to work on windows, etc. if don't have /tmp
 
-Version 0.8.3	- 12 August 2001
+Version 0.8.3   - 12 August 2001
   * Fix internal errors when doing % on non-strings and other format problems
   * Fix spurious warning when using a constant {} with a format mapping
 
-Version 0.8.2	- 12 August 2001
+Version 0.8.2   - 12 August 2001
   * Check format strings even if using global & local constants
   * Add check that [].append() only takes one argument
   * Add check that # parameters are correct for builtin functions
   * Add warnings for --, ++, ~~:
-  	"Operator (%s) doesn't exist, statement has no effect"
+        "Operator (%s) doesn't exist, statement has no effect"
   * Add -Q/--quiet to be real quiet, only output warning msgs, nothing else
   * Add -y/--classattr config option (warning was not configurable before)
-  	(warn if class attribute doesn't exist)
+        (warn if class attribute doesn't exist)
   * Add -x/--miximport config option (warning was not configurable before)
-  	(warn if mixing: import/from ... import)
+        (warn if mixing: import/from ... import)
   * Add -u/--callinit config option (warning was not configurable before)
-  	(warn if Subclass.__init__() not called)
+        (warn if Subclass.__init__() not called)
   * Add constants together on stack when get + to avoid some spurious warnings
   * Fix method and attribute checks for None and Ellipsis
   * Fix spurious warnings when doing a local import and use module in lambda
@@ -75,7 +79,7 @@ Version 0.8.2	- 12 August 2001
   * Fix Object (x) has no attribute warnings for Python 2.2a1 built-in types
   * Change default behaviour to not warn about missing doc strings
 
-Version 0.8.1	- 9 August 2001
+Version 0.8.1   - 9 August 2001
   * Fix internal error when referencing a list constant:  [1,2,3][1]
   * Fix internal error for Python 1.5 not catching unicode syntax error
   * Fix deprecation warning for Python 2.2a1 with xrange
@@ -84,7 +88,7 @@ Version 0.8.1	- 9 August 2001
   * Fix 'No module attribute' warning when doing:  import foo.bar as bar
   * Spell overridden write
 
-Version 0.8	- 6 August 2001
+Version 0.8     - 6 August 2001
   * Add check for accessing list as list[1,2], should be slice 1:2
   * Add -J/maxargs to warn when using too many arguments
   * Add -K/maxlocals to warn when using too many local variables
@@ -92,41 +96,42 @@ Version 0.8	- 6 August 2001
   * Add -O/objattrs to warn when using object.attribute that doesn't exist
   * Add -M/reimportself to warn when a module imports itself
   * Add -E/unusednames to provide a list of unused names to ignore
-	(default is: [ '_', 'empty', 'unused' ])
+        (default is: [ '_', 'empty', 'unused' ])
   * Major refactoring of warn.py -> utils, msgs, Warning, CodeChecks
   * Fix spurious warnings for No class attribute for dynamic classes
   * Fix spurious warnings when using objects from blacklisted modules
-	(Instantiating object with arguments, but no constructor, etc)
+        (Instantiating object with arguments, but no constructor, etc)
   * Fix spurious warnings when using lambdas
   * Fix spurious warning (No global Y) when using: from X import Y
-	(problem in python 1.5/1.6 only)
+        (problem in python 1.5/1.6 only)
 
-Version 0.7.5	- 22 July 2001
+Version 0.7.5   - 22 July 2001
   * Suppress warnings on a per module/function/class/method basis
-	with new suppressions = {} in .pycheckrc
+        with new suppressions = {} in .pycheckrc
   * Suppress warnings by setting __pychecker__ in source code
   * Change long argument behaviour --arg sets arg to true,
-	--no-arg sets arg to false (also works for warning suppression)
+        --no-arg sets arg to false (also works for warning suppression)
   * Add -U/--reuseattr check if function/class/method names are reused
   * Add -T/--argsused check for unused method/function arguments
-  * Add -G/--selfused ignore if self is unused in a method (requires --argsused)
+  * Add -G/--selfused ignore if self is unused in a method 
+    (requires --argsused)
   * Add -q/--stdlib to disable warnings from the standard library
   * Add -o/--override warning when a method has different signature 
-	than one being overridden in a base class
+        than one being overridden in a base class
   * Add -F/--rcfile to generate a .pycheckrc file
   * Fix checking files in standard library before local file
   * Fix spurious warning when using from X import Y and imports in methods
-	(Module (m) re-imported)
+        (Module (m) re-imported)
   * Fix spurious warning when doing:  from X import Y, Z
   * Fix spurious warning when deriving from Exception() and
-	instantiating object with multiple arguments
+        instantiating object with multiple arguments
   * Fix method argument checks when calling base class methods
   * Fix error msg to base constructors (msg count was wrong)
   * Fix access to builtin module attributes (e.g., sys.exc_value)
-	generating 'No attribute warnings'
+        generating 'No attribute warnings'
   * Fix tests (forgot to add : after line number in expected results)
 
-Version 0.7	- 16 July 2001
+Version 0.7     - 16 July 2001
   * Improve import warning messages, add from checks
   * checker.py -h prints defaults after processing .pycheckrc file
   * Add config option -k/--pkgimport to disable unused imports from __init__.py
@@ -137,27 +142,27 @@ Version 0.7	- 16 July 2001
   * Add -e/--errors option to only warn about likely errors
   * Make 'self' configurable as the first argument to methods
   * Add check that there is a c'tor when instantiating an object and 
-	passing arguments
+        passing arguments
   * Add config option (-N/--initreturn) to turn off warnings 
-	when returning None from __init__()
+        when returning None from __init__()
   * Fix internal error with python 2.1 which defines a new op: LOAD_DEREF
   * Check in lambda functions for module/variable use
   * Fix inability to evaluate { 1: 'a' } inline,
-	led to incorrect __init__() not called warnings
+        led to incorrect __init__() not called warnings
   * Fix exception when class overrides __special__() methods & raise exception
   * Fix check in format strings when using '%*g %*.*g', etc
   * Add check for static class attributes
   * Fix checking of module attributes
   * Fix wrong filename in 'Base class (xxx) __init__() not called'
-  	when doing a from X import *
+        when doing a from X import *
   * Fix 'No attribute found' for very dynamic classes
-  	(may also work for classes that use __getattr__)
+        (may also work for classes that use __getattr__)
 
-Version 0.6.1	- 27 June 2001
+Version 0.6.1   - 27 June 2001
   * Fix bug which caused an exception from some import code
   * Fix bug in determining if there is an implicit return
 
-Version 0.6	- 25 June 2001
+Version 0.6     - 25 June 2001
   * Check format strings: "%s %s %s" % (v1, v2, v3, v4) for arg counts
   * Warn when format strings do: '%(var) %(var2)'
   * Fix Local variable (xxx) not used, when have:  "%(xxx)s" % locals()
@@ -172,9 +177,9 @@ Version 0.6	- 25 June 2001
   * Fix using from XX import YY ; from XX import ZZ causing re-import warning
   * Fix UNABLE TO IMPORT errors for files that don't end with a newline
   * Support for checking consistent return values -- not complete 
-  	produces too many false positives
+        produces too many false positives
 
-Version 0.5	- 29 May 2001
+Version 0.5     - 29 May 2001
   * Catch internal errors "gracefully" and turn into a warning
   * Add checking of most module scoped code
   * Add pychecker subdir to imports to prevent filename conflicts
@@ -190,7 +195,7 @@ Version 0.5	- 29 May 2001
   * Fix exception on code like:  func(kw=(a < b))
   * Fix line numbers for import statements
 
-Version 0.4	- 23 April 2001
+Version 0.4     - 23 April 2001
   * Add .pycheckrc file processing to specify options (like on command line)
   * Add new warning if module.Attribute doesn't exist
   * Add new warning:  Module (%s) re-imported locally
@@ -200,7 +205,7 @@ Version 0.4	- 23 April 2001
   * Fix **kwArgs warning if named parameter is not first
   * Don't exit from checker when import checker from interpreter
 
-Version 0.3	- 17 April 2001
+Version 0.3     - 17 April 2001
   * Fix some checker crashes (oops)
   * Add warnings for code complexity (lines/branches/returns per function)
   * Add more configuration options
@@ -209,27 +214,28 @@ Version 0.3	- 17 April 2001
     rather than real file
   * Fix warnings for **kwArgs not allowed, but using named args
   * Add configuration option for warning when using attribute as a function
-  	(off by default, old behaviour was on)
+        (off by default, old behaviour was on)
 
-Version 0.2.5	- 12 April 2001
+Version 0.2.5   - 12 April 2001
   * Add back support for Python 1.5.2 (again)
-  	(I sure like 2.0 more with the [ for ] and string methods.)
+        (I sure like 2.0 more with the [ for ] and string methods.)
   * Add new warning for unused local variables
   * Add command line switches
 
-Version 0.2	- 10 April 2001
-  * Move tests into a sub-directory so import test doesn't import pychecker/test
+Version 0.2     - 10 April 2001
+  * Move tests into a sub-directory so import test doesn't import
+    pychecker/test
   * Add more test files
   * Add '.' to the python path so it doesn't need to be done in env't
   * Print a warning at the end for each file that couldn't be import'ed
   * Improve stack handling to improve error handling
   * Try to get base class __init__ checking to work for both:
-  	import X.Y
-	from X import Y
+        import X.Y
+        from X import Y
 
-Version 0.1.1	- 8 April 2001
+Version 0.1.1   - 8 April 2001
   * Add support for Python 1.5.2
 
-Version 0.1	- 7 April 2001
+Version 0.1     - 7 April 2001
   * Initial release
 
