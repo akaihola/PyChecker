@@ -67,3 +67,5 @@ def renderItem(text):
 def test_kw_lambda(a, b, c):
     return renderElement(a, ff=lambda value: '=' + renderItem(b))
 
+str = '53'
+_ = "blah, don't care, shouldn't warn"

@@ -19,7 +19,7 @@ _VERSION = '0.8.13beta'
 
 _DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", "gtk", "GTK", "GDK", ]
 _DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__', 
-                                  '__all__', '__credits__',
+                                  '__all__', '__credits__', '__test__',
                                   '__author__', '__email__', ]
 _DEFAULT_UNUSED_LIST = [ '_', 'empty', 'unused', 'dummy', ]
 
@@ -83,6 +83,7 @@ _OPTIONS = (
  ( '', 0, 'emptyslots', 'emptySlots', 'check if __slots__ is empty'),
  ('D', 0, 'intdivide', 'intDivide', 'check if using integer division'),
  ('w', 0, 'shadow', 'shadows', 'check if local variable shadows a global'),
+ ('s', 0, 'shadowbuiltin', 'shadowBuiltins', 'check if a variable shadows a builtin'),
      ]),
     ('Security', [
  ( '', 0, 'input', 'usesInput', 'check if input() is used'),
@@ -265,6 +266,7 @@ class Config :
         self.checkImplicitReturns = 1
         self.intDivide = 1
         self.shadows = 1
+        self.shadowBuiltins = 1
         self.unaryPositive = 1
         self.modifyDefaultValue = 1
         self.usesExec = 0

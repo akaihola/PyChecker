@@ -1,4 +1,5 @@
-Version 0.8.13   - xx January 2003
+Version 0.8.13   - xx February 2003
+  * Add -s/--shadowbuiltin option to warn when overriding a builtin
   * Add warning when assigning a variable to itself
   * Add warning when dividing a variable by itself
   * Add warnings when using a bit-wise operator with the same variable (a & a)

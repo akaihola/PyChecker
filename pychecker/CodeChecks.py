@@ -935,6 +935,7 @@ def _STORE_NAME(oparg, operand, codeSource, code) :
         _checkFutureKeywords(code, operand)
         module = codeSource.module
         if not codeSource.in_class :
+            _checkShadowBuiltin(code, operand)
             if not codeSource.calling_code :
                 _checkGlobal(operand, module, codeSource.func, code,
                              msgs.GLOBAL_DEFINED_NOT_DECLARED, codeSource.main)
@@ -1043,6 +1044,11 @@ def _checkLocalShadow(code, module, varname) :
             w.err = '%s in file %s' % (w.err, line[0])
         code.addWarning(w)
 
+def _checkShadowBuiltin(code, varname) :
+    if __builtins__.has_key(varname) and varname[0] != '_' and \
+       cfg().shadowBuiltins:
+        code.addWarning(msgs.VARIABLE_SHADOWS_BUILTIN % varname)
+
 def _checkLoadLocal(code, codeSource, varname, deletedWarn, usedBeforeSetWarn) :
     _checkFutureKeywords(code, varname)
     deletedLine = code.deletedLocals.get(varname)
@@ -1077,6 +1083,7 @@ def _STORE_FAST(oparg, operand, codeSource, code) :
                 code.constants[operand] = code.stack[-1].data
 
         _checkLocalShadow(code, codeSource.module, operand)
+        _checkShadowBuiltin(code, operand)
         _checkAssign(code, operand)
         _checkException(code, operand)
         if code.deletedLocals.has_key(operand) :

@@ -31,3 +31,4 @@ test_input/test1.py:48: Local variable (j) not used
 test_input/test1.py:48: No global (jjjj) found
 test_input/test1.py:50: No class attribute (z) found
 test_input/test1.py:54: Invalid arguments to (xxx), got 2, expected 1
+test_input/test1.py:70: (str) shadows builtin

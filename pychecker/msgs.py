@@ -43,6 +43,7 @@ INVALID_SET_CLASS_ATTR = "Setting class attribute (%s) not set in __init__"
 INVALID_MODULE_ATTR = "No module attribute (%s) found"
 
 LOCAL_SHADOWS_GLOBAL = "Local variable (%s) shadows global defined on line %d"
+VARIABLE_SHADOWS_BUILTIN = "(%s) shadows builtin"
 USING_METHOD_AS_ATTR = "Using method (%s) as an attribute (not invoked)"
 OBJECT_HAS_NO_ATTR = "Object (%s) has no attribute (%s)"
 METHOD_SIGNATURE_MISMATCH = "Overridden method (%s) doesn't match signature in class (%s)"

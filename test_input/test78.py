@@ -12,6 +12,7 @@ def f2():
 
 def f3():
     'should not generate a warning, since this is not the real input'
+    __pychecker__ = 'no-shadowbuiltin'
     def input(): return 0
 
     x = input()
