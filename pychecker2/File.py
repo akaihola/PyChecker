@@ -11,11 +11,11 @@ class File:
     def __cmp__(self, other):
         return cmp(self.name, other.name)
 
-    def warning(self, line, msg):
+    def warning(self, line, warning, *args):
 	try:
 	    line = line.lineno
         except AttributeError:
 	    pass
-        self.warnings.append( (line, msg) )
+        self.warnings.append( (line, warning.message % args) )
 
 
