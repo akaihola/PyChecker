@@ -74,10 +74,7 @@ class AttributeCheck(Check):
             if not method.node.argnames:
                 file.warning(method.node, self.missingSelf, method.node.name)
                 return {}
-            selfname = method.node.argnames[0]
-            # find defs on self attributes
-            # store attribute name in parent class
-            return walk(method.node, Visitor(selfname)).result
+            return walk(method.node, Visitor(method.node.argnames[0])).result
 
         # for all class scopes
         for scope in file.scopes.values():
@@ -91,15 +88,17 @@ class AttributeCheck(Check):
                 try:
                     mangled = mangle(name, scope.name)
                     orig = scope.defs[mangled]
-                    file.warning(node.parent, self.classRedefinition,
+                    file.warning(line(node), self.classRedefinition,
                                  name, orig.lineno)
                 except KeyError:
                     pass
 
-            # Now complain about refs on self that aren't known
+            # find refs on self
             refs = []
             for m in methods(scope):
                 refs.extend(visit_with_self(GetRefs, m).items())
+
+            # Now complain about refs on self that aren't known
             for name, node in refs:
                 if not attributes.has_key(name) and \
                    not _ignorable.get(name, None) and \
