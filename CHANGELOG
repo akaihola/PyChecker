@@ -1,5 +1,6 @@
 
 Version 0.5	- xx xxx 2001
+  * Add -g/--allglobals option to report all global warnings, not just first
   * Print all instructions when using debug (-d/--debug)
   * Overhaul internal stack handling so we can look for more problems
   * Fix glob'ing problems (all args after glob were ignored)

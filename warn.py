@@ -271,7 +271,8 @@ def _checkFunction(module, func, c = None) :
                    not __builtins__.has_key(operand)  :
                     warn = Warning(func_code, lastLineNum,
                                    _INVALID_GLOBAL % operand)
-                    func.function.func_globals[operand] = operand
+                    if not _cfg.reportAllGlobals :
+                        func.function.func_globals[operand] = operand
 
                 # if there was from x import *, _ names aren't imported
                 if module.modules.has_key(operand) and \
@@ -283,7 +284,8 @@ def _checkFunction(module, func, c = None) :
                    not __builtins__.has_key(operand) :
                     warn = Warning(func_code, lastLineNum,
                                    _GLOBAL_DEFINED_NOT_DECLARED % operand)
-                    func.function.func_globals[operand] = operand
+                    if not _cfg.reportAllGlobals :
+                        func.function.func_globals[operand] = operand
                 if unpackCount :
                     unpackCount = unpackCount - 1
             elif OP.LOAD_CONST(op) :

@@ -27,6 +27,7 @@ _OPTIONS = [
  ('t', 0, 'tuple', 'unusedLocalTuple', 'all unused local variables, including tuples'),
  ('v', 0, 'var', 'allVariablesUsed', 'all unused module variables'),
  ('p', 0, 'privatevar', 'privateVariableUsed', 'unused private module variables'),
+ ('g', 0, 'allglobals', 'reportAllGlobals', 'report each occurrence of global warnings'),
  ('n', 0, 'namedargs', 'namedArgs', 'functions called with named arguments (like keywords)'),
  ('a', 0, 'initattr', 'onlyCheckInitForMembers', 'Attributes (members) must be defined in __init__()'),
  ('I', 0, 'initsubclass', 'initDefinedInSubclass', 'Subclass.__init__() not defined'),
@@ -73,6 +74,7 @@ class Config :
         self.noDocClass = 1
         self.noDocFunc = 0
 
+        self.reportAllGlobals = 0
         self.allVariablesUsed = 0
         self.privateVariableUsed = 1
         self.importUsed = 1

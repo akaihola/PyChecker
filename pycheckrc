@@ -15,6 +15,9 @@ onlyCheckInitForMembers = 0
 # bool: warn when all module variables are not used (including private vars)
 allVariablesUsed = 0
 
+# bool: produce warnings for each occurrence of a warning for global (xxx)
+reportAllGlobals = 0
+
 # bool: warn when private module variables are not used (_var)
 privateVariableUsed = 1
 
