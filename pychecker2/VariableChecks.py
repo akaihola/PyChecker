@@ -32,6 +32,9 @@ class ShadowCheck(Check):
         # warn if any name defined in a scope is defined in a parent scope
         # or even the builtins
         for scope in file.scopes.values():
+            # skip methods of classes
+            if isinstance(scope.node, compiler.ast.Class):
+                continue
             for name in scope.defs:
                 if _is_self(scope, name):
                     continue
