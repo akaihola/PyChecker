@@ -1,5 +1,6 @@
 
 Version 0.8	- xx July 2001
+  * Fix checking files in standard library before local file
   * Add -F/--rcfile to generate a .pycheckrc file
   * Fix spurious warning when using from X import Y and imports in methods
 	(Module (m) re-imported)

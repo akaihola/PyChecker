@@ -11,7 +11,6 @@
 * Add check that private functions are used in module/class
 * Add check that subclass overrides method that only raises NotImplementedError
 * Fix deriving from class by alias name
-* Fix checking files in standard library before local file
 * Fix sys.exc_value, etc. generating No attribute warning in except clause
 * Add check for using object members outside of class
 * Check function return values - partially complete

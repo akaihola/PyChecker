@@ -93,9 +93,6 @@ def _findModule(name, path = sys.path) :
     """Returns the result of an imp.find_module(), ie, (file, filename, smt)
        name can be a module or a package name.  It is *not* a filename."""
 
-    if not '' in path :
-        path.append('')
-
     packages = string.split(name, '.')
     for p in packages :
         # smt = (suffix, mode, type)
@@ -388,6 +385,9 @@ def main(argv) :
     _cfg, files = Config.setupFromArgs(argv[1:])
     if not files :
         return 1
+
+    # insert this here, so we find files in the local dir before std library
+    sys.path.insert(0, '')
 
     importWarnings = []
     for moduleName in _getModules(files) :
