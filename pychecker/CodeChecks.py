@@ -204,6 +204,38 @@ _SEQUENCE_TYPES = (types.TupleType, types.ListType, types.StringType)
 try: _SEQUENCE_TYPES = _SEQUENCE_TYPES + (types.UnicodeType,)
 except AttributeError: pass
 
+# FIXME: this is not complete. errors will be caught only sometimes,
+#        depending on the order the functions/methods are processed
+#        in the dict.  Need to be able to run through all functions
+#        twice, but because the code sucks, this is not possible.
+def _checkReturnValueUse(code, func):
+    if func.returnValues is None:
+        return
+
+    err = None
+    opInfo = code.nextOpInfo()
+    if func.returnsNoValue():
+        # make sure we really know how to check for all the return types
+        for rv in func.returnValues:
+            if rv[1].type in _UNCHECKABLE_STACK_TYPES:
+                return
+
+        if not OP.POP_TOP(opInfo[0]):
+            err = msgs.USING_NONE_RETURN_VALUE % str(func)
+    elif OP.UNPACK_SEQUENCE(opInfo[0]):
+        # verify unpacking into proper # of vars
+        varCount = opInfo[1]
+        stackRV = func.returnValues[0][1]
+        returnType = stackRV.getType({})
+        funcCount = stackRV.length
+        if returnType in _SEQUENCE_TYPES:
+            if varCount != funcCount and funcCount > 0:
+                err = msgs.WRONG_UNPACK_FUNCTION % (str(func), funcCount, varCount)
+        elif returnType not in _UNCHECKABLE_STACK_TYPES:
+            err = msgs.UNPACK_NON_SEQUENCE % (str(func), _getTypeStr(returnType))
+    if err:
+        code.addWarning(err)
+
 def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                         check_arg_count = 1) :
     'Checks for warnings, returns function called (may be None)'
@@ -280,6 +312,10 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
             if func != None :
                 _checkFunctionArgs(code, func, method, argCount, kwArgs,
                                    check_arg_count)
+                # if this isn't a c'tor, we should check
+                if not (refClass and method) and cfg().checkReturnValues:
+                    _checkReturnValueUse(code, func)
+
                 if refClass :
                     if method :
                         # c'tor, return the class as the type
