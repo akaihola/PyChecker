@@ -12,8 +12,7 @@ class ReachableCheck(Check):
     def check(self, file, unused_checker):
         class ReturnsVisitor(BaseVisitor):
             def __init__(s):
-                s.returns = 0
-                s.inTryExcept = 0
+                s.returns = 0           #  icky: result value by side-effect
 
             def visitAssert(s, node):
                 if isinstance(node.test, ast.Const):
@@ -53,11 +52,12 @@ class ReachableCheck(Check):
             def visitStmt(s, node):
                 for n in range(len(node.nodes) - 1):
                     s.returns = 0
-                    s.visit(node.nodes[n]) # icky: return by side-effect
+                    s.visit(node.nodes[n])
                     if s.returns:
                         file.warning(node.nodes[n + 1], self.unreachable)
-                s.returns = 0
-                s.visit(node.nodes[-1])
+                if node.nodes:
+                    s.returns = 0
+                    s.visit(node.nodes[-1])
                 
             def visitFunction(s, node):
                 tmp = s.returns
