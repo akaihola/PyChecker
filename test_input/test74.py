@@ -24,14 +24,14 @@ class E:
     'warning'
     def __getattr__(self, attr):
         if attr == 'n':
-	    return attr
-	if attr != 'j':
-	    raise AttributeError
+            return attr
+        if attr != 'j':
+            raise AttributeError
 
 class F:
     'no warning'
     def __getattr__(self, attr):
         if attr == 'n':
-	    return attr
-	raise AttributeError
+            return attr
+        raise AttributeError
 
