@@ -64,7 +64,7 @@ def main():
         for checker in checks:
             out.write('.')
             out.flush()
-            checker.check(modules, f, options)
+            checker.check(f)
         print >>out
         if options.incremental and not options.profile:
             _print_warnings(f)

@@ -6,7 +6,7 @@ class RedefineCheck(Check):
     redefinedScope = Warning('Report redefined scopes',
                              'Scope (%s) is redefined at line %d')
 
-    def check(self, unused_modules, file, unused_options):
+    def check(self, file):
         names = {}                      # map name, parent to this scope
         for node, scope in file.scopes.items():
             if hasattr(node, 'name'):	# classes, functions

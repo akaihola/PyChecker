@@ -10,7 +10,7 @@ class ParseCheck(Check):
     syntaxErrors = Warning('Report/ignore syntax errors',
                            'Unable to parse: %s')
 
-    def check(self, unused_modules, file, unused_options):
+    def check(self, file):
         try:
             file.parseTree = parseFile(file.name)
             file.scopes = walk(file.parseTree, symbols.SymbolVisitor()).scopes

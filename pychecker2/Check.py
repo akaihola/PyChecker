@@ -32,7 +32,7 @@ class Check:
     def get_options(self, options):
         pass
     
-    def check(self, modules, file, options):
+    def check(self, file):
         pass
 
 

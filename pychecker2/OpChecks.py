@@ -15,7 +15,7 @@ class OpCheck(Check):
         "Operator (+) normally has no effect"
         )
 
-    def check(self, unused_modules, file, unused_options):
+    def check(self, file):
         class OpVisitor:
             def visitUnaryAdd(self, n):
                 if n.getChildren()[0].__class__ == compiler.ast.UnaryAdd:
