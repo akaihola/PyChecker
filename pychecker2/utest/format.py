@@ -5,7 +5,7 @@ class FormatTestCase(TestSupport.WarningTester):
 
     def testGoodFormats(self):
         self.silent('def f(x):\n'
-                     '    return "%s" % x\n')
+                    '    return "%s" % x\n')
         self.silent('def f(x):\n'
                     "    return ('%s' + '%s') % (x, x)\n")
         self.silent("def f(x):\n"
