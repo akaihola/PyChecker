@@ -76,3 +76,8 @@ def pythonVersion() :
 def startswith(s, substr) :
     "Ugh, supporting python 1.5 is a pain"
     return s[0:len(substr)] == substr
+
+def endswith(s, substr) :
+    "Ugh, supporting python 1.5 is a pain"
+    return s[-len(substr):] == substr
+
