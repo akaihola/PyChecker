@@ -20,6 +20,7 @@ Goals for next major release (0.9):
   - Override base class with classes to handle module scope, functions, etc.
   - Process module and create Module/Class/Function objects w/o dir(), etc.
   - Finish tests: 44
+* Add a config option to ignore certain cantankerous modules
 
 * Fix spurious warnings for unreachable code checks
 * Fix most of the FIXMEs
