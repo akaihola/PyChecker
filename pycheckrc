@@ -47,7 +47,11 @@ maxReturns = 10
 
 
 # list of strings: ignore warnings generated from these modules
-blacklist = [ 'Tkinter' ]
+blacklist = [ 'Tkinter', 'wxPython', 'gtk', 'GTK', 'GDK', ]
+
+
+# list of strings: ignore variable not used warnings from the list
+variablesToIgnore = [ '__all__', '__version__', '__copyright__', ]
 
 
 # bool: print the PyChecker parse of modules, classes, etc.

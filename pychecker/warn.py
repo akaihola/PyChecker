@@ -461,7 +461,10 @@ def _checkBaseClassInit(moduleFilename, c, func_code, functionsCalled) :
     warnings = []
     for base in c.classObject.__bases__ :
         if hasattr(base, '__init__') :
-            initName = str(base) + '.__init__'
+            initName = str(base)
+            if _startswith(initName, 'exceptions.') :
+                initName = string.join(string.split(initName, '.')[1:], '.')
+            initName = initName + '.__init__'
             if not functionsCalled.has_key(initName) :
                 warn = Warning(moduleFilename, func_code,
                                _BASE_CLASS_NOT_INIT % str(base))
@@ -561,7 +564,7 @@ def find(moduleList, cfg) :
             prefix = None
             if not cfg.allVariablesUsed :
                 prefix = "_"
-            for ignoreVar in [ '__version__', '__all__', ] :
+            for ignoreVar in cfg.variablesToIgnore :
                 globalRefs[ignoreVar] = ignoreVar
             warnings.extend(_getUnused(module, globalRefs, module.variables,
                                        _VAR_NOT_USED, prefix))

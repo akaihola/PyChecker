@@ -15,6 +15,7 @@ import string
 _RC_FILE = ".pycheckrc"
 
 _DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", "gtk", "GTK", "GDK", ]
+_DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__all__', ]
 
 _OPTIONS = [ 
  ('s', 0, 'doc', None, 'turn off all warnings for no doc strings'),
@@ -34,6 +35,7 @@ _OPTIONS = [
  ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
  None,
  ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules\n\t\t\t'),
+ ('V', 1, 'varlist', 'variablesToIgnore', 'ignore variables not used from the list\n\t\t\t'),
  ('L', 1, 'maxlines', 'maxLines', 'maximum lines in a function'),
  ('B', 1, 'maxbranches', 'maxBranches', 'maximum branches in a function'),
  ('R', 1, 'maxreturns', 'maxReturns', 'maximum returns in a function'),
@@ -83,6 +85,7 @@ class Config :
         self.initDefinedInSubclass = 0
         self.callingAttribute = 0
         self.namedArgs = 1
+        self.variablesToIgnore = _DEFAULT_VARIABLE_IGNORE_LIST
         self.blacklist = _DEFAULT_BLACK_LIST
 
         self.maxLines = 200

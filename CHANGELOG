@@ -1,10 +1,11 @@
 
-Version 0.5	- xx xxx 2001
+Version 0.5	- 29 May 2001
   * Catch internal errors "gracefully" and turn into a warning
   * Add checking of most module scoped code
   * Add pychecker subdir for source code to prevent filename conflicts
   * Don't produce unused local variable warning if variable name == '_'
   * Add -g/--allglobals option to report all global warnings, not just first
+  * Add -V/--varlist option to selectively ignore variable not used warnings
   * Add test script and expected results
   * Print all instructions when using debug (-d/--debug)
   * Overhaul internal stack handling so we can look for more problems
