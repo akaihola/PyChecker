@@ -55,15 +55,15 @@ def _getModules(arg_list) :
             arg = glob.glob(arg)
         new_arguments.append(arg)
 
-    PY_PREFIX = '.py'
-    PY_PREFIX_LEN = len(PY_PREFIX)
+    PY_SUFFIX = '.py'
+    PY_SUFFIX_LEN = len(PY_SUFFIX)
 
     modules = []
     for arg in _flattenList(new_arguments) :
         # is it a .py file?
-        if len(arg) > PY_PREFIX_LEN and arg[-PY_PREFIX_LEN:] == PY_PREFIX:
+        if len(arg) > PY_SUFFIX_LEN and arg[-PY_SUFFIX_LEN:] == PY_SUFFIX:
             arg_dir = os.path.dirname(arg)
-            module_name = os.path.basename(arg)[:-PY_PREFIX_LEN]
+            module_name = os.path.basename(arg)[:-PY_SUFFIX_LEN]
             if arg_dir not in sys.path :
                 sys.path.append(arg_dir)
 	    arg = module_name
