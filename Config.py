@@ -47,15 +47,15 @@ def printArg(shortArg, longArg, description, defaultValue = None) :
 
 _OPTIONS = [ 
   ('s', 'doc', None, 'turn off all warnings for no doc strings'),
-  ('m', 'moduledoc', 'noDocModule', 'turn off warnings for no module doc strings'),
-  ('c', 'classdoc', 'noDocClass', 'turn off warnings for no class doc strings'),
-  ('f', 'funcdoc', 'noDocFunc', 'turn on warnings for no function/method doc strings'),
+  ('m', 'moduledoc', 'noDocModule', 'no module doc strings'),
+  ('c', 'classdoc', 'noDocClass', 'no class doc strings'),
+  ('f', 'funcdoc', 'noDocFunc', 'no function/method doc strings'),
   None,
-  ('i', 'import', 'importUsed', 'turn off warnings for unused imports'),
-  ('l', 'local', 'localVariablesUsed', 'turn off warnings for unused local variables except local tuples'),
-  ('t', 'tuple', 'unusedLocalTuple', 'turn on warnings for all unused local variables, including local tuples'),
-  ('v', 'var', 'allVariablesUsed', 'turn on warnings for all unused module variables'),
-  ('p', 'privatevar', 'privateVariableUsed', 'turn off warnings for unused private module variables'),
+  ('i', 'import', 'importUsed', 'unused imports'),
+  ('l', 'local', 'localVariablesUsed', 'unused local variables, except tuples'),
+  ('t', 'tuple', 'unusedLocalTuple', 'all unused local variables, including tuples'),
+  ('v', 'var', 'allVariablesUsed', 'all unused module variables'),
+  ('p', 'privatevar', 'privateVariableUsed', 'unused private module variables'),
   None,
   ('d', 'debug', 'debug', 'turn on debugging for checker'),
   None,
@@ -64,8 +64,8 @@ _OPTIONS = [
 
 def usage() :
     print "Usage for: checker.py [options] PACKAGE ...\n"
-    print "    PACKAGE can be a python package, module or filename\n"
-    print "  Options:"
+    print "    PACKAGEs can be a python package, module or filename\n"
+    print "  Options:          Toggle warning for"
     cfg = Config()
     for opt in _OPTIONS :
         if opt == None :
