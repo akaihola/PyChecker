@@ -30,6 +30,14 @@ class Item :
         self.length = length
 
     def __str__(self) :
+        if type(self.data) == types.TupleType :
+            value = '('
+            for item in self.data :
+                value = value + str(item) + ', '
+            # strip off the ', ' for mulitple items
+            if len(self.data) > 1 :
+                value = value[:-2]
+            return value + ')'
         return str(self.data)
 
     def isNone(self) :

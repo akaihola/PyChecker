@@ -1105,7 +1105,15 @@ def _jump(oparg, operand, codeSource, code) :
             name = topOfStack.data[-1]
             if codeSource.classObject.methods.has_key(name) :
                 code.addWarning(msgs.USING_METHOD_AS_ATTR % name)
-_JUMP_IF_FALSE = _JUMP_IF_TRUE = _JUMP_ABSOLUTE = _jump
+_JUMP_ABSOLUTE = _jump
+
+def _jump_conditional(oparg, operand, codeSource, code) :
+    if code.stack and code.stack[-1].const :
+        if cfg().constantConditions and \
+           (code.stack[-1].data != 1 or cfg().constant1) :
+            code.addWarning(msgs.CONSTANT_CONDITION % str(code.stack[-1]))
+    _jump(oparg, operand, codeSource, code)
+_JUMP_IF_FALSE = _JUMP_IF_TRUE = _jump_conditional
 
 
 def _JUMP_FORWARD(oparg, operand, codeSource, code) :

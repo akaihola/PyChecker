@@ -1,15 +1,6 @@
 Goals for next minor release (0.8.7):
 -------------------------------------
 * Add/fix/finish check for unreachable code
-* Fix test20.py:28 handle local types for return:
-        c = (1, 2)
-        if c: return c
-        return (3, 4)
-* Add check that an assert is not passed a tuple
-* Add check if doing a constant compare:
-        if 1: pass
-        assert(x, 'test')
-        c = (1, 2) ; if c: pass
 
 Goals for next major release (0.9):
 -----------------------------------
