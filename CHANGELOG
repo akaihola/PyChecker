@@ -1,4 +1,8 @@
 
+Version 0.8.6	- xx October 2001
+  * Fix spurious warning for format strings when using a dict local variable
+  * Rename pychecker.sh script to pychecker on Unix
+
 Version 0.8.5	- 17 October 2001
   * Add check for using builtin function/method const (None) return value
   	(e.g., not_a_new_list = [].sort())

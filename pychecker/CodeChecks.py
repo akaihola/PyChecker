@@ -473,6 +473,9 @@ def _getFormatWarnings(code, codeSource) :
             else :
                 code.unusedLocals[varname] = None
     else :
+        if topOfStack.type == types.StringType and not topOfStack.const :
+            if types.DictType in code.typeMap.get(topOfStack.data) :
+                return
         if ((topOfStack.type == types.DictType and len(vars) > 0) or
             codeSource.func.isParam(topOfStack.data) or
             topOfStack.type in _UNCHECKABLE_FORMAT_STACK_TYPES) :

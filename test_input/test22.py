@@ -53,4 +53,6 @@ def ZZ():
 def YY(item):
     print '%(a)s %(b)s' % { 'a': '5', 'b': '7' }
     print '%(a)s %(b)s' % item
+    d = { 'a': '5', 'b': '7' }
+    print '%(a)s %(b)s' % d
 
