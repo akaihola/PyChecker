@@ -102,16 +102,16 @@ class Text(Base):
             return "--%s=%s" % (self._name, self._var.get())
         return None
     
+def join(list):
+    import string
+    return string.join(list, ", ")
+
 class List(Text):
     "OptionType for editing a list of values"
 
-    def join(self, list):
-        import string
-        return string.join(list, ", ")
-
     def __init__(self, name, default):
-        Text.__init__(self, name, self.join(default))
+        Text.__init__(self, name, join(default))
 
     def set(self, value):
-        self._var.set(self.join(value))
+        self._var.set(join(value))
 
