@@ -324,7 +324,10 @@ class Module :
     def filename(self) :
         if not self.module :
             return self.moduleName
-        filename = self.module.__file__
+        try :
+            filename = self.module.__file__
+        except AttributeError :
+            filename = self.moduleName
         if string.lower(filename[-4:]) == '.pyc' :
             filename = filename[:-4] + '.py'
         return filename
