@@ -448,7 +448,7 @@ def find(moduleList, cfg) :
                                                     moduleFilename, c,
                                                     func_code, functionsCalled)
                         warnings.extend(warns)
-                    else :
+                    elif cfg.initDefinedInSubclass :
                         warn = Warning(moduleFilename, c.getFirstLine(),
                                        _NO_INIT_IN_SUBCLASS % c.name)
                         warnings.append(warn)

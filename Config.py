@@ -30,6 +30,7 @@ class Config :
         self.importUsed = 1
         self.localVariablesUsed = 1
         self.unusedLocalTuple = 0
+        self.initDefinedInSubclass = 1
         self.blacklist = _DEFAULT_BLACK_LIST
 
         self.maxLines = 200
@@ -61,6 +62,7 @@ _OPTIONS = [
  ('t', 0, 'tuple', 'unusedLocalTuple', 'all unused local variables, including tuples'),
  ('v', 0, 'var', 'allVariablesUsed', 'all unused module variables'),
  ('p', 0, 'privatevar', 'privateVariableUsed', 'unused private module variables'),
+ ('I', 0, 'initsubclass', 'initDefinedInSubclass', 'Subclass.__init__() not defined'),
  None,
  ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules'),
  ('L', 1, 'maxlines', 'maxLines', 'maximum lines in a function'),
