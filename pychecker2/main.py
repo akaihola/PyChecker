@@ -2,7 +2,7 @@ import os, sys
 path = os.path.dirname(os.path.dirname(sys.argv[0]))
 sys.path.append(path)
 
-from pychecker2.Check import Checker
+from pychecker2.Check import CheckList
 
 from pychecker2 import Options
 from pychecker2 import ParseChecks
@@ -62,7 +62,7 @@ def main():
     if options.verbose:
         out = sys.stdout
 
-    checker = Checker(checks)
+    checker = CheckList(checks)
     for f in files:
         print >>out, 'Checking file', f.name
         checker.check_file(f)
