@@ -100,3 +100,4 @@ EMPTY_SLOTS = "__slots__ are empty in %s"
 
 USES_EXEC = "Using the exec statement"
 USES_GLOBAL_EXEC = "Using the exec statement in global namespace"
+USES_INPUT = "Using input() is a security problem, consider using raw_input()"

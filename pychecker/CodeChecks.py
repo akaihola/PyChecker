@@ -125,6 +125,8 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
     if loadValue.type == Stack.TYPE_GLOBAL :
         info = python.GLOBAL_FUNC_INFO.get(func_name, None)
         if info is not None :
+            if func_name == 'input' and cfg().usesInput:
+                code.addWarning(msgs.USES_INPUT)
             if kwArgs :
                 code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW % func_name)
             elif check_arg_count :

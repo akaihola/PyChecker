@@ -60,7 +60,6 @@ _OPTIONS = (
  ('U', 0, 'reuseattr', 'redefiningFunction', 'check if function/class/method names are reused'),
  ('Y', 0, 'positive', 'unaryPositive', 'check if using unary positive (+) which is usually meaningless'),
  ('j', 0, 'moddefvalue', 'modifyDefaultValue', 'check if modify (call method) on a parameter that has a default value'),
- ('6', 0, 'exec', 'usesExec', 'check if the exec statement is used (possible security problems'),
      ]),
     ('Possible Errors', [
  ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
@@ -71,6 +70,10 @@ _OPTIONS = (
  ( '', 0, 'emptyslots', 'emptySlots', 'check if __slots__ is empty'),
  ('D', 0, 'intdivide', 'intDivide', 'check if using integer division'),
  ('w', 0, 'shadow', 'shadows', 'check if local variable shadows a global'),
+     ]),
+    ('Security', [
+ ( '', 0, 'input', 'usesInput', 'check if input() is used'),
+ ('6', 0, 'exec', 'usesExec', 'check if the exec statement is used'),
      ]),
     ('Suppressions', [
  ('q', 0, 'stdlib', 'ignoreStandardLibrary', 'ignore warnings from files under standard library'),
@@ -240,6 +243,7 @@ class Config :
         self.unaryPositive = 1
         self.modifyDefaultValue = 1
         self.usesExec = 0
+        self.usesInput = 1
 
     def loadFile(self, filename) :
         suppressions = {}
