@@ -28,7 +28,12 @@ Types of problems that can be found include:
 To use PyChecker, pass the python source files you want to check
 on the command line:
 
-	python pychecker/checker.py file1.py file2.py ...
+	pychecker.sh file1.py file2.py ...
+
+Note:  On Windows, use pychecker.bat.
+
+Note:  If you haven't installed pychecker, it can be run by doing:
+python pychecker/checker.py
 
 If there are import dependencies in your source files, you should
 import those files first on the command line in order to get as many
@@ -38,14 +43,14 @@ PyChecker works with Python 1.5.2, 2.0, and 2.1.
 
 You can use the test files as examples:
 
-	python pychecker/checker.py test_input/*.py
+	pychecker.sh test_input/*.py
 
 If you want to change the default behaviour, you can pass command line options
 or define a .pycheckrc file.  For an example, look at pycheckrc.
 
 To show the available options, do:
 
-	python pychecker/checker.py -h
+	pychecker.sh -h
 
 If you want to suppress warnings on a module/function/class/method,
 you can define a suppressions dictionary in .pycheckrc.
@@ -61,7 +66,7 @@ are the same.  Dashes (--) are optional when preceding long option names.
 
 If you find a bug in PyChecker, meaning you see something like:
 
-	python pychecker/checker.py myfile.py
+	pychecker.sh myfile.py
 
 	myfile.py:13 INTERNAL ERROR -- STOPPED PROCESSING FUNCTION --
         Traceback (most recent call last):

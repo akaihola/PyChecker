@@ -59,8 +59,14 @@ you want to check on the command line:
 
 <p>
 <pre>
-	python pychecker/checker.py file1.py file2.py ...
+	pychecker.sh file1.py file2.py ...
 </pre>
+
+<p>
+Note:  On Windows, use pychecker.bat.<br>
+
+Note:  If you haven't installed pychecker, it can be run by doing:
+python pychecker/checker.py
 
 <p>
 If there are import dependencies in your source files, you should
@@ -75,7 +81,7 @@ You can use the test files as examples:
 
 <p>
 <pre>
-	python pychecker/checker.py test_input/*.py
+	pychecker.sh test_input/*.py
 </pre>
 
 <p>
@@ -85,7 +91,7 @@ or define a .pycheckrc file.  For an example, look at
 
 <p>
 <pre>
-	python pychecker/checker.py -h
+	pychecker.sh -h
 </pre>
 
 will show the available options.
@@ -112,7 +118,7 @@ are the same.  Dashes (--) are optional when preceding long option names.
 If you find a bug in PyChecker, meaning you see something like:
 
 <pre>
-	python pychecker/checker.py myfile.py
+	pychecker.sh myfile.py
 
 	myfile.py:13 INTERNAL ERROR -- STOPPED PROCESSING FUNCTION --
         Traceback (most recent call last):
