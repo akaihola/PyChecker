@@ -235,7 +235,7 @@ def _setupBuiltinAttrs() :
         _MSG = "xrange object's 'start', 'stop' and 'step' attributes are deprecated"
         warnings.filterwarnings('ignore', _MSG)
         del warnings, _MSG
-    except ImportError :
+    except (ImportError, AssertionError):
         pass
     BUILTIN_ATTRS[types.XRangeType] = dir(xrange(0))
 
@@ -367,6 +367,6 @@ SPECIAL_METHODS = {
 
     # these are related to pickling 
     '__getstate__': 1,		'__setstate__': 2,
-    '__copy__': 1,		'__deepcopy__': 1,
+    '__copy__': 1,		'__deepcopy__': 2,
     '__getinitargs__': 1,	
     }
