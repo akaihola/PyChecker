@@ -54,6 +54,11 @@ def _getRCfile(filename) :
     return filename
 
 
+class UsageError(Exception) :
+    """Exception to indicate that the application should exit due to
+       command line usage error."""
+
+
 class Config :
     "Hold configuration information"
 
@@ -170,5 +175,5 @@ def setupFromArgs(argList) :
         return cfg, files
     except getopt.error :
         usage()
-        sys.exit(127)
+        raise UsageError
 

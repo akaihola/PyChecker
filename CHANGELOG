@@ -1,21 +1,22 @@
 
 Version 0.4	- xx April 2001
   * Handle apply(BaseClass.__init__(self, args))
-  * Fix **kwArgs warning if named param is not first
-  * Add .rc file processing to specify options (like on cmd line)
+  * Fix **kwArgs warning if named parameter is not first
+  * Add .rc file processing to specify options (like on command line)
   * Add new warning if module.Attribute doesn't exist
   * Fix command line handling so you can pass module, package, or filename
   * Add glob'ing support for windows
+  * Don't exit from checker when import checker from interpreter
 
 Version 0.3	- 17 April 2001
   * Fix some checker crashes (oops)
-  * Add warnings for code complexity (lines/branches/returns per func)
+  * Add warnings for code complexity (lines/branches/returns per function)
   * Add more configuration options
   * Don't produce spurious warning for:  x(y, { 'a': 'b' })
   * Fix warnings that indicate they are from a base class file,
     rather than real file
   * Fix warnings for **kwArgs not allowed, but using named args
-  * Add config option for warning when using attribute as a function
+  * Add configuration option for warning when using attribute as a function
   	(off by default, old behaviour was on)
 
 Version 0.2.5	- 12 April 2001
@@ -25,7 +26,7 @@ Version 0.2.5	- 12 April 2001
   * Add command line switches
 
 Version 0.2	- 10 April 2001
-  * Move tests into a subdirectory so import test doesn't import pychecker/test
+  * Move tests into a sub-directory so import test doesn't import pychecker/test
   * Add more test files
   * Add '.' to the python path so it doesn't need to be done in env't
   * Print a warning at the end for each file that couldn't be import'ed
