@@ -498,6 +498,7 @@ def _getConstant(code, module, data) :
 _UNCHECKABLE_FORMAT_STACK_TYPES = \
       (Stack.TYPE_UNKNOWN, Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,
        Stack.TYPE_GLOBAL,)
+_UNCHECKABLE_STACK_TYPES = _UNCHECKABLE_FORMAT_STACK_TYPES + (types.NoneType,)
 
 def _getFormatString(code, codeSource) :
     if len(code.stack) <= 1 :
@@ -711,8 +712,26 @@ class Code :
     def setType(self, name) :
         valueList = self.typeMap.get(name, [])
         newType = self.__getStackType()
+        # comparisons are really ints anyways
+        if newType == Stack.TYPE_COMPARISON:
+            newType = types.IntType
         if newType not in valueList :
             valueList.append(newType)
+
+            # need to ignore various types (Unknown, Func return values, etc)
+            # also ignore None, don't care if they use it and a real type
+            if valueList and newType not in _UNCHECKABLE_STACK_TYPES and \
+               cfg().inconsistentTypes:
+                oldTypes = []
+                # only add types to the value list that are "interesting"
+                for typeToAdd in valueList:
+                    if typeToAdd not in _UNCHECKABLE_STACK_TYPES and \
+                       typeToAdd != newType:
+                        oldTypes.append(typeToAdd)
+                # do we have any "interesting" old types?  if so, warn
+                if oldTypes:
+                    self.addWarning(msgs.INCONSISTENT_TYPE % \
+                                    (name, oldTypes, newType))
         self.typeMap[name] = valueList
 
     def addReturn(self) :
@@ -1080,20 +1099,32 @@ def _pop(oparg, operand, codeSource, code) :
 _POP_TOP = _BINARY_LSHIFT = _BINARY_RSHIFT = \
            _BINARY_AND = _BINARY_XOR = _BINARY_OR = _pop
 
-_NUMERIC_TYPES = (types.IntType, types.FloatType)
+try:
+    ComplexType = types.ComplexType
+except NameError:
+    ComplexType = types.FloatType    # need some numeric type here
+
+_NUMERIC_TYPES = (types.IntType, types.FloatType, ComplexType)
 
 # FIXME: This is pathetically weak, need to handle more types
 def _coerce_type(code) :
     if OP.POP_TOP(code.nextOpInfo()[0]) :
         code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
 
+    newItem = Stack.Item('<stack>', Stack.TYPE_UNKNOWN)
     if len(code.stack) >= 2 :
         s1, s2 = code.stack[-2:]
         s1type = s1.getType(code.typeMap)
         s2type = s2.getType(code.typeMap)
         if s1type != s2type :
             if s1type in _NUMERIC_TYPES and s2type in _NUMERIC_TYPES :
-                code.setType(code.stack[-2].data)
+                newType = types.FloatType
+                if s1type == ComplexType or s2type == ComplexType:
+                    newType = ComplexType
+                newItem.type = newType
+
+    code.popStackItems(2)
+    code.pushStack(newItem)
 
 def _BINARY_ADD(oparg, operand, codeSource, code) :
     stack = code.stack
@@ -1104,14 +1135,9 @@ def _BINARY_ADD(oparg, operand, codeSource, code) :
         code.pushStack(Stack.Item(value, type(value), 1))
     else :
         _coerce_type(code)
-        code.popStack()
-        if stack :
-            # we know that the stack can't be const
-            stack[-1].const = 0
 
 def _BINARY_SUBTRACT(oparg, operand, codeSource, code) :
     _coerce_type(code)
-    code.popStack()
 _BINARY_POWER = _BINARY_SUBTRACT
 
 def _BINARY_SUBSCR(oparg, operand, codeSource, code) :
@@ -1148,10 +1174,11 @@ def _BINARY_MULTIPLY(oparg, operand, codeSource, code) :
         format = _getFormatString(code, codeSource)
         if format and type(code.stack[-1].data) == types.IntType :
             code.stack[-2].data = format * code.stack[-1].data
-
-        _coerce_type(code)
-
-    code.popStack()
+            code.popStack()
+        else:
+            _coerce_type(code)
+    else:
+        code.popStack()
 
 def _BINARY_MODULO(oparg, operand, codeSource, code) :
     if OP.POP_TOP(code.nextOpInfo()[0]) :

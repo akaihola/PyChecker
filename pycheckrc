@@ -69,6 +69,9 @@ constant1 = 0
 # bool: warn when iterating over a string in a for loop
 stringIteration = 1
 
+# bool: warn when setting a variable to different types
+inconsistentTypes = 0
+
 # bool: warn when the class attribute does not exist
 classAttrExists = 1
 

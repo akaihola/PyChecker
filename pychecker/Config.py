@@ -61,6 +61,7 @@ _OPTIONS = (
  ('U', 0, 'reuseattr', 'redefiningFunction', 'check if function/class/method names are reused'),
  ('Y', 0, 'positive', 'unaryPositive', 'check if using unary positive (+) which is usually meaningless'),
  ('j', 0, 'moddefvalue', 'modifyDefaultValue', 'check if modify (call method) on a parameter that has a default value'),
+ ( '', 0, 'changetypes', 'inconsistentTypes', 'check if variables are set to different types'),
      ]),
     ('Possible Errors', [
  ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
@@ -214,6 +215,7 @@ class Config :
         self.constantConditions = 1
         self.constant1 = 0
         self.stringIteration = 1
+        self.inconsistentTypes = 0
 
         self.unusedNames = _DEFAULT_UNUSED_LIST
         self.variablesToIgnore = _DEFAULT_VARIABLE_IGNORE_LIST

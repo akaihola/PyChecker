@@ -66,6 +66,7 @@ TOO_MANY_REFERENCES = 'Law of Demeter violated, more than %d references for (%s)
 
 IMPLICIT_AND_EXPLICIT_RETURNS = "Function returns a value and also implicitly returns None"
 INCONSISTENT_RETURN_TYPE = "Function return types are inconsistent"
+INCONSISTENT_TYPE = "Variable (%s) already has types (%s) and set to %s"
 CODE_UNREACHABLE = "Code appears to be unreachable"
 CONSTANT_CONDITION = "Using a conditional statement with a constant value (%s)"
 STRING_ITERATION = "Iterating over a string (%s)"
