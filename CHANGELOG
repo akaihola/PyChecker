@@ -1,5 +1,5 @@
 
-Version 0.7	- xx July 2001
+Version 0.7	- 16 July 2001
   * Improve import warning messages, add from checks
   * checker.py -h prints defaults after processing .pycheckrc file
   * Add config option -k/--pkgimport to disable unused imports from __init__.py
