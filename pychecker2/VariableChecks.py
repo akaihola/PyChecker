@@ -36,6 +36,8 @@ class ShadowCheck(Check):
             if isinstance(scope.node, compiler.ast.Class):
                 continue
             for name in scope.defs:
+                if name in scope.globals:
+                    continue
                 if _is_self(scope, name):
                     continue
                 if __builtins__.has_key(name):
