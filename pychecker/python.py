@@ -178,7 +178,7 @@ BUILTIN_METHODS = { types.DictType :
                   }
 
 if hasattr({}, 'pop'):
-    BUILTIN_METHODS[types.DictType]['pop'] = (Stack.TYPE_UNKNOWN, 0, 1)
+    BUILTIN_METHODS[types.DictType]['pop'] = (Stack.TYPE_UNKNOWN, 1, 1)
 
 def _setupBuiltinMethods() :
     if utils.pythonVersion() >= utils.PYTHON_2_2 :
