@@ -1,5 +1,6 @@
 
 Version 0.9	- xx October 2001
+  * Add -V/--version option for printing PyChecker version
   * Fix spurious warning from calling functions like:  zip(*args)
   * Fix -F/--rcfile option so it really works
 

@@ -62,7 +62,7 @@ _OPTIONS = [
     ('Suppressions', [
  ('q', 0, 'stdlib', 'ignoreStandardLibrary', 'ignore warnings from files under standard library'),
  ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules\n\t\t\t'),
- ('V', 1, 'varlist', 'variablesToIgnore', 'ignore global variables not used if name is one of these values\n\t\t\t'),
+ ('Z', 1, 'varlist', 'variablesToIgnore', 'ignore global variables not used if name is one of these values\n\t\t\t'),
  ('E', 1, 'unusednames', 'unusedNames', 'ignore unused locals/arguments if name is one of these values\n\t\t\t'),
      ]),
     ('Complexity', [
@@ -77,6 +77,7 @@ _OPTIONS = [
  ('P', 0, 'printparse', 'printParse', 'print internal checker parse structures'),
  ('d', 0, 'debug', 'debug', 'turn on debugging for checker'),
  ('Q', 0, 'quiet', None, 'turn off all output except warnings'),
+ ('V', 0, 'version', None, 'print the version of PyChecker and exit'),
      ])
 ]
 
@@ -247,6 +248,10 @@ class Config :
                 elif longArg == 'quiet' :
                     quiet = 1
                     continue
+                elif longArg == 'version' :
+                    # FIXME: it would be nice to define this in only one place
+                    print '0.9beta'
+                    sys.exit(0)
 
                 self.noDocModule = 0
                 self.noDocClass = 0
