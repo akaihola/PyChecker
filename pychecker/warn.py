@@ -462,8 +462,11 @@ def _handleImport(operand, module, func_code, lastLineNum, main, fromName) :
             else :
                 err = _MODULE_MEMBER_ALSO_STAR_IMPORTED % fromName
 
-        if err :
-            warn = Warning(func_code, lastLineNum, err)
+        # filter out warnings when files are different (ie, from X import ...)
+        code = module.main_code
+        if err and (code is None or 
+                    code.function.func_code.co_filename == fileline[0]) :
+                warn = Warning(func_code, lastLineNum, err)
 
     if main :
         module.moduleLineNums[key] = fileline
