@@ -115,3 +115,15 @@ If you want to add new checks, there are some parts to be aware of:
         Command line options are pulled from each check.
         A Warning is also turned into a boolean-style command line option.
 
+To add a new check, write a class (e.g., CompareCheck) that subclasses the
+Check class.  In its check method if you need to visit nodes of a particular
+type, write a Visitor class (subclass of BaseVisitor) which has a
+visit<Node> method, where <Node> is the name of a type of node to visit.
+See 
+
+    http://www.python.org/~jeremy/compiler/module-compiler.ast.html
+
+for the types of the nodes or print file.parseTree to see what classes all
+the nodes are.  See the OpChecks.CompareCheck class for an example of a
+check that visits all Compare nodes and the OpChecksExceptCheck class for an
+example that visits all TryExcept nodes.
