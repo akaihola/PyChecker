@@ -43,6 +43,7 @@ _OPTIONS = [
  None,
  ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
  None,
+ ('q', 0, 'stdlib', 'ignoreStandardLibrary', 'ignore warnings from files under standard library'),
  ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules\n\t\t\t'),
  ('V', 1, 'varlist', 'variablesToIgnore', 'ignore variables not used from the list\n\t\t\t'),
  ('L', 1, 'maxlines', 'maxLines', 'maximum lines in a function'),
@@ -144,6 +145,7 @@ class Config :
         self.returnNoneFromInit = 1
         self.variablesToIgnore = _DEFAULT_VARIABLE_IGNORE_LIST
         self.blacklist = _DEFAULT_BLACK_LIST
+        self.ignoreStandardLibrary = 0
         self.methodArgName = 'self'
         self.checkOverridenMethods = 1
 

@@ -1,5 +1,6 @@
 
 Version 0.8	- xx July 2001
+  * Add -q/--stdlib to disable warnings from the standard library
   * Add -o/--override warning when a method has different signature 
 	than one being overridden in a base class
   * Fix checking files in standard library before local file

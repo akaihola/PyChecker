@@ -5,7 +5,6 @@
 * Make check for 'self' a list instead of a string
 * Check function return values - partially complete
 * Add check for a[1,2] for lists (ok for dict)
-* Add option to ignore all warnings in standard library
 * Add check for except: pass
 * Add check for unused parameters
 * Add check for multiple functions/methods/classes w/same name

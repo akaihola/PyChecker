@@ -1001,8 +1001,23 @@ def find(moduleList, initialCfg) :
 	except ImportError :
 	    pass
 
+    # ignore files from std library if requested
+    std_lib = None
+    if cfg().ignoreStandardLibrary :
+        try :
+            import os.path
+            from distutils import sysconfig
+            std_lib = sysconfig.get_python_lib()
+            path = os.path.split(std_lib)
+            if path[1] == 'site-packages' :
+                std_lib = path[0]
+        except ImportError :
+            pass
+
     for index in range(len(warnings)-1, -1, -1) :
-        if warnings[index].file in blacklist :
+        filename = warnings[index].file
+        if filename in blacklist or \
+           (cfg().ignoreStandardLibrary and _startswith(filename, std_lib)) :
             del warnings[index]
                         
     return warnings

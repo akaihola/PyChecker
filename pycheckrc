@@ -59,6 +59,11 @@ maxBranches = 50
 maxReturns = 10
 
 
+# bool:  ignore all warnings from standard library components
+#	 (this includes anything under the standard library, eg, site-packages)
+ignoreStandardLibrary = 0
+
+
 # list of strings: ignore warnings generated from these modules
 blacklist = [ 'Tkinter', 'wxPython', 'gtk', 'GTK', 'GDK', ]
 
