@@ -76,21 +76,17 @@ def get_base_names(scope):
 def find_in_module(package, names, checker):
     if len(names) < 1:
         return None
-    module = package
-    if len(names) > 1:
-        module = getattr(package, '.'.join(names[:-1]))
-    if len(names) == 1:
+    elif len(names) == 1:
         f = checker.check_module(package)
         if f:
             return find_defs(f.root_scope, names[:1], checker)
-    try:
-        module = getattr(package, '.'.join(names[:-1]))
-        if type(module) == type(symbols):
-            f = checker.check_module(module)
-            if f:
-                return find_defs(f.root_scope, names[-1:], checker)
-    except KeyError:
-        pass
+
+    else:
+        name = package.__name__ + "." + '.'.join(names[:-1])
+        module = __import__(name, globals(), {}, [''])
+        f = checker.check_module(module)
+        if f:
+            return find_defs(f.root_scope, names[-1:], checker)
     return None
                  
 def find_defs(scope, names, checker):
@@ -102,12 +98,14 @@ def find_defs(scope, names, checker):
             if len(names) == 1:
                 return c
             return find_defs(c, names[1:], checker)
+    return find_imported_class(scope.imports, names, checker)
+
+def find_imported_class(imports, names, checker):
     # maybe defined by import
     for i in range(1, len(names) + 1):
         name = ".".join(names[:i])
-        if scope.imports.has_key(name):
-            ref = scope.imports[name]
-            file = checker.modules[ref.module]
+        if imports.has_key(name):
+            ref = imports[name]
             if ref.remotename:
                 return find_in_module(ref.module, [ref.remotename] + names[i:], checker)
             else:
