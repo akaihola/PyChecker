@@ -25,10 +25,7 @@ _OPTIONS = (
     ('Major Options', [
  ('e', 0, 'errors', None, 'turn off all warnings which are not likely errors'),
  ( '', 0, 'complexity', None, 'turn off all warnings which are related to complexity'),
- ('s', 0, 'doc', None, 'turn off all warnings for no doc strings'),
- ('m', 0, 'moduledoc', 'noDocModule', 'no module doc strings'),
- ('c', 0, 'classdoc', 'noDocClass', 'no class doc strings'),
- ('f', 0, 'funcdoc', 'noDocFunc', 'no function/method doc strings'),
+ ('F', 1, 'config', None, 'specify .pycheckrc file to use'),
      ]),
     ('Error Control', [
  ('i', 0, 'import', 'importUsed', 'unused imports'),
@@ -85,9 +82,12 @@ _OPTIONS = (
  ('J', 1, 'maxargs', 'maxArgs', 'maximum # of arguments to a function'),
  ('K', 1, 'maxlocals', 'maxLocals', 'maximum # of locals in a function'),
  ('5', 1, 'maxrefs', 'maxReferences', 'maximum # of identifier references (Law of Demeter)'),
+ ('m', 0, 'moduledoc', 'noDocModule', 'no module doc strings'),
+ ('c', 0, 'classdoc', 'noDocClass', 'no class doc strings'),
+ ('f', 0, 'funcdoc', 'noDocFunc', 'no function/method doc strings'),
      ]),
     ('Debug', [
- ('F', 0, 'rcfile', None, 'print a .pycheckrc file generated from command line args'),
+ ( '', 0, 'rcfile', None, 'print a .pycheckrc file generated from command line args'),
  ('P', 0, 'printparse', 'printParse', 'print internal checker parse structures'),
  ('d', 0, 'debug', 'debug', 'turn on debugging for checker'),
  ('Q', 0, 'quiet', None, 'turn off all output except warnings'),
@@ -117,15 +117,17 @@ def init() :
 
 _SHORT_ARGS, _LONG_ARGS, _OPTIONS_DICT = init()
 
-def _getRCfile(filename) :
-    """Return the .rc filename, on Windows use the current directory
-                                on UNIX use the user's home directory"""
+def _getRCfiles(filename) :
+    """Return a list of .rc filenames, on Windows use the current directory
+                                       on UNIX use the user's home directory
+    """
 
-    # FIXME: this is really cheating, but should work for now
+    files = []
     home = os.environ.get('HOME')
     if home :
-        filename = home + os.sep + filename
-    return filename
+        files.append(home + os.sep + filename)
+    files.append(filename)
+    return files
 
 
 _RC_FILE_HEADER = '''#
@@ -259,13 +261,26 @@ class Config :
             print "Warning, error loading defaults file:", filename, detail
         return suppressions, suppressionRegexs
 
-    def processArgs(self, argList) :
+    def loadFiles(self, filenames, oldSuppressions = None) :
+        if oldSuppressions is None :
+            oldSuppressions = ({}, {})
+        suppressions = oldSuppressions[0]
+        suppressionRegexs = oldSuppressions[1]
+        for filename in filenames:
+            updates = self.loadFile(filename)
+            suppressions.update(updates[0])
+            suppressionRegexs.update(updates[1])
+        return suppressions, suppressionRegexs
+
+    def processArgs(self, argList, otherConfigFiles = None) :
         try :
             args, files = getopt.getopt(argList, _SHORT_ARGS, _LONG_ARGS)
         except getopt.error, detail :
             raise UsageError, detail
 
         quiet = self.quiet
+        if otherConfigFiles is None:
+            otherConfigFiles = []
         for arg, value in args :
             shortArg, useValue, longArg, member, description = _OPTIONS_DICT[arg]
             if member == None :
@@ -275,6 +290,9 @@ class Config :
                     continue
                 elif longArg == 'quiet' :
                     quiet = 1
+                    continue
+                elif longArg == 'config' :
+                    otherConfigFiles.append(value)
                     continue
                 elif longArg == 'version' :
                     # FIXME: it would be nice to define this in only one place
@@ -296,10 +314,8 @@ class Config :
                 elif memberType == type([]) :
                     newValue = string.split(newValue, ',')
                 setattr(self, member, newValue)
-            elif arg[0:5] == '--no-' :
-                setattr(self, member, 0)
             elif arg[0:2] == '--' :
-                setattr(self, member, 1)
+                setattr(self, member, arg[2:5] != 'no-')
             else :
                 # for shortArgs we only toggle
                 setattr(self, member, not getattr(self, member))
@@ -361,8 +377,12 @@ def setupFromArgs(argList) :
 
     cfg = Config()
     try :
-        suppressions = cfg.loadFile(_getRCfile(_RC_FILE))
-        return cfg, cfg.processArgs(argList), suppressions
+        suppressions = cfg.loadFiles(_getRCfiles(_RC_FILE))
+        otherConfigFiles = []
+        files = cfg.processArgs(argList, otherConfigFiles)
+        if otherConfigFiles:
+            suppressions = cfg.loadFiles(otherConfigFiles, suppressions)
+        return cfg, files, suppressions
     except UsageError :
         usage(cfg)
         raise
