@@ -48,6 +48,7 @@ _OPTIONS = [
  ('B', 1, 'maxbranches', 'maxBranches', 'maximum branches in a function'),
  ('R', 1, 'maxreturns', 'maxReturns', 'maximum returns in a function'),
  None,
+ ('F', 0, 'rcfile', None, 'print a .pycheckrc file generated from command line args'),
  ('P', 0, 'printparse', 'printParse', 'print internal checker parse structures'),
  ('d', 0, 'debug', 'debug', 'turn on debugging for checker'),
  None,
@@ -84,6 +85,31 @@ def _getRCfile(filename) :
         filename = home + os.sep + filename
     return filename
 
+
+_RC_FILE_HEADER = '''#
+# .pycheckrc file created by PyChecker %s
+#
+# It should be placed in your home directory (value of $HOME).
+# If $HOME is not set, it will look in the current directory.
+#
+
+'''
+
+def outputRc(cfg) :
+    import time
+    output = _RC_FILE_HEADER % time.ctime(time.time())
+    for opt in _OPTIONS :
+        if opt != None :
+            shortArg, useValue, longArg, member, description = opt
+            if member is None :
+                continue
+            description = string.strip(description)
+            value = getattr(cfg, member)
+            optStr = '# %s\n%s = %s\n\n' % (description, member, `value`)
+            output = output + optStr
+
+    return output
+        
 
 class UsageError(Exception) :
     """Exception to indicate that the application should exit due to
@@ -148,7 +174,11 @@ class Config :
         for arg, value in args :
             shortArg, useValue, longArg, member, description = _OPTIONS_DICT[arg]
             if member == None :
-                # FIXME: this is a hack
+                # FIXME: this whole block is a hack
+                if longArg == 'printrc' :
+                    sys.stdout.write(outputRc(self))
+                    continue
+
                 self.noDocModule = 0
                 self.noDocClass = 0
                 self.noDocFunc = 0

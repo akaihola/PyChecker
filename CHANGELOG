@@ -1,5 +1,6 @@
 
 Version 0.8	- xx July 2001
+  * Add -F/--rcfile to generate a .pycheckrc file
   * Fix spurious warning when using from X import Y and imports in methods
 	(Module (m) re-imported)
   * Fix spurious warning when doing:  from X import Y, Z
