@@ -4,6 +4,7 @@ Goals for next minor release (0.8.9):
 * Handle sys.exit() as non-returnable condition
 * Warn about non-escaping backslashes???
 * Add warning about redefining a function/method with different signatures
+* Add warning about iterating over a string
 
 Goals for next major release (0.9):
 -----------------------------------
