@@ -28,7 +28,9 @@ If there are import dependencies in your source files, you should
 import those files first on the command line in order to get as many
 files checked as possible.
 
-PyChecker should work with Python 1.5.2, 2.0, and 2.1.
+In all further examples, $PY_CHECKER_HOME is assumed to be pychecker.
+
+PyChecker works with Python 1.5.2, 2.0, and 2.1.
 
 To look at a little example, you can use the test files included:
 
@@ -37,7 +39,25 @@ To look at a little example, you can use the test files included:
 If you want to change the default behaviour, you can pass command line options
 or define a .pycheckrc file.  For an example, look at pycheckrc.
 
-To show the available options, do:  python checker.py -h
+To show the available options, do:
+
+	python pychecker/checker.py -h
+
+If you find a bug in PyChecker, meaning you see something like:
+
+	python pychecker/checker.py myfile.py
+
+	myfile.py:13 INTERNAL ERROR -- STOPPED PROCESSING FUNCTION --
+        Traceback (most recent call last):
+          File "./pychecker/warn.py", line 364, in _checkFunction
+            stack, oparg, lastLineNum)
+          File "./pychecker/warn.py", line 195, in _handleFunctionCall
+            kwArgs.append(stack[i].data)
+        IndexError: list index out of range
+
+Please send mail indicating the version of PyChecker, 
+the line of code *from your source file* which broke PyChecker 
+(myfile.py:13 in the example above), and the traceback.
 
 Good Luck!  As always, feedback is greatly appreciated.
 
