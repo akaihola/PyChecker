@@ -1,4 +1,5 @@
 
+* Add check that when calling base class __init__(), self is first arg
 * Add check in lambda functions for module/variable use
 * Add check for multiple functions/methods/classes w/same name
 * Add check that private functions are used in module/class
