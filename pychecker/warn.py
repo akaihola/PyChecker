@@ -266,7 +266,7 @@ def _checkComplex(warnings, maxValue, value, func, err) :
         warnings.append(warn)
 
 
-def _checkFunction(module, func, c = None) :
+def _checkFunction(module, func, c = None, main = None) :
     "Return a list of Warnings found in a function/method."
 
     warnings, globalRefs, unusedLocals, functionsCalled = [], {}, {}, {}
@@ -301,7 +301,6 @@ def _checkFunction(module, func, c = None) :
             elif OP.LOAD_GLOBAL(op) :
                 # make sure we remember each global ref to check for unused
                 globalRefs[_getGlobalName(operand, func)] = operand
-
                 warn = _checkGlobal(operand, func, lastLineNum,
                                     _INVALID_GLOBAL)
 
@@ -399,7 +398,7 @@ def _checkFunction(module, func, c = None) :
             
     if _cfg.localVariablesUsed :
         for var, line in unusedLocals.items() :
-            if line :
+            if line and var != '_' :
                 warnings.append(Warning(func_code, line, _UNUSED_LOCAL % var))
 
     # Check code complexity:
@@ -441,6 +440,15 @@ def _checkBaseClassInit(moduleFilename, c, func_code, functionsCalled) :
     return warnings
 
 
+def _updateFunctionWarnings(module, func, c, warnings, globalRefs, main = 0) :
+    "Update function warnings and global references"
+
+    newWarnings, newGlobalRefs, funcs = _checkFunction(module, func, c, main)
+    warnings.extend(newWarnings)
+    globalRefs.update(newGlobalRefs)
+    return funcs
+
+
 def find(moduleList, cfg) :
     "Return a list of warnings found in the module list"
 
@@ -453,6 +461,12 @@ def find(moduleList, cfg) :
             continue
 
         globalRefs = {}
+
+        if 0 :
+            # FIXME: process code at module level
+            _updateFunctionWarnings(module, module.main_code, None,
+                                warnings, globalRefs, 1)
+
         moduleFilename = module.filename()
         for func in module.functions.values() :
             func_code = func.function.func_code
@@ -464,9 +478,7 @@ def find(moduleList, cfg) :
                 warnings.append(warn)
 
             _addWarning(warnings, _checkNoSelfArg(func))
-            newWarnings, newGlobalRefs, funcs = _checkFunction(module, func)
-            warnings.extend(newWarnings)
-            globalRefs.update(newGlobalRefs)
+            _updateFunctionWarnings(module, func, None, warnings, globalRefs)
 
         for c in module.classes.values() :
             for base in c.allBaseClasses() :
@@ -490,10 +502,8 @@ def find(moduleList, cfg) :
                     warnings.append(warn)
 
                 _addWarning(warnings, _checkSelfArg(method))
-                newWarnings, newGlobalRefs, functionsCalled = \
-                                        _checkFunction(module, method, c)
-                warnings.extend(newWarnings)
-                globalRefs.update(newGlobalRefs)
+                functionsCalled = _updateFunctionWarnings(module, method, c,
+                                                          warnings, globalRefs)
 
                 if func_code.co_name == '__init__' :
                     if '__init__' in dir(c.classObject) :
