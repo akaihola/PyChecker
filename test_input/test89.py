@@ -1,3 +1,4 @@
+'doc'
 
 class Newbie(object):
     '''__coerce__ is problematic in new style classes,
