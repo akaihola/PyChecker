@@ -84,7 +84,8 @@ def findModule(name, path = sys.path) :
                 raise ImportError, "No module named %s" % packages[-1]
             return file, filename, smt
 
-    raise ImportError, "No module named %s" % packages[-1]
+    # in case we have been given a package to check
+    return file, filename, smt
 
 
 class Variable :
