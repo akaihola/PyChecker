@@ -7,6 +7,9 @@ def x(a, b, c = None, d = None, **kw):
 def y():
     x(1, 2, c=3, d=4, e=5)
 
+def z():
+    x(1, 2, e=5, d=4)
+
 class X:
     "doc"
     def __init__(self):
