@@ -921,6 +921,10 @@ def _checkAssign(code, name):
         if cap in _BAD_ASSIGN_NAMES:
             code.addWarning(msgs.SHOULDNT_ASSIGN_NAME % (name, cap))
 
+def _checkVariableOperationOnItself(code, lname, msg):
+    if code.stack and code.stack[-1].getName() == lname:
+        code.addWarning(msg % lname)
+
 def _checkFutureKeywords(code, varname) :
     kw = python.FUTURE_KEYWORDS.get(varname)
     if kw is not None :
@@ -1061,6 +1065,9 @@ def _LOAD_FAST(oparg, operand, codeSource, code) :
 def _STORE_FAST(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :
         _checkFutureKeywords(code, operand)
+        if code.stack and code.stack[-1].type == types.StringType:
+            _checkVariableOperationOnItself(code, operand,
+                                            msgs.SET_VAR_TO_ITSELF)
         code.setType(operand)
         if not code.unpackCount and code.stack and \
            (code.stack[-1].const or code.stack[-1].type == types.TupleType) :
@@ -1159,6 +1166,11 @@ def _ok_to_set_attr(classObject, basename, attr) :
 def _STORE_ATTR(oparg, operand, codeSource, code) :
     if code.stack :
         top = code.stack.pop()
+        top_name = '%s.%s' % (top.getName(), operand)
+        if top.type in (types.StringType, Stack.TYPE_ATTRIBUTE) and \
+           code.stack[-1].type == Stack.TYPE_ATTRIBUTE:
+            _checkVariableOperationOnItself(code, top_name,
+                                            msgs.SET_VAR_TO_ITSELF)
         _checkExcessiveReferences(code, top, operand)
         if _ok_to_set_attr(codeSource.classObject, top.data, operand) :
             code.addWarning(msgs.INVALID_SET_CLASS_ATTR % operand)
@@ -1350,11 +1362,39 @@ def _popStackRef(code, operand, count = 2) :
     code.popStackItems(count)
     code.pushStack(Stack.Item(operand, Stack.TYPE_UNKNOWN))
 
+def _popModifiedStack(code, suffix=' '):
+    code.popStack()
+    if code.stack:
+        tos = code.stack[-1]
+        tos_type = type(tos.data)
+        if tos_type == types.StringType:
+            tos.data = tos.data + suffix
+        elif tos_type == types.TupleType and type(tos[-1]) == types.StringType:
+            tos.data = tos.data[:-1] + (tos.data[-1] + suffix,)
+
 def _pop(oparg, operand, codeSource, code) :
     code.popStack()
-_POP_TOP = _BINARY_LSHIFT = _BINARY_RSHIFT = \
-           _BINARY_AND = _BINARY_XOR = _BINARY_OR = \
-           _PRINT_ITEM = _pop
+_POP_TOP = _PRINT_ITEM = _pop
+
+def _popModified(oparg, operand, codeSource, code):
+    _popModifiedStack(code)
+_BINARY_LSHIFT = _BINARY_RSHIFT = _popModified
+
+def _checkModifyNoOp(code, op, msg=msgs.MODIFY_VAR_NOOP):
+    stack = code.stack
+    if len(stack) >= 2:
+        name = stack[-1].getName()
+        if name == stack[-2].getName():
+            code.addWarning(msg % (name, op, name))
+
+def _BINARY_AND(oparg, operand, codeSource, code):
+    _checkModifyNoOp(code, '&')
+
+def _BINARY_OR(oparg, operand, codeSource, code):
+    _checkModifyNoOp(code, '|')
+
+def _BINARY_XOR(oparg, operand, codeSource, code):
+    _checkModifyNoOp(code, '^', msgs.XOR_VAR_WITH_ITSELF)
 
 def _PRINT_ITEM_TO(oparg, operand, codeSource, code) :
     code.popStackItems(2)
@@ -1417,11 +1457,19 @@ def _isint(stackItem, code) :
 
 def _BINARY_DIVIDE(oparg, operand, codeSource, code) :
     _checkNoEffect(code)
+    _checkModifyNoOp(code, '/', msgs.DIVIDE_VAR_BY_ITSELF)
     if cfg().intDivide and len(code.stack) >= 2 :
         if _isint(code.stack[-1], code) and _isint(code.stack[-2], code) :
             code.addWarning(msgs.INTEGER_DIVISION % tuple(code.stack[-2:]))
 
-    code.popStack()
+    _popModifiedStack(code, '/')
+
+def _BINARY_TRUE_DIVIDE(oparg, operand, codeSource, code) :
+    _checkNoEffect(code)
+    print code.stack[-1].getName, operand
+    _checkVariableOperationOnItself(code, operand, msgs.DIVIDE_VAR_BY_ITSELF)
+    _popModifiedStack(code, '/')
+_BINARY_FLOOR_DIVIDE = _BINARY_TRUE_DIVIDE
 
 def _BINARY_MULTIPLY(oparg, operand, codeSource, code) :
     if len(code.stack) >= 2 :
@@ -1432,7 +1480,7 @@ def _BINARY_MULTIPLY(oparg, operand, codeSource, code) :
         else:
             _coerce_type(code)
     else:
-        code.popStack()
+        _popModifiedStack(code, '*')
 
 def _BINARY_MODULO(oparg, operand, codeSource, code) :
     _checkNoEffect(code)
@@ -1441,7 +1489,7 @@ def _BINARY_MODULO(oparg, operand, codeSource, code) :
            code.stack[-2].getType(code.typeMap) != types.FloatType:
             code.addWarning(msgs.MODULO_1)
     _getFormatWarnings(code, codeSource)
-    code.popStack()
+    _popModifiedStack(code, '%')
     if code.stack:
         code.stack[-1].const = 0
 
@@ -1655,6 +1703,9 @@ DISPATCH[ 22] = _BINARY_MODULO
 DISPATCH[ 23] = _BINARY_ADD
 DISPATCH[ 24] = _BINARY_SUBTRACT
 DISPATCH[ 25] = _BINARY_SUBSCR
+DISPATCH[ 26] = _BINARY_FLOOR_DIVIDE
+DISPATCH[ 27] = _BINARY_TRUE_DIVIDE
+# FIXME: add INPLACE FLOOR/TRUE DIVIDE: 28/29
 DISPATCH[ 31] = _SLICE1
 DISPATCH[ 32] = _SLICE2
 DISPATCH[ 33] = _SLICE3

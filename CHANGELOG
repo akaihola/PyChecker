@@ -1,4 +1,7 @@
 Version 0.8.13   - xx January 2003
+  * Add warning when assigning a variable to itself
+  * Add warning when dividing a variable by itself
+  * Add warnings when using a bit-wise operator with the same variable (a & a)
   * Add warning when passing a constant string to getattr()/setattr()
   * Add --special option to check for __special__ (reserved) method names
     and that their signature (argument count) is correct

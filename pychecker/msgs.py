@@ -85,6 +85,10 @@ USING_TUPLE_ACCESS_TO_LIST = "Using a tuple instead of slice as list accessor fo
 BOOL_COMPARE = "Comparisons with %s are not necessary and may not work as expected"
 SHOULDNT_ASSIGN_BUILTIN = "Should not assign to %s, it is (or will be) a builtin"
 SHOULDNT_ASSIGN_NAME = "Should not assign to %s, it is similar to builtin %s"
+SET_VAR_TO_ITSELF = "Setting %s to itself has no effect"
+MODIFY_VAR_NOOP = "%s %s %s has no effect"
+DIVIDE_VAR_BY_ITSELF = "%s %s %s is always 1 or ZeroDivisionError"
+XOR_VAR_WITH_ITSELF = "%s %s %s is always 0"
 
 STMT_WITH_NO_EFFECT = "Operator (%s) doesn't exist, statement has no effect"
 POSSIBLE_STMT_WITH_NO_EFFECT = "Statement appears to have no effect"
