@@ -2,6 +2,13 @@
 
 TESTS="test_input/test[1-9]*.py"
 
+if [ $# -gt 0 ]; then
+    TESTS=""
+    for arg in $* ; do
+        TESTS="$TESTS test_input/test${arg}.py"
+    done
+fi
+
 if [ -z $TMP ]; then
     TMP=/tmp
 fi
