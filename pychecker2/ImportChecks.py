@@ -2,9 +2,7 @@
 from pychecker2.Check import Check
 from pychecker2.util import BaseVisitor
 
-from compiler import walk, symbols, parseFile
-
-import sys, os
+from compiler import walk
 
 class ImportCheck(Check):
     "Get 'from module import *' names hauled into the file and modules"
