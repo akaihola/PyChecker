@@ -177,6 +177,9 @@ BUILTIN_METHODS = { types.DictType :
                     },
                   }
 
+if hasattr({}, 'pop'):
+    BUILTIN_METHODS[types.DictType]['pop'] = (Stack.TYPE_UNKNOWN, 0, 1)
+
 def _setupBuiltinMethods() :
     if utils.pythonVersion() >= utils.PYTHON_2_2 :
         PY22_DICT_METHODS = { 'iteritems': (types.ListType, 0, 0),
