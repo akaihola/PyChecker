@@ -8,7 +8,7 @@ import glob
 modules = []
 exit_status = 0
 
-def test(modules):
+def test():
     global exit_status
     for m in modules:
         s = unittest.defaultTestLoader.loadTestsFromName(m)
@@ -39,14 +39,15 @@ def main():
 
     try:
         import trace
-        ignore = trace.Ignore(dirs = [sys.prefix, sys.exec_prefix])
-        coverage = trace.Coverage(ignore)
-        trace.run(coverage.trace, 'test(modules)')
-        trace.create_results_log(coverage.results(), 'coverage')
     except Exception, detail:
         print 'Error: %s, not tracing' % `detail`
-        test(modules)
-
+        test()
+    else:
+        ignore = trace.Ignore(dirs = [sys.prefix, sys.exec_prefix])
+        coverage = trace.Coverage(ignore)
+        trace.run(coverage.trace, 'test()')
+        trace.create_results_log(coverage.results(), 'coverage')
+        
 
 if __name__ == '__main__':
     main()
