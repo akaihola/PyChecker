@@ -383,7 +383,10 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                 warn = None
                 label = OP.getLabel(op, oparg, i)
                 if label != None :
-                    branches[label] = 1
+                    if branches.has_key(label) :
+                        branches[label] = branches[label] + 1
+                    else :
+                        branches[label] = 1
                 operand = OP.getOperand(op, func_code, oparg)
                 debug("  " + OP.name[op], oparg, operand)
                 if OP.LINE_NUM(op) :
@@ -451,12 +454,18 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                                                   c, stack, oparg, lastLineNum)
                     # funcCalled can be empty in some cases (eg, using a map())
                     if funcCalled :
-                        functionsCalled[funcCalled.getName(module)] = funcCalled
+                        funcName = funcCalled.getName(module)
+                        functionsCalled[funcName] = funcCalled
                 elif OP.JUMP_FORWARD(op) :
                     # remove unreachable branches
                     lastOp = ord(code[i - _BACK_RETURN_INDEX])
                     if OP.RETURN_VALUE(lastOp) :
-                        del branches[label]
+                        b = branches.get(label, None)
+                        if b is not None :
+                            if b == 1 :
+                                del branches[label]
+                            else :
+                                branches[label] = b - 1
                 elif OP.BUILD_MAP(op) :
                     _makeConstant(stack, oparg, Stack.makeDict)
                 elif OP.BUILD_TUPLE(op) :
