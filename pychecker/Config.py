@@ -125,7 +125,7 @@ def outputRc(cfg) :
     import time
     output = _RC_FILE_HEADER % time.ctime(time.time())
     for name, group in _OPTIONS :
-      for group in _OPTIONS :
+        for opt in group:
             shortArg, useValue, longArg, member, description = opt
             if member is None :
                 continue
@@ -241,7 +241,7 @@ class Config :
             shortArg, useValue, longArg, member, description = _OPTIONS_DICT[arg]
             if member == None :
                 # FIXME: this whole block is a hack
-                if longArg == 'printrc' :
+                if longArg == 'rcfile' :
                     sys.stdout.write(outputRc(self))
                     continue
                 elif longArg == 'quiet' :
