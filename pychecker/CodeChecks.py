@@ -850,6 +850,12 @@ def _checkLoadGlobal(codeSource, code, varname) :
                 should_check = 0
 
     if should_check :
+        # if a global var starts w/__ and the global is referenced in a class
+        # we have to strip off the _class-name, to get the original name
+        if codeSource.classObject and \
+           utils.startswith(varname, '_' + codeSource.classObject.name + '__'):
+            varname = varname[len(codeSource.classObject.name)+1:]
+            
         # make sure we remember each global ref to check for unused
         code.globalRefs[_getGlobalName(varname, codeSource.func)] = varname
         if not codeSource.in_class :
