@@ -19,6 +19,6 @@ tests/shadow.py:15 Identifier (f) shadows definition in scope <ModuleScope: glob
 tests/shadow.py:15 Unknown identifier: c
 tests/shadow.py:15 Unknown identifier: d
 tests/shadow.py:16 Identifier (a) not used
-tests/shadow.py:16 Identifier (a) shadows definition in scope <FunctionScope: g>
 tests/shadow.py:16 Identifier (b) not used
+tests/shadow.py:16 Identifier (a) shadows definition in scope <FunctionScope: g>
 tests/shadow.py:16 Identifier (b) shadows definition in scope <FunctionScope: g>

@@ -6,7 +6,7 @@ import parser
 
 class ParseCheck(Check.Check):
 
-    warning = Warning('parse', 'Unable to parse: %s')
+    syntaxErrors = Warning('Report/ignore syntax errors', 'Unable to parse: %s')
 
     def check(self, file, unused_options):
         try:
@@ -34,9 +34,9 @@ class ParseCheck(Check.Check):
             file.root_scope.parent = None
 
         except parser.ParserError, detail:
-            file.warning(1, self.warning, detail)
+            file.warning(1, self.syntaxErrors, detail)
         except IOError, detail:
-            file.warning(0, self.warning, detail)
+            file.warning(0, self.syntaxErrors, detail)
             
 Check.pass1.append(ParseCheck())
             

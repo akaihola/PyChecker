@@ -4,9 +4,16 @@ Usage:
 available options:
 
 Error:
- --reportUnusedSelf     ignore unused method "self" parameter
- --shadowBuiltins       Produce warnings when builtin names are redefined
- --unusedPrefixes       ignore unused identifiers that start with these values
+ --no-operator          Check for (++) and (--) which are legal, but not useful
+ --no-operatorPlus      Check for unary +
+ --no-redefinedScope    Report redefined scopes
+ --reportUnusedSelf     Ignore unused method "self" parameter
+ --shadowBuiltins       Report names that shadow builtins
+ --no-shadowIdentifier  Report names already defined in outer scopes
+ --no-syntaxErrors      Report/ignore syntax errors
+ --no-unknown           Report names that are not defined
+ --no-unused            Report names not used
+ --unusedPrefixes       Ignore unused identifiers that start with these values
                         ['unused', 'empty', 'dummy']
 
 Miscellaneous:

@@ -16,6 +16,6 @@ class File:
 	    line = line.lineno
         except AttributeError:
 	    pass
-        self.warnings.append( (line, warning.message % args) )
+        self.warnings.append( (line, warning, args) )
 
 

@@ -14,6 +14,9 @@ class Opt:
     def get_value(self):
         return getattr(self.object, self.longName)
 
+    def get_description(self):
+        return self.description
+
     def is_boolean(self):
         return None
 
@@ -84,7 +87,7 @@ class Options:
                 if opt.is_boolean() and opt.get_value():
                         name = "no-" + name
                 print >> stream, "%s--%*s %s" % (
-                    indent, -over, name, opt.description)
+                    indent, -over, name, opt.get_description())
                 if not opt.is_boolean():
                     print >> stream, "%s  %*s %s" % (
                         indent, -over, '', opt.get_value())

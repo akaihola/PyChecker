@@ -1,8 +1,12 @@
 
 class Warning:
 
-    def __init__(self, longOption = None, message = None):
-        self.longOption = longOption
-        self.message = message
-        self.default = 1
+    def __init__(self, description, message = None, value = 1):
+        self.message = self.description = description
+        if message:
+            self.message = message
+        self.value = value
+        
+    def __cmp__(self, other):
+        return cmp(self.message, other.message)
 

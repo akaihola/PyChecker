@@ -9,25 +9,21 @@ class ShadowCheck(Check.Check):
     """Use symbol information to check that no scope defines a name
     already known to a parent scope"""
 
-    builtinWarning = Warning('shadowBuiltin', 'Identifier (%s) shadows builtin')
-    identWarning = Warning('shadowIdentifier',
-                           'Identifier (%s) shadows definition in scope %s')
-
-
-    def get_options(self, options):
-        desc = 'Produce warnings when builtin names are redefined'
-        options.add(BoolOpt(self, 'shadowBuiltins', desc))
+    shadowBuiltins = Warning('Report names that shadow builtins',
+                            'Identifier (%s) shadows builtin', 0)
+    shadowIdentifier = Warning('Report names already defined in outer scopes',
+                               'Identifier (%s) shadows definition in scope %s')
 
     def check(self, file, unused_options):
         def find_shadow(scope, parents):
             "Calculate parents by recursing into child scopes"
             for name in scope.defs:
-                if self.shadowBuiltins and __builtins__.has_key(name):
-                    file.warning(scope, self.builtinWarning, name)
+                if __builtins__.has_key(name):
+                    file.warning(scope, self.shadowBuiltins, name)
                     continue
                 for p in parents:
                     if name in p.defs:
-                        file.warning(scope, self.identWarning, name, `p`)
+                        file.warning(scope, self.shadowIdentifier, name, `p`)
             for c in scope.get_children():
                 find_shadow(c, parents + [scope])
 
@@ -40,14 +36,14 @@ class UnusedCheck(Check.Check):
     """Use symbol information to check that no scope defines a name
     not used in this or any child scope"""
 
-    unusedWarning = Warning('unused', 'Identifier (%s) not used')
+    unused = Warning('Report names not used', 'Identifier (%s) not used')
 
     def get_options(self, options):
-        desc = 'ignore unused identifiers that start with these values'
+        desc = 'Ignore unused identifiers that start with these values'
         default = ['unused', 'empty', 'dummy']
         options.add(Opt(self, 'unusedPrefixes', desc, default))
         
-        desc = 'ignore unused method "self" parameter'
+        desc = 'Ignore unused method "self" parameter'
         options.add(BoolOpt(self, 'reportUnusedSelf', desc))
 
     def check(self, file, unused_options):
@@ -99,7 +95,7 @@ class UnusedCheck(Check.Check):
                         break
                 else:
                     if not used(var, scope):
-                        file.warning(scope, self.unusedWarning, var)
+                        file.warning(scope, self.unused, var)
 
 Check.pass2.append(UnusedCheck())
 
@@ -107,7 +103,8 @@ class UnknownCheck(Check.Check):
     """Use symbol information to check that no scope uses a name
     not defined in a parent scope"""
 
-    unknownWarning = Warning('unknown', 'Unknown identifier: %s')
+    unknown = Warning('Report names that are not defined',
+                      'Unknown identifier: %s')
 
     builtins = {}
     builtins.update(__builtins__)
@@ -130,6 +127,6 @@ class UnknownCheck(Check.Check):
             for var in scope.uses:
                 if var not in defs[scope] and \
                    not UnknownCheck.builtins.has_key(var):
-                    file.warning(scope, self.unknownWarning, var)
+                    file.warning(scope, self.unknown, var)
 
 Check.pass2.append(UnknownCheck())

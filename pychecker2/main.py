@@ -20,6 +20,7 @@ def main():
 
     for p in Check.passes:
         for checker in p:
+            checker.get_warnings(options)
             checker.get_options(options)
 
     try:
@@ -52,13 +53,12 @@ def main():
         f.warnings.sort()
         last_msg = None
         print
-        for line, msg in f.warnings:
-            if msg != last_msg:
-                if line:
-                    print '%s:%d %s' % (f.name, line, msg)
-                else:
-                    print '%s: %s' % (f.name, msg)
-                last_msg = msg
+        for line, warning, args in f.warnings:
+            if warning.value:
+                msg = warning.message % args
+                if msg != last_msg:
+                    print '%s:%s %s' % (f.name, line or '[unknown line]', msg)
+                    last_msg = msg
         
     if not result:
         print >>out, None
