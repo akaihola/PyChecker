@@ -1,7 +1,7 @@
 from pychecker2.Check import Check
 from pychecker2.Check import Warning
 from pychecker2 import symbols
-from pychecker2.util import BaseVisitor, parents, type_filter, line
+from pychecker2.util import BaseVisitor, parents, type_filter
 
 from compiler.misc import mangle
 from compiler import ast, walk
@@ -148,6 +148,19 @@ def conforms(a, b):
             return None
     return a.node.kwargs == b.node.kwargs and a.node.varargs == b.node.varargs
 
+def _minus(a, b):
+    r = {}
+    for k, v in a.iteritems():
+        if not b.has_key(k):
+            r[k] = v
+    return r
+
+def _intersect(a, b):
+    r = {}
+    for k, v in a.iteritems():
+        if b.has_key(k):
+            r[k] = v
+    return r
 
 class AttributeCheck(Check):
     "check `self.attr' expressions for attr"
@@ -188,10 +201,8 @@ class AttributeCheck(Check):
 
             # complain about attributes not initialized in __init__
             if init_attributes is not None:
-                for name, node in attributes.items():
-                    if not init_attributes.has_key(name):
-                        file.warning(line(node),
-                                     self.attributeInitialized, name)
+                for name, node in _minus(attributes, init_attributes).items():
+                    file.warning(node, self.attributeInitialized, name)
 
             # collect inherited gunk: methods and attributes
             # check for non-conformant methods
@@ -211,10 +222,9 @@ class AttributeCheck(Check):
                 inherited_methods.update(base.defs)
 
             # complain about attributes with the same name as methods
-            for name, node in attributes.items():
-                if inherited_methods.has_key(name):
-                    file.warning(line(node), self.methodRedefined,
-                                 name, scope.name)
+            both = _intersect(attributes, inherited_methods)
+            for name, node in both.items():
+                file.warning(node, self.methodRedefined, name, scope.name)
 
             # find refs on self
             refs = {}
@@ -222,19 +232,17 @@ class AttributeCheck(Check):
                 refs.update(visit_with_self(GetRefs, m))
 
             # Now complain about refs on self that aren't known
-            for name, node in refs.items():
-                if not inherited_attributes.has_key(name) and \
-                   not _ignorable.get(name, None) and \
-                   not scope.defs.has_key(mangle(name, scope.name)) and \
-                   not inherited_methods.has_key(name):
-                    file.warning(line(node), self.unknownAttribute,
-                                 scope.name, name)
+            unknown = _minus(refs, inherited_methods)
+            unknown = _minus(unknown, _ignorable)
+            unknown = _minus(unknown, scope.defs)
+            unknown = _minus(unknown, inherited_attributes)
+            for name, node in unknown.items():
+                file.warning(node, self.unknownAttribute, scope.name, name)
 
-            for name, node in attributes.items():
-                if not refs.has_key(name):
-                    if name.startswith('__'):
-                        file.warning(line(node), self.unusedAttribute,
-                                     name, scope.name)
+            unused = _minus(attributes, refs)
+            for name, node in unused.items():
+                if name.startswith('__'):
+                    file.warning(node, self.unusedAttribute, name, scope.name)
 
 class GetReturns(BaseVisitor):
 
@@ -354,5 +362,5 @@ class ReprCheck(Check):
                 if m.name == '__repr__' and m.node.argnames:
                     visitor = BackQuote(m.node.argnames[0])
                     for n in walk(m.node.code, visitor).results:
-                        file.warning(line(n), self.backquoteSelf)
+                        file.warning(n, self.backquoteSelf)
 
