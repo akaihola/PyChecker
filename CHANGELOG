@@ -1,5 +1,5 @@
 
-Version 0.9	- xx August 2001
+Version 0.8.4	- 24 September 2001
   * Allow warning suppressions to be specified as regular expressions
   * Add -z/--no-varargsused to ignore *args for functions w/variable args
   * Add warning checks when deleting variables
