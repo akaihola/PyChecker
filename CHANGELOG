@@ -1,5 +1,5 @@
 
-Version 0.6	- xx June 2001
+Version 0.6	- 2x June 2001
   * Check format strings: "%s %s %s" % (v1, v2, v3, v4) for arg counts
   * Warn when format strings do: '%(var) %(var2)'
   * Fix Local variable (xxx) not used, when have:  "%(xxx)s" % locals()
@@ -7,13 +7,14 @@ Version 0.6	- xx June 2001
   * Install script in /usr/local/bin to invoke PyChecker
   * Don't produce unused global warnings when using a module in parameters
   * Don't produce unused global warnings when using a module in class variables
+  * Add check when using method as an attribute (if self.method and x == y:)
   * Add check for right # of args to object construction
   * Add check for right # of args to function calls in other modules
   * Check for returning a value from __init__
   * Fix using from XX import YY ; from XX import ZZ causing re-import warning
   * Fix UNABLE TO IMPORT errors for files that don't end with a newline
-  * Support for checking consistent return values - not complete and probably
-  	will produce false positives, although I don't have any test cases
+  * Support for checking consistent return values -- not complete 
+  	produces too many false positives
 
 Version 0.5	- 29 May 2001
   * Catch internal errors "gracefully" and turn into a warning

@@ -45,6 +45,7 @@ _GLOBAL_DEFINED_NOT_DECLARED = "Global variable (%s) defined without being decla
 _INVALID_GLOBAL = "No global (%s) found"
 _INVALID_METHOD = "No method (%s) found"
 _INVALID_ATTR = "No attribute (%s) found"
+_USING_METHOD_AS_ATTR = "Using method (%s) as an attribute (not invoked)"
 
 _INVALID_ARG_COUNT1 = "Invalid arguments to (%s), got %d, expected %d"
 _INVALID_ARG_COUNT2 = "Invalid arguments to (%s), got %d, expected at least %d"
@@ -501,16 +502,23 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                     if funcCalled :
                         funcName = funcCalled.getName(module)
                         functionsCalled[funcName] = funcCalled
-                elif OP.JUMP_FORWARD(op) :
-                    # remove unreachable branches
-                    lastOp = ord(code[i - _BACK_RETURN_INDEX])
-                    if OP.RETURN_VALUE(lastOp) :
-                        b = branches.get(label, None)
-                        if b is not None :
-                            if b == 1 :
-                                del branches[label]
-                            else :
-                                branches[label] = b - 1
+                elif _startswith(OP.name[op], 'JUMP_') :
+                    if len(stack) > 0 and stack[-1].isMethodCall(c) :
+                        name = stack[-1].data[-1]
+                        if c.methods.has_key(name) :
+                            warn = Warning(func_code, lastLineNum,
+                                           _USING_METHOD_AS_ATTR % name)
+                                       
+                    if OP.JUMP_FORWARD(op) :
+                        # remove unreachable branches
+                        lastOp = ord(code[i - _BACK_RETURN_INDEX])
+                        if OP.RETURN_VALUE(lastOp) :
+                            b = branches.get(label, None)
+                            if b is not None :
+                                if b == 1 :
+                                    del branches[label]
+                                else :
+                                    branches[label] = b - 1
                 elif OP.BUILD_MAP(op) :
                     _makeConstant(stack, oparg, Stack.makeDict)
                 elif OP.BUILD_TUPLE(op) :
