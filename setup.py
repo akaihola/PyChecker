@@ -3,7 +3,8 @@
 """To use this setup script to install PyChecker:
 
 	rename pychecker-version pychecker
-	python pychecker/setup.py install
+	cd pychecker
+	python setup.py install
 
 Contributed by:  Nicolas Chauvat
 """
