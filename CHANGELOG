@@ -1,4 +1,4 @@
-Version 0.9.0   - xx February 2002
+Version 0.9.0   - xx March 2002
   * Fix crash with nested scopes and lambdas
   * Fix spurious warnings for implicit returns when using while 1:
   * Fix spurious warnings for implicit returns when using try/finally:
