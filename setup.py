@@ -80,7 +80,8 @@ fairly infrequent."""
           packages              = [ 'pychecker' ],
           data_files            = [ (install_dir, DOC_FILES) ],
           scripts               = [ LOCAL_SCRIPT, ],
-          classifiers           = CLASSIFIERS,
+          # classifiers was added in Python 2.3, but needed for PyPI
+          #classifiers           = CLASSIFIERS,
           long_description      = LONG_DESCRIPTION
          )
 
