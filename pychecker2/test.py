@@ -5,19 +5,23 @@ import inspect
 import pychecker2
 import glob
 
-modules = []
-exit_status = 0
+class Tester:
+    def __init__(self):
+        self.modules = []
+        self.exit_status = 0
+        self.verbosity = 1
 
-def test():
-    global exit_status
-    for m in modules:
-        s = unittest.defaultTestLoader.loadTestsFromName(m)
-        result = unittest.TextTestRunner().run(s)
-        if not result.wasSuccessful():
-            exit_status = 1
+    def __call__(self):
+        for m in self.modules:
+            s = unittest.defaultTestLoader.loadTestsFromName(m)
+            result = unittest.TextTestRunner(verbosity=self.verbosity).run(s)
+            if not result.wasSuccessful():
+                exit_status = 1
+test = Tester()
+
+class Usage(Exception): pass
 
 def _make_coverage_dirs(root):
-
     coverage_dir = os.path.join(root, 'coverage', root[1:], 'utest')
     if not os.path.exists(coverage_dir):
         os.makedirs(coverage_dir)
@@ -31,11 +35,18 @@ def _modules(root):
             modules.append(module)
     return modules
 
-def main():
-    global modules
+def main(args):
+    import getopt
+    opts, files = getopt.getopt(args, 'v')
+    for opt, arg in opts:
+        if opt == '-v':
+            test.verbosity += 1
+        else:
+            raise Usage('unknown option ' + opt)
+    
     root = os.path.dirname(inspect.getsourcefile(pychecker2))
     _make_coverage_dirs(root)
-    modules = _modules(root)
+    test.modules = _modules(root)
 
     try:
         import trace
@@ -50,5 +61,13 @@ def main():
         
 
 if __name__ == '__main__':
-    main()
-    sys.exit(exit_status)
+    try:
+        main(sys.argv[1:])
+    except Usage, detail:
+        err = sys.stderr
+        print >>err, "Error: " + detail
+        print >>err
+        print >>err, "Usage: %s [-v]" % sys.argv[0]
+        sys.exit(1)
+    else:
+        sys.exit(test.exit_status)
