@@ -66,9 +66,15 @@ def getLabel(op, oparg, i) :
     return None
 
 def getInfo(code, index, extended_arg) :
+    """Returns (op, oparg, index, extended_arg) based on code
+         this is a helper function while looping through byte code,
+         refer to the standard module dis.disassemble() for more info"""
+
+    # get the operation we are performing
     op = ord(code[index])
     index = index + 1
     if op >= HAVE_ARGUMENT :
+        # get the argument to the operation
         oparg = ord(code[index]) + ord(code[index+1])*256 + extended_arg
         index = index + 2
         extended_arg = 0
@@ -79,7 +85,8 @@ def getInfo(code, index, extended_arg) :
     return op, oparg, index, extended_arg
 
 def initFuncCode(func) :
-    "Returns (func_code, code, i, maxCode, extended_arg) based on func"
+    """Returns (func_code, code, i, maxCode, extended_arg) based on func,
+         this is a helper function to setup looping through byte code"""
 
     func_code = func.func_code
     code = func_code.co_code
