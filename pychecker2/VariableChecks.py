@@ -1,7 +1,7 @@
 from pychecker2.Check import Check
 from pychecker2.Options import Opt, BoolOpt
 from pychecker2.Warning import Warning
-from pychecker2.util import ScopeVisitor
+from pychecker2.util import ScopeVisitor, flatten
 from pychecker2 import symbols
 
 import compiler
@@ -118,6 +118,10 @@ class UnusedCheck(Check):
                     if not scope.imports.has_key(var):
                         continue
 
+                # ignore variables global to this scope
+                if scope.globals.has_key(var):
+                    continue
+
                 for prefix in self.unusedPrefixes:
                     if var.startswith(prefix):
                         break
@@ -190,16 +194,23 @@ class UnpackCheck(Check):
             return
 
         class Visitor:
-            def visitAssList(self, node, *scopes):
-                return self.visitAssTuple(node, *scopes)
-                
             def visitAssTuple(self, node, *scopes):
                 for c in node.getChildNodes():
                     try:
                         scopes[0].uses[c.name] = node.lineno
                     except AttributeError:
                         pass
-                
+            visitAssList = visitAssTuple
+
+        # local args unpacked on the `def' line are used, too
+        for node, scope in file.scopes.items():
+            if isinstance(scope.node, compiler.ast.Function):
+                for arg in scope.node.argnames:
+                    if isinstance(arg, tuple):
+                        for unpacked in flatten(arg):
+                            scope.uses[unpacked] = scope.uses.get(unpacked,
+                                                                  scope.node)
+
         if file.root_scope:
             compiler.walk(file.root_scope.node,
                           ScopeVisitor(file.scopes, Visitor()))
