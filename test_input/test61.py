@@ -24,4 +24,5 @@ def a():
   d.clear()
   print
   print setattr(d, 'junk', 'neal')
+  print `d`.rjust(5)
 

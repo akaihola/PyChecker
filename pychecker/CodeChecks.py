@@ -496,31 +496,33 @@ def _getFormatWarnings(code, codeSource) :
 
 def _checkAttributeType(code, stackValue, attr) :
     if not cfg().checkObjectAttrs :
-        return None
+        return
 
     varTypes = code.typeMap.get(str(stackValue.data), None)
     if not varTypes :
-        return None
+        return
 
-    for varType in varTypes :
+    # the value may have been converted on stack (`v`)
+    other_types = []
+    if stackValue.type not in varTypes :
+        other_types = [stackValue.type]
+
+    for varType in varTypes + other_types :
         # ignore built-in types that have no attributes
         if python.METHODLESS_OBJECTS.has_key(varType) :
             continue
 
-        if type(varType) == types.StringType :
-            return None
-
         attrs = python.BUILTIN_ATTRS.get(varType, None)
         if attrs is not None :
             if attr in attrs :
-                return None
+                return
             continue
 
         if hasattr(varType, 'ignoreAttrs') :
             if varType.ignoreAttrs or _classHasAttribute(varType, attr) :
-                return None
+                return
         elif not hasattr(varType, 'attributes') or attr in varType.attributes :
-            return None
+            return
 
     code.addWarning(msgs.OBJECT_HAS_NO_ATTR % (stackValue.data, attr))
 
