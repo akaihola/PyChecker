@@ -13,6 +13,20 @@ _ARGS_ARGS_FLAG = 4
 _KW_ARGS_FLAG = 8
 _CO_FLAGS_MASK = _ARGS_ARGS_FLAG + _KW_ARGS_FLAG
 
+class _ReturnValues:
+    def __init__(self):
+        self.returnValues = None
+
+    def returnsNoValue(self):
+        returnValues = self.returnValues
+        # if unset, we don't know
+        if returnValues is None:
+            return 0
+        # it's an empty list, that means no values
+        if not returnValues:
+            return 1
+        return returnValues[-1][1].isImplicitNone()
+
 class FakeCode :
     "This is a holder class for code objects (so we can modify them)"
     def __init__(self, code, varnames = None) :
@@ -24,10 +38,11 @@ class FakeCode :
         if varnames is not None:
             self.co_varnames = varnames
 
-class FakeFunction :
+class FakeFunction(_ReturnValues):
     "This is a holder class for turning code at module level into a function"
 
     def __init__(self, name, code, func_globals = {}, varnames = None) :
+        _ReturnValues.__init__(self)
         self.func_name = self.__name__ = name
         self.func_doc  = self.__doc__  = "ignore"
 
@@ -41,13 +56,14 @@ class FakeFunction :
     def __repr__(self):
         return '%s from %s' % (self.func_name, self.func_code.co_filename)
 
-class Function :
+class Function(_ReturnValues):
     "Class to hold all information about a function"
 
     def __init__(self, function) :
+        _ReturnValues.__init__(self)
         self.function = function
         self.minArgs = self.maxArgs = function.func_code.co_argcount
-        if function.func_defaults != None :
+        if function.func_defaults is not None :
             self.minArgs = self.minArgs - len(function.func_defaults)
         # if function uses *args, there is no max # args
         if function.func_code.co_flags & _ARGS_ARGS_FLAG != 0 :

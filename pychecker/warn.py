@@ -250,6 +250,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
 
     if not (main or in_class) :
         utils.popConfig()
+    func.returnValues = code.returnValues
     return (code.warnings, code.globalRefs, code.functionsCalled,
             code.codeObjects.values(), code.returnValues)
 
