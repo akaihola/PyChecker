@@ -2,6 +2,8 @@ import os, sys
 path = os.path.dirname(os.path.dirname(sys.argv[0]))
 sys.path.append(path)
 
+from pychecker2.Check import Checker
+
 from pychecker2 import Options
 from pychecker2 import ParseChecks
 from pychecker2 import OpChecks
@@ -60,12 +62,10 @@ def main():
     if options.verbose:
         out = sys.stdout
 
+    checker = Checker(checks)
     for f in files:
         print >>out, 'Checking file', f.name
-        for checker in checks:
-            out.write('.')
-            out.flush()
-            checker.check(f)
+        checker.check_file(f)
         print >>out
         if options.incremental and not options.profile:
             _print_warnings(f)

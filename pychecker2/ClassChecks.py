@@ -116,7 +116,7 @@ class AttributeCheck(Check):
                               'Method %s defined at line %d in '
                               'class %s redefined')
 
-    def check(self, file):
+    def check(self, file, unused_checker):
         def visit_with_self(Visitor, method):
             # find self
             if not method.node.argnames:

@@ -9,7 +9,7 @@ class RedefineCheck(Check):
     redefinedScope = Warning('Report redefined scopes',
                              'Scope (%s) is redefined at line %d')
 
-    def check(self, file):
+    def check(self, file, unused_checker):
         names = {}                      # map name, parent to this scope
         for node, scope in file.scopes.items():
             if hasattr(node, 'name'):	# classes, functions

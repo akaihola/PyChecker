@@ -23,7 +23,7 @@ class ParseCheck(Check):
         desc = 'Ignore module-level code protected by __name__ == "__main__"'
         options.add(BoolOpt(self, 'main', desc, 1))
     
-    def check(self, file):
+    def check(self, file, unused_checker):
         try:
             file.parseTree = parseFile(file.name)
             # link each node to it's parent

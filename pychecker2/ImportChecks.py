@@ -18,7 +18,7 @@ Figure out which names come from 'import name'.
     shadowImport = Warning('Report imports which shadow names from other imports',
                            'Import of "%s" duplicates import from module %s at %d')
 
-    def check(self, file):
+    def check(self, file, checker):
         def try_import(name, node):
             try:
                 return __import__(name, globals(), {}, [''])
@@ -44,6 +44,7 @@ Figure out which names come from 'import name'.
                 except KeyError:
                     pass
             scopes[0].imports[name] = (module, node)
+            checker.check_module(module)
             
         class FromImportVisitor:
 

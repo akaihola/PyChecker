@@ -1,4 +1,6 @@
+
 from pychecker2.Warning import Warning
+from pychecker2.File import File
 from pychecker2 import Options
 
 class WarningOpt(Options.BoolOpt):
@@ -17,8 +19,31 @@ class WarningOpt(Options.BoolOpt):
     def get_description(self):
         return self.warning.description
 
-class Check:
+class Checker:
 
+    def __init__(self, checks):
+        self.checks = checks
+        self.modules = {}
+
+    def check_file(self, f):
+        for c in self.checks:
+            c.check(f, self)
+
+    def check_module(self, m):
+        if not self.modules.has_key(m):
+            import inspect
+            f = None
+            try:
+                fname = inspect.getsourcefile(m) 
+                if fname:
+                    f = File(fname)
+            except TypeError:
+                pass
+            self.modules[m] = f
+            if f:
+                self.check_file(f)
+                
+class Check:
 
     def __str__(self):
         return self.__class__.__name__
@@ -32,7 +57,7 @@ class Check:
     def get_options(self, options):
         pass
     
-    def check(self, file):
+    def check(self, file, checker):
         pass
 
 
