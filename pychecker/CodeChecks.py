@@ -1148,6 +1148,8 @@ def _BINARY_MODULO(oparg, operand, codeSource, code) :
 
     _getFormatWarnings(code, codeSource)
     code.popStack()
+    if code.stack:
+        code.stack[-1].const = 0
 
 def _ROT_TWO(oparg, operand, codeSource, code) :
     if len(code.stack) >= 2 :
