@@ -528,8 +528,10 @@ _BUILTIN_MODULE_ATTRS = { 'sys': [ 'ps1', 'ps2', 'tracebacklimit',
                                  ],
                         }
 
-def fixupBuiltinModules() :
+def fixupBuiltinModules(needs_init=0):
     for moduleName in sys.builtin_module_names :
+        if needs_init:
+            _ = Module(moduleName, 0)
         module = _allModules.get(moduleName, None)
         if module is not None :
             try :
@@ -675,7 +677,7 @@ else :
         args = string.split(os.environ.get('PYCHECKER', ''))
         _cfg, files, _suppressions = Config.setupFromArgs(args)
         utils.initConfig(_cfg)
-        fixupBuiltinModules()
+        fixupBuiltinModules(1)
 
         # keep the orig __import__ around so we can call it
         import __builtin__
