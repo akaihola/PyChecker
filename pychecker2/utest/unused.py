@@ -44,7 +44,8 @@ class UnusedTestCase(WarningTester):
         self.silent('x = 1\ndef f(x=x): return 7\n')
         self.silent('def f(x):\n'
                     '  global _y\n'
-                    '  _y = _y + x\n')
+                    '  _y = x\n'
+                    'def g(x): return x + _y\n')
 
     def testUnpack(self):
         self.silent('_x, _y = 1, 2\n')
