@@ -1,5 +1,5 @@
 
-Version 0.3	- xx April 2001
+Version 0.3	- 17 April 2001
   * Fix some checker crashes (oops)
   * Add warnings for code complexity (lines/branches/returns per func)
   * Add more configuration options
