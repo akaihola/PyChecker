@@ -29,6 +29,10 @@ _ARGS_ARGS_FLAG = 4
 _KW_ARGS_FLAG = 8
 
 
+# Globals for storing a dictionary of info about modules and classes
+_allModules = {}
+
+
 def getModules(list) :
     "Return list of modules by removing .py from each entry."
 
@@ -68,9 +72,10 @@ class Function :
 class Class :
     "Class to hold all information about a class"
 
-    def __init__(self, name, classObject) :
+    def __init__(self, name, module) :
         self.name = name
-        self.classObject = classObject
+        self.module = module
+        self.classObject = getattr(module, name)
         self.methods = {}
         self.members = { '__class__': types.ClassType, '__doc__': None,
                          '__dict__': types.DictType, }
@@ -165,8 +170,6 @@ class Class :
                         loadList = []
 
 
-_allModules = {}
-
 class Module :
     "Class to hold all information for a module"
 
@@ -198,7 +201,7 @@ class Module :
         c.addMembers(classObject)
 
     def addClass(self, name) :
-        self.classes[name] = c = Class(name, getattr(self.module, name))
+        self.classes[name] = c = Class(name, self.module)
         self.__addBaseMethods(c, c.classObject)
         self.__addBaseMembers(c, c.classObject)
 
