@@ -1,7 +1,7 @@
 from pychecker2.Check import Check
 from pychecker2.Options import Opt, BoolOpt
 from pychecker2.Warning import Warning
-from pychecker2.util import parents, BaseVisitor, dict_minus, dict_intersect
+from pychecker2.util import *
 from pychecker2 import symbols
 
 from compiler import ast, walk
@@ -272,11 +272,9 @@ class UnpackCheck(Check):
 
         # local args unpacked on the `def' line are used, too
         for scope_node, scope in file.function_scopes():
-            for arg in scope_node.argnames:
-                if isinstance(arg, tuple):
-                    for unpacked in ast.flatten(arg):
-                        scope.uses[unpacked] = \
-                                  scope.uses.get(unpacked, scope_node)
+            for arg in type_filter(scope_node.argnames, tuple):
+                for unpacked in ast.flatten(arg):
+                    scope.uses[unpacked] = scope.uses.get(unpacked, scope_node)
 
         if file.root_scope:
             walk(file.root_scope.node, Visitor())
