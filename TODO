@@ -2,6 +2,8 @@
 Goals for next release:
 -----------------------
 * Check object method calls for # args
+* Store types of globals, class attributes, function & method return values
+* Store values of global & local constants
 * Improve handling when importing packages
 
 Longer Term goals:
