@@ -41,3 +41,5 @@ def f13(t):
 def f14():
     return '%up %(mi)x' % (1, 2)
 
+def f15():
+    return ('%s' * 6) % ((1, 2) + 3 * 7)
