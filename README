@@ -17,6 +17,7 @@ Types of problems that can be found include:
   * Wrong number of parameters passed to functions/methods
   * No global found (e.g., using a module without importing it)
   * Global not used (module or variable)
+  * Local variable not used
 
 
 To use PyChecker, pass the python source files you want to check on
