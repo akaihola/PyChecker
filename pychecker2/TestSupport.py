@@ -39,10 +39,11 @@ class WarningTester(unittest.TestCase):
         return f
 
     def warning_file(self, f, line, warning, *args):
-        assert len(f.warnings) == 1, "More than one warning:" + `f.warnings`
+        assert len(f.warnings) == 1, "Not just one warning:" + `f.warnings`
         self.check_warning(f.warnings[0], line, warning, *args)
 
     def warning(self, test, line, warning, *args):
+        assert test.endswith('\n'), "Tests should end with newline"
         f = self.check_file(test)
         self.warning_file(f, line, warning, *args)
 
