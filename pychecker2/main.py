@@ -8,6 +8,7 @@ from pychecker2 import OpChecks
 from pychecker2 import VariableChecks
 from pychecker2 import ScopeChecks
 from pychecker2 import ImportChecks
+from pychecker2 import ClassChecks
 
 # importing these incorporates these checks
 
@@ -41,6 +42,7 @@ def main():
                VariableChecks.UnusedCheck(),
                VariableChecks.UnknownCheck(),
                VariableChecks.SelfCheck(),
+               ClassChecks.AttributeCheck(),
                ScopeChecks.RedefineCheck() ]
     for checker in checks:
         checker.get_warnings(options)
