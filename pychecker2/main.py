@@ -7,6 +7,7 @@ from pychecker2 import ParseChecks
 from pychecker2 import OpChecks
 from pychecker2 import VariableChecks
 from pychecker2 import ScopeChecks
+from pychecker2 import ImportChecks
 
 # importing these incorporates these checks
 
@@ -18,6 +19,7 @@ def main():
     options = Options.Options()
     checks = [ ParseChecks.ParseCheck(),
                OpChecks.OpCheck(),
+               ImportChecks.ImportCheck(),
                VariableChecks.ShadowCheck(),
                VariableChecks.UnusedCheck(),
                VariableChecks.UnknownCheck(),
