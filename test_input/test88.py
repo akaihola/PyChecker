@@ -5,12 +5,12 @@ also test functions w/security implications
 
 import os
 import whrandom
-import audioop
+import gopherlib
 import string
 
 def t1():
     'get rid of warnings about not using deprecated modules'
-    print whrandom, audioop
+    print whrandom, gopherlib
 
 def t2():
     print os.tempnam()
