@@ -69,3 +69,5 @@ CANT_MIX_MAPPING_IN_FORMATS = "Can't mix tuple/mapping (dictionary) formats in s
 
 INTEGER_DIVISION = "Using integer division (%s / %s) may return integer or float"
 USING_TUPLE_ACCESS_TO_LIST = "Using a tuple instead of slice as list accessor for (%s)"
+
+STMT_WITH_NO_EFFECT = "Operator (%s) doesn't exist, statement has no effect"

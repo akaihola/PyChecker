@@ -736,6 +736,19 @@ def _UNARY_CONVERT(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
         code.stack[-1].type = types.StringType
 
+def _UNARY_POSITIVE(oparg, operand, codeSource, code) :
+    if OP.UNARY_POSITIVE(code.nextOpInfo()[0]) :
+        code.addWarning(msgs.STMT_WITH_NO_EFFECT % '++')
+
+def _UNARY_NEGATIVE(oparg, operand, codeSource, code) :
+    if OP.UNARY_NEGATIVE(code.nextOpInfo()[0]) :
+        code.addWarning(msgs.STMT_WITH_NO_EFFECT % '--')
+
+def _UNARY_INVERT(oparg, operand, codeSource, code) :
+    if OP.UNARY_INVERT(code.nextOpInfo()[0]) :
+        code.addWarning(msgs.STMT_WITH_NO_EFFECT % '~~')
+
+
 def _popStackRef(code, operand, count = 2) :
     code.popStackItems(count)
     code.stack.append(Stack.Item(operand, Stack.TYPE_UNKNOWN))
@@ -815,7 +828,10 @@ def _RETURN_VALUE(oparg, operand, codeSource, code) :
 DISPATCH = [ None ] * 256
 DISPATCH[  1] = _POP_TOP
 DISPATCH[  4] = _DUP_TOP
+DISPATCH[ 10] = _UNARY_POSITIVE
+DISPATCH[ 11] = _UNARY_NEGATIVE
 DISPATCH[ 13] = _UNARY_CONVERT
+DISPATCH[ 15] = _UNARY_INVERT
 DISPATCH[ 19] = _BINARY_POWER
 DISPATCH[ 20] = _BINARY_MULTIPLY
 DISPATCH[ 21] = _BINARY_DIVIDE

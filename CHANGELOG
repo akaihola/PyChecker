@@ -1,5 +1,7 @@
 
 Version 0.9	- xx August 2001
+  * Add warnings for --, ++, ~~:
+  	"Operator (%s) doesn't exist, statement has no effect"
   * Fix Object (x) has no attribute warnings for Python 2.2a1 built-in types
 
 Version 0.8.1	- 9 August 2001
