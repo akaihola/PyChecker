@@ -47,12 +47,6 @@ def _checkNoSelfArg(func, warnings) :
         warnings.append(Warning(code, code, msgs.SELF_IS_ARG))
 
 
-def _implicitReturnUnreachable(code) :
-    if len(code.branches) < 1 :
-        return 1
-    return code.lastReturnLabel < max(code.branches.keys())
-
-
 _IGNORE_RETURN_TYPES = ( Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,
                          Stack.TYPE_GLOBAL, Stack.TYPE_COMPARISON,
                          Stack.TYPE_UNKNOWN)
@@ -63,21 +57,18 @@ def _checkReturnWarnings(code) :
     if returnValuesLen < 2 :
         return
 
-    line, lastReturn = code.returnValues[-1]
+    line, lastReturn, dummy = code.returnValues[-1]
 
     # if the last return is implicit, check if there are non None returns
-    if cfg().checkImplicitReturns and \
-       lastReturn.data == None and lastReturn.const == 1 :
-        returnNoneCount = 0
-        for line, rv in code.returnValues :
-            if rv.isNone() :
-                returnNoneCount = returnNoneCount + 1
-
-        if returnNoneCount != returnValuesLen :
-            code.addWarning(msgs.IMPLICIT_AND_EXPLICIT_RETURNS, line)
+    if cfg().checkImplicitReturns and lastReturn.isImplicitNone() :
+        for line, rv, dummy in code.returnValues[:-1] :
+            if not rv.isNone() :
+                code.addWarning(msgs.IMPLICIT_AND_EXPLICIT_RETURNS,
+                                code.returnValues[-1][0]+1)
+                break
     
     returnType, returnData = None, None
-    for line, value in code.returnValues :
+    for line, value, dummy in code.returnValues :
         if not value.isNone() :
             valueType = value.getType(code.typeMap)
             if returnType is None and valueType not in _IGNORE_RETURN_TYPES :
@@ -104,10 +95,18 @@ def _checkComplex(code, maxValue, value, func, err) :
 
 def _checkCode(code, codeSource) :
     while code.index < code.maxCode :
-        op, oparg, operand = code.getNextOp()
+        op, oparg, operand = code.popNextOp()
         dispatch_func = CodeChecks.DISPATCH[op]
         if dispatch_func is not None :
             dispatch_func(oparg, operand, codeSource, code)
+
+def _checkUnusedParam(var, line, func, code) :
+    if line is not None and line == 0 :
+        config = cfg()
+        if (var not in config.unusedNames and
+            (config.ignoreSelfUnused or var != config.methodArgName) and
+            (config.varArgumentsUsed or func.varArgName() != var)) :
+            code.addWarning(msgs.UNUSED_PARAMETER % var, code.func_code)
 
 def _handleLambda(func_code, code, codeSource):
     if func_code.co_name == utils.LAMBDA :
@@ -115,6 +114,25 @@ def _handleLambda(func_code, code, codeSource):
         code.init(function.create_fake(func_code.co_name, func_code))
         # I sure hope there can't be/aren't lambda's within lambda's
         _checkCode(code, codeSource)
+
+def _findUnreachableCode(code) :
+    # code after RETURN or RAISE is unreachable unless there's a branch to it
+    unreachable = {}
+    terminals = code.returnValues[:-1] + code.raiseValues
+    terminals.sort(lambda a, b: cmp(a[2], b[2]))
+    for line, dummy, i in terminals :
+        if not code.branches.has_key(i) :
+            unreachable[i] = line
+
+    # remove last return if it's unreachable AND implicit
+    lastLine, lastItem, lastIndex = code.returnValues[-1]
+    if len(code.returnValues) >= 2 :
+        lastIndex = code.returnValues[-2][2]
+    if unreachable.get(lastIndex) == lastLine and lastItem.isImplicitNone() :
+        del code.returnValues[-1]
+
+    # FIXME: add warning about unreachable code
+
 
 def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     "Return a list of Warnings found in a function/method."
@@ -135,12 +153,8 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
             _handleLambda(func_code, code, codeSource)
         codeSource.calling_code = old_callling_code
 
-        # FIXME: this isn't correct if there is a try/except :
-        # check if last return is unreachable due to a raise just before
-        i = code.index - utils.BACK_RETURN_INDEX - 3
-        if i >= code.maxLabel and OP.RAISE_VARARGS(ord(code.bytes[i])) :
-            if len(code.returnValues) > 0 :
-                del code.returnValues[-1]
+        if not in_class :
+            _findUnreachableCode(code)
 
     except (SystemExit, KeyboardInterrupt) :
         exc_type, exc_value, exc_tb = sys.exc_info()
@@ -151,13 +165,6 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
         for index in range(0, len(exc_list)) :
             exc_list[index] = string.replace(exc_list[index], "\n", "\n\t")
         code.addWarning(msgs.CHECKER_BROKEN % string.join(exc_list, ""))
-
-    # ignore last return of None, it's always there
-    # (when last 2 return lines are the same)
-    returnValues = code.returnValues
-    if len(returnValues) >= 2 and returnValues[-1][0] == returnValues[-2][0] :
-        if _implicitReturnUnreachable(code) :
-            del code.returnValues[-1]
 
     if cfg().checkReturnValues :
         _checkReturnWarnings(code)
@@ -171,16 +178,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
         op = code.getFirstOp()
         if not (OP.RAISE_VARARGS(op) or OP.RETURN_VALUE(op)) :
             for var, line in code.unusedLocals.items() :
-                should_warn = line is not None and line == 0
-                if should_warn :
-                    should_warn = var not in cfg().unusedNames and \
-                                  (cfg().ignoreSelfUnused or
-                                   var != cfg().methodArgName)
-                    if should_warn :
-                        should_warn = cfg().varArgumentsUsed or \
-                                      func.varArgName() != var
-                if should_warn :
-                    code.addWarning(msgs.UNUSED_PARAMETER % var, code.func_code)
+                _checkUnusedParam(var, line, func, code)
 
     # Check code complexity:
     #   loops should be counted as one branch, but there are typically 3
@@ -188,7 +186,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     #    / 2 to approximate real branches
     branches = (len(code.branches.keys()) - (2 * code.loops)) / 2
     lines = (code.lastLineNum - code.func_code.co_firstlineno)
-    returns = code.returns
+    returns = len(code.returnValues)
     if not main and not in_class :
         args = code.func_code.co_argcount
         locals = len(code.func_code.co_varnames) - args
@@ -222,6 +220,7 @@ def _baseInitCalled(base, functionsCalled) :
     if not hasattr(base, utils.INIT) :
         return 1
 
+    # FIXME: im_class meaning changed in Python 2.2
     initName = str(getattr(base, utils.INIT).im_class)
     # FIXME: this is a hack, oughta figure a better way to fix
     if utils.startswith(initName, 'exceptions.') :
@@ -243,7 +242,7 @@ def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
 
     warnings = []
     functionsCalled, _, returnValues = funcInfo
-    for line, stackItem in returnValues :
+    for line, stackItem, dummy in returnValues :
         if stackItem.data != None :
             if not stackItem.isNone() or cfg().returnNoneFromInit :
                 warn = Warning(moduleFilename, line, msgs.RETURN_FROM_INIT)
