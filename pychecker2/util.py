@@ -56,3 +56,17 @@ def type_filter(seq, *classes):
     return [s for s in seq if isinstance(s, classes)]
 
     
+def dict_minus(a, b):
+    r = {}
+    for k, v in a.iteritems():
+        if not b.has_key(k):
+            r[k] = v
+    return r
+
+def dict_intersect(a, b):
+    r = {}
+    for k, v in a.iteritems():
+        if b.has_key(k):
+            r[k] = v
+    return r
+

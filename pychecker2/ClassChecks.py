@@ -1,7 +1,7 @@
 from pychecker2.Check import Check
 from pychecker2.Check import Warning
 from pychecker2 import symbols
-from pychecker2.util import BaseVisitor, parents, type_filter
+from pychecker2.util import *
 
 from compiler.misc import mangle
 from compiler import ast, walk
@@ -148,20 +148,6 @@ def conforms(a, b):
             return None
     return a.node.kwargs == b.node.kwargs and a.node.varargs == b.node.varargs
 
-def _minus(a, b):
-    r = {}
-    for k, v in a.iteritems():
-        if not b.has_key(k):
-            r[k] = v
-    return r
-
-def _intersect(a, b):
-    r = {}
-    for k, v in a.iteritems():
-        if b.has_key(k):
-            r[k] = v
-    return r
-
 class AttributeCheck(Check):
     "check `self.attr' expressions for attr"
 
@@ -186,7 +172,7 @@ class AttributeCheck(Check):
             return walk(method.node, Visitor(method.node.argnames[0])).result
 
         # for all class scopes
-        for scope in type_filter(file.scopes.values(), symbols.ClassScope):
+        for node, scope in file.class_scopes():
             init_attributes = None      # attributes initilized in __init__
             attributes = {}             # "self.foo = " kinda things
             methods = {}                # methods -> scopes
@@ -201,7 +187,7 @@ class AttributeCheck(Check):
 
             # complain about attributes not initialized in __init__
             if init_attributes is not None:
-                for name, node in _minus(attributes, init_attributes).items():
+                for name, node in dict_minus(attributes, init_attributes).items():
                     file.warning(node, self.attributeInitialized, name)
 
             # collect inherited gunk: methods and attributes
@@ -222,7 +208,7 @@ class AttributeCheck(Check):
                 inherited_methods.update(base.defs)
 
             # complain about attributes with the same name as methods
-            both = _intersect(attributes, inherited_methods)
+            both = dict_intersect(attributes, inherited_methods)
             for name, node in both.items():
                 file.warning(node, self.methodRedefined, name, scope.name)
 
@@ -232,14 +218,14 @@ class AttributeCheck(Check):
                 refs.update(visit_with_self(GetRefs, m))
 
             # Now complain about refs on self that aren't known
-            unknown = _minus(refs, inherited_methods)
-            unknown = _minus(unknown, _ignorable)
-            unknown = _minus(unknown, scope.defs)
-            unknown = _minus(unknown, inherited_attributes)
+            unknown = dict_minus(refs, inherited_methods)
+            unknown = dict_minus(unknown, _ignorable)
+            unknown = dict_minus(unknown, scope.defs)
+            unknown = dict_minus(unknown, inherited_attributes)
             for name, node in unknown.items():
                 file.warning(node, self.unknownAttribute, scope.name, name)
 
-            unused = _minus(attributes, refs)
+            unused = dict_minus(attributes, refs)
             for name, node in unused.items():
                 if name.startswith('__'):
                     file.warning(node, self.unusedAttribute, name, scope.name)
@@ -262,7 +248,7 @@ class InitCheck(Check):
 
     def check(self, file, unused_checker):
 
-        for scope in type_filter(file.scopes.values(), symbols.ClassScope):
+        for node, scope in file.class_scopes():
             for m in _get_methods(scope):
                 if m.name == '__init__':
                     for r in walk(m.node.code, GetReturns()).result:
@@ -331,7 +317,7 @@ class SpecialCheck(Check):
 
     def check(self, file, unused_checker):
 
-        for scope in type_filter(file.scopes.values(), symbols.ClassScope):
+        for node, scope in file.class_scopes():
             for m in _get_methods(scope):
                 n = check_special(m)
                 if n:
@@ -357,7 +343,7 @@ class ReprCheck(Check):
     backquoteSelf = Warning('Report use of `self` in __repr__ methods',
                            'Using `self` in __repr__')
     def check(self, file, unused_checker):
-        for scope in type_filter(file.scopes.values(), symbols.ClassScope):
+        for node, scope in file.class_scopes():
             for m in _get_methods(scope):
                 if m.name == '__repr__' and m.node.argnames:
                     visitor = BackQuote(m.node.argnames[0])
