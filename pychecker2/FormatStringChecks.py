@@ -157,7 +157,5 @@ class FormatStringCheck(Check):
                                 file.warning(mod, self.unknownFormatName,
                                              n, mod.right.node.name)
                 else:
-                    print names
-                    print f
                     file.warning(mod, self.mixedFormat, "(%s)" % names[0])
 
