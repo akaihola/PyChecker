@@ -398,6 +398,14 @@ def importError(moduleName):
         sys.stderr.write('**error formatting exception value**\n')
 
 
+def _getPyFile(filename):
+    """Return the file and '.py' filename from a filename which could
+    end with .py, .pyc, or .pyo"""
+
+    if filename[-1] in 'oc' and filename[-4:-1] == '.py':
+        return filename[:-1]
+    return filename
+
 class Module :
     "Class to hold all information for a module"
 
@@ -452,26 +460,22 @@ class Module :
             self.modules[name] = module
 
     def filename(self) :
-        if not self.module :
-            return self.moduleName
         try :
             filename = self.module.__file__
         except AttributeError :
             filename = self.moduleName
-        if string.lower(filename[-4:]) == '.pyc' :
-            filename = filename[:-4] + '.py'
-        return filename
+        return _getPyFile(filename)
 
-    def load(self) :
+    def load(self):
         try :
             # there's no need to reload modules we already have
             module = sys.modules.get(self.moduleName)
             if module :
                 if not _allModules[self.moduleName].module :
-                    return self.initModule(module)
+                    return self._initModule(module)
                 return 1
 
-            return self.initModule(self.setupMainCode())
+            return self._initModule(self.setupMainCode())
         except (SystemExit, KeyboardInterrupt) :
             exc_type, exc_value, exc_tb = sys.exc_info()
             raise exc_type, exc_value
@@ -480,6 +484,19 @@ class Module :
             return 0
 
     def initModule(self, module) :
+        if not self.module:
+            filename = _getPyFile(module.__file__)
+            if string.lower(filename[-3:]) == '.py':
+                try:
+                    file = open(filename)
+                except IOError:
+                    pass
+                else:
+                    self._setupMainCode(file, filename, module)
+            return self._initModule(module)
+        return 1
+
+    def _initModule(self, module):
         self.module = module
         self.attributes = dir(self.module)
 
@@ -508,14 +525,16 @@ class Module :
     def setupMainCode(self) :
         file, filename, smt = _findModule(self.moduleName)
         # FIXME: if the smt[-1] == imp.PKG_DIRECTORY : load __all__
+        module = imp.load_module(self.moduleName, file, filename, smt)
+        self._setupMainCode(file, filename, module)
+        return module
+
+    def _setupMainCode(self, file, filename, module):
         try :
-            module = imp.load_module(self.moduleName, file, filename, smt)
             self.main_code = function.create_from_file(file, filename, module)
         finally :
             if file != None :
                 file.close()
-
-        return module
 
 
 def getAllModules() :
@@ -675,7 +694,7 @@ else :
         if check :
             try :
                 module = Module(pymodule.__name__)
-                if module.load() :
+                if module.initModule(pymodule):
                     warnings = warn.find([module], _cfg, _suppressions)
                     _printWarnings(_get_unique_warnings(warnings))
                 else :
