@@ -2,9 +2,9 @@ from pychecker2.Warning import Warning
 from pychecker2 import Options
 
 class WarningOpt(Options.BoolOpt):
+    __pychecker__ = 'no-callinit'
     
     def __init__(self, longName, warning):
-        __pychecker__ = 'no-callinit'
         self.warning = warning
         self.longName = longName
 
