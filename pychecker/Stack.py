@@ -45,7 +45,8 @@ class Item :
         return 'Stack Item: (%s, %s, %d)' % (self.data, self.type, self.const)
 
     def isNone(self) :
-        return self.data is None or (self.data == 'None' and not self.const)
+        return (self.type != TYPE_UNKNOWN and self.data is None or
+                (self.data == 'None' and not self.const))
 
     def isImplicitNone(self) :
         return self.data is None and self.const

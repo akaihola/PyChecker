@@ -35,3 +35,7 @@ class F:
             return attr
         raise AttributeError
 
+class G:
+    'should not gen a warning'
+    def __getattr__(self, name):
+        return getattr(self, 'a')[name]
