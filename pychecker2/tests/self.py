@@ -23,3 +23,9 @@ class SelfTester5:
 
     def f(self = 1, *args, **kwargs):
         return self, args, kwargs
+
+def f(self):
+    print self
+
+x = lambda self: self
+
