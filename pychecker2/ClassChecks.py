@@ -169,7 +169,10 @@ special = {
 
 def check_special(scope):
     try:
-        if special[scope.name] != len(scope.node.argnames) or \
+        count = special[scope.name]
+        max_args = len(scope.node.argnames)
+        min_args = max_args - len(scope.node.defaults)
+        if min_args > count or max_args < count or \
            scope.node.varargs or scope.node.kwargs:
             return special[scope.name]
     except KeyError:
