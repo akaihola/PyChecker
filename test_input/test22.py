@@ -50,3 +50,6 @@ def ZZ():
     print F % t1
     print F % t2
 
+def YY():
+    print '%(a)s %(b)s' % { 'a': '5', 'b': '7' }
+

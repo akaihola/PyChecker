@@ -461,6 +461,8 @@ def _getFormatWarnings(code, module) :
                 code.unusedLocals[varname] = None
     elif topOfStack.type == types.TupleType :
         args = topOfStack.length
+    elif topOfStack.type == types.DictType and len(vars) > 0 :
+        pass
     elif topOfStack.type not in [Stack.TYPE_UNKNOWN, Stack.TYPE_FUNC_RETURN] :
         args = 1
         if topOfStack.type == types.StringType and not topOfStack.const :
