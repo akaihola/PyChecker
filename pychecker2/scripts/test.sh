@@ -18,7 +18,7 @@ eval $CHECKER -?         $OUTPUT tests/expected/options
 
 for opt in verbose shadowBuiltins reportUnusedSelf \
     no-operator no-operatorPlus no-redefinedScope no-shadowIdentifier \
-    no-syntaxErrors no-unknown no-unused 
+    no-syntaxErrors no-unknown no-unused no-selfName
 do
    echo $opt
    eval $CHECKER --${opt} tests/*.py tests/not_there.py $OUTPUT tests/expected/$opt
