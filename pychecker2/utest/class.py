@@ -29,6 +29,15 @@ class ClassTestCase(WarningTester):
                      'class Derived(Base):\n'
                      '  def f(self, x, y, *args): pass\n',
                      4, w, 'f', 'Base')
+        self.silent('class Base:\n'
+                    '  def __private(self, x, y): pass\n'
+                    'class Derived(Base):\n'
+                    '  def __private(self, x): pass\n')
+        self.warning('class Base:\n'
+                     '  def __private(self, x, y): pass\n'
+                     'class Derived(Base):\n'
+                     '  def _Base__private(self, x): pass\n',
+                     4, w, '__private', 'Base')
 
     def testUnknownAttribute(self):
         w = ClassChecks.AttributeCheck.unknownAttribute
@@ -70,17 +79,18 @@ class ClassTestCase(WarningTester):
                         '  return C(v)\n' % fmt)
             self.warning('%s %s\n'
                          'class C(%s):\n'
-                         '  def value(self): pass\n' % fmt,
-                         6, ClassChecks.AttributeCheck.methodRedefined,
-                         'value', 5, 'C')
+                         '  def f(self): self.get_value = 1\n' % fmt,
+                         5, ClassChecks.AttributeCheck.methodRedefined,
+                         'get_value', 'C')
 
             self.warning('%s %s\n'
                          'def g(v):\n'
                          '  class C(%s):\n'
-                         '    def value(self): pass\n'
+                         '    def f(self): self.get_value = 1\n'
                          '  return C(v)\n' % fmt,
                          6, ClassChecks.AttributeCheck.methodRedefined,
-                         'value', 6, 'C')
+                         'get_value', 'C')
+
             self.warning('%s %s\n'
                          'class C(%s):\n'
                          '  def get_value(self, x): pass\n' % fmt,
@@ -193,3 +203,24 @@ class ClassTestCase(WarningTester):
         self.warning('class C:\n'
                     '  def __repr__(self):\n'
                     '    return "C" + `self`\n', 3, w)
+
+    def testMethodRedefined(self):
+        w = ClassChecks.AttributeCheck.methodRedefined
+
+        self.warning('class C:\n'
+                     '  def f(self):\n'
+                     '     self.f = lambda x: x\n',
+                     3, w, 'f', 'C')
+        self.warning('class B:\n'
+                     '  def g(self): pass\n'
+                     'class C(B):\n'
+                     '  def f(self):\n'
+                     '     self.g = lambda x: x\n',
+                     5, w, 'g', 'C')
+        self.warning('from pychecker2.utest.data import Data\n'
+                     'class C(Data):\n'
+                     '  def f(self):\n'
+                     '    self.get_value = 1\n',
+                     4, w, 'get_value','C')
+
+

@@ -157,8 +157,7 @@ class AttributeCheck(Check):
     unusedAttribute = Warning('Report attributes unused in methods',
                               'Attribute %s is not used in class %s')
     methodRedefined = Warning('Report the redefinition of class methods',
-                              'Method %s defined at line %d in '
-                              'class %s redefined')
+                              'Method %s in class %s redefined')
     signatureChanged = Warning('Report methods whose signatures do not '
                                'match base class methods',
                                'Signature does not match method '
@@ -175,19 +174,17 @@ class AttributeCheck(Check):
 
         # for all class scopes
         for scope in type_filter(file.scopes.values(), symbols.ClassScope):
-            # get attributes defined on self
-            init_attributes = None
+            init_attributes = None      # attributes initilized in __init__
             attributes = {}             # "self.foo = " kinda things
             methods = {}                # methods -> scopes
-            inherited = {}              # all class defs (methods)
-            inherited_attributes = {}
             
+            # get attributes defined on self
             for m in _get_methods(scope):
                 defs = visit_with_self(GetDefs, m)
                 if m.name == '__init__':
                     init_attributes = defs
                 attributes.update(defs)
-                methods[m.name] = m
+                methods[mangle(m.name, scope.name)] = m
 
             # complain about attributes not initialized in __init__
             if init_attributes is not None:
@@ -196,28 +193,28 @@ class AttributeCheck(Check):
                         file.warning(line(node),
                                      self.attributeInitialized, name)
 
-            for base in [scope] + get_base_classes(scope, checker):
+            # collect inherited gunk: methods and attributes
+            # check for non-conformant methods
+            inherited_methods = scope.defs.copy()
+            inherited_attributes = attributes.copy()
+            for base in get_base_classes(scope, checker):
                 for m in _get_methods(base):
                     inherited_attributes.update(visit_with_self(GetDefs, m))
+                    mname = mangle(m.name, base.name)
                     if m.name != "__init__" and \
-                       methods.has_key(m.name) and \
-                       not conforms(m, methods[m.name]):
-                        file.warning(methods[m.name].node,
-                                     self.signatureChanged,
-                                     m.name, base.name)
+                       methods.has_key(mname) and \
+                       not conforms(m, methods[mname]):
+                        file.warning(methods[mname].node,
+                                     self.signatureChanged, m.name, base.name)
                     else:
-                        methods[m.name] = m
-                inherited.update(base.defs)
+                        methods[mname] = m
+                inherited_methods.update(base.defs)
 
-            # complain about defs with the same name as methods
-            for name, node in inherited_attributes.items():
-                try:
-                    orig = methods[mangle(name, scope.name)]
+            # complain about attributes with the same name as methods
+            for name, node in attributes.items():
+                if inherited_methods.has_key(name):
                     file.warning(line(node), self.methodRedefined,
-                                 name, orig.lineno, scope.name)
-                    break
-                except KeyError:
-                    pass
+                                 name, scope.name)
 
             # find refs on self
             refs = {}
@@ -229,7 +226,7 @@ class AttributeCheck(Check):
                 if not inherited_attributes.has_key(name) and \
                    not _ignorable.get(name, None) and \
                    not scope.defs.has_key(mangle(name, scope.name)) and \
-                   not inherited.has_key(name):
+                   not inherited_methods.has_key(name):
                     file.warning(line(node), self.unknownAttribute,
                                  scope.name, name)
 
