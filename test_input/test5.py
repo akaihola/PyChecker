@@ -1,5 +1,5 @@
-
-"doc string"
+'test named args'
+__pychecker__ = 'namedargs'
 
 def x(a, b, c = None, d = None, **kw):
     pass
