@@ -55,7 +55,7 @@ you want to check on the command line:
 
 <p>
 <pre>
-	python $PY_CHECKER_HOME/checker.py file1.py file2.py ...
+	python pychecker/checker.py file1.py file2.py ...
 </pre>
 
 <p>
@@ -64,13 +64,10 @@ import those files first on the command line in order to get as many
 files checked as possible.
 
 <p>
-In all further examples, $PY_CHECKER_HOME is assumed to be pychecker.
-
-<p>
 PyChecker works with Python 1.5.2, 2.0, and 2.1.
 
 <p>
-To look at a little example, you can use the test files included:
+You can use the test files as examples:
 
 <p>
 <pre>
@@ -103,20 +100,38 @@ If you find a bug in PyChecker, meaning you see something like:
         IndexError: list index out of range
 </pre>
 
-Please send mail indicating the version of PyChecker, the line of code
-<b>from your source file</b> which broke PyChecker
-(myfile.py:13 in the example above), and the traceback.
+Please send mail indicating the version of PyChecker, 
+<b>your source file</b> which broke PyChecker
+(myfile.py in the example above), and the traceback.
+It is very helpful to provide a simple test case to demonstrate the problem.
+It helps to have the entire file and all the dependancies if you cannot
+produce a simple test case.  But if you can't provide a test case nor
+the file(s), I may be able to figure out the problem with just the line
+which broke PyChecker (myfile.py:13 in the example above).
 
 <p>
-The <a href="VERSION">current version</a> of PyChecker can be found on 
-<a href="http://sourceforge.net/projects/pychecker">SourceForge</a>
-or <a href="http://pychecker.sourceforge.net/pychecker-current.tar.gz">
-downloaded here</a>.
-<br>Here are some quick links:  <a href="KNOWN_BUGS">known problems</a>, 
-<a href="TODO">TODO list</a>, and the <a href="CHANGELOG">CHANGELOG</a>.
+Here are some quick links for the <a href="http://cvs.sf.net/cgi-bin/viewcvs.cgi/pychecker/pychecker/VERSION?rev=current&content-type=text/vnd.viewcvs-markup">latest released version</a>
+of PyChecker:
+<ul>
+  <li><a href="http://prdownloads.sf.net/pychecker/pychecker-0.6.1.tar.gz">Download Latest Release</a>
+  <li><a href="http://cvs.sf.net/cgi-bin/viewcvs.cgi/pychecker/pychecker/CHANGELOG?rev=current&content-type=text/vnd.viewcvs-markup">CHANGELOG</a>
+  <li><a href="http://cvs.sf.net/cgi-bin/viewcvs.cgi/pychecker/pychecker/TODO?rev=current&content-type=text/vnd.viewcvs-markup">TODO list</a>
+  <li><a href="http://cvs.sf.net/cgi-bin/viewcvs.cgi/pychecker/pychecker/KNOWN_BUGS?rev=current&content-type=text/vnd.viewcvs-markup">Known Problems</a>
+  <li><a href="COPYRIGHT">COPYRIGHT (BSD)</a>
+</ul>
 
 <p>
-The <a href="COPYRIGHT">COPYRIGHT</a> is based on BSD.
+The development version is usually quite stable.
+Here are links to track the development status:
+<ul>
+  <li><a href="http://cvs.sf.net/cgi-bin/viewcvs.cgi/pychecker/pychecker/CHANGELOG?rev=HEAD&content-type=text/vnd.viewcvs-markup">CHANGELOG</a>
+  <li><a href="http://cvs.sf.net/cgi-bin/viewcvs.cgi/pychecker/pychecker/TODO?rev=HEAD&content-type=text/vnd.viewcvs-markup">TODO list</a>
+  <li><a href="http://cvs.sf.net/cgi-bin/viewcvs.cgi/pychecker/pychecker/KNOWN_BUGS?rev=HEAD&content-type=text/vnd.viewcvs-markup">Known Problems</a>
+</ul>
+
+<p>
+The project page for PyChecker can be found on 
+<a href="http://sf.net/projects/pychecker">SourceForge</a>.
 
 <p>
 Good Luck!  As always, feedback is greatly appreciated.

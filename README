@@ -23,17 +23,15 @@ Types of problems that can be found include:
 To use PyChecker, pass the python source files you want to check on
 the command line:
 
-	python $PY_CHECKER_HOME/checker.py file1.py file2.py ...
+	python pychecker/checker.py file1.py file2.py ...
 
 If there are import dependencies in your source files, you should
 import those files first on the command line in order to get as many
 files checked as possible.
 
-In all further examples, $PY_CHECKER_HOME is assumed to be pychecker.
-
 PyChecker works with Python 1.5.2, 2.0, and 2.1.
 
-To look at a little example, you can use the test files included:
+You can use the test files as examples:
 
 	python pychecker/checker.py test_input/*.py
 
@@ -56,9 +54,13 @@ If you find a bug in PyChecker, meaning you see something like:
             kwArgs.append(stack[i].data)
         IndexError: list index out of range
 
-Please send mail indicating the version of PyChecker, 
-the line of code *from your source file* which broke PyChecker 
-(myfile.py:13 in the example above), and the traceback.
+Please send mail indicating the version of PyChecker, *your source file*
+which broke PyChecker (myfile.py in the example above), and the traceback.
+It is very helpful to provide a simple test case to demonstrate the problem.
+It helps to have the entire file and all the dependancies if you cannot
+produce a simple test case.  But if you can't provide a test case nor
+the file(s), I may be able to figure out the problem with just the line
+which broke PyChecker (myfile.py:13 in the example above).
 
 Good Luck!  As always, feedback is greatly appreciated.
 
@@ -66,6 +68,6 @@ Neal
 pychecker@metaslash.com
 
 PyChecker can be found on SourceForge at:
-	http://sourceforge.net/projects/pychecker
 	http://pychecker.sourceforge.net/
+	http://sourceforge.net/projects/pychecker
 
