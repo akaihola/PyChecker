@@ -17,6 +17,7 @@ import imp
 import os
 import glob
 import traceback
+import re
 
 # see __init__.py for meaning, this must match the version there
 LOCAL_MAIN_VERSION = 1
@@ -85,26 +86,58 @@ def getModules(arg_list) :
             arg = glob.glob(arg)
         new_arguments.append(arg)
 
-    PY_SUFFIX = '.py'
-    PY_SUFFIX_LEN = len(PY_SUFFIX)
-
+    PY_SUFFIXES = ['.py']
+    PY_SUFFIX_LENS = [3]
+    if _cfg.quixote:
+        PY_SUFFIXES.append('.ptl')
+        PY_SUFFIX_LENS.append(4)
+        
     modules = []
     for arg in _flattenList(new_arguments) :
         # is it a .py file?
-        if len(arg) > PY_SUFFIX_LEN and arg[-PY_SUFFIX_LEN:] == PY_SUFFIX:
-            arg_dir = os.path.dirname(arg)
-            if arg_dir and not os.path.exists(arg) :
-                print 'File or pathname element does not exist: "%s"' % arg
-                continue
+        for suf, suflen in zip(PY_SUFFIXES, PY_SUFFIX_LENS):
+            if len(arg) > suflen and arg[-suflen:] == suf:
+                arg_dir = os.path.dirname(arg)
+                if arg_dir and not os.path.exists(arg) :
+                    print 'File or pathname element does not exist: "%s"' % arg
+                    continue
 
-            module_name = os.path.basename(arg)[:-PY_SUFFIX_LEN]
-            if arg_dir not in sys.path :
-                sys.path.insert(0, arg_dir)
-            arg = module_name
+                module_name = os.path.basename(arg)[:-suflen]
+                if arg_dir not in sys.path :
+                    sys.path.insert(0, arg_dir)
+                arg = module_name
         modules.append(arg)
 
     return modules
 
+def _q_file(f):
+    # crude hack!!!
+    # imp.load_module requires a real file object, so we can't just
+    # fiddle def lines and yield them
+    import tempfile
+    fd, newfname = tempfile.mkstemp(suffix=".py", text=True)
+    newf = os.fdopen(fd, 'r+')
+    os.unlink(newfname)
+    for line in f:
+        mat = re.match(r'(\s*def\s+\w+\s*)\[(html|plain)\](.*)', line)
+        if mat is None:
+            newf.write(line)
+        else:
+            newf.write(mat.group(1)+mat.group(3)+'\n')
+    newf.seek(0)
+    return newf
+
+def _q_find_module(p, path):
+    if not _cfg.quixote:
+        return imp.find_module(p, path)
+    else:
+        for direc in path:
+            try:
+                return imp.find_module(p, [direc])
+            except ImportError:
+                f = os.path.join(direc, p+".ptl")
+                if os.path.exists(f):
+                    return _q_file(file(f)), f, ('.ptl', 'U', 1)
 
 def _findModule(name) :
     """Returns the result of an imp.find_module(), ie, (file, filename, smt)
@@ -114,7 +147,7 @@ def _findModule(name) :
     packages = string.split(name, '.')
     for p in packages :
         # smt = (suffix, mode, type)
-        file, filename, smt = imp.find_module(p, path)
+        file, filename, smt = _q_find_module(p, path)
         if smt[-1] == imp.PKG_DIRECTORY :
             try :
                 # package found - read path info from init file
@@ -128,7 +161,7 @@ def _findModule(name) :
             # we need to choose the real (replaced) version
             if m.__name__ != p :
                 try :
-                    file, filename, smt = imp.find_module(m.__name__, path)
+                    file, filename, smt = _q_find_module(m.__name__, path)
                     m = imp.load_module(p, file, filename, smt)
                 finally :
                     if file is not None :

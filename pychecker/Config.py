@@ -31,6 +31,7 @@ _OPTIONS = (
  ('e', 0, 'errors', None, 'turn off all warnings which are not likely errors'),
  ( '', 0, 'complexity', None, 'turn off all warnings which are related to complexity'),
  ('F', 1, 'config', None, 'specify .pycheckrc file to use'),
+ ('',  0, 'quixote', None, 'support Quixote\'s PTL modules'),
      ]),
     ('Error Control', [
  ('i', 0, 'import', 'importUsed', 'unused imports'),
@@ -201,6 +202,7 @@ class Config :
         self.quiet = 0
         self.onlyCheckInitForMembers = 0
         self.printParse = 0
+        self.quixote = 0
 
         self.noDocModule = 0
         self.noDocClass = 0
@@ -326,6 +328,11 @@ class Config :
                     continue
                 elif longArg == 'quiet' :
                     quiet = 1
+                    continue
+                elif longArg == 'quixote' :
+                    import quixote
+                    quixote.enable_ptl()
+                    self.quixote = 1
                     continue
                 elif longArg == 'config' :
                     otherConfigFiles.append(value)
