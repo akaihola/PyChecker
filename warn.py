@@ -141,9 +141,7 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
     """Checks for warnings,
        returns (warning [or None], new stack, function called)"""
 
-    # FIXME: this causes checker to raise an exception, so comment out for now
-    # kwArgCount = argCount << _VAR_ARGS_BITS
-    kwArgCount = argCount / (_VAR_ARGS_BITS * 8)
+    kwArgCount = argCount >> _VAR_ARGS_BITS
     argCount = argCount & _MAX_ARGS_MASK
 
     funcIndex = -1 - argCount - 2 * kwArgCount
@@ -235,10 +233,10 @@ def _checkFunction(module, func, c = None) :
                     stack[-1] = last
             elif OP.STORE_FAST(op) :
                 debug("  store fast", operand)
-                stack = []
+                stack = stack[:-2]
             elif OP.STORE_ATTR(op) :
                 debug("  store attr", operand)
-                stack = []
+                stack = stack[:-2]
             elif OP.CALL_FUNCTION(op) :
                 warn, stack, funcCalled = \
                       _handleFunctionCall(module, func_code, c,
@@ -264,6 +262,10 @@ def _checkFunction(module, func, c = None) :
             debug("  pop top")
             if len(stack) > 0 :
                 del stack[-1]
+        elif OP.DUP_TOP(op) :
+            debug("  dup top")
+            if len(stack) > 0 :
+                stack.append(stack[-1])
         elif OP.name[op][0:len('SLICE+')] == 'SLICE+' :
             sliceCount = int(OP.name[op][6:])
             if sliceCount > 0 :
