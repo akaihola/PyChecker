@@ -732,7 +732,7 @@ def _checkLoadGlobal(codeSource, code, varname) :
         if not codeSource.main and \
            hasattr(codeSource.calling_code, 'function') and \
            varname in codeSource.calling_code.function.func_code.co_varnames :
-            _handleLoadLocal(code, codeSource.func, varname)
+            _handleLoadLocal(code, codeSource, varname)
             should_check = 0
 
     if should_check :
@@ -786,22 +786,26 @@ def _LOAD_CONST(oparg, operand, codeSource, code) :
             code.addWarning(msgs.REDEFINING_ATTR % (name, obj.co_firstlineno))
 
 
-def _checkLoadLocal(code, func, varname, deletedWarn, usedBeforeSetWarn) :
+def _checkLoadLocal(code, codeSource, varname, deletedWarn, usedBeforeSetWarn) :
     _checkFutureKeywords(code, varname)
     deletedLine = code.deletedLocals.get(varname)
     if deletedLine :
         code.addWarning(deletedWarn % (varname, deletedLine))
-    elif not code.unusedLocals.has_key(varname) and not func.isParam(varname) :
+    elif not code.unusedLocals.has_key(varname) and \
+         not codeSource.func.isParam(varname) :
         code.addWarning(usedBeforeSetWarn % varname)
     code.unusedLocals[varname] = None
+    if codeSource.module.variables.has_key(varname) :
+        line = codeSource.module.moduleLineNums.get(varname, (0, 0))[1]
+        code.addWarning(msgs.LOCAL_SHADOWS_GLOBAL % (varname, line))
 
-def _handleLoadLocal(code, func, varname) :
-    _checkLoadLocal(code, func, varname,
+def _handleLoadLocal(code, codeSource, varname) :
+    _checkLoadLocal(code, codeSource, varname,
                     msgs.LOCAL_DELETED, msgs.VAR_USED_BEFORE_SET)
 
 def _LOAD_FAST(oparg, operand, codeSource, code) :
     code.stack.append(Stack.Item(operand, type(operand)))
-    _handleLoadLocal(code, codeSource.func, operand)
+    _handleLoadLocal(code, codeSource, operand)
 
 def _STORE_FAST(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :
@@ -825,15 +829,14 @@ def _STORE_FAST(oparg, operand, codeSource, code) :
         code.unpack()
 
 def _DELETE_FAST(oparg, operand, codeSource, code) :
-    _checkLoadLocal(code, codeSource.func, operand,
+    _checkLoadLocal(code, codeSource, operand,
                     msgs.LOCAL_ALREADY_DELETED, msgs.VAR_DELETED_BEFORE_SET)
     code.deletedLocals[operand] = code.lastLineNum
 
 def _checkAttribute(top, operand, codeSource, code) :
     if top.data == cfg().methodArgName and codeSource.classObject != None :
         _checkClassAttribute(operand, codeSource.classObject, code)
-    elif type(top.type) == types.StringType or \
-         top.type == types.ModuleType :
+    elif type(top.type) == types.StringType or top.type == types.ModuleType :
         _checkModuleAttribute(operand, codeSource.module, code, top.data)
     else :
         _checkAttributeType(code, top, operand)

@@ -1,4 +1,7 @@
 
+Version 0.8.7	- xx December 2001
+  * Add warning for local variable shadowing global variable
+
 Version 0.8.6	- 16 November 2001
   * Add -5/--maxrefs for maximum # of identifier references (Law of Demeter)
   * Fix problem where user defined classes weren't checked for valid attributes
