@@ -30,9 +30,9 @@ class ParseCheck(Check):
             _parent_link(file.parseTree)
             file.parseTree.parent = None
         except parser.ParserError, detail:
-            file.warning(1, self.syntaxErrors, detail)
+            file.warning(1, self.syntaxErrors, detail.args[0])
         except IOError, detail:
-            file.warning(0, self.syntaxErrors, detail)
+            file.warning(0, self.syntaxErrors, detail.strerror)
         if not file.parseTree:
             return
 
