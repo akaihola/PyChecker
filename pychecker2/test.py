@@ -2,7 +2,6 @@ import os
 import sys
 import unittest
 import inspect
-import pychecker2
 import glob
 
 class Tester:
@@ -35,6 +34,14 @@ def _modules(root):
             modules.append(module)
     return modules
 
+def _root_path_to_file(fname):
+    result = os.path.dirname(sys.argv[0])
+    if not result:
+        result = os.getcwd()
+    if not result.startswith(os.sep):
+        result = os.path.join(os.getcwd(), result)
+    return result
+
 def main(args):
     import getopt
     opts, files = getopt.getopt(args, 'v')
@@ -43,8 +50,11 @@ def main(args):
             test.verbosity += 1
         else:
             raise Usage('unknown option ' + opt)
-    
-    root = os.path.dirname(inspect.getsourcefile(pychecker2))
+        
+    root = _root_path_to_file(sys.argv[0])
+    pychecker2 = os.path.split(root)[0]
+    sys.path.append(pychecker2)
+
     _make_coverage_dirs(root)
     test.modules = _modules(root)
 
