@@ -1,7 +1,6 @@
 build
 MANIFEST
 release.txt
-packages
 tmp
 ckstdlib.sh
 stdlib.out
