@@ -55,19 +55,15 @@ class Options:
             longopts = {}
             for opts in self.options.values():
                 for opt in opts:
-                    if opt.is_boolean():
-                        if opt.get_value():
-                            longopts["no-" + opt.longName] = opt
-                        else:
-                            longopts[opt.longName] = opt
-                    else:
-                        longopts[opt.longName] = opt
+                    optname = opt.longName
+                    if opt.is_boolean() and opt.get_value():
+                        optname = "no-" + opt.longName
+                    longopts[optname] = opt
             specs = []
             for k, v in longopts.items():
-                if v.is_boolean():
-                    specs.append(k)
-                else:
-                    specs.append(k + '=')
+                if not v.is_boolean():
+                    k += '='
+                specs.append(k)
             opts, args = getopt.getopt(args, '', specs)
         except getopt.GetoptError, detail:
             raise Error(detail)
