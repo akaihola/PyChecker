@@ -317,6 +317,8 @@ def _updateFunctionWarnings(module, func, c, warnings, globalRefs,
 def getBlackList(moduleList) :
     blacklist = []
     for badBoy in moduleList :
+        if badBoy[-3:] == ".py":
+            badBoy = badBoy[0:-3]
         try :
             import imp
             file, path, flags = imp.find_module(badBoy)
