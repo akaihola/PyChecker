@@ -1,6 +1,5 @@
 from pychecker2 import main
 from pychecker2 import Options
-from pychecker2 import VariableChecks
 
 import unittest
 
