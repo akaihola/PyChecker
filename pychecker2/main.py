@@ -12,6 +12,7 @@ from pychecker2 import ScopeChecks
 from pychecker2 import ImportChecks
 from pychecker2 import ClassChecks
 from pychecker2 import ReachableChecks
+from pychecker2 import FormatStringChecks
 
 # importing these incorporates these checks
 
@@ -49,7 +50,9 @@ def main():
                VariableChecks.UnknownCheck(),
                VariableChecks.SelfCheck(),
                ClassChecks.AttributeCheck(),
-               ScopeChecks.RedefineCheck() ]
+               ScopeChecks.RedefineCheck(),
+               FormatStringChecks.FormatStringCheck(),
+               ]
     for checker in checks:
         checker.get_warnings(options)
         checker.get_options(options)
