@@ -79,6 +79,7 @@ def _checkReturnWarnings(code) :
             if returnType is None and valueType not in _IGNORE_RETURN_TYPES :
                 returnData = value
                 returnType = valueType
+                continue
 
             # always ignore None, None can be returned w/any other type
             # FIXME: if we stored func return values, we could do better
@@ -86,13 +87,14 @@ def _checkReturnWarnings(code) :
                valueType not in _IGNORE_RETURN_TYPES and \
                returnData.type not in _IGNORE_RETURN_TYPES :
                 ok = returnType in (type(value.data), valueType)
-                if ok and returnType == types.TupleType :
-                    # FIXME: this isn't perfect, if len == 0
-                    # the length can really be 0 OR unknown
-                    # we shouldn't check the lengths for equality
-                    # ONLY IF one of the lengths is truly unknown
-                    if returnData.length > 0 and value.length > 0:
-                        ok = returnData.length == value.length
+                if ok :
+                    if returnType == types.TupleType :
+                        # FIXME: this isn't perfect, if len == 0
+                        # the length can really be 0 OR unknown
+                        # we shouldn't check the lengths for equality
+                        # ONLY IF one of the lengths is truly unknown
+                        if returnData.length > 0 and value.length > 0:
+                            ok = returnData.length == value.length
                 if not ok :
                     code.addWarning(msgs.INCONSISTENT_RETURN_TYPE, line)
 
@@ -124,18 +126,16 @@ def _checkUnusedParam(var, line, func, code) :
             (cfg().varArgumentsUsed or func.varArgName() != var)) :
             code.addWarning(msgs.UNUSED_PARAMETER % var, code.func_code)
 
-def _handleLambda(func_code, code, codeSource):
+def _handleNestedCode(func_code, code, codeSource):
     nested = not (codeSource.main or codeSource.in_class)
     if func_code.co_name == utils.LAMBDA or nested:
-        utils.debug(' handling lambda')
+        utils.debug(' handling nested code')
         varnames = None
         if nested and func_code.co_name != utils.LAMBDA:
             varnames = func_code.co_varnames + \
                      codeSource.calling_code[-1].function.func_code.co_varnames
         code.init(function.create_fake(func_code.co_name, func_code, {},
                                        varnames))
-                      
-        # I sure hope there can't be/aren't lambda's within lambda's
         _checkCode(code, codeSource)
 
 def _findUnreachableCode(code) :
@@ -183,7 +183,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
         # handle lambdas
         codeSource.calling_code.append(func)
         for func_code in code.codeObjects.values() :
-            _handleLambda(func_code, code, codeSource)
+            _handleNestedCode(func_code, code, codeSource)
         del codeSource.calling_code[-1]
 
         if not in_class :
