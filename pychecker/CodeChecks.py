@@ -47,16 +47,14 @@ def _checkFunctionArgs(code, func, objectReference, argCount, kwArgs,
                        check_arg_count = 1) :
     func_name = func.function.func_code.co_name
     if kwArgs :
-        func_args = func.function.func_code.co_varnames
-        func_args_len = len(func_args)
-        if argCount < func_args_len and kwArgs[0] in func_args[argCount:] :
+        args_len = func.function.func_code.co_argcount
+        arg_names = func.function.func_code.co_varnames[argCount:args_len]
+        if argCount < args_len and kwArgs[0] in arg_names:
             if cfg().namedArgs :
                 code.addWarning(msgs.FUNC_USES_NAMED_ARGS % func_name)
 
             # convert the named args into regular params, and really check
-            origArgCount = argCount
-            while kwArgs and argCount < func_args_len and \
-                  kwArgs[0] in func_args[origArgCount:] :
+            while argCount < args_len and kwArgs and kwArgs[0] in arg_names:
                 argCount = argCount + 1
                 kwArgs = kwArgs[1:]
             _checkFunctionArgs(code, func, objectReference, argCount, kwArgs,

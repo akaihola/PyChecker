@@ -57,3 +57,9 @@ def uuu():
   a=1+2
   return a[0], [['a', 'b'], [1,2,3,4]]
 
+def renderElement(a, b=2, c=3, **kw):
+    contents = kw
+    print contents
+
+def renderItem(text):
+    return renderElement(1, contents=text, z=1, y=2, x=3)
