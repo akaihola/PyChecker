@@ -83,6 +83,13 @@ or define a .pycheckrc file.  For an example, look at
 <a href="http://cvs.sf.net/cgi-bin/viewcvs.cgi/pychecker/pychecker/pycheckrc?rev=current&content-type=text/vnd.viewcvs-markup">pycheckrc</a>.
 
 <p>
+<pre>
+	python pychecker/checker.py -h
+</pre>
+
+will show the available options.
+
+<p>
 If you want to suppress warnings on a module/function/class/method,
 you can define a suppressions dictionary in .pycheckrc.
 Examples of keys are:  'module', 'module.function',
@@ -99,13 +106,6 @@ You can also define suppressions in your code by doing:
 <p>
 The format for __pychecker__ values and values in the suppressions dictionary
 are the same.  Dashes (--) are optional when preceding long option names.
-
-<p>
-<pre>
-	python pychecker/checker.py -h
-</pre>
-
-will show the available options.
 
 <p>
 If you find a bug in PyChecker, meaning you see something like:
