@@ -8,8 +8,8 @@ from compiler.misc import mangle
 from compiler import ast, walk
 
 _ignorable = {}
-for i in ['repr', 'dict', 'class', 'doc', 'str']:
-    _ignorable['__%s__' % i] = 1
+for ignore in ['repr', 'dict', 'class', 'doc', 'str']:
+    _ignorable['__%s__' % ignore] = 1
 
 class GetDefs(BaseVisitor):
     "Record definitions of a attribute of self, who's name is provided"
@@ -73,7 +73,7 @@ def get_base_names(scope):
                 pass
     return names
 
-def find_defs(scope, names):
+def find_defs(scope, names, checker):
     "Drill down scopes to find definition of x.y.z"
     root = names[0]
     for c in type_filter(scope.get_children(),
@@ -81,28 +81,36 @@ def find_defs(scope, names):
         if getattr(c, 'name', '') == root:
             if len(names) == 1:
                 return c
-            return find_defs(c, names[1:])
+            return find_defs(c, names[1:], checker)
     # maybe defined by import
-    if scope.imports.has_key(root):
-        return None                     # FIXME
+    for i in range(1, len(names) + 1):
+        name = ".".join(names[:i])
+        if scope.imports.has_key(name):
+            ref = scope.imports[name]
+            file = checker.modules[ref.module]
+            if ref.remotename:
+                return find_defs(file.root_scope, [ref.remotename], checker)
+            else:
+                if names[i:]:
+                    return find_defs(file.root_scope, names[i:], checker)
     return None
 
-def find_local_class(scope, name):
+def find_local_class(scope, name, checker):
     "Search up to find scope defining x of x.y.z"
     parts = name.split('.')
     for p in parents(scope):
         if p.defs.has_key(parts[0]):
-            return find_defs(p, parts)
+            return find_defs(p, parts, checker)
     return None
 
-def get_bases(scope):
+def get_bases(scope, checker):
     result = []
     # FIXME: only finds local classes
     for name in get_base_names(scope):
-        base = find_local_class(scope, name)
+        base = find_local_class(scope, name, checker)
         if base:
             result.append(base)
-            result.extend(get_bases(base))
+            result.extend(get_bases(base, checker))
     return result
 
 class AttributeCheck(Check):
@@ -116,7 +124,7 @@ class AttributeCheck(Check):
                               'Method %s defined at line %d in '
                               'class %s redefined')
 
-    def check(self, file, unused_checker):
+    def check(self, file, checker):
         def visit_with_self(Visitor, method):
             # find self
             if not method.node.argnames:
@@ -126,7 +134,7 @@ class AttributeCheck(Check):
 
         # for all class scopes
         for scope in type_filter(file.scopes.values(), symbols.ClassScope):
-            bases = get_bases(scope)
+            bases = get_bases(scope, checker)
             # get attributes defined on self
             attributes = {}             # "self.foo = " kinda things
             methods = {}                # methods -> scopes
