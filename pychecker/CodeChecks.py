@@ -757,8 +757,21 @@ def _popStackRef(code, operand, count = 2) :
 def _pop(oparg, operand, codeSource, code) :
     code.popStack()
 _POP_TOP = _BINARY_POWER = _BINARY_MULTIPLY = _BINARY_DIVIDE = \
-           _BINARY_ADD = _BINARY_SUBTRACT = _BINARY_LSHIFT = _BINARY_RSHIFT = \
+           _BINARY_SUBTRACT = _BINARY_LSHIFT = _BINARY_RSHIFT = \
            _BINARY_AND = _BINARY_XOR = _BINARY_OR = _pop
+
+def _BINARY_ADD(oparg, operand, codeSource, code) :
+    stack = code.stack
+    if len(stack) >= 2 and (stack[-1].const and stack[-2].const and
+                            stack[-1].type == stack[-2].type) :
+        value = stack[-2].data + stack[-1].data
+        code.popStackItems(2)
+        code.stack.append(Stack.Item(value, type(value), 1))
+    else :
+        code.popStack()
+        if stack :
+            # we know that the stack can't be const
+            stack[-1].const = 0
 
 def _BINARY_SUBSCR(oparg, operand, codeSource, code) :
     if len(code.stack) >= 2 :

@@ -1,5 +1,6 @@
 
 Version 0.9	- xx August 2001
+  * Add constants together on stack when get + to avoid some spurious warnings
   * Change default behaviour to not warn about missing doc strings
   * Add -Q/--quiet to be real quiet, only output warning msgs, nothing else
   * Add -y/--classattr config option (warning was not configurable before)

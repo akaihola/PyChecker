@@ -14,3 +14,10 @@ def x():
       j = j - 1
     while j < 100 :
       j = j + 1
+
+def y():
+    # should not generate a warning
+    print ("format w/2 strings %s" + "=" + "'%s'") % ('a', 'b')
+    # should generate a warning
+    print ("format w/2 strings %s" + "=" + "'%s'") % ('a', 'b', 'c')
+

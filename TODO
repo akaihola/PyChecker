@@ -5,12 +5,18 @@ Goals for next release:
 * Store types of globals, class attributes, function & method return values
 * Store values of global & local constants
 * Improve handling when importing packages
+* Add original line warnings for those that refer to another place
+	(e.g., overridden method doesn't match signature)
 
 Longer Term goals:
 ------------------
+* Add warning for python > 1.5.2 when doing [].append(1, 2, 3)
+* Add capability to check features from a specified version of python
+	which is different from runtime interpreter
 * Security checks for known issues.  Adrian Likins @redhat recommends 
   looking at http://www.securesw.com/rats/
 * Recursive calls to __repr__ implementations
+* Add check for magic #s/consts
 * Make check for 'self' a list instead of a string
 * Check function return values - partially complete
 * Add check for unreachable code
