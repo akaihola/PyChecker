@@ -66,3 +66,28 @@ class J(ast.Const):
 class K(Const):
     def f(self):
         print self.value
+
+def z(arg):
+    from xml.dom import minidom as md
+
+    class L(md.Node):
+        def f(self):
+            print arg, self.childNodes
+    print L()
+
+def zz(arg):
+    from xml import dom as d
+
+    class L(d.minidom.Node):
+        def f(self):
+            print arg, self.childNodes
+    print L()
+
+def zzz(arg):
+    from xml.dom.minidom import Node as X
+
+    class L(X):
+        def f(self):
+            print arg, self.childNodes
+    print L()
+
