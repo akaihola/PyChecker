@@ -1,4 +1,4 @@
 #! /bin/sh
-PYTHONPATH=$PYTHONPATH:.. pychecker *.py
+PYTHONPATH=$PYTHONPATH:.. pychecker --stdlib *.py
 echo ==============================================================
 scripts/pychecker2.sh $* *.py
