@@ -5,8 +5,8 @@ from pychecker2.Warning import Warning
 import compiler
 
 def _is_method(scope):
-    return isinstance(scope, compiler.symbols.FunctionScope) and \
-           isinstance(scope.parent, compiler.symbols.ClassScope)
+    return scope.__class__ is compiler.symbols.FunctionScope and \
+           scope.parent.__class__ is compiler.symbols.ClassScope
 
 def _is_self(scope, node, name):
     return _is_method(scope) and name in node.argnames[:1]
@@ -60,12 +60,14 @@ class UnusedCheck(Check.Check):
             self.unusedPrefixes = eval(self.unusedPrefixes)
 
         def used(name, parent_scope):
-            # don't report unused global classes, global functions
-            if parent_scope in file.root_scope.get_children():
-                if isinstance(parent_scope, (compiler.symbols.ClassScope,
-                                             compiler.symbols.FunctionScope)):
-                    if not file.scope_node[parent_scope].name.startswith('_'):
-                        return 1
+            # don't report global classes and functions that
+            # don't start with "_"
+            if parent_scope in file.root_scope.get_children() and \
+               parent_scope.__class__ in (compiler.symbols.ClassScope, \
+                                          compiler.symbols.FunctionScope) and \
+               name == file.scope_node[parent_scope].name and \
+               not name.startswith('_'):
+                    return 1
 
             if parent_scope.uses.has_key(name):
                 return 1
@@ -130,7 +132,8 @@ class UnknownCheck(Check.Check):
 class SelfCheck(Check.Check):
     'Report any methods whose first argument is not self'
     
-    selfName = Warning(__doc__, 'First argument to method %s is not in %s')
+    selfName = Warning(__doc__,
+                       'First argument to method %s (%s) is not in %s')
     
     def get_options(self, options):
         desc = 'Name of self parameter'
@@ -144,4 +147,5 @@ class SelfCheck(Check.Check):
         for nodes, scope in file.scopes.items():
             for var in scope.defs:
                 if _is_self(scope, nodes, var) and var not in self.selfNames:
-                    file.warning(scope, self.selfName, nodes.name, var)
+                    file.warning(scope, self.selfName,
+                                 nodes.name, var, `self.selfNames`)

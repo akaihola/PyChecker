@@ -9,7 +9,7 @@ tests/op.py:4 Scope (g) is redefined at line 7
 tests/op.py:5 Operator (+) normally has no effect
 tests/op.py:8 Operator (--) doesn't exist, statement has no effect
 
-tests/self.py:9 First argument to method f is not in x
+tests/self.py:9 First argument to method f (x) is not in ['self', 'this', 's']
 
 tests/shadow.py:2 Scope (f) is redefined at line 8
 tests/shadow.py:15 Identifier (f) shadows definition in scope <ModuleScope: global>
