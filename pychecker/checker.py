@@ -231,7 +231,7 @@ class Class :
                 self.members[classToken] = type(token)
 
         # add standard methods
-        for methodName in [ '__class__', ] :
+        for methodName in ('__class__',) :
             self.addMethod(methodName, classObject.__name__)
 
     def addMembers(self, classObject) :

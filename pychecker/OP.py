@@ -27,17 +27,17 @@ def RAISE_VARARGS(op):         return op == 130
 
 def UNPACK_SEQUENCE(op) :
     "Deal w/Python 1.5.2 (UNPACK_[LIST|TUPLE]) or 2.0 (UNPACK_SEQUENCE)"
-    return op in [ 92, 93, ]
+    return op in (92, 93,)
 
 HAVE_ARGUMENT = 90
 EXTENDED_ARG = 143
 
-_HAS_NAME = [ 90, 91, 95, 96, 97, 98, 101, 105, 107, 108, 116, ]
-_HAS_LOCAL = [ 124, 125, 126, ]
-_HAS_CONST = [ 100, ]
-_HAS_COMPARE = [ 106, ]
-_HAS_JREL = [ 110, 111, 112, 114, 120, 121, 122, ]
-_HAS_JABS = [ 113, 119, ]
+_HAS_NAME = (90, 91, 95, 96, 97, 98, 101, 105, 107, 108, 116,)
+_HAS_LOCAL = (124, 125, 126,)
+_HAS_CONST = (100,)
+_HAS_COMPARE = (106,)
+_HAS_JREL = (110, 111, 112, 114, 120, 121, 122,)
+_HAS_JABS = (113, 119,)
 
 _CMP_OP =  ('<', '<=', '==', '!=', '>', '>=', 'in', 'not in', 'is',
             'is not', 'exception match', 'BAD')

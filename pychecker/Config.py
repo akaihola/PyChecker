@@ -17,11 +17,11 @@ _RC_FILE = ".pycheckrc"
 CHECKER_VAR = '__pychecker__'
 
 _DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", "gtk", "GTK", "GDK", ]
-_DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__',
+_DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__', 
                                   '__all__', ]
 _DEFAULT_UNUSED_LIST = [ '_', 'empty', 'unused', 'dummy', ]
 
-_OPTIONS = [
+_OPTIONS = (
     ('Major Options', [
  ('e', 0, 'errors', None, 'turn off all warnings which are not likely errors'),
  ('s', 0, 'doc', None, 'turn off all warnings for no doc strings'),
@@ -82,10 +82,10 @@ _OPTIONS = [
  ('Q', 0, 'quiet', None, 'turn off all output except warnings'),
  ('V', 0, 'version', None, 'print the version of PyChecker and exit'),
      ])
-]
+)
 
 def init() :
-    GET_OPT_VALUE = [ ('', ''), (':', '='), ]
+    GET_OPT_VALUE = (('', ''), (':', '='),)
     shortArgs, longArgs = "", []
     for _, group in _OPTIONS :
         for opt in group:
@@ -223,7 +223,7 @@ class Config :
             for key, value in dict.items() :
                 if self.__dict__.has_key(key) :
                     self.__dict__[key] = value
-                elif key not in [ 'suppressions', 'suppressionRegexs' ] :
+                elif key not in ('suppressions', 'suppressionRegexs') :
                     print "Warning, option (%s) doesn't exist, ignoring" % key
 
             suppressions = _getSuppressions('suppressions', dict, filename)

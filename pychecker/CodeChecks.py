@@ -213,8 +213,8 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
         except KeyError :
             if cfg().callingAttribute :
                 code.addWarning(msgs.INVALID_METHOD % methodName)
-    elif loadValue.type in [ Stack.TYPE_ATTRIBUTE, Stack.TYPE_GLOBAL, ] and \
-         type(loadValue.data) in [ types.StringType, types.TupleType ] :
+    elif loadValue.type in (Stack.TYPE_ATTRIBUTE, Stack.TYPE_GLOBAL) and \
+         type(loadValue.data) in (types.StringType, types.TupleType) :
         # apply(func, (args)), can't check # of args, so just return func
         if loadValue.data == 'apply' :
             loadValue = code.stack[funcIndex+1]
