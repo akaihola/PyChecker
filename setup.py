@@ -31,6 +31,18 @@ dynamic languages, like C and C++. Because of the dynamic nature of python,
 some warnings may be incorrect; however, spurious warnings should be
 fairly infrequent."""
 
+    CLASSIFIERS = [
+                    'Development Status :: 4 - Beta',
+                    'Environment :: Console',
+                    'Intended Audience :: Developers',
+                    'License :: OSI Approved :: BSD License',
+                    'Operating System :: OS Independent',
+                    'Programming Language :: Python',
+                    'Topic :: Software Development :: Debuggers',
+                    'Topic :: Software Development :: Quality Assurance',
+                    'Topic :: Software Development :: Testing',
+                  ]
+
     install_dir = sysconfig.get_python_lib() + os.sep + 'pychecker'
     checker_py = install_dir + os.sep + 'checker.py'
     py_exe = sys.executable
@@ -66,6 +78,7 @@ fairly infrequent."""
           packages              = [ 'pychecker' ],
           data_files            = [ (install_dir, DOC_FILES) ],
           scripts               = [ LOCAL_SCRIPT, ],
+          classifiers           = CLASSIFIERS,
           long_description      = LONG_DESCRIPTION
          )
 
