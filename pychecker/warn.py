@@ -873,8 +873,9 @@ def find(moduleList, cfg) :
             warnings.extend(_getUnused(module, globalRefs, module.variables,
                                        _VAR_NOT_USED, prefix))
         if cfg.importUsed :
-            warnings.extend(_getUnused(module, globalRefs, module.modules,
-                                       _IMPORT_NOT_USED))
+            if module.moduleName != '__init__' or cfg.packageImportUsed :
+                warnings.extend(_getUnused(module, globalRefs, module.modules,
+                                           _IMPORT_NOT_USED))
 
     blacklist = []
     for badBoy in cfg.blacklist :
