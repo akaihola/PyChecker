@@ -68,7 +68,7 @@ class Item :
                 return localTypes[0]
         return TYPE_UNKNOWN
 
-    def getName(self, module) :
+    def getName(self) :
         if self.type == TYPE_ATTRIBUTE and type(self.data) != types.StringType:
             strValue = ""
             # convert the tuple into a string ('self', 'data') -> self.data

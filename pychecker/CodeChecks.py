@@ -226,7 +226,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
         kwArgs.reverse()
 
     loadValue = code.stack[funcIndex]
-    funcName = loadValue.getName(codeSource.module)
+    funcName = loadValue.getName()
     returnValue = Stack.makeFuncReturnValue(loadValue, argCount)
 
     if loadValue.isMethodCall(codeSource.classObject, cfg().methodArgName) :
@@ -238,7 +238,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
         except KeyError :
             sattr = codeSource.classObject.statics.get(methodName)
             if sattr is not None :
-                funcName = sattr.getName(codeSource.classObject)
+                funcName = sattr.getName()
 
             if sattr is None and cfg().callingAttribute :
                 code.addWarning(msgs.INVALID_METHOD % methodName)
@@ -248,7 +248,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
         # apply(func, (args)), can't check # of args, so just return func
         if loadValue.data == 'apply' :
             loadValue = code.stack[funcIndex+1]
-            funcName = loadValue.getName(codeSource.module)
+            funcName = loadValue.getName()
         else :
             if cfg().modifyDefaultValue and \
                type(loadValue.data) == types.TupleType :
