@@ -9,3 +9,9 @@ Contact Info:
   http://pychecker.sourceforge.net/
   pychecker@metaslash.com
 """
+
+# A version # to check against in the main module (checker.py)
+# this will allow us to check if there are two versions of checker
+# in site-packages and local dir
+MAIN_MODULE_VERSION = 1
+

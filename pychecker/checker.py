@@ -17,6 +17,10 @@ import imp
 import os
 import glob
 
+# see __init__.py for meaning, this must match the version there
+LOCAL_MAIN_VERSION = 1
+
+
 def setupNamespace(path) :
     # remove pychecker if it's the first component, it needs to be last
     if sys.path[0][-9:] == 'pychecker' :
@@ -46,6 +50,13 @@ _DEFAULT_MODULE_TOKENS = [ '__builtins__', '__doc__', '__file__', '__name__',
                            '__path__', ]
 _DEFAULT_CLASS_TOKENS = [ '__doc__', '__name__', '__module__', ]
 
+_VERSION_MISMATCH_ERROR = '''
+There seem to be two versions of PyChecker being used.
+One is probably in python/site-packages, the other in a local directory.
+If you want to run the local version, you must remove the version
+from site-packages.  Or you can install the current version
+by doing python setup.py install.
+'''
 
 def _flattenList(list) :
     "Returns a list which contains no lists"
@@ -443,6 +454,11 @@ def _print_processing(name) :
 
 
 def main(argv) :
+    import pychecker
+    if LOCAL_MAIN_VERSION != pychecker.MAIN_MODULE_VERSION :
+        sys.stderr.write(_VERSION_MISMATCH_ERROR)
+        sys.exit(100)
+
     global _cfg
     _cfg, files, suppressions = Config.setupFromArgs(argv[1:])
     if not files :

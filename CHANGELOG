@@ -5,6 +5,7 @@ Version 0.9	- xx August 2001
   * Add check for except Error1, Error2 : # should be except (Error1, Error2) :
   * Fix spurious warning when using parameter as dict for format string
   * Fix spurious warning when using lambda in __init__
+  * Add check that pychecker/checker.py is same version as other files
   * Get setup.py to work on windows, etc. if don't have /tmp
 
 Version 0.8.3	- 12 August 2001
