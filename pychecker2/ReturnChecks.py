@@ -31,8 +31,6 @@ class MixedReturnCheck(Check):
 
     def check(self, file, unused_checker):
         for scope in type_filter(file.scopes.values(), symbols.FunctionScope):
-            if not scope.node.code:
-                continue
             returns = walk(scope.node.code, Returns()).result
             empty, value = [], []
             for node in returns:
