@@ -1,3 +1,4 @@
+'docstring'
 
 def x(a, b):
     c = getattr(a, b)
