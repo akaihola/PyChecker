@@ -65,6 +65,8 @@ class Warning :
             file = file.function.func_code.co_filename
         elif hasattr(file, "co_filename") :
             file = file.co_filename
+        if file[:2] == './' :
+            file = file[2:]
         self.file = file
 
         if hasattr(line, "co_firstlineno") :
@@ -436,7 +438,6 @@ def find(moduleList, cfg) :
         for func in module.functions.values() :
             func_code = func.function.func_code
             debug("in func:", func_code)
-            moduleFilename = func_code.co_filename
 
             if cfg.noDocFunc and func.function.__doc__ == None :
                 warn = Warning(moduleFilename, func_code,
@@ -461,10 +462,6 @@ def find(moduleList, cfg) :
                     continue
                 func_code = method.function.func_code
                 debug("in method:", func_code)
-                # make sure we are in the right file
-                # ie, not a method we inherited from another file
-                if method.function.__name__ in dir(c) :
-                    moduleFilename = func_code.co_filename
 
                 if cfg.noDocFunc and method.function.__doc__ == None :
                     warn = Warning(moduleFilename, func_code,
