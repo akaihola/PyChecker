@@ -14,7 +14,6 @@ Goals for next major release (0.9):
   - Finish tests: 44
 
 * Fix spurious warnings for unreachable code checks
-* Fix spurious warnings for (x and 'pass' or 'fail')
 * Fix most of the FIXMEs
 
 Longer Term goals:

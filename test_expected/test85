@@ -1,0 +1,7 @@
+Processing test85...
+
+Warnings...
+
+test_input/test85.py:9: Using a conditional statement with a constant value (true)
+test_input/test85.py:13: Using a conditional statement with a constant value (None)
+test_input/test85.py:17: Using a conditional statement with a constant value ([])

@@ -674,9 +674,9 @@ class Code :
 
         return op, oparg, operand
 
-    def nextOpInfo(self) :
+    def nextOpInfo(self, offset = 0) :
         try :
-            return OP.getInfo(self.bytes, self.index, 0)[0:3]
+            return OP.getInfo(self.bytes, self.index + offset, 0)[0:3]
         except IndexError :
             return -1, 0, -1
 
@@ -1364,9 +1364,14 @@ def _is_unreachable(code, topOfStack, branch, if_false) :
 def _jump_conditional(oparg, operand, codeSource, code, if_false) :
     if code.stack :
         topOfStack = code.stack[-1]
-        if topOfStack.const and cfg().constantConditions and \
+        if (topOfStack.const or topOfStack.type is types.NoneType) and \
+           cfg().constantConditions and \
            (topOfStack.data != 1 or cfg().constant1) :
-            code.addWarning(msgs.CONSTANT_CONDITION % str(topOfStack))
+            # don't warn when doing (test and 'true' or 'false')
+            # still warn when doing (test and None or 'false')
+            if if_false or not OP.LOAD_CONST(code.nextOpInfo(1)[0]) or \
+               not topOfStack.data or topOfStack.type is types.NoneType:
+                code.addWarning(msgs.CONSTANT_CONDITION % str(topOfStack))
 
         if _is_unreachable(code, topOfStack, code.label, if_false) :
             code.removeBranch(code.label)

@@ -1,3 +1,6 @@
+Version 0.8.11   - xx April 2002
+  * Fix spurious warnings from using (test and 'true' or 'false)
+
 Version 0.8.10   - 20 March 2002
   * Add --unpack option to warn when unpacking a non-sequence
   * Add --unpacklen option to warn when unpacking sequence of wrong size
