@@ -1,15 +1,17 @@
 from pychecker2 import Check
+from pychecker2.Warning import Warning
 
-import compiler
-from compiler.symbols import SymbolVisitor
+from compiler import symbols, parseFile, walk
 import parser
 
 class ParseCheck(Check.Check):
 
+    warning = Warning('parse', 'Unable to parse: %s')
+
     def check(self, file, unused_options):
         try:
-            file.parseTree = compiler.parseFile(file.name)
-            file.scopes = compiler.walk(file.parseTree, SymbolVisitor()).scopes
+            file.parseTree = parseFile(file.name)
+            file.scopes = walk(file.parseTree, symbols.SymbolVisitor()).scopes
             file.root_scope = file.scopes[file.parseTree]
             
             # add starting lineno into scopes, since they don't have it
@@ -32,9 +34,9 @@ class ParseCheck(Check.Check):
             file.root_scope.parent = None
 
         except parser.ParserError, detail:
-            file.warning(1, "Unable to parse: %s" % detail)
+            file.warning(1, self.warning, detail)
         except IOError, detail:
-            file.warning(0, "Unable to parse: %s" % detail)
+            file.warning(0, self.warning, detail)
             
 Check.pass1.append(ParseCheck())
             
