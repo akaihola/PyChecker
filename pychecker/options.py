@@ -50,6 +50,8 @@ class Results:
     def __init__(self, w):
         self.top = Tkinter.Toplevel(w, name="results")
         self.top.transient(w)
+        self.top.bind('<Return>', self.hide)
+        self.top.bind('<Escape>', self.hide)
         self.text = Tkinter.Text(self.top, name="text")
         self.text.grid()
         self.text.bind('<Double-Button-1>', self.showFile)
@@ -66,7 +68,7 @@ class Results:
         self.top.deiconify()
         self.top.lift()
 
-    def hide(self):
+    def hide(self, *unused):
         self.top.withdraw()
 
     def line(self):
@@ -185,13 +187,15 @@ class ConfigDialog:
 
         f = Tkinter.Frame(self._tk, name="fileStuff")
         Tkinter.Button(f, name="getfile", command=self.file).grid(row=0, col=1)
-        Tkinter.Entry(f, name="fname", textvariable=self._file).grid(row=0, col=2)
+        fileEntry = Tkinter.Entry(f, name="fname", textvariable=self._file)
+	fileEntry.grid(row=0, col=2)
         Tkinter.Button(f, name="check", command=self.check).grid(row=0, col=3)
         f.grid(sticky=Tkinter.EW)
         
         self._tk.bind_all('<FocusIn>', self.focus)
         self._tk.bind_all('<Enter>', self.focus)
         self._tk.bind_all('<ButtonPress>', self.click)
+        fileEntry.bind('<Return>', self.check)
         self._tk.mainloop()
 
     #
@@ -242,7 +246,7 @@ class ConfigDialog:
     def file(self):
         self._file.set(tkFileDialog.askopenfilename())
 
-    def check(self):
+    def check(self, *unused):
         import checker
         import StringIO
         
