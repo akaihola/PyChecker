@@ -1,35 +1,44 @@
-'doc'
+'d'
 
-def func0(x):
-    'should not be a warning'
-    return 0
+class A:
+    "d"
+    def __init__(self): pass
 
-def func1(x):
-    'should be a warning'
-    if x == 0 :
-        return 1
+class X:
+    "d"
+    def __init__(self, x): pass
 
-def func2(x):
-    'should not be a warning'
-    if x == 0 :
-        return
+class Y:
+    "d"
+    def __init__(self, x, y, z): pass
 
-def func3(x):
-    'should be a warning'
-    if x == 0 :
-        return 1, 2
-    return 1
+class Z:
+    "d"
+    def __init__(self, x, y, z, *args, **kw): pass
 
-def func4(x):
-    'should not be a warning'
-    c = (1, 2)
-    if x == 0 :
-        return c
-    return 9, 8
+def j():
+    A()
+    A(1)
 
-def func5(x):
-    'should not be a warning'
-    if x == 0 :
-        return 1, 2
-    return 9, 8
+    X()
+    X(1)
+    X(1, 2)
+    X(1, 2, 3)
+    X(1, 2, 3, 4)
+
+    Y()
+    Y(1)
+    Y(1, 2)
+    Y(1, 2, 3)
+    Y(1, 2, 3, 4)
+
+    Z()
+    Z(1)
+    Z(1, 2)
+    Z(1, 2, 3)
+    Z(1, 2, 3, 4)
+    Z(1, 2, 3, 4, 5)
+    Z(1, 2, 3, 4, 5, 6)
+    Z(1, 2, 3, 4, k=1, j=2, m=3, f=5)
+
 

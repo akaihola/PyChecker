@@ -218,6 +218,12 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
         else :
             # already checked if module function w/this name exists
             func = module.functions.get(loadValue.data, None)
+            if func == None :
+                # if we didn't find the function, maybe this is a new object
+                c = module.classes.get(loadValue.data, None)
+                if c != None :
+                    func = c.methods.get('__init__', None)
+
             if func != None :
                 warn = _checkFunctionArgs(func, argCount, kwArgs, lastLineNum)
 

@@ -1,7 +1,8 @@
 
 * Add script to /usr/local/bin to invoke PyChecker
 * Add check that private functions are used in module/class
-* Add check for right # of args to object construction
+* Add check for right # of args to object construction in other modules
+	(works when object is in same module as caller)
 * Check format strings: "%s %d" % (strValue, intValue)
 * Fix deriving from class by alias name
 * Fix using from XXX import YYY ; from XXX import ZZZ causing re-import warning
