@@ -18,13 +18,13 @@ class OpCheck(Check):
 
     def check(self, file, unused_checklist):
         class OpVisitor:
-            def visitUnaryAdd(self, n):
+            def visitUnaryAdd(s, n):
                 if n.getChildren()[0].__class__ == compiler.ast.UnaryAdd:
                     file.warning(n, self.operator, '++')
                 else:
                     file.warning(n, self.operatorPlus)
 
-            def visitUnarySub(self, n):
+            def visitUnarySub(s, n):
                 if n.getChildren()[0].__class__ == compiler.ast.UnarySub:
                     file.warning(n, self.operator, '--')
         if file.parseTree:        
