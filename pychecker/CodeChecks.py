@@ -689,7 +689,7 @@ class Code :
             self.popStack()
 
     def addRaise(self) :
-        self.raiseValues.append((self.lastLineNum, None, self.index))
+        self.raiseValues.append((self.lastLineNum, None, self.nextOpInfo()[2]))
 
     def addBranch(self, label) :
         if label is not None :

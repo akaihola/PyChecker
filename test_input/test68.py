@@ -120,3 +120,9 @@ def func17(x):
     except (AttributeError, KeyError, IndexError):
         return 0
 
+def func18(x):
+    if x == 'n':
+        return x
+    if x != 'j':
+        raise AttributeError
+
