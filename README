@@ -16,6 +16,7 @@ Types of problems that can be found include:
   * Passing the wrong number of parameters to functions/methods/constructors
   * Using format strings that don't match arguments
   * Using class methods and attributes that don't exist
+  * Using a variable before setting it
   * self not the first parameter to a method
   * Unused globals and locals (module or variable)
   * No doc strings in modules, classes, functions, and methods
