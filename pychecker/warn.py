@@ -139,7 +139,8 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
         # check if last return is unreachable due to a raise just before
         i = code.index - utils.BACK_RETURN_INDEX - 3
         if i >= code.maxLabel and OP.RAISE_VARARGS(ord(code.bytes[i])) :
-            del code.returnValues[-1]
+            if len(code.returnValues) > 0 :
+                del code.returnValues[-1]
 
     except (SystemExit, KeyboardInterrupt) :
         exc_type, exc_value, exc_tb = sys.exc_info()

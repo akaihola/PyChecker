@@ -1,5 +1,6 @@
 
 Version 0.8.7	- xx December 2001
+  * Fix some strange spurious warnings and exceptions
   * Handle string multiplication (helps format strings)
         code like this doesn't generate a warning now:  '%d ' * 3 % (1, 2, 3)
   * Add warning statements with no effect (load var, but do nothing)
