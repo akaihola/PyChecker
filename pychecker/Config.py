@@ -244,7 +244,7 @@ class Config :
         self.emptySlots = 1
         self.classicProperties = 1
         self.checkObjectAttrs = 1
-        self.checkReturnValues = 1
+        self.checkReturnValues = 0
         self.checkImplicitReturns = 1
         self.intDivide = 1
         self.shadows = 1
