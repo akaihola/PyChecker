@@ -214,7 +214,7 @@ class Config :
 
         self.checkObjectAttrs = 1
         self.checkReturnValues = 1
-        self.checkImplicitReturns = 0
+        self.checkImplicitReturns = 1
         self.intDivide = 1
         self.shadows = 1
         self.unaryPositive = 1

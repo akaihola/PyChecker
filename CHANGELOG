@@ -1,5 +1,6 @@
 
 Version 0.8.7	- xx January 2002
+  * Fix -C/--implicitreturns option so it works, turn it on by default
   * Fix spurious warning when accessing 'static' class members that are methods
         (e.g. class C(B): __super_init = B.__init__)
   * Add -9/--members option to warn about unused data members

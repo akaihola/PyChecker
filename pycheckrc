@@ -42,6 +42,9 @@ localVariablesUsed = 1
 # bool:  assume a, b, and c are used in this case:  a, b, c = func()
 unusedLocalTuple = 0
 
+# bool:  warn when class attributes (data members) are unused
+membersUsed = 0
+
 # bool: warn when Subclass.__init__ is not called in a subclass
 baseClassInitted = 1
 
@@ -130,7 +133,7 @@ modifyDefaultValue = 1
 checkReturnValues = 0
 
 # bool: check if using implict and explicit return values
-checkImplicitReturns = 0
+checkImplicitReturns = 1
 
 # dict: suppress warnings, key is module.class.method or module.function
 #	value is a string of command line arguments (can omit -- for long args)
