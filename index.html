@@ -48,8 +48,8 @@ Types of problems that can be found include:
 </ul>
 
 <p>
-To use PyChecker, pass the python source files you want to check on
-the command line:
+To use PyChecker, pass options and the python source files (or packages)
+you want to check on the command line:
 
 <p>
 <pre>
@@ -71,6 +71,17 @@ To look at a little example, you can use the test files included:
 <pre>
 	python checker.py test_input/*.py
 </pre>
+
+<p>
+If you want to change the default behaviour, you can pass command line options
+or define a .pycheckrc file.  For an example, look at pycheckrc.
+
+<p>
+<pre>
+	python checker.py -h
+</pre>
+
+will show the available options.
 
 <p>
 The <a href="VERSION">current version</a> of PyChecker can be found on 

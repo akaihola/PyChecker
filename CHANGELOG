@@ -1,6 +1,6 @@
 
-Version 0.4	- xx April 2001
-  * Add .rc file processing to specify options (like on command line)
+Version 0.4	- 23 April 2001
+  * Add .pycheckrc file processing to specify options (like on command line)
   * Add new warning if module.Attribute doesn't exist
   * Add new warning:  Module (%s) re-imported locally
   * Add glob'ing support for windows

@@ -4,6 +4,10 @@
 
 """
 Check python source code files for possible errors and print warnings
+
+Contact Info:
+  http://pychecker.sourceforge.net/
+  pychecker@metaslash.com
 """
 
 import string
