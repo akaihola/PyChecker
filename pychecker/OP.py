@@ -11,6 +11,7 @@ import dis
 def LINE_NUM(op):              return dis.opname[op] == 'SET_LINENO'
 def LOAD_GLOBAL(op):           return dis.opname[op] == 'LOAD_GLOBAL'
 def LOAD_CONST(op):            return dis.opname[op] == 'LOAD_CONST'
+def LOAD_DEREF(op):            return dis.opname[op] == 'LOAD_DEREF'
 def LOAD_NAME(op):             return dis.opname[op] == 'LOAD_NAME'
 def LOAD_FAST(op):             return dis.opname[op] == 'LOAD_FAST'
 def LOAD_ATTR(op):             return dis.opname[op] == 'LOAD_ATTR'

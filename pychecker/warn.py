@@ -457,7 +457,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                     lastLineNum = oparg
                 elif OP.COMPARE_OP(op) :
                     _handleComparison(stack, operand)
-                elif OP.LOAD_GLOBAL(op) or OP.LOAD_NAME(op) :
+                elif OP.LOAD_GLOBAL(op) or OP.LOAD_NAME(op) or OP.LOAD_DEREF(op) :
                     # make sure we remember each global ref to check for unused
                     globalRefs[_getGlobalName(operand, func)] = operand
                     if not in_class :
