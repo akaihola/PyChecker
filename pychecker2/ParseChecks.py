@@ -1,10 +1,10 @@
-from pychecker2 import Check
+from pychecker2.Check import Check
 from pychecker2.Warning import Warning
 
 from compiler import symbols, parseFile, walk
 import parser
 
-class ParseCheck(Check.Check):
+class ParseCheck(Check):
 
     syntaxErrors = Warning('Report/ignore syntax errors', 'Unable to parse: %s')
 
@@ -23,9 +23,8 @@ class ParseCheck(Check.Check):
             file.root_scope.lineno = 1
 
             # create a mapping from scopes back to the nodes which made 'em
-            file.scope_node = {}
             for node, scope in file.scopes.items():
-                file.scope_node[scope] = node
+                scope.node = node
 
             # create a mapping from each scope back to it's enclosing scope
             for s in file.scopes.values():

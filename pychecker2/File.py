@@ -4,7 +4,6 @@ class File:
         self.name = name
         self.parseTree = None
         self.scopes = {}
-        self.scope_node = {}
         self.root_scope = None
         self.warnings = []
 
