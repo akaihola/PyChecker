@@ -288,7 +288,9 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
         try :
             m = codeSource.classObject.methods[methodName]
             if m != None :
-                _checkFunctionArgs(code, m, 1, argCount, kwArgs, check_arg_count)
+                objRef = not m.isStaticMethod()
+                _checkFunctionArgs(code, m, objRef, argCount, kwArgs,
+                                   check_arg_count)
         except KeyError :
             sattr = codeSource.classObject.statics.get(methodName)
             if sattr is not None :
@@ -1727,6 +1729,7 @@ DISPATCH[ 11] = _UNARY_NEGATIVE
 DISPATCH[ 12] = _UNARY_NOT
 DISPATCH[ 13] = _UNARY_CONVERT
 DISPATCH[ 15] = _UNARY_INVERT
+# FIXME: add LIST_APPEND: 18
 DISPATCH[ 19] = _BINARY_POWER
 DISPATCH[ 20] = _BINARY_MULTIPLY
 DISPATCH[ 21] = _BINARY_DIVIDE

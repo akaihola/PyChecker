@@ -1,5 +1,6 @@
 Version 0.8.14   - XX XXX 2004
   * Fix spurious warning when doing x = not x
+  * Fix spurious warning for invalid arg count when calling a staticmethod
   * Support Tk 8.4 and above in the GUI (change col= to column=)
 
 Version 0.8.13   - 18 November 2003

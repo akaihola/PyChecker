@@ -65,6 +65,14 @@ try:
         def rr(klass, *args): pass
         rr = classmethod(rr)
 
+    class Bug4(object):
+        '''doc'''
+        def static(arg1, arg2):
+            return arg1+arg2
+        static = staticmethod(static)
+
+        def buggy(self):
+            return self.static(1,2)
 except NameError:
     pass
 
