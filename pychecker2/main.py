@@ -11,6 +11,7 @@ from pychecker2 import VariableChecks
 from pychecker2 import ScopeChecks
 from pychecker2 import ImportChecks
 from pychecker2 import ClassChecks
+from pychecker2 import ReachableChecks
 
 # importing these incorporates these checks
 
@@ -22,13 +23,14 @@ def _print_warnings(f):
     if not f.warnings:
         return 0
     f.warnings.sort()
+    last_line = -1
     last_msg = None
     for line, warning, args in f.warnings:
         if warning.value:
             msg = warning.message % args
-            if msg != last_msg:
+            if msg != last_msg or line != last_line:
                 print '%s:%s %s' % (f.name, line or '[unknown line]', msg)
-                last_msg = msg
+                last_msg, last_line = msg, line
     if last_msg:
         print
     return 1
@@ -39,6 +41,7 @@ def main():
     checks = [ ParseChecks.ParseCheck(),
                OpChecks.OpCheck(),
                OpChecks.ExceptCheck(),
+               ReachableChecks.ReachableCheck(),
                ImportChecks.ImportCheck(),
                VariableChecks.ShadowCheck(),
                VariableChecks.UnpackCheck(),
