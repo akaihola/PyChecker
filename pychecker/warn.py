@@ -622,12 +622,12 @@ def _checkAttributeType(typeMap, stackValue, attr) :
     if not varTypes :
         return None
     for varType in varTypes :
-        # if varType has attr:
-        # return None
-        pass
+        # ignore built-in types that have no attributes
+        if _METHODLESS_OBJECTS.has_key(varType) :
+            continue
+        if hasattr(varType, 'attributes') and attr in varType.attributes :
+            return None
 
-    # FIXME: remove when ready
-    return None
     return Warning(func_code, lastLineNum, _OBJECT_HAS_NO_METHODS % attr)
 
 # number of instructions to check backwards if it was a return
