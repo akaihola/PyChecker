@@ -1232,16 +1232,26 @@ _SLICE1 = _SLICE2 = _SLICE_1_ARG
 def _SLICE3(oparg, operand, codeSource, code) :
     _popStackRef(code, operand, 3)
 
+def _check_string_iteration(code, index):
+    try:
+        item = code.stack[index]
+    except IndexError:
+        return
+    if item.getType(code.typeMap) == types.StringType and \
+       cfg().stringIteration:
+        code.addWarning(msgs.STRING_ITERATION % item.data)
+
 def _FOR_LOOP(oparg, operand, codeSource, code) :
     code.loops = code.loops + 1
-    try:
-        if code.stack[-2].getType(code.typeMap) == types.StringType and \
-           cfg().stringIteration:
-            code.addWarning(msgs.STRING_ITERATION % code.stack[-2].data)
-    except IndexError:
-        pass
+    _check_string_iteration(code, -2)
     _popStackRef(code, '<for_loop>', 2)
-_FOR_ITER = _FOR_LOOP
+
+def _GET_ITER(oparg, operand, codeSource, code) :
+    _check_string_iteration(code, -1)
+
+def _FOR_ITER(oparg, operand, codeSource, code) :
+    code.loops = code.loops + 1
+    _popStackRef(code, '<for_iter>', 1)
 
 def _jump(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
@@ -1367,6 +1377,7 @@ DISPATCH[ 63] = _BINARY_RSHIFT
 DISPATCH[ 64] = _BINARY_AND
 DISPATCH[ 65] = _BINARY_XOR
 DISPATCH[ 66] = _BINARY_OR
+DISPATCH[ 68] = _GET_ITER
 DISPATCH[ 83] = _RETURN_VALUE
 DISPATCH[ 84] = _IMPORT_STAR
 DISPATCH[ 85] = _EXEC_STMT
