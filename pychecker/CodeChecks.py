@@ -223,7 +223,8 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
             else :
                 sattr = getattr(cobj.classObject, methodName, None)
                 if sattr is not None :
-                    funcName = str(sattr.im_class) + '.' + sattr.__name__
+                    funcName = str(getattr(sattr, 'im_class', sattr))
+                    funcName = funcName + '.' + sattr.__name__
 
             if sattr is None and cfg().callingAttribute :
                 code.addWarning(msgs.INVALID_METHOD % methodName)
@@ -686,7 +687,7 @@ class Code :
             self.popStack()
 
     def addRaise(self) :
-        self.raiseValues.append((self.lastLineNum, None, self.nextOpInfo()[2]))
+        self.raiseValues.append((self.lastLineNum, None, self.index))
 
     def removeBranch(self, label) :
         # FIXME: not sure what to do here, we need all the branches
