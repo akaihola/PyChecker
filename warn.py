@@ -267,17 +267,15 @@ def _checkFunction(module, func, c = None) :
             if label != None :
                 branches[label] = 1
             operand = OP.getOperand(op, func_code, oparg)
+            debug("  " + OP.name[op], oparg, operand)
             if OP.LINE_NUM(op) :
                 lastLineNum = oparg
             elif OP.COMPARE_OP(op) :
-                debug("  compare op", operand)
                 if len(stack) >= 2 :
                     stack = stack[:-2] + [ (stack[-2], operand, stack[-1]) ]
                 else :
                     stack = []
             elif OP.LOAD_GLOBAL(op) :
-                debug("  load global", operand)
-
                 # get the right name of global refs (for from XXX import YYY)
                 globalName = operand
                 opModule = func.function.func_globals.get(operand)
@@ -308,17 +306,13 @@ def _checkFunction(module, func, c = None) :
                 if unpackCount :
                     unpackCount = unpackCount - 1
             elif OP.LOAD_CONST(op) :
-                debug("  load const", operand)
                 stack.append(operand)
             elif OP.LOAD_NAME(op) :
-                debug("  load name", operand)
                 stack.append(operand)
             elif OP.LOAD_FAST(op) :
-                debug("  load fast", operand)
                 stack.append(operand)
                 unusedLocals[operand] = None
             elif OP.LOAD_ATTR(op) :
-                debug("  load attr", operand)
                 last = stack[-1]
                 if last == 'self' and c != None :
                     warn = _checkAttribute(operand, c, func_code, lastLineNum)
@@ -331,18 +325,14 @@ def _checkFunction(module, func, c = None) :
                     last = (last, operand)
                 stack[-1] = last
             elif OP.IMPORT_NAME(op) :
-                debug("  import", operand)
                 if module.modules.has_key(operand) :
                     warn = Warning(func_code, lastLineNum,
                                    _MODULE_IMPORTED_AGAIN % operand)
             elif OP.UNPACK_SEQUENCE(op) :
-                debug("  unpack seq", oparg)
                 unpackCount = oparg
             elif OP.FOR_LOOP(op) :
-                debug("  for loop", oparg)
                 loops = loops + 1
             elif OP.STORE_FAST(op) :
-                debug("  store fast", operand)
                 if not unusedLocals.has_key(operand) :
                     if not unpackCount or _cfg.unusedLocalTuple :
                         unusedLocals[operand] = lastLineNum
@@ -350,7 +340,6 @@ def _checkFunction(module, func, c = None) :
                     unpackCount = unpackCount - 1
                 stack = stack[:-2]
             elif OP.STORE_ATTR(op) :
-                debug("  store attr", operand)
                 if unpackCount :
                     unpackCount = unpackCount - 1
                 stack = stack[:-2]
@@ -366,13 +355,10 @@ def _checkFunction(module, func, c = None) :
                     funcName = _getNameFromStack(funcCalled, tmpModuleName)
                     functionsCalled[funcName] = funcCalled
             elif OP.BUILD_MAP(op) :
-                debug("  build map", oparg)
                 stack = stack[:-oparg] + [ str(type({})) ]
             elif OP.BUILD_TUPLE(op) :
-                debug("  build tuple", oparg)
                 stack = stack[:-oparg] + [ tuple(stack[oparg:]) ]
             elif OP.BUILD_LIST(op) :
-                debug("  build list", oparg)
                 if oparg > 0 :
                     stack = stack[:-oparg] + [ stack[oparg:] ]
                 else :
@@ -380,30 +366,28 @@ def _checkFunction(module, func, c = None) :
 
             _addWarning(warnings, warn)
 
-        elif OP.name[op][0:len('BINARY_')] == 'BINARY_' :
-            debug("  binary op", op)
-            del stack[-1]
-        elif OP.POP_TOP(op) :
-            debug("  pop top")
-            if len(stack) > 0 :
+        else :
+            debug("  " + OP.name[op])
+            if OP.name[op][0:len('BINARY_')] == 'BINARY_' :
                 del stack[-1]
-        elif OP.DUP_TOP(op) :
-            debug("  dup top")
-            if len(stack) > 0 :
-                stack.append(stack[-1])
-        elif OP.name[op][0:len('SLICE+')] == 'SLICE+' :
-            sliceCount = int(OP.name[op][6:])
-            if sliceCount > 0 :
-                popArgs = 1
-                if sliceCount == 3 :
-                    popArgs = 2
-                stack = stack[:-popArgs]
-        elif OP.RETURN_VALUE(op) :
-            debug("  return")
-            returns = returns + 1
-            # FIXME: this check shouldn't really be necessary
-            if len(stack) > 0 :
-                del stack[-1]
+            elif OP.POP_TOP(op) :
+                if len(stack) > 0 :
+                    del stack[-1]
+            elif OP.DUP_TOP(op) :
+                if len(stack) > 0 :
+                    stack.append(stack[-1])
+            elif OP.name[op][0:len('SLICE+')] == 'SLICE+' :
+                sliceCount = int(OP.name[op][6:])
+                if sliceCount > 0 :
+                    popArgs = 1
+                    if sliceCount == 3 :
+                        popArgs = 2
+                    stack = stack[:-popArgs]
+            elif OP.RETURN_VALUE(op) :
+                returns = returns + 1
+                # FIXME: this check shouldn't really be necessary
+                if len(stack) > 0 :
+                    del stack[-1]
 
     if _cfg.localVariablesUsed :
         for var, line in unusedLocals.items() :
