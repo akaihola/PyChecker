@@ -60,6 +60,8 @@ class Warning :
 
         if hasattr(line, "co_firstlineno") :
             line = line.co_firstlineno
+        if line == None :
+            line = 1
         self.line = line
         self.err = err
 
