@@ -1,7 +1,7 @@
 from pychecker2.Check import Check
 from pychecker2.Options import Opt, BoolOpt
 from pychecker2.Warning import Warning
-from pychecker2.util import parents, BaseVisitor
+from pychecker2.util import parents, BaseVisitor, parents
 from pychecker2 import symbols
 
 from compiler import ast, walk
@@ -68,8 +68,10 @@ class ShadowCheck(Check):
                 if __builtins__.has_key(name):
                     file.warning(scope.defs[name], self.shadowBuiltins, name)
                 for p in parents(scope):
-                    if p.defs.has_key(name) and not isinstance(p, symbols.ClassScope):
-                        file.warning(scope.defs[name], self.shadowIdentifier, name, `p`)
+                    if p.defs.has_key(name) and \
+                       not isinstance(p, symbols.ClassScope):
+                        file.warning(scope.defs[name], \
+                                     self.shadowIdentifier, name, `p`)
 
 def _str_value(s):
     if type(s) == type(''):
@@ -230,24 +232,24 @@ class SelfCheck(Check):
         self.selfNames      = _str_value(self.selfNames)
         self.selfSuspicious = _str_value(self.selfSuspicious)
 
-        for scope in file.scopes.values():
-            if isinstance(scope, symbols.FunctionScope):
-                argnames = scope.node.argnames
-                name = getattr(scope.node, 'name', 'lambda')
-                if _is_method(scope):
-                    if not argnames:
-                        file.warning(scope.node, self.missingSelf, name)
-                    if len(argnames) > 0 and argnames[0] not in self.selfNames:
+        for node, scope in file.function_scopes():
+            args = node.argnames
+            name = getattr(scope.node, 'name', 'lambda')
+            if _is_method(scope):
+                if not args:
+                    file.warning(scope.node, self.missingSelf, name)
+                else:
+                    if args[0] not in self.selfNames:
                         file.warning(scope.node, self.selfName,
-                                     name, argnames[0], `self.selfNames`)
+                                     name, args[0], `self.selfNames`)
                     if _first_arg_defaulted(scope.node):
                         file.warning(scope.node, self.selfDefault,
-                                     name, argnames[0])
-                else:
-                    for arg in argnames:
-                        if arg in self.selfSuspicious:
-                            file.warning(scope.defs[arg], self.functionSelf,
-                                         name, arg)
+                                     name, args[0])
+            else:
+                for arg in args:
+                    if arg in self.selfSuspicious:
+                        file.warning(scope.defs[arg], self.functionSelf,
+                                     name, arg)
 
                 
 
@@ -268,24 +270,20 @@ class UnpackCheck(Check):
         class Visitor:
             def visitAssTuple(self, node):
                 for c in node.getChildNodes():
-                    n = node
-                    while n:
+                    for n in parents(c):
                         try:
-                            file.scopes[n].uses[c.name] = node.lineno
-                            break
-                        except (AttributeError, KeyError):
+                            scope = file.scopes[n]
+                            scope.uses[c.name] = node
+                        except (KeyError, AttributeError):
                             pass
-                        n = n.parent
             visitAssList = visitAssTuple
 
         # local args unpacked on the `def' line are used, too
-        for scope in file.scopes.values():
-            if isinstance(scope.node, ast.Function):
-                for arg in scope.node.argnames:
-                    if isinstance(arg, tuple):
-                        for unpacked in ast.flatten(arg):
-                            scope.uses[unpacked] = scope.uses.get(unpacked,
-                                                                  scope.node)
+        for n, scope in file.function_scopes():
+            for arg in n.argnames:
+                if isinstance(arg, tuple):
+                    for unpacked in ast.flatten(arg):
+                        scope.uses[unpacked] = scope.uses.get(unpacked, n)
 
         if file.root_scope:
             walk(file.root_scope.node, Visitor())
@@ -318,11 +316,14 @@ class UsedBeforeSetCheck(Check):
                     self.uses = uses.copy()
             def visitFunction(self, node):
                 self.defines.append(node.name)
+                
             visitClass = visitFunction
             visitAssName = visitFunction
+            
             def visitName(self, node):
                 if node.name not in self.defines:
                     self.uses[node.name] = self.uses.get(node.name, node)
+                    
             def visitIf(self, node):
                 if not node.else_:
                     return
@@ -341,11 +342,9 @@ class UsedBeforeSetCheck(Check):
                 union.update(self.uses)
                 self.uses = union
                         
-        for scope in file.scopes.values():
-            if isinstance(scope.node, ast.Function):
-                params = ast.flatten(scope.params)
-                for name, n in walk(scope.node.code, Visitor()).uses.items():
-                    if scope.defs.has_key(name) and \
-                       name not in params and \
-                       not scope.imports.has_key(name):
-                        file.warning(n, self.usedBeforeDefined, name)
+        for node, scope in file.function_scopes():
+            predefined = ast.flatten(scope.params) + scope.imports.keys()
+            v = walk(node.code, Visitor(predefined))
+            for name, n in v.uses.items():
+                if scope.defs.has_key(name):
+                    file.warning(n, self.usedBeforeDefined, name)
