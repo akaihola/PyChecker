@@ -170,7 +170,7 @@ if len(dir('')) > 0 :
 
 try :
     BUILTIN_METHODS[types.UnicodeType] = _STRING_METHODS
-except NameError :
+except AttributeError :
     pass
 
 MUTABLE_TYPES = (types.ListType, types.DictType, types.InstanceType,)
