@@ -1,5 +1,6 @@
-
 Version 0.8.8   - xx January 2002
+  * Add -0/--abstract option to warn that subclass should override
+    method that only raises exceptions
   * Add check if __getattr[ibute]__ returns None, should raise an exception
   * Allow pychecker to be imported (in your code do: import pychecker.check)
   * Using vars() for format string argument works like locals()

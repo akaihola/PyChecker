@@ -17,7 +17,6 @@ Goals for next major release (0.9):
 
 Longer Term goals:
 ------------------
-* Add check that subclass overrides method that only raises NotImplementedError
 * Add check for magic #s/consts
 	(need dict of consts, count, max count, consts to ignore)
 * Add check for unsupported operand type(s) for * + / etc
