@@ -212,7 +212,6 @@ class Config :
 
             suppressions = _getSuppressions('suppressions', dict, filename)
             regexs = _getSuppressions('suppressionRegexs', dict, filename)
-            suppressionRegexs = {}
             for regex_str in regexs.keys() :
                 regex = re.compile(regex_str)
                 suppressionRegexs[regex] = regexs[regex_str]
