@@ -59,7 +59,7 @@ _INVALID_CLASS_ATTR = "No class attribute (%s) found"
 _INVALID_MODULE_ATTR = "No module attribute (%s) found"
 _USING_METHOD_AS_ATTR = "Using method (%s) as an attribute (not invoked)"
 _OBJECT_HAS_NO_METHODS = "Object (%s) has no methods"
-_METHOD_SIGNATURES_DONT_MATCH = "Overriden method (%s) doesn't match signature in class (%s)"
+_METHOD_SIGNATURE_MISMATCH = "Overriden method (%s) doesn't match signature in class (%s)"
 
 _INVALID_ARG_COUNT1 = "Invalid arguments to (%s), got %d, expected %d"
 _INVALID_ARG_COUNT2 = "Invalid arguments to (%s), got %d, expected at least %d"
@@ -89,7 +89,7 @@ def cfg() :
     return _cfg[-1]
 
 def pushConfig() :
-    newCfg = copy.deepcopy(cfg())
+    newCfg = copy.copy(cfg())
     _cfg.append(newCfg)
 
 def popConfig() :
@@ -98,18 +98,20 @@ def popConfig() :
 def shouldUpdateArgs(operand) :
     return operand == Config.CHECKER_VAR
 
-def updateCheckerArgs(stack, func, lastLineNum, warnings) :
+def updateCheckerArgs(argStr, func, lastLineNum, warnings) :
     try :
-        argList = string.split(stack[-1].data)
+        argList = string.split(argStr)
         # don't require long options to start w/--, we can add that for them
         for i in range(0, len(argList)) :
             if argList[i][0] != '-' :
                 argList[i] = '--' + argList[i]
 
         cfg().processArgs(argList)
+        return 1
     except Config.UsageError, detail :
         warn = Warning(func, lastLineNum, _INVALID_CHECKER_ARGS % detail)
         warnings.append(warn)
+        return 0
                        
 
 def debug(*args) :
@@ -623,7 +625,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                     stack.append(Stack.Item(operand, Stack.TYPE_GLOBAL))
                 elif OP.STORE_GLOBAL(op) or OP.STORE_NAME(op) :
                     if shouldUpdateArgs(operand) :
-                        updateCheckerArgs(stack, func, lastLineNum, warnings)
+                        updateCheckerArgs(stack[-1].data, func, lastLineNum, warnings)
                     else :
                         if not in_class :
                             warn = _checkGlobal(operand, module, func, lastLineNum,
@@ -676,7 +678,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                     loops = loops + 1
                 elif OP.STORE_FAST(op) :
                     if shouldUpdateArgs(operand) :
-                        updateCheckerArgs(stack, func, lastLineNum, warnings)
+                        updateCheckerArgs(stack[-1].data, func, lastLineNum, warnings)
                     else :
                         if not unusedLocals.has_key(operand) :
                             errLine = lastLineNum
@@ -853,10 +855,8 @@ def _checkOverridenMethods(func, baseClasses, warnings) :
     for baseClass in baseClasses :
         if func.func_name != _INIT and \
            not function.same_signature(func, baseClass) :
-            warn = Warning(func.func_code, func.func_code,
-                           _METHOD_SIGNATURES_DONT_MATCH % \
-                           (func.func_name, str(baseClass)))
-            warnings.append(warn)
+            err = _METHOD_SIGNATURE_MISMATCH % (func.func_name, str(baseClass))
+            warnings.append(Warning(func.func_code, func.func_code, err))
             break
 
 
@@ -909,8 +909,26 @@ def getStandardLibrary() :
         except ImportError :
             return None
 
+def removeWarnings(warnings, blacklist, std_lib) :
+    for index in range(len(warnings)-1, -1, -1) :
+        filename = warnings[index].file
+        if filename in blacklist or (std_lib is not None and
+                                     _startswith(filename, std_lib)) :
+            del warnings[index]
 
-def find(moduleList, initialCfg) :
+    return warnings
+
+def getSuppression(name, suppressions, warnings) :
+    suppress = suppressions.get(name, None)
+    if suppress is not None :
+        pushConfig()
+        if not updateCheckerArgs(suppress, 'suppressions', 0, warnings) :
+            suppress = None
+            popConfig()
+    return suppress
+
+
+def find(moduleList, initialCfg, suppressions = {}) :
     "Return a list of warnings found in the module list"
 
     global _cfg
@@ -921,6 +939,7 @@ def find(moduleList, initialCfg) :
         if module.moduleName in cfg().blacklist :
             continue
 
+        modSuppress = getSuppression(module.moduleName, suppressions, warnings)
         globalRefs, classCodes = {}, {}
 
         # main_code can be null if there was a syntax error
@@ -935,6 +954,8 @@ def find(moduleList, initialCfg) :
             func_code = func.function.func_code
             debug("function:", func_code)
 
+            name = '%s.%s' % (module.moduleName, func.function.__name__)
+            suppress = getSuppression(name, suppressions, warnings)
             if cfg().noDocFunc and func.function.__doc__ == None :
                 warn = Warning(moduleFilename, func_code,
                                _NO_FUNC_DOC % func.function.__name__)
@@ -942,8 +963,12 @@ def find(moduleList, initialCfg) :
 
             _addWarning(warnings, _checkNoSelfArg(func))
             _updateFunctionWarnings(module, func, None, warnings, globalRefs)
+            if suppress is not None :
+                popConfig()
 
         for c in module.classes.values() :
+            classSuppress = getSuppression(str(c.classObject), suppressions,
+                                           warnings)
             baseClasses = c.allBaseClasses()
             for base in baseClasses :
                 baseModule = str(base)
@@ -967,6 +992,10 @@ def find(moduleList, initialCfg) :
                 func_code = method.function.func_code
                 debug("method:", func_code)
 
+                name = str(c.classObject) + '.' + method.function.func_name
+                methodSuppress = getSuppression(name, suppressions,
+                                                warnings)
+
                 if cfg().checkOverridenMethods :
                     _checkOverridenMethods(method.function, baseClasses,
                                            warnings)
@@ -988,6 +1017,8 @@ def find(moduleList, initialCfg) :
                         warn = Warning(moduleFilename, c.getFirstLine(),
                                        _NO_INIT_IN_SUBCLASS % c.name)
                         warnings.append(warn)
+                if methodSuppress is not None :
+                    popConfig()
 
             if cfg().noDocClass and c.classObject.__doc__ == None :
                 method = c.methods.get(_INIT, None)
@@ -997,6 +1028,8 @@ def find(moduleList, initialCfg) :
                 #        not a base class file???
                 warnings.append(Warning(moduleFilename, func_code,
                                        _NO_CLASS_DOC % c.classObject.__name__))
+            if classSuppress is not None :
+                popConfig()
 
         if cfg().noDocModule and \
            module.module != None and module.module.__doc__ == None :
@@ -1017,17 +1050,10 @@ def find(moduleList, initialCfg) :
 
         if module.main_code != None :
             popConfig()
-
-    blacklist = getBlackList(cfg().blacklist)
+        if modSuppress is not None :
+            popConfig()
 
     std_lib = None
     if cfg().ignoreStandardLibrary :
         std_lib = getStandardLibrary()
-
-    for index in range(len(warnings)-1, -1, -1) :
-        filename = warnings[index].file
-        if filename in blacklist or \
-           (cfg().ignoreStandardLibrary and _startswith(filename, std_lib)) :
-            del warnings[index]
-                        
-    return warnings
+    return removeWarnings(warnings, getBlackList(cfg().blacklist), std_lib)

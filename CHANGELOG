@@ -1,5 +1,7 @@
 
 Version 0.8	- xx July 2001
+  * Suppress warnings on a per module/function/class/method basis
+	with new suppressions = {} in .pycheckrc
   * Add -q/--stdlib to disable warnings from the standard library
   * Add -o/--override warning when a method has different signature 
 	than one being overridden in a base class

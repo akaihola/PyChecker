@@ -117,6 +117,9 @@ class UsageError(Exception) :
     """Exception to indicate that the application should exit due to
        command line usage error."""
 
+_SUPPRESSIONS_ERR = \
+'''\nWarning, error processing defaults file: %s
+\tsuppressions must be a dictionary ({}) -- ignoring suppressions\n'''
 
 class Config :
     "Hold configuration information"
@@ -156,18 +159,25 @@ class Config :
         self.checkReturnValues = 1
 
     def loadFile(self, filename) :
+        suppressions = {}
         try :
             tmpGlobal, dict = {}, {}
             execfile(filename, tmpGlobal, dict)
             for key, value in dict.items() :
-                if not self.__dict__.has_key(key) :
-                    print "Warning, option (%s) doesn't exist, ignoring" % key
-                else :
+                if self.__dict__.has_key(key) :
                     self.__dict__[key] = value
+                elif key != 'suppressions' :
+                    print "Warning, option (%s) doesn't exist, ignoring" % key
+
+            suppressions = dict.get('suppressions', {})
+            if type(suppressions) != type({}) :
+                print _SUPPRESSIONS_ERR % filename
+                suppressions = {}
         except IOError :
             pass       # ignore if no file
-        except :
-            print "Warning, error loading defaults file:", filename
+        except Exception, detail:
+            print "Warning, error loading defaults file:", filename, detail
+        return suppressions
 
     def processArgs(self, argList) :
         try :
@@ -255,8 +265,8 @@ def setupFromArgs(argList) :
 
     cfg = Config()
     try :
-        cfg.loadFile(_getRCfile(_RC_FILE))
-        return cfg, cfg.processArgs(argList)
+        suppressions = cfg.loadFile(_getRCfile(_RC_FILE))
+        return cfg, cfg.processArgs(argList), suppressions
     except UsageError :
         usage(cfg)
         raise

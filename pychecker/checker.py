@@ -382,7 +382,7 @@ def _printWarnings(warnings) :
 
 def main(argv) :
     global _cfg
-    _cfg, files = Config.setupFromArgs(argv[1:])
+    _cfg, files, suppressions = Config.setupFromArgs(argv[1:])
     if not files :
         return 0
 
@@ -401,7 +401,7 @@ def main(argv) :
         for module in _getAllModules() :
             printer.module(module)
 
-    warnings = warn.find(_getAllModules(), _cfg)
+    warnings = warn.find(_getAllModules(), _cfg, suppressions)
     print "\nWarnings...\n"
     if warnings or importWarnings :
         _printWarnings(importWarnings + warnings)
