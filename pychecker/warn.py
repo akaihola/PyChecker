@@ -40,6 +40,7 @@ _NO_METHOD_ARGS = "No method arguments, should have self as argument"
 _SELF_NOT_FIRST_ARG = "self is not first method argument"
 _SELF_IS_ARG = "self is argument in function"
 _RETURN_FROM_INIT = "Cannot return a value from __init__"
+_NO_CTOR_ARGS = "Instantiating an object with arguments, but no constructor"
 
 _GLOBAL_DEFINED_NOT_DECLARED = "Global variable (%s) defined without being declared"
 _INVALID_GLOBAL = "No global (%s) found"
@@ -175,7 +176,8 @@ def _checkFunctionArgs(caller, func, argCount, kwArgs, lastLineNum) :
     return warnings
 
 def _getFunction(module, stackValue) :
-    "Return the function from the stack value"
+    """Return the function from the stack value and a bool to indicate if
+       an object is being constructed or not"""
 
     identifier = stackValue.data
     if type(identifier) != types.StringType :
@@ -188,15 +190,16 @@ def _getFunction(module, stackValue) :
         refModule, identifier = string.join(idList[:-1], '.'), idList[-1]
         module = module.modules.get(refModule, None)
         if module is None :
-            return None
+            return None, 0
 
+    c = None
     func = module.functions.get(identifier, None)
-    if func == None :
+    if func is None :
         # if we didn't find the function, maybe this is object creation
         c = module.classes.get(identifier, None)
-        if c != None :
+        if c is not None :
             func = c.methods.get('__init__', None)
-    return func
+    return func, c
 
 def _addWarning(warningList, warning) :
     if warning != None :
@@ -247,9 +250,11 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
         if loadValue.data == 'apply' :
             loadValue = stack[funcIndex+1]
         else :
-            func = _getFunction(module, loadValue)
+            func, is_ctor = _getFunction(module, loadValue)
             if func != None :
                 warn = _checkFunctionArgs(code, func, argCount, kwArgs, lastLineNum)
+            elif is_ctor and (argCount > 0 or len(kwArgs) > 0) :
+                warn = Warning(code, lastLineNum, _NO_CTOR_ARGS)
 
     stack[:] = stack[:funcIndex] + [ Stack.makeFuncReturnValue(loadValue) ]
     return warn, loadValue
