@@ -11,6 +11,7 @@ Contributed by:  Nicolas Chauvat
 
 import sys
 import os
+import tempfile
 
 from distutils.core import setup
 from distutils import sysconfig
@@ -29,7 +30,7 @@ fairly infrequent."""
         script_suffix = 'bat'
     LOCAL_SCRIPT = 'pychecker.' + script_suffix
     if not os.access(LOCAL_SCRIPT, os.W_OK) :
-        LOCAL_SCRIPT = os.path.join('/tmp', LOCAL_SCRIPT)
+        LOCAL_SCRIPT = os.path.join(tempfile.gettempdir(), LOCAL_SCRIPT)
     try :
         os.unlink(LOCAL_SCRIPT)
     except :
