@@ -33,8 +33,11 @@ def f11(t):
     return '%s %f' % t
 
 def f12(t):
-    return '%s %f' % (t, t)
+    return '%s %lf' % (t, t)
 
 def f13(t):
     return ('%s %f' + t) % (1, 2)
+
+def f14():
+    return '%up %(mi)x' % (1, 2)
 
