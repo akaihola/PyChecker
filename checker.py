@@ -44,6 +44,29 @@ def getModules(list) :
     return modules
 
 
+def findModule(name, path=sys.path):
+    """Returns the result of an imp.find_module(), ie, (file, filename, smt)
+       name can be a module or a package name.  It is *not* a filename."""
+
+    assert type(name) == types.StringType
+    packages = name.split('.')
+    if not packages:
+        return imp.find_module(name, path)
+
+    for p in packages:
+        # load __init__
+        res = imp.find_module(p, path)
+        info = res[-1]
+        if info[-1] == imp.PKG_DIRECTORY:
+            # package found - read path info from init file
+            m = imp.load_module(p, *res)
+            path = m.__path__
+        else:
+            if p is not packages[-1]:
+                raise ImportError, "No module named %s" % packages[-1]
+            return res
+
+
 class Variable :
     "Class to hold all information about a variable"
 
@@ -212,9 +235,8 @@ class Module :
     def load(self) :
         try :
 	    # smt = (suffix, mode, type)
-	    file, filename, smt = imp.find_module(self.filename)
-            self.module = imp.load_module(self.moduleName,
-                                          file, filename, smt)
+	    file, filename, smt = findModule(self.filename)
+            self.module = imp.load_module(self.moduleName, file, filename, smt)
         except :
             print "  Problem importing module %s" % self.moduleName
             return
@@ -271,7 +293,7 @@ def main(argv) :
             lastWarning = warning
             warning.output()
     else :
-        print "  None"
+        print "None"
 
 
 if __name__ == '__main__' :
