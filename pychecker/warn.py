@@ -36,8 +36,8 @@ _NO_LOCAL_VAR = "No local variable (%s)"
 
 _MODULE_IMPORTED_AGAIN = "Module (%s) re-imported"
 
-_NO_METHOD_ARGS = "No method arguments, should have self as argument"
-_SELF_NOT_FIRST_ARG = "self is not first method argument"
+_NO_METHOD_ARGS = "No method arguments, should have %s as argument"
+_SELF_NOT_FIRST_ARG = "%s is not first method argument"
 _SELF_IS_ARG = "self is argument in function"
 _RETURN_FROM_INIT = "Cannot return a value from __init__"
 _NO_CTOR_ARGS = "Instantiating an object with arguments, but no constructor"
@@ -120,9 +120,9 @@ def _checkSelfArg(method) :
     code = method.function.func_code
     warn = None
     if code.co_argcount < 1 :
-        warn = Warning(code, code, _NO_METHOD_ARGS)
-    elif code.co_varnames[0] != 'self' :
-        warn = Warning(code, code, _SELF_NOT_FIRST_ARG)
+        warn = Warning(code, code, _NO_METHOD_ARGS % _cfg.methodArgName)
+    elif code.co_varnames[0] != _cfg.methodArgName :
+        warn = Warning(code, code, _SELF_NOT_FIRST_ARG % _cfg.methodArgName)
     return warn
 
 
@@ -130,7 +130,7 @@ def _checkNoSelfArg(func) :
     "Return a Warning if there is a self parameter to a function."
 
     code = func.function.func_code
-    if code.co_argcount > 0 and 'self' in code.co_varnames :
+    if code.co_argcount > 0 and _cfg.methodArgName in code.co_varnames :
         return Warning(code, code, _SELF_IS_ARG)
     return None
 
@@ -235,7 +235,7 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
 
     warn = None
     loadValue = stack[funcIndex]
-    if loadValue.isMethodCall(c) :
+    if loadValue.isMethodCall(c, _cfg.methodArgName) :
         methodName = loadValue.data[1]
         try :
             m = c.methods[methodName]
@@ -493,7 +493,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                     unusedLocals[operand] = None
                 elif OP.LOAD_ATTR(op) :
                     topOfStack = stack[-1]
-                    if topOfStack.data == 'self' and c != None :
+                    if topOfStack.data == _cfg.methodArgName and c != None :
                         warn = _checkAttribute(operand, c, func_code, lastLineNum)
                     elif type(topOfStack.type) == types.StringType :
                         warn = _checkModuleAttribute(operand, module, func_code,
@@ -535,7 +535,8 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                         funcName = funcCalled.getName(module)
                         functionsCalled[funcName] = funcCalled
                 elif _startswith(OP.name[op], 'JUMP_') :
-                    if len(stack) > 0 and stack[-1].isMethodCall(c) :
+                    if len(stack) > 0 and \
+                       stack[-1].isMethodCall(c, _cfg.methodArgName) :
                         name = stack[-1].data[-1]
                         if c.methods.has_key(name) :
                             warn = Warning(func_code, lastLineNum,

@@ -33,9 +33,9 @@ class Item :
     def isNone(self) :
         return self.data is None or (self.data == 'None' and not self.const)
 
-    def isMethodCall(self, c) :
+    def isMethodCall(self, c, methodArgName) :
         return self.type == TYPE_ATTRIBUTE and c != None and \
-               len(self.data) == 2 and self.data[0] == 'self'
+               len(self.data) == 2 and self.data[0] == methodArgName
 
     def isLocals(self):
         return self.type == TYPE_FUNC_RETURN and self.data == LOCALS

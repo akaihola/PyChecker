@@ -34,6 +34,7 @@ _OPTIONS = [
  ('I', 0, 'initsubclass', 'initDefinedInSubclass', 'Subclass.__init__() not defined'),
  ('N', 0, 'initreturn', 'returnNoneFromInit', 'Return None from __init__()'),
  ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
+ ('S', 1, 'self', 'methodArgName', 'First argument to methods'),
  None,
  ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules\n\t\t\t'),
  ('V', 1, 'varlist', 'variablesToIgnore', 'ignore variables not used from the list\n\t\t\t'),
@@ -91,6 +92,7 @@ class Config :
         self.returnNoneFromInit = 1
         self.variablesToIgnore = _DEFAULT_VARIABLE_IGNORE_LIST
         self.blacklist = _DEFAULT_BLACK_LIST
+        self.methodArgName = 'self'
 
         self.maxLines = 200
         self.maxBranches = 50

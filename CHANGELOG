@@ -1,5 +1,6 @@
 
 Version 0.7	- xx July 2001
+  * Make 'self' configurable as the first argument to methods
   * Add check that there is a c'tor when instantiating an object and 
 	passing arguments
   * Add config option (-N/--initreturn) to turn off warnings 

@@ -228,7 +228,7 @@ class Class :
                     stack.append(operand)
                 elif OP.STORE_ATTR(op) :
                     if len(stack) > 0 :
-                        if stack[-1] == 'self' :
+                        if stack[-1] == _cfg.methodArgName :
                             value = None
                             if len(stack) > 1 :
                                 value = type(stack[-2])
@@ -305,6 +305,7 @@ class Module :
                 return 1
 
 	    file, filename, smt = _findModule(self.moduleName)
+            # FIXME: if the smt[-1] == imp.PKG_DIRECTORY : load __all__
             try :
                 module = imp.load_module(self.moduleName, file, filename, smt)
                 self.setupMainCode(file, filename, module)
