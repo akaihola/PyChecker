@@ -35,6 +35,11 @@ class FakeFunction :
         self.func_defaults = None
         self.func_globals = func_globals
 
+    def __str__(self):
+        return self.func_name
+
+    def __repr__(self):
+        return '%s from %s' % (self.func_name, self.func_code.co_filename)
 
 class Function :
     "Class to hold all information about a function"
@@ -48,6 +53,14 @@ class Function :
         if function.func_code.co_flags & _ARGS_ARGS_FLAG != 0 :
             self.maxArgs = None
         self.supportsKW = function.func_code.co_flags & _KW_ARGS_FLAG
+
+    def __str__(self):
+        return self.function.func_name
+
+    def __repr__(self):
+        return '%s from %s:%d' % (self.function.func_name,
+                                  self.function.func_code.co_filename,
+                                  self.function.func_code.co_firstlineno)
 
     def arguments(self) :
         numArgs = self.function.func_code.co_argcount

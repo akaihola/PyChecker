@@ -80,3 +80,7 @@ def endswith(s, substr) :
     "Ugh, supporting python 1.5 is a pain"
     return s[-len(substr):] == substr
 
+
+# generic method that can be slapped into any class, thus the self parameter
+def std_repr(self) :
+    return "<%s at 0x%x: %s>" % (self.__class__.__name__, id(self), str(self))
