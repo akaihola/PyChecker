@@ -1,6 +1,5 @@
 
 * Make more warnings configurable
-* Make warnings configurable from the command line
 * Spell check doc strings
 * Check code in module scope (not in a function/method)
 * Check function return values

@@ -20,7 +20,7 @@ import os
 import printer
 import warn
 import OP
-
+import Config
 
 _DEFAULT_MODULE_TOKENS = [ '__builtins__', '__doc__', '__file__', '__name__', ]
 _DEFAULT_CLASS_TOKENS = [ '__doc__', '__name__', '__module__', ]
@@ -240,8 +240,10 @@ class Module :
 def main(argv) :
     if not '.' in sys.path :
         sys.path.append('.')
+
+    cfg, files = Config.setupFromArgs(argv[1:])
     importWarnings = []
-    for filename, moduleName in getModules(argv[1:]) :
+    for filename, moduleName in getModules(files) :
         print "Processing %s..." % moduleName
         module = Module(filename, moduleName)
         if not module.load() :
@@ -253,7 +255,7 @@ def main(argv) :
             printer.module(module)
 
     print "\nWarnings...\n"
-    warnings = warn.find(_allModules.values())
+    warnings = warn.find(_allModules.values(), cfg)
     if warnings or importWarnings :
         warnings.sort()
         lastWarning = None

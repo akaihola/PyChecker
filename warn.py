@@ -10,6 +10,7 @@ import imp
 import string
 import types
 import OP
+import Config
 
 _VAR_ARGS_BITS = 8
 _MAX_ARGS_MASK = ((1 << _VAR_ARGS_BITS) - 1)
@@ -316,29 +317,8 @@ def _checkBaseClassInit(moduleName, moduleFilename, c, func_code, functionsCalle
     return warnings
 
 
-class Config :
-    "Hold configuration information"
-
-    def __init__(self) :
-        "Initialize configuration with default values."
-
-        self.debug = 0
-
-        self.noDocModule = 0
-        self.noDocClass = 0
-        self.noDocFunc = 0
-
-        self.allVariablesUsed = 0
-        self.privateVariableUsed = 1
-        self.importUsed = 1
-        self.blacklist = [ "Tkinter", ]
-
-
-def find(moduleList, cfg = None) :
+def find(moduleList, cfg) :
     "Return a list of warnings found in the module list"
-
-    if cfg == None :
-        cfg = Config()
 
     global _cfg
     _cfg = cfg
