@@ -20,14 +20,14 @@ def _compute_constant(node):
     if isinstance(node, ast.Const):
         return node.value
     else:
-        _compute_node(node, _compute_constant)
+        return _compute_node(node, _compute_constant)
 
 # compute a the length of simple forms of tuples from an expression node
 def _compute_tuple_size(node):
     if isinstance(node, ast.Tuple):
         return len(node.nodes)
     else:
-        _compute_node(node, _compute_tuple_size)
+        return _compute_node(node, _compute_tuple_size)
 
 format_re = re.compile('%([(]([a-zA-Z_]+)[)])?[ #+-]*'
                        '([0-9]*|[*])(|[.](|[*]|[0-9]*))([hlL])?'
@@ -49,11 +49,16 @@ def _check_format(s):
         match = format_re.search(s, pos)
         if not match or match.start(0) != pos:
             raise FormatError(pos)
-        if match.group(7) != '%':
+        if match.group(7) != '%':       # ignore "%%"
             specs.append( (match.group(2), match.group(3), match.group(5),
-                           match.group(6), match.group(7)) )
+                           match.group(6)) )
         pos = match.end(0)
     return specs
+
+def _example(s, pos):
+    more = 10
+    result = s[pos : pos + more]
+    return result + (len(s) > pos + more and "..." or "")
 
 class FormatStringCheck(Check):
     "Look for warnings in format strings"
@@ -68,7 +73,7 @@ class FormatStringCheck(Check):
     mixedFormat = \
               Warning('Report format strings which use both positional '
                       'and named formats',
-                      'Cannot mix positional and named formats (%s)')
+                      'Cannot mix positional and named formats (%%%s)')
     
     formatCount = \
               Warning('Report positional format string with the wrong '
@@ -96,61 +101,46 @@ class FormatStringCheck(Check):
             for mod in mods:
                 try:
                     s = _compute_constant(mod.left)
-                except (UnknownError, TypeError):
-                    continue
-                if not isinstance(s, StringType):
-                    continue
-                try:
                     formats = _check_format(s)
                 except FormatError, detail:
-                    part = 10
-                    example = s[detail.position : detail.position + part]
-                    example += len(s) > detail.position + part and "..." or ""
-                    file.warning(mod, self.badFormat, detail.position, example)
+                    file.warning(mod, self.badFormat, detail.position,
+                                 _example(s, detail.position))
                     continue
-                if not formats:
+                except (UnknownError, TypeError):
                     continue
 
                 count = len(formats)
-                format_type = FORMAT_UNKNOWN
-                names = []
-                for f in formats:
-                    name, width, precision, lmodifier, type = f
+                for name, width, precision, lmodifier in formats:
                     if lmodifier:
                         file.warning(mod, self.uselessModifier, lmodifier)
-                    if name:
-                        if format_type == FORMAT_TUPLE:
-                            file.warning(mod, self.mixedFormat, '%s' % name)
-                        format_type = FORMAT_DICTIONARY
-                        names.append(name)
-                    else:
-                        if format_type == FORMAT_DICTIONARY:
-                            file.warning(mod, self.mixedFormat, '%%%s' % type)
-                        format_type = FORMAT_TUPLE
                     if width == '*':
                         count += 1
                     if precision == '*':
                         count += 1
 
-                if format_type == FORMAT_TUPLE:
+                names = [f[0] for f in formats if f[0] is not None]
+                if len(names) == 0:     # tuple
                     try:
                         n = _compute_tuple_size(mod.right) 
                         if n != count:
                             file.warning(mod, self.formatCount, n, count)
                     except (UnknownError, TypeError):
                         pass
-                else:
+                elif len(names) == len(f): # dictionary
+                    defines = []
                     if isinstance(mod.right, ast.CallFunc) and \
                        isinstance(mod.right.node, ast.Name):
-                        defines = []
                         if mod.right.node.name == 'locals':
                             defines = scope.defs.keys()
                         if mod.right.node.name == 'globals':
                             defines = scope.defs.keys()
                             for p in parents(scope):
                                 defines.extend(p.defs.keys())
+                    if defines:
                         for n in names:
                             if not n in defines:
                                 file.warning(mod, self.unknownFormatName,
                                              n, mod.right.node.name)
+                else:
+                    file.warning(mod, self.mixedFormat, "(%s)" % names[0])
 
