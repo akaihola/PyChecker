@@ -58,7 +58,6 @@ def main():
     if options.verbose:
         out = sys.stdout
 
-    modules = {}
     for f in files:
         print >>out, 'Checking file', f.name
         for checker in checks:
