@@ -1,10 +1,10 @@
-from pychecker2 import Check
+from pychecker2.Check import Check
 from pychecker2.Warning import Warning
 
 import compiler
 
 
-class OpCheck(Check.Check):
+class OpCheck(Check):
 
     operator = Warning(
         "Check for (++) and (--) which are legal, but not useful",

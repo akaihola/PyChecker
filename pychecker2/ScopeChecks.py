@@ -1,8 +1,8 @@
 
-from pychecker2 import Check
+from pychecker2.Check import Check
 from pychecker2.Warning import Warning
 
-class RedefineCheck(Check.Check):
+class RedefineCheck(Check):
     redefinedScope = Warning('Report redefined scopes',
                              'Scope (%s) is redefined at line %d')
 
