@@ -44,7 +44,8 @@ _RETURN_FROM_INIT = "Cannot return a value from __init__"
 _GLOBAL_DEFINED_NOT_DECLARED = "Global variable (%s) defined without being declared"
 _INVALID_GLOBAL = "No global (%s) found"
 _INVALID_METHOD = "No method (%s) found"
-_INVALID_ATTR = "No attribute (%s) found"
+_INVALID_CLASS_ATTR = "No class attribute (%s) found"
+_INVALID_MODULE_ATTR = "No module attribute (%s) found"
 _USING_METHOD_AS_ATTR = "Using method (%s) as an attribute (not invoked)"
 
 _INVALID_ARG_COUNT1 = "Invalid arguments to (%s), got %d, expected %d"
@@ -257,15 +258,23 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
 def _checkAttribute(attr, c, func_code, lastLineNum) :
     if not c.methods.has_key(attr) and not c.members.has_key(attr) and \
        not hasattr(c.classObject, attr) :
-        return Warning(func_code, lastLineNum, _INVALID_ATTR % attr)
+        return Warning(func_code, lastLineNum, _INVALID_CLASS_ATTR % attr)
     return None
 
-def _checkModuleAttribute(attr, module, func_code, lastLineNum, refModuleStr) :
-    refModule = module.modules.get(refModuleStr)
+def _checkModuleAttribute(attr, module, func_code, lastLineNum, ref) :
+    err = []
+
+    refModule = module.modules.get(ref)
     if refModule and refModule.attributes != None :
         if attr not in refModule.attributes :
-            return Warning(func_code, lastLineNum, _INVALID_ATTR % attr)
-    return None
+            err.append(Warning(func_code, lastLineNum, _INVALID_MODULE_ATTR % attr))
+
+    refClass = module.classes.get(ref)
+    if refClass :
+        if not refClass.members.has_key(attr) and \
+           not refClass.methods.has_key(attr) :
+            err.append(Warning(func_code, lastLineNum, _INVALID_CLASS_ATTR % attr))
+    return err
                         
 
 def _getGlobalName(name, func) :
@@ -470,7 +479,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                         warn = _checkAttribute(operand, c, func_code, lastLineNum)
                     elif type(topOfStack.type) == types.StringType :
                         warn = _checkModuleAttribute(operand, module, func_code,
-                                                     lastLineNum, topOfStack)
+                                                    lastLineNum, topOfStack.data)
                     topOfStack.addAttribute(operand)
                 elif OP.IMPORT_NAME(op) :
                     stack.append(Stack.Item(operand, type(operand)))
