@@ -1,5 +1,6 @@
-import sys
+from os.path import *
+from sys import path as foo
 import getopt                           # unused
 
-args = sys.argv
-
+args = join(foo)
+args = args + [__all__]
