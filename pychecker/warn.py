@@ -8,11 +8,13 @@ Print out warnings from Python source files.
 
 import sys
 import imp
+import copy
 import string
 import types
 import traceback
 
 from pychecker import OP
+from pychecker import Config
 from pychecker import Stack
 from pychecker import function
 
@@ -25,6 +27,8 @@ _MAX_ARGS_MASK = ((1 << _VAR_ARGS_BITS) - 1)
 ###
 
 _CHECKER_BROKEN = "INTERNAL ERROR -- STOPPED PROCESSING FUNCTION --\n\t%s"
+_INVALID_CHECKER_ARGS = "Invalid warning suppression arguments --\n\t%s"
+
 _NO_MODULE_DOC = "No module doc string"
 _NO_CLASS_DOC = "No doc string for class %s"
 _NO_FUNC_DOC = "No doc string for function %s"
@@ -76,10 +80,32 @@ _TOO_MANY_STARS_IN_FORMAT = "Too many *s in format flags"
 _USING_STAR_IN_FORMAT_MAPPING = "Can't use * in formats when using a mapping (dictionary), near: '%s'"
 _CANT_MIX_MAPPING_IN_FORMATS = "Can't mix tuple/mapping (dictionary) formats in same format string"
 
-_cfg = None
+_cfg = []
+
+def cfg() :
+    return _cfg[-1]
+
+def pushConfig() :
+    newCfg = copy.deepcopy(cfg())
+    _cfg.append(newCfg)
+
+def popConfig() :
+    del _cfg[-1]
+
+def shouldUpdateArgs(operand) :
+    return operand == Config.CHECKER_VAR
+
+def updateCheckerArgs(stack, func, lastLineNum, warnings) :
+    try :
+        argList = string.split(stack[-1].data, ' \t\n')
+        cfg().processArgs(argList)
+    except Config.UsageError, detail :
+        warn = Warning(func, lastLineNum, _INVALID_CHECKER_ARGS % detail)
+        warnings.append(warn)
+                       
 
 def debug(*args) :
-    if _cfg.debug: print args
+    if cfg().debug: print args
 
 
 def _startswith(s, substr) :
@@ -128,9 +154,9 @@ def _checkSelfArg(method) :
     code = method.function.func_code
     warn = None
     if code.co_argcount < 1 :
-        warn = Warning(code, code, _NO_METHOD_ARGS % _cfg.methodArgName)
-    elif code.co_varnames[0] != _cfg.methodArgName :
-        warn = Warning(code, code, _SELF_NOT_FIRST_ARG % _cfg.methodArgName)
+        warn = Warning(code, code, _NO_METHOD_ARGS % cfg().methodArgName)
+    elif code.co_varnames[0] != cfg().methodArgName :
+        warn = Warning(code, code, _SELF_NOT_FIRST_ARG % cfg().methodArgName)
     return warn
 
 
@@ -138,7 +164,7 @@ def _checkNoSelfArg(func) :
     "Return a Warning if there is a self parameter to a function."
 
     code = func.function.func_code
-    if code.co_argcount > 0 and _cfg.methodArgName in code.co_varnames :
+    if code.co_argcount > 0 and cfg().methodArgName in code.co_varnames :
         return Warning(code, code, _SELF_IS_ARG)
     return None
 
@@ -149,7 +175,7 @@ def _checkFunctionArgs(caller, func, argCount, kwArgs, lastLineNum) :
         func_args = func.function.func_code.co_varnames
         func_args_len = len(func_args)
         if argCount < func_args_len and kwArgs[0] in func_args[argCount:] :
-            if _cfg.namedArgs :
+            if cfg().namedArgs :
                 warn = Warning(caller, lastLineNum,
                                _FUNC_USES_NAMED_ARGS % func_name)
                 warnings.append(warn)
@@ -247,14 +273,14 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
 
     warn = None
     loadValue = stack[funcIndex]
-    if loadValue.isMethodCall(c, _cfg.methodArgName) :
+    if loadValue.isMethodCall(c, cfg().methodArgName) :
         methodName = loadValue.data[1]
         try :
             m = c.methods[methodName]
             if m != None :
                 warn = _checkFunctionArgs(code, m, argCount, kwArgs, lastLineNum)
         except KeyError :
-            if _cfg.callingAttribute :
+            if cfg().callingAttribute :
                 warn = Warning(code, lastLineNum, _INVALID_METHOD % methodName)
     elif loadValue.type in [ Stack.TYPE_ATTRIBUTE, Stack.TYPE_GLOBAL, ] and \
          type(loadValue.data) in [ types.StringType, types.TupleType ] :
@@ -269,9 +295,9 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
                     argCount = argCount - 1
                 warn = _checkFunctionArgs(code, func, argCount, kwArgs, lastLineNum)
                 if ctor and argCount >= 0 and \
-                   stack[funcIndex+1].data != _cfg.methodArgName :
+                   stack[funcIndex+1].data != cfg().methodArgName :
                     w = Warning(func, lastLineNum,
-                                _SELF_NOT_FIRST_ARG % _cfg.methodArgName)
+                                _SELF_NOT_FIRST_ARG % cfg().methodArgName)
                     warn.append(w)
             elif is_ctor and (argCount > 0 or len(kwArgs) > 0) :
                 warn = Warning(code, lastLineNum, _NO_CTOR_ARGS)
@@ -328,7 +354,7 @@ def _checkGlobal(operand, module, func, lastLineNum, err, main = 0) :
     if (not func.function.func_globals.has_key(operand) and
         (not module.moduleLineNums.has_key(operand) and not main) and
         not __builtins__.has_key(operand)) :
-        if not _cfg.reportAllGlobals :
+        if not cfg().reportAllGlobals :
             func.function.func_globals[operand] = operand
         return Warning(func.function.func_code, lastLineNum, err % operand)
     return None
@@ -537,6 +563,10 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
 
     warnings, codeObjects = [], []
     globalRefs, unusedLocals, functionsCalled = {}, {}, {}
+
+    # push a new config object, so we can pop at end of function
+    pushConfig()
+
     try :
         # check the code
         #  see dis.py in std python distribution
@@ -576,15 +606,18 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                         operand = eval("module.module.%s.__name__" % operand)
                     stack.append(Stack.Item(operand, Stack.TYPE_GLOBAL))
                 elif OP.STORE_GLOBAL(op) or OP.STORE_NAME(op) :
-                    if not in_class :
-                        warn = _checkGlobal(operand, module, func, lastLineNum,
-                                            _GLOBAL_DEFINED_NOT_DECLARED, main)
-                    if unpackCount :
-                        unpackCount = unpackCount - 1
-                    if not module.moduleLineNums.has_key(operand) and main :
-                        filename = func_code.co_filename
-                        module.moduleLineNums[operand] = (filename, lastLineNum)
-                    # FIXME: should pop off stack
+                    if shouldUpdateArgs(operand) :
+                        updateCheckerArgs(stack, func, lastLineNum, warnings)
+                    else :
+                        if not in_class :
+                            warn = _checkGlobal(operand, module, func, lastLineNum,
+                                                _GLOBAL_DEFINED_NOT_DECLARED, main)
+                        if unpackCount :
+                            unpackCount = unpackCount - 1
+                        if not module.moduleLineNums.has_key(operand) and main :
+                            filename = func_code.co_filename
+                            module.moduleLineNums[operand] = (filename, lastLineNum)
+                        # FIXME: should pop off stack
                 elif OP.LOAD_CONST(op) :
                     stack.append(Stack.Item(operand, type(operand), 1))
                     if type(operand) == types.CodeType :
@@ -599,7 +632,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                 elif OP.LOAD_ATTR(op) :
                     if len(stack) > 0 :
                         topOfStack = stack[-1]
-                        if topOfStack.data == _cfg.methodArgName and c != None :
+                        if topOfStack.data == cfg().methodArgName and c != None :
                             warn = _checkAttribute(operand, c, func_code,
                                                    lastLineNum)
                         elif type(topOfStack.type) == types.StringType :
@@ -624,15 +657,18 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                 elif OP.FOR_LOOP(op) :
                     loops = loops + 1
                 elif OP.STORE_FAST(op) :
-                    if not unusedLocals.has_key(operand) :
-                        errLine = lastLineNum
-                        if unpackCount and not _cfg.unusedLocalTuple :
-                            errLine = -errLine
-                        unusedLocals[operand] = errLine
-                    if unpackCount :
-                        unpackCount = unpackCount - 1
-                    if len(stack) > 0 :
-                        del stack[-1]
+                    if shouldUpdateArgs(operand) :
+                        updateCheckerArgs(stack, func, lastLineNum, warnings)
+                    else :
+                        if not unusedLocals.has_key(operand) :
+                            errLine = lastLineNum
+                            if unpackCount and not cfg().unusedLocalTuple :
+                                errLine = -errLine
+                            unusedLocals[operand] = errLine
+                        if unpackCount :
+                            unpackCount = unpackCount - 1
+                        if len(stack) > 0 :
+                            del stack[-1]
                 elif OP.STORE_ATTR(op) :
                     if unpackCount :
                         unpackCount = unpackCount - 1
@@ -647,7 +683,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                         functionsCalled[funcName] = funcCalled
                 elif _startswith(OP.name[op], 'JUMP_') :
                     if len(stack) > 0 and \
-                       stack[-1].isMethodCall(c, _cfg.methodArgName) :
+                       stack[-1].isMethodCall(c, cfg().methodArgName) :
                         name = stack[-1].data[-1]
                         if c.methods.has_key(name) :
                             warn = Warning(func_code, lastLineNum,
@@ -733,10 +769,10 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
             if len(branches) <= 1 or not branches.has_key(lastReturnLabel) :
                 del returnValues[-1]
 
-    if _cfg.checkReturnValues :
+    if cfg().checkReturnValues :
         _addWarning(warnings, _checkReturnWarnings(returnValues, func_code))
             
-    if _cfg.localVariablesUsed :
+    if cfg().localVariablesUsed :
         for var, line in unusedLocals.items() :
             if line is not None and line > 0 and var != '_' :
                 warnings.append(Warning(func_code, line, _UNUSED_LOCAL % var))
@@ -748,9 +784,12 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     branches = (len(branches.keys()) - (2 * loops)) / 2
     lines = (lastLineNum - func_code.co_firstlineno)
     if not main and not in_class :
-        _checkComplex(warnings, _cfg.maxLines, lines, func, _FUNC_TOO_LONG)
-    _checkComplex(warnings, _cfg.maxReturns, returns, func, _TOO_MANY_RETURNS)
-    _checkComplex(warnings, _cfg.maxBranches, branches, func, _TOO_MANY_BRANCHES)
+        _checkComplex(warnings, cfg().maxLines, lines, func, _FUNC_TOO_LONG)
+    _checkComplex(warnings, cfg().maxReturns, returns, func, _TOO_MANY_RETURNS)
+    _checkComplex(warnings, cfg().maxBranches, branches, func, _TOO_MANY_BRANCHES)
+
+    if not main :
+        popConfig()
     return warnings, globalRefs, functionsCalled, codeObjects, returnValues
 
 
@@ -774,7 +813,7 @@ def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
     functionsCalled, _, returnValues = funcInfo
     for line, stackItem in returnValues :
         if stackItem.data != None :
-            if not stackItem.isNone() or _cfg.returnNoneFromInit :
+            if not stackItem.isNone() or cfg().returnNoneFromInit :
                 warn = Warning(moduleFilename, line, _RETURN_FROM_INIT)
                 warnings.append(warn)
 
@@ -815,15 +854,15 @@ def _updateFunctionWarnings(module, func, c, warnings, globalRefs,
     return funcs, codeObjects, returnValues
 
 
-def find(moduleList, cfg) :
+def find(moduleList, initialCfg) :
     "Return a list of warnings found in the module list"
 
     global _cfg
-    _cfg = cfg
+    _cfg.append(initialCfg)
 
     warnings = []
     for module in moduleList :
-        if module.moduleName in cfg.blacklist :
+        if module.moduleName in cfg().blacklist :
             continue
 
         globalRefs, classCodes = {}, {}
@@ -840,7 +879,7 @@ def find(moduleList, cfg) :
             func_code = func.function.func_code
             debug("function:", func_code)
 
-            if cfg.noDocFunc and func.function.__doc__ == None :
+            if cfg().noDocFunc and func.function.__doc__ == None :
                 warn = Warning(moduleFilename, func_code,
                                _NO_FUNC_DOC % func.function.__name__)
                 warnings.append(warn)
@@ -871,7 +910,7 @@ def find(moduleList, cfg) :
                 func_code = method.function.func_code
                 debug("method:", func_code)
 
-                if cfg.noDocFunc and method.function.__doc__ == None :
+                if cfg().noDocFunc and method.function.__doc__ == None :
                     warn = Warning(moduleFilename, func_code,
                                    _NO_FUNC_DOC % method.function.__name__)
                     warnings.append(warn)
@@ -884,12 +923,12 @@ def find(moduleList, cfg) :
                         warns = _checkBaseClassInit(moduleFilename, c,
                                                     func_code, funcInfo)
                         warnings.extend(warns)
-                    elif cfg.initDefinedInSubclass :
+                    elif cfg().initDefinedInSubclass :
                         warn = Warning(moduleFilename, c.getFirstLine(),
                                        _NO_INIT_IN_SUBCLASS % c.name)
                         warnings.append(warn)
 
-            if cfg.noDocClass and c.classObject.__doc__ == None :
+            if cfg().noDocClass and c.classObject.__doc__ == None :
                 method = c.methods.get('__init__', None)
                 if method != None :
                     func_code = method.function.func_code
@@ -898,25 +937,27 @@ def find(moduleList, cfg) :
                 warnings.append(Warning(moduleFilename, func_code,
                                        _NO_CLASS_DOC % c.classObject.__name__))
 
-        if cfg.noDocModule and \
+        if cfg().noDocModule and \
            module.module != None and module.module.__doc__ == None :
             warnings.append(Warning(moduleFilename, 1, _NO_MODULE_DOC))
 
-        if cfg.allVariablesUsed or cfg.privateVariableUsed :
+        if cfg().allVariablesUsed or cfg().privateVariableUsed :
             prefix = None
-            if not cfg.allVariablesUsed :
+            if not cfg().allVariablesUsed :
                 prefix = "_"
-            for ignoreVar in cfg.variablesToIgnore :
+            for ignoreVar in cfg().variablesToIgnore :
                 globalRefs[ignoreVar] = ignoreVar
             warnings.extend(_getUnused(module, globalRefs, module.variables,
                                        _VAR_NOT_USED, prefix))
-        if cfg.importUsed :
-            if module.moduleName != '__init__' or cfg.packageImportUsed :
+        if cfg().importUsed :
+            if module.moduleName != '__init__' or cfg().packageImportUsed :
                 warnings.extend(_getUnused(module, globalRefs, module.modules,
                                            _IMPORT_NOT_USED))
 
+        popConfig()
+
     blacklist = []
-    for badBoy in cfg.blacklist :
+    for badBoy in cfg().blacklist :
 	try :
             file, path, flags = imp.find_module(badBoy)
             if file :

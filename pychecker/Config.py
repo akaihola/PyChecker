@@ -13,6 +13,7 @@ import string
 
 
 _RC_FILE = ".pycheckrc"
+CHECKER_VAR = '__pychecker__'
 
 _DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", "gtk", "GTK", "GDK", ]
 _DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__all__', ]
@@ -51,6 +52,25 @@ _OPTIONS = [
  None,
 ]
 
+def init() :
+    GET_OPT_VALUE = [ ('', ''), (':', '='), ]
+    shortArgs, longArgs = "", []
+    for opt in _OPTIONS :
+        if opt != None :
+            optStr = GET_OPT_VALUE[opt[1]]
+            shortArgs = shortArgs + opt[0] + optStr[0]
+            longArgs.append(opt[2] + optStr[1])
+
+    options = {}
+    for opt in _OPTIONS :
+        if opt != None :
+            shortArg, useValue, longArg, member, description = opt
+            options['-' + shortArg] = opt
+            options['--' + longArg] = opt
+
+    return shortArgs, longArgs, options
+
+_SHORT_ARGS, _LONG_ARGS, _OPTIONS_DICT = init()
 
 def _getRCfile(filename) :
     """Return the .rc filename, on Windows use the current directory
@@ -117,6 +137,36 @@ class Config :
         except :
             print "Warning, error loading defaults file:", filename
 
+    def processArgs(self, argList) :
+        try :
+            args, files = getopt.getopt(argList, _SHORT_ARGS, _LONG_ARGS)
+        except getopt.error, detail :
+            raise UsageError, detail
+
+        for arg, value in args :
+            shortArg, useValue, longArg, member, description = _OPTIONS_DICT[arg]
+            if member == None :
+                # FIXME: this is a hack
+                self.noDocModule = 0
+                self.noDocClass = 0
+                self.noDocFunc = 0
+                if longArg == 'errors' :
+                    self.__dict__.update(errors_only())
+            elif value  :
+                newValue = value
+                memberType = type(getattr(self, member))
+                if memberType == type(0) :
+                    newValue = int(newValue)
+                elif memberType == type([]) :
+                    newValue = string.split(newValue, ',')
+                setattr(self, member, newValue)
+            else :
+                setattr(self, member, not getattr(self, member))
+
+        if self.variablesToIgnore.count(CHECKER_VAR) <= 0 :
+            self.variablesToIgnore.append(CHECKER_VAR)
+
+        return files
 
 def errors_only() :
     "Return {} of Config with all warnings turned off"
@@ -162,47 +212,10 @@ def usage(cfg = None) :
 def setupFromArgs(argList) :
     "Returns (Config, [ file1, file2, ... ]) from argList"
 
-    GET_OPT_VALUE = [ ('', ''), (':', '='), ]
-    shortArgs, longArgs = "", []
-    for opt in _OPTIONS :
-        if opt != None :
-            optStr = GET_OPT_VALUE[opt[1]]
-            shortArgs = shortArgs + opt[0] + optStr[0]
-            longArgs.append(opt[2] + optStr[1])
-
-    options = {}
-    for opt in _OPTIONS :
-        if opt != None :
-            shortArg, useValue, longArg, member, description = opt
-            options['-' + shortArg] = opt
-            options['--' + longArg] = opt
-
     cfg = Config()
-    cfg.loadFile(_getRCfile(_RC_FILE))
     try :
-        args, files = getopt.getopt(argList, shortArgs, longArgs)
-    except getopt.error :
+        cfg.loadFile(_getRCfile(_RC_FILE))
+        return cfg, cfg.processArgs(argList)
+    except UsageError :
         usage(cfg)
-        raise UsageError
-
-    for arg, value in args :
-        shortArg, useValue, longArg, member, description = options[arg]
-        if member == None :
-            # FIXME: this is a hack
-            cfg.noDocModule = 0
-            cfg.noDocClass = 0
-            cfg.noDocFunc = 0
-            if longArg == 'errors' :
-                cfg.__dict__.update(errors_only())
-        elif value  :
-            newValue = value
-            memberType = type(cfg.__dict__[member])
-            if memberType == type(0) :
-                newValue = int(newValue)
-            elif memberType == type([]) :
-                newValue = string.split(newValue, ',')
-            cfg.__dict__[member] = newValue
-        else :
-            cfg.__dict__[member] = not cfg.__dict__[member]
-    return cfg, files
-
+        raise
