@@ -509,6 +509,7 @@ def _print_processing(name) :
 
 
 def main(argv) :
+    __pychecker__ = 'no-miximport'
     import pychecker
     if LOCAL_MAIN_VERSION != pychecker.MAIN_MODULE_VERSION :
         sys.stderr.write(_VERSION_MISMATCH_ERROR)
