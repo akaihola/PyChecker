@@ -1,0 +1,6 @@
+Processing test77...
+  Problem importing module test77 - MyError instance has no attribute 'args'
+
+Warnings...
+
+test77:1: NOT PROCESSED UNABLE TO IMPORT

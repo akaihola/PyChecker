@@ -315,7 +315,11 @@ class Class :
 def importError(moduleName, info):
     # detail may contain a newline replace with - 
     # use str to avoid undestanding the tuple structure in the exception
-    info = string.join(string.split(str(info), '\n' ), ' - ')
+    try:
+        info = string.join(string.split(str(info), '\n' ), ' - ')
+    except:
+        exc_type, exc_value, exc_tb = sys.exc_info()
+        info = exc_value
     sys.stderr.write("  Problem importing module %s - %s\n" % (moduleName, info))
 
 
