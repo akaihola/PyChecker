@@ -511,6 +511,7 @@ def _findClassWarnings(module, c, class_code,
     try:
         newStyleClass = issubclass(c.classObject, object)
     except TypeError:
+        # FIXME: perhaps this should warn b/c it may be a class???
         newStyleClass = 0
 
     slots = c.statics.get('__slots__')
@@ -580,7 +581,7 @@ def find(moduleList, initialCfg, suppressions = None) :
         _findFunctionWarnings(module, globalRefs, warnings, suppressions)
 
         for c in module.classes.values() :
-            _findClassWarnings(module, c, classCodes.get(c.name),
+                _findClassWarnings(module, c, classCodes.get(c.name),
                                    globalRefs, warnings, suppressions)
 
         if cfg().noDocModule and \
