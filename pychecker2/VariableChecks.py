@@ -4,10 +4,12 @@ from pychecker2.Warning import Warning
 
 import compiler
 
-def _is_self(scope, node, name):
+def _is_method(scope):
     return isinstance(scope, compiler.symbols.FunctionScope) and \
-           scope.klass and \
-           name in node.argnames[:1]
+           isinstance(scope.parent, compiler.symbols.ClassScope)
+
+def _is_self(scope, node, name):
+    return _is_method(scope) and name in node.argnames[:1]
 
 class Parents:
     def __init__(self, scope):
@@ -128,8 +130,7 @@ class UnknownCheck(Check.Check):
 class SelfCheck(Check.Check):
     'Report any methods whose first argument is not self'
     
-    selfName = Warning(__doc__,
-                       'First argument to method %s is not in %s')
+    selfName = Warning(__doc__, 'First argument to method %s is not in %s')
     
     def get_options(self, options):
         desc = 'Name of self parameter'
