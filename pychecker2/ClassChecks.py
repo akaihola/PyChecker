@@ -126,7 +126,11 @@ def find_scope_going_up(scope, names, checker):
     for p in parents(scope):
         if p.defs.has_key(names[0]):
             return find_scope_going_down(p, names, checker)
-    return None
+    # name imported via 'from module import *'
+    try:
+        return find_in_module(p.imports[names[0]].module, None, names, checker)
+    except KeyError:
+        return None
 
 def get_base_classes(scope, checker):
     result = []
