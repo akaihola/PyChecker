@@ -29,3 +29,8 @@ Another problem this leads to is:
 This code will also generate an unused module warning for re because
 checker currently cannot see the re.compile().
 
+---------------------------------------------------------------------
+
+Spurious warnings (Base class __init__ not called) can be produced
+when processing multiple files at once.
+

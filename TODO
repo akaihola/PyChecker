@@ -1,4 +1,5 @@
 
+* Fix spurious warnings (Base class __init__ not called)
 * Handle apply() like a function call, when possible
 * Check function return values
 * Check code in module scope (not in a function/method)
