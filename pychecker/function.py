@@ -7,6 +7,8 @@ Object to hold information about functions.
 Also contain a pseudo Python function object
 """
 
+import string
+
 _ARGS_ARGS_FLAG = 4
 _KW_ARGS_FLAG = 8
 
@@ -47,7 +49,14 @@ def create_from_file(file, filename, module) :
     # Make sure the file is at the beginning
     #   if python compiled the file, it will be at the end
     file.seek(0)
-    code = compile(file.read(), filename, 'exec')
+
+    # Read in the source file, see py_compile.compile() for games w/src str
+    codestr = file.read()
+    codestr = string.replace(codestr, "\r\n", "\n")
+    codestr = string.replace(codestr, "\r", "\n")
+    if codestr and codestr[-1] != '\n' :
+        codestr = codestr + '\n'
+    code = compile(codestr, filename, 'exec')
     return Function(FakeFunction('__main__', code, module.__dict__))
 
 
