@@ -1,10 +1,9 @@
 
 class Warning:
 
-    def __init__(self, description, message = None, value = 1):
-        self.message = self.description = description
-        if message:
-            self.message = message
+    def __init__(self, description, message, value = 1):
+        self.message = message
+        self.description = description
         self.value = value
         
     def __cmp__(self, other):
