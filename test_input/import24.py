@@ -11,3 +11,4 @@ class Bbb(Aaa):
 def func24():
     return 53
 
+shadow = 5

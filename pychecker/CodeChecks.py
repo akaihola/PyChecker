@@ -617,10 +617,16 @@ class Code :
             self.unusedLocals[arg] = 0
             self.typeMap[arg] = [ Stack.TYPE_UNKNOWN ]
 
-    def addWarning(self, err, line = None) :
+    def getWarning(self, err, line = None) :
         if line is None :
             line = self.lastLineNum
-        self.warnings.append(Warning.Warning(self.func_code, line, err))
+        return Warning.Warning(self.func_code, line, err)
+
+    def addWarning(self, err, line = None) :
+        w = err
+        if not isinstance(w, Warning.Warning):
+            w = self.getWarning(err, line)
+        self.warnings.append(w)
 
     def popNextOp(self) :
         self.indexList.append(self.index)
@@ -869,9 +875,12 @@ def _LOAD_CONST(oparg, operand, codeSource, code) :
 
 def _checkLocalShadow(code, module, varname) :
     if module.variables.has_key(varname) :
-        line = module.moduleLineNums.get(varname, (0, 0))[1]
+        line = module.moduleLineNums.get(varname, ('<unknown>', 0))
         if cfg().shadows :
-            code.addWarning(msgs.LOCAL_SHADOWS_GLOBAL % (varname, line))
+            w = code.getWarning(msgs.LOCAL_SHADOWS_GLOBAL % (varname, line[1]))
+            if line[0] != w.file:
+                w.err = '%s in file %s' % (w.err, line[0])
+            code.addWarning(w)
 
 def _checkLoadLocal(code, codeSource, varname, deletedWarn, usedBeforeSetWarn) :
     _checkFutureKeywords(code, varname)
