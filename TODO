@@ -3,7 +3,6 @@
 * Make check for 'self' a list instead of a string
 * Add option to ignore all warnings in standard library
 * Add check for except: pass
-* Add check that when calling base class __init__(), self is first arg
 * Add check for multiple functions/methods/classes w/same name
 * Add check that private functions are used in module/class
 * Add check that subclass overrides method that only raises NotImplementedError
