@@ -99,7 +99,7 @@ def getModules(arg_list) :
 
             module_name = os.path.basename(arg)[:-PY_SUFFIX_LEN]
             if arg_dir not in sys.path :
-                sys.path.insert(1, arg_dir)
+                sys.path.insert(0, arg_dir)
             arg = module_name
         modules.append(arg)
 
@@ -139,7 +139,7 @@ def _findModule(name) :
                 new_path = filename
             if new_path not in path :
                 path.insert(1, new_path)
-        else:
+        elif smt[-1] != imp.PY_COMPILED:
             if p is not packages[-1] :
                 if file is not None :
                     file.close()
