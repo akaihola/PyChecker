@@ -4,6 +4,7 @@ from pychecker2 import Options
 class WarningOpt(Options.BoolOpt):
     
     def __init__(self, longName, warning):
+        __pychecker__ = 'no-callinit'
         self.warning = warning
         self.longName = longName
 
@@ -18,6 +19,7 @@ class WarningOpt(Options.BoolOpt):
 
 class Check:
 
+
     def __str__(self):
         return self.__class__.__name__
 
@@ -30,9 +32,7 @@ class Check:
     def get_options(self, options):
         pass
     
-    def check(self, file, options):
-        raise NotImplemented
+    def check(self, modules, file, options):
+        pass
 
-pass1 = []
-pass2 = []
-passes = [pass1, pass2]
+

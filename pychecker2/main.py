@@ -2,26 +2,29 @@ import os, sys
 path = os.path.dirname(os.path.dirname(sys.argv[0]))
 sys.path.append(path)
 
-from pychecker2 import Check
-
-# importing these incorportes these checks
+from pychecker2 import Options
 from pychecker2 import ParseChecks
 from pychecker2 import OpChecks
 from pychecker2 import VariableChecks
 from pychecker2 import ScopeChecks
+
+# importing these incorporates these checks
 
 class NullWriter:
     def write(self, s): pass
     def flush(self): pass
 
 def main():
-    import pychecker2.Options as Options
     options = Options.Options()
-
-    for p in Check.passes:
-        for checker in p:
-            checker.get_warnings(options)
-            checker.get_options(options)
+    checks = [ ParseChecks.ParseCheck(),
+               OpChecks.OpCheck(),
+               VariableChecks.ShadowCheck(),
+               VariableChecks.UnusedCheck(),
+               VariableChecks.UnknownCheck(),
+               ScopeChecks.RedefineCheck() ]
+    for checker in checks:
+        checker.get_warnings(options)
+        checker.get_options(options)
 
     try:
         files = options.process_options(sys.argv[1:])
@@ -35,14 +38,14 @@ def main():
     if options.verbose:
         out = sys.stdout
 
-    for p in Check.passes:
-        for checker in p:
-            print >>out, 'Running check', checker
-            for f in files:
-                checker.check(f, options)
-                out.write('.')
-                out.flush()
-            print >>out
+    modules = {}
+    for checker in checks:
+        print >>out, 'Running check', checker
+        for f in files:
+            checker.check(modules, f, options)
+            out.write('.')
+            out.flush()
+        print >>out
 
     result = 0
     files.sort()
@@ -52,13 +55,14 @@ def main():
         result = 1
         f.warnings.sort()
         last_msg = None
-        print
         for line, warning, args in f.warnings:
             if warning.value:
                 msg = warning.message % args
                 if msg != last_msg:
                     print '%s:%s %s' % (f.name, line or '[unknown line]', msg)
                     last_msg = msg
+        if last_msg:
+            print
         
     if not result:
         print >>out, None

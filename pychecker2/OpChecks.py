@@ -15,19 +15,17 @@ class OpCheck(Check.Check):
         "Operator (+) normally has no effect"
         )
 
-    def check(self, file, unused_options):
+    def check(self, unused_modules, file, unused_options):
         class OpVisitor:
-            def visitUnaryAdd(self, n):
+            def visitUnaryAdd(unused, n):
                 if n.getChildren()[0].__class__ == compiler.ast.UnaryAdd:
                     file.warning(n, OpCheck.operator, '++')
                 else:
                     file.warning(n, OpCheck.operatorPlus)
 
-            def visitUnarySub(self, n):
+            def visitUnarySub(unused, n):
                 if n.getChildren()[0].__class__ == compiler.ast.UnarySub:
                     file.warning(n, OpCheck.operator, '--')
         if file.parseTree:        
             compiler.walk(file.parseTree, OpVisitor())
-
-Check.pass1.append(OpCheck())
 

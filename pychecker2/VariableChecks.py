@@ -14,7 +14,7 @@ class ShadowCheck(Check.Check):
     shadowIdentifier = Warning('Report names already defined in outer scopes',
                                'Identifier (%s) shadows definition in scope %s')
 
-    def check(self, file, unused_options):
+    def check(self, unused_modules, file, unused_options):
         def find_shadow(scope, parents):
             "Calculate parents by recursing into child scopes"
             for name in scope.defs:
@@ -30,8 +30,6 @@ class ShadowCheck(Check.Check):
 	if file.root_scope:
             find_shadow(file.root_scope, [])
 
-Check.pass2.append(ShadowCheck())
-
 class UnusedCheck(Check.Check):
     """Use symbol information to check that no scope defines a name
     not used in this or any child scope"""
@@ -40,27 +38,27 @@ class UnusedCheck(Check.Check):
 
     def get_options(self, options):
         desc = 'Ignore unused identifiers that start with these values'
-        default = ['unused', 'empty', 'dummy']
+        default = ['unused', 'empty', 'dummy', '__pychecker__']
         options.add(Opt(self, 'unusedPrefixes', desc, default))
         
         desc = 'Ignore unused method "self" parameter'
         options.add(BoolOpt(self, 'reportUnusedSelf', desc))
 
-    def check(self, file, unused_options):
+    def check(self, unused_modules, file, unused_options):
         if type(self.unusedPrefixes) == type(''):
             self.unusedPrefixes = eval(self.unusedPrefixes)
 
-        def used(name, scope):
+        def used(name, parent_scope):
             # don't report unused global classes, global functions
-            if scope in file.root_scope.get_children():
-                if isinstance(scope, (compiler.symbols.ClassScope,
-                                      compiler.symbols.FunctionScope)):
-                    if not file.scope_node[scope].name.startswith('_'):
+            if parent_scope in file.root_scope.get_children():
+                if isinstance(parent_scope, (compiler.symbols.ClassScope,
+                                             compiler.symbols.FunctionScope)):
+                    if not file.scope_node[parent_scope].name.startswith('_'):
                         return 1
 
-            if scope.uses.has_key(name):
+            if parent_scope.uses.has_key(name):
                 return 1
-            for c in scope.get_children():
+            for c in parent_scope.get_children():
                 if used(name, c):
                     return 1
             return 0
@@ -97,8 +95,6 @@ class UnusedCheck(Check.Check):
                     if not used(var, scope):
                         file.warning(scope, self.unused, var)
 
-Check.pass2.append(UnusedCheck())
-
 class UnknownCheck(Check.Check):
     """Use symbol information to check that no scope uses a name
     not defined in a parent scope"""
@@ -110,16 +106,16 @@ class UnknownCheck(Check.Check):
     builtins.update(__builtins__)
     builtins['__builtins__'] = __builtins__
 
-    def check(self, file, unused_options):
+    def check(self, unused_modules, file, unused_options):
         if not file.root_scope:
             return
 
         # collect the defs for each scope (including the parents)
         defs = {}
-        def collect_defs(scope, parents):
-            defs[scope] = scope.defs.keys() + parents
-            for c in scope.get_children():
-                collect_defs(c, defs[scope])
+        def collect_defs(parent_scope, parents):
+            defs[parent_scope] = parent_scope.defs.keys() + parents
+            for c in parent_scope.get_children():
+                collect_defs(c, defs[parent_scope])
         collect_defs(file.root_scope, [])
 
         # if a name used is not found in the defined variables, complain
@@ -128,5 +124,3 @@ class UnknownCheck(Check.Check):
                 if var not in defs[scope] and \
                    not UnknownCheck.builtins.has_key(var):
                     file.warning(scope, self.unknown, var)
-
-Check.pass2.append(UnknownCheck())

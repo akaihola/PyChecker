@@ -8,7 +8,7 @@ class ParseCheck(Check.Check):
 
     syntaxErrors = Warning('Report/ignore syntax errors', 'Unable to parse: %s')
 
-    def check(self, file, unused_options):
+    def check(self, unused_modules, file, unused_options):
         try:
             file.parseTree = parseFile(file.name)
             file.scopes = walk(file.parseTree, symbols.SymbolVisitor()).scopes
@@ -37,6 +37,4 @@ class ParseCheck(Check.Check):
             file.warning(1, self.syntaxErrors, detail)
         except IOError, detail:
             file.warning(0, self.syntaxErrors, detail)
-            
-Check.pass1.append(ParseCheck())
             

@@ -6,7 +6,7 @@ class RedefineCheck(Check.Check):
     redefinedScope = Warning('Report redefined scopes',
                              'Scope (%s) is redefined at line %d')
 
-    def check(self, file, unused_options):
+    def check(self, unused_modules, file, unused_options):
         names = {}                      # map name, parent to this scope
         for node, scope in file.scopes.items():
             if hasattr(node, 'name'):	# classes, functions
@@ -20,5 +20,3 @@ class RedefineCheck(Check.Check):
                     file.warning(first, self.redefinedScope,
                                  first.name, second.lineno)
                 names[key] = node
-
-Check.pass2.append(RedefineCheck())
