@@ -173,6 +173,9 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                     should_warn = var not in cfg().unusedNames and \
                                   (cfg().ignoreSelfUnused or
                                    var != cfg().methodArgName)
+                    if should_warn :
+                        should_warn = cfg().varArgumentsUsed or \
+                                      func.varArgName() != var
                 if should_warn :
                     code.addWarning(msgs.UNUSED_PARAMETER % var, code.func_code)
 

@@ -48,6 +48,7 @@ _OPTIONS = [
  ('y', 0, 'classattr', 'classAttrExists', 'class attribute does not exist'),
  ('S', 1, 'self', 'methodArgName', 'First argument to methods'),
  ('T', 0, 'argsused', 'argumentsUsed', 'unused method/function arguments'),
+ ('z', 0, 'varargsused', 'varArgumentsUsed', 'unused method/function variable arguments'),
  ('G', 0, 'selfused', 'ignoreSelfUnused', 'ignore if self is unused in methods'),
  ('o', 0, 'override', 'checkOverridenMethods', 'check if overridden methods have the same signature'),
  ('U', 0, 'reuseattr', 'redefiningFunction', 'check if function/class/method names are reused'),
@@ -191,6 +192,7 @@ class Config :
         self.checkOverridenMethods = 1
 
         self.argumentsUsed = 1
+        self.varArgumentsUsed = 1
         self.ignoreSelfUnused = 0
         self.redefiningFunction = 1
 

@@ -49,6 +49,12 @@ class Function :
     def isParam(self, name) :
         return name in self.arguments()
 
+    def varArgName(self) :
+        if self.maxArgs is not None :
+            return None
+        func_code = self.function.func_code
+        return func_code.co_varnames[func_code.co_argcount]
+
 def create_fake(name, code, func_globals = {}) :
     return Function(FakeFunction(name, code, func_globals))
 
