@@ -1,5 +1,7 @@
 'd'
 
+from types import StringType, UnicodeType
+
 def func(a, b, *args, **kw):
     'verify no warnings for variables (arguments) used before set'
     print a, b, args, kw
