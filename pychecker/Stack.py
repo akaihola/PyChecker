@@ -34,7 +34,7 @@ class Item :
             value = '('
             for item in self.data :
                 value = value + str(item) + ', '
-            # strip off the ', ' for mulitple items
+            # strip off the ', ' for multiple items
             if len(self.data) > 1 :
                 value = value[:-2]
             return value + ')'
