@@ -248,6 +248,7 @@ def printArg(shortArg, longArg, description, defaultValue, useValue) :
 def usage(cfg = None) :
     print "Usage for: checker.py [options] PACKAGE ...\n"
     print "    PACKAGEs can be a python package, module or filename\n"
+    print "Long options can be preceded with no- to turn off (e.g., no-namedargs)\n"
     print "Options:           Change warning for ... [default value]"
 
     if cfg is None :

@@ -16,9 +16,11 @@ Types of problems that can be found include:
   * Passing the wrong number of parameters to functions/methods/constructors
   * Using format strings that don't match arguments
   * Using class methods and attributes that don't exist
+  * Changing signature when overriding a method
   * Using a variable before setting it
   * self not the first parameter to a method
   * Unused globals and locals (module or variable)
+  * Unused function/method arguments (can ignore self)
   * No doc strings in modules, classes, functions, and methods
 
 To use PyChecker, pass the python source files you want to check
@@ -38,6 +40,18 @@ You can use the test files as examples:
 
 If you want to change the default behaviour, you can pass command line options
 or define a .pycheckrc file.  For an example, look at pycheckrc.
+
+If you want to suppress warnings on a module/function/class/method,
+you can define a suppressions dictionary in .pycheckrc.
+Examples of keys are:  'module', 'module.function',
+		       'module.class', 'module.class.method', etc.
+
+You can also define suppressions in your code by doing:
+
+	__pychecker__ = 'no-namedargs maxlines=0 maxreturns=0'
+
+The format for __pychecker__ values and values in the suppressions dictionary
+are the same.  Dashes (--) are optional when preceding long option names.
 
 To show the available options, do:
 

@@ -43,9 +43,11 @@ Types of problems that can be found include:
   <li> Passing the wrong number of parameters to functions/methods/constructors
   <li> Using format strings that don't match arguments
   <li> Using class methods and attributes that don't exist
+  <li> Changing signature when overriding a method
   <li> Using a variable before setting it
   <li> self is not the first parameter defined for a method
   <li> Unused globals and locals (module or variable)
+  <li> Unused function/method arguments (can ignore self)
   <li> No doc strings in modules, classes, functions, and methods
 </ul>
 
@@ -76,7 +78,26 @@ You can use the test files as examples:
 
 <p>
 If you want to change the default behaviour, you can pass command line options
-or define a .pycheckrc file.  For an example, look at pycheckrc.
+or define a .pycheckrc file.  For an example, look at 
+<a href="http://cvs.sf.net/cgi-bin/viewcvs.cgi/pychecker/pychecker/pycheckrc?rev=current&content-type=text/vnd.viewcvs-markup">pycheckrc</a>.
+
+<p>
+If you want to suppress warnings on a module/function/class/method,
+you can define a suppressions dictionary in .pycheckrc.
+Examples of keys are:  'module', 'module.function',
+'module.class', 'module.class.method', etc.
+
+<p>
+You can also define suppressions in your code by doing:
+
+<p>
+<pre>
+        __pychecker__ = 'no-namedargs maxlines=0 maxreturns=0'
+</pre>
+
+<p>
+The format for __pychecker__ values and values in the suppressions dictionary
+are the same.  Dashes (--) are optional when preceding long option names.
 
 <p>
 <pre>
