@@ -1,7 +1,7 @@
 from pychecker2.Check import Check
 from pychecker2.Options import Opt, BoolOpt
 from pychecker2.Warning import Warning
-from pychecker2.util import parents, BaseVisitor, parents
+from pychecker2.util import parents, BaseVisitor
 from pychecker2 import symbols
 
 from compiler import ast, walk
@@ -191,7 +191,7 @@ class UnknownCheck(Check):
                             break
                     else:
                         if not _importedName(scope, var):
-                            if not UnknownCheck.builtins.has_key(var):
+                            if not self.builtins.has_key(var):
                                 file.warning(scope.uses[var], self.unknown, var)
 
 def _first_arg_defaulted(function_node):
@@ -272,18 +272,19 @@ class UnpackCheck(Check):
                 for c in node.getChildNodes():
                     for n in parents(c):
                         try:
-                            scope = file.scopes[n]
-                            scope.uses[c.name] = node
+                            file.scopes[n].uses[c.name] = node
+                            break
                         except (KeyError, AttributeError):
                             pass
             visitAssList = visitAssTuple
 
         # local args unpacked on the `def' line are used, too
-        for n, scope in file.function_scopes():
-            for arg in n.argnames:
+        for scope_node, scope in file.function_scopes():
+            for arg in scope_node.argnames:
                 if isinstance(arg, tuple):
                     for unpacked in ast.flatten(arg):
-                        scope.uses[unpacked] = scope.uses.get(unpacked, n)
+                        scope.uses[unpacked] = \
+                                  scope.uses.get(unpacked, scope_node)
 
         if file.root_scope:
             walk(file.root_scope.node, Visitor())
@@ -314,24 +315,29 @@ class UsedBeforeSetCheck(Check):
                     self.defines = defines[:]
                 if uses is not None:
                     self.uses = uses.copy()
-            def visitFunction(self, node):
-                self.defines.append(node.name)
+            def visitFunction(self, n):
+                self.defines.append(n.name)
                 
             visitClass = visitFunction
             visitAssName = visitFunction
             
-            def visitName(self, node):
-                if node.name not in self.defines:
-                    self.uses[node.name] = self.uses.get(node.name, node)
-                    
-            def visitIf(self, node):
-                if not node.else_:
+            def visitListComp(self, n):
+                # visit qualifiers before expression
+                children = ast.flatten_nodes(n.quals) + [n.expr]
+                for c in children:
+                    self.visit(c)
+            
+            def visitName(self, n):
+                if n.name not in self.defines:
+                    self.uses[n.name] = self.uses.get(n.name, n)
+
+            def visitIf(self, n):
+                if not n.else_:
                     return
                 visits = []
-                for test, code in node.tests:
+                for test, code in n.tests:
                     visits.append(walk(code, Visitor(self.defines, self.uses)))
-                visits.append(walk(node.else_,
-                                   Visitor(self.defines, self.uses)))
+                visits.append(walk(n.else_, Visitor(self.defines, self.uses)))
                 # compute the intersection of defines
                 self.defines = intersect([v.defines for v in visits])
                 # compute the union of uses, perserving first occurances
@@ -344,7 +350,7 @@ class UsedBeforeSetCheck(Check):
                         
         for node, scope in file.function_scopes():
             predefined = ast.flatten(scope.params) + scope.imports.keys()
-            v = walk(node.code, Visitor(predefined))
-            for name, n in v.uses.items():
+            visitor = walk(node.code, Visitor(predefined))
+            for name, use_node in visitor.uses.items():
                 if scope.defs.has_key(name):
-                    file.warning(n, self.usedBeforeDefined, name)
+                    file.warning(use_node, self.usedBeforeDefined, name)
