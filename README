@@ -29,6 +29,9 @@ import those files first on the command line in order to get as many
 files checked as possible.
 
 
+PyChecker should work with Python 1.5.2 and 2.0.
+
+
 To look at a little example, you can use the two test files included:
 
 	python checker.py test.py test2.py
