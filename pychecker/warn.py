@@ -393,9 +393,14 @@ def getStandardLibrary() :
         except ImportError :
             return None
 
+def normalize_path(path):
+    return os.path.normpath(os.path.normcase(path))
+
 def removeWarnings(warnings, blacklist, std_lib) :
+    if std_lib is not None:
+        std_lib = normalize_path(std_lib)
     for index in range(len(warnings)-1, -1, -1) :
-        filename = warnings[index].file
+        filename = normalize_path(warnings[index].file)
         if filename in blacklist or (std_lib is not None and
                                      utils.startswith(filename, std_lib)) :
             del warnings[index]
