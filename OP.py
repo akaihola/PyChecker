@@ -18,7 +18,6 @@ def STORE_ATTR(op):            return dis.opname[op] == 'STORE_ATTR'
 def STORE_FAST(op):            return dis.opname[op] == 'STORE_FAST'
 def STORE_GLOBAL(op):          return dis.opname[op] == 'STORE_GLOBAL'
 def CALL_FUNCTION(op):         return dis.opname[op] == 'CALL_FUNCTION'
-def UNPACK_SEQUENCE(op):       return dis.opname[op] == 'UNPACK_SEQUENCE'
 def BINARY_SUBSCR(op):         return dis.opname[op] == 'BINARY_SUBSCR'
 def BINARY_ADD(op):            return dis.opname[op] == 'BINARY_ADD'
 def BUILD_LIST(op):            return dis.opname[op] == 'BUILD_LIST'
@@ -28,13 +27,17 @@ def COMPARE_OP(op):            return dis.opname[op] == 'COMPARE_OP'
 def POP_TOP(op):               return dis.opname[op] == 'POP_TOP'
 def DUP_TOP(op):               return dis.opname[op] == 'DUP_TOP'
 
+def UNPACK_SEQUENCE(op) :
+    "Deal w/Python 1.5.2 (UNPACK_[LIST|TUPLE]) or 2.0 (UNPACK_SEQUENCE)"
+    return dis.opname[op] in ['UNPACK_SEQUENCE', 'UNPACK_TUPLE', 'UNPACK_LIST']
+
 HAVE_ARGUMENT = dis.HAVE_ARGUMENT
 
 try:
-	# EXTENDED_ARG is a Python2.0 feature
-	EXTENDED_ARG = dis.EXTENDED_ARG
+    # EXTENDED_ARG is a Python2.0 feature
+    EXTENDED_ARG = dis.EXTENDED_ARG
 except:
-	EXTENDED_ARG = None
+    EXTENDED_ARG = None
 
 hasname = dis.hasname
 haslocal = dis.haslocal
