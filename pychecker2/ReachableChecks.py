@@ -33,9 +33,7 @@ class ReachableCheck(Check):
 
             def visitReturn(s, node):
                 s.returns = 1
-
-            def visitRaise(s, node):
-                s.returns = 1
+            visitRaise = visitReturn
 
             def visitTryExcept(s, node):
                 # no matter what happens in the try clause, it might
@@ -67,8 +65,7 @@ class ReachableCheck(Check):
             def visitWhile(s, node):    # while's may never execute, and not return
                 s.returns = 0
 
-            def visitFor(s, node):      # for's may never execute, and not return
-                s.returns = 0
+            visitFor = visitWhile
 
         if file.parseTree:
             walk(file.parseTree, ReturnsVisitor())
