@@ -206,7 +206,7 @@ class UnpackCheck(Check):
             visitAssList = visitAssTuple
 
         # local args unpacked on the `def' line are used, too
-        for node, scope in file.scopes.items():
+        for scope in file.scopes.values():
             if isinstance(scope.node, compiler.ast.Function):
                 for arg in scope.node.argnames:
                     if isinstance(arg, tuple):
