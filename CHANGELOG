@@ -1,13 +1,10 @@
 
-Version 0.9	- xx August 2001
-  * Fix spurious warnings when doing a local import and use module in lambda
+Version 0.8.2	- 12 August 2001
   * Check format strings even if using global & local constants
   * Add check that [].append() only takes one argument
   * Add check that # parameters are correct for builtin functions
-  * Fix method and attribute checks for None and Ellipsis
-  * Fix spurious warnings when object attribute has same name as class
-  * Add constants together on stack when get + to avoid some spurious warnings
-  * Change default behaviour to not warn about missing doc strings
+  * Add warnings for --, ++, ~~:
+  	"Operator (%s) doesn't exist, statement has no effect"
   * Add -Q/--quiet to be real quiet, only output warning msgs, nothing else
   * Add -y/--classattr config option (warning was not configurable before)
   	(warn if class attribute doesn't exist)
@@ -15,9 +12,12 @@ Version 0.9	- xx August 2001
   	(warn if mixing: import/from ... import)
   * Add -u/--callinit config option (warning was not configurable before)
   	(warn if Subclass.__init__() not called)
-  * Add warnings for --, ++, ~~:
-  	"Operator (%s) doesn't exist, statement has no effect"
+  * Add constants together on stack when get + to avoid some spurious warnings
+  * Fix method and attribute checks for None and Ellipsis
+  * Fix spurious warnings when doing a local import and use module in lambda
+  * Fix spurious warnings when object attribute has same name as class
   * Fix Object (x) has no attribute warnings for Python 2.2a1 built-in types
+  * Change default behaviour to not warn about missing doc strings
 
 Version 0.8.1	- 9 August 2001
   * Fix internal error when referencing a list constant:  [1,2,3][1]
