@@ -22,7 +22,7 @@ class Parents:
         return retval
 
 def parents(scope):
-    return iter(Parents, None)
+    return iter(Parents(scope), None)
 
 class ShadowCheck(Check):
     """Use symbol information to check that no scope defines a name
@@ -33,7 +33,7 @@ class ShadowCheck(Check):
     shadowIdentifier = Warning('Report names already defined in outer scopes',
                                'Identifier (%s) shadows definition in scope %s')
 
-    def check(self, unused_modules, file, unused_options):
+    def check(self, file):
         # warn if any name defined in a scope is defined in a parent scope
         # or even the builtins
         for scope in file.scopes.values():
@@ -66,7 +66,7 @@ class UnusedCheck(Check):
         desc = 'Ignore unused method "self" parameter'
         options.add(BoolOpt(self, 'reportUnusedSelf', desc))
 
-    def check(self, unused_modules, file, unused_options):
+    def check(self, file):
         if type(self.unusedPrefixes) == type(''):
             self.unusedPrefixes = eval(self.unusedPrefixes)
 
@@ -150,7 +150,7 @@ class UnknownCheck(Check):
     builtins.update(__builtins__)
     builtins['__builtins__'] = __builtins__
 
-    def check(self, unused_modules, file, unused_options):
+    def check(self, file):
 
         # if a name used is not found in the defined variables, complain
         for scope in file.scopes.values():
@@ -175,7 +175,7 @@ class SelfCheck(Check):
         default = ["self", "this", "s"]
         options.add(Opt(self, 'selfNames', desc, default))
 
-    def check(self, unused_modules, file, unused_options):
+    def check(self, file):
         if type(self.selfNames) == type(''):
             self.selfNames = eval(self.selfNames)
 
@@ -192,7 +192,7 @@ class UnpackCheck(Check):
         desc = 'Do not treat variables used in tuple assignment as used'
         options.add(BoolOpt(self, 'unpackedUsed', desc, 1))
 
-    def check(self, unused_modules, file, unused_options):
+    def check(self, file):
         if not self.unpackedUsed:
             return
 
