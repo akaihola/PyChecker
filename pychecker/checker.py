@@ -267,6 +267,7 @@ class Module :
         self.classes = {}
         self.modules = {}
         self.attributes = None
+        self.main_code = None
         self.module = None
         self.check = check
         global _allModules
@@ -319,6 +320,8 @@ class Module :
 	    file, filename, smt = _findModule(self.moduleName)
             try :
                 module = imp.load_module(self.moduleName, file, filename, smt)
+                if file :
+                    self.main_code = compile(file.read(), filename, 'exec')
             finally :
                 if file != None :
                     file.close()
