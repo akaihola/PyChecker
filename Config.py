@@ -11,6 +11,12 @@ import os
 import getopt
 import string
 
+try :
+    GetOptError = getopt.GetoptError
+except AttributeError :
+    # support for Python 1.5.2
+    GetOptError = getopt.error
+
 
 _RC_FILE = ".pycheckrc"
 
@@ -168,7 +174,7 @@ def setupFromArgs(argList) :
             else :
                 cfg.__dict__[member] = not cfg.__dict__[member]
         return cfg, files
-    except getopt.GetoptError :
+    except GetOptError :
         usage()
         sys.exit(127)
 
