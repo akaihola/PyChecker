@@ -1486,9 +1486,11 @@ _BINARY_LSHIFT = _BINARY_RSHIFT = _popModified
 def _checkModifyNoOp(code, op, msg=msgs.MODIFY_VAR_NOOP, modifyStack=1):
     stack = code.stack
     if len(stack) >= 2:
-        name = stack[-1].getName()
-        if name != Stack.TYPE_UNKNOWN and name == stack[-2].getName():
-            code.addWarning(msg % (name, op, name))
+        if (stack[-1].type != Stack.TYPE_UNKNOWN and
+            stack[-2].type != Stack.TYPE_UNKNOWN):
+            name = stack[-1].getName()
+            if name != Stack.TYPE_UNKNOWN and name == stack[-2].getName():
+                code.addWarning(msg % (name, op, name))
 
         if modifyStack:
             code.popStack()

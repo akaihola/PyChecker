@@ -46,3 +46,7 @@ def i(a):
     z = hash(a.x) | hash(a.y)
     z = hash(a.x) ^ hash(a.y)
     return z
+
+def j(x, y):
+    return (x + 1.0) / (y + 2.0)
+

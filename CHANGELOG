@@ -1,5 +1,6 @@
-Version 0.8.15   - XX XXX 2004
+Version 0.8.15   - XX XXX 2005
   * Fix spurious warning when using tuples for exceptions
+  * Fix spurious warning <stack> / <stack> 
 
 Version 0.8.14   - 6 June 2004
   * Fix spurious warning in Python 2.3+ when doing a,b = 1,2
