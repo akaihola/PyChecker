@@ -1,6 +1,7 @@
 
 Version 0.9	- xx August 2001
   * Add warning checks when deleting variables
+  * Fix spurious warning when using parameter as dict for format string
   * Fix spurious warning when using lambda in __init__
   * Get setup.py to work on windows, etc. if don't have /tmp
 
