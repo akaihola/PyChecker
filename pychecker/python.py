@@ -85,7 +85,7 @@ if utils.pythonVersion() >= utils.PYTHON_2_2 :
     GLOBAL_FUNC_INFO['str'] = (types.StringType, 0, 1, ['object'])
     # FIXME: type doesn't take 2 args, only 1 or 3
     GLOBAL_FUNC_INFO['type'] = (types.TypeType, 1, 3, ['name', 'bases', 'dict'])
-    GLOBAL_FUNC_INFO['tuple'] = (types.TupleType, 0, 1, ['sequence']),
+    GLOBAL_FUNC_INFO['tuple'] = (types.TupleType, 0, 1, ['sequence'])
 
     GLOBAL_FUNC_INFO['classmethod'] = (types.MethodType, 1, 1)
     GLOBAL_FUNC_INFO['iter'] = (Stack.TYPE_UNKNOWN, 1, 2)
