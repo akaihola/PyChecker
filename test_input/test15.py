@@ -1,7 +1,7 @@
 "doc"
 
 def xx(**kw):
-    pass
+    return None
 
 def yy():
     c = yy
