@@ -21,3 +21,11 @@ def h(a, b, c):
 
 [x1, y1, z1] = [1, 2, 3]
 [x1, y1, z1] = [y1, z1, x1]
+
+def xyzzy():
+    global x
+    global y
+    y = 1
+
+def XyZZy(a, (b, (c, d)), e):
+    return a + e
