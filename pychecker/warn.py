@@ -38,6 +38,7 @@ _MODULE_IMPORTED_AGAIN = "Module (%s) re-imported"
 _NO_METHOD_ARGS = "No method arguments, should have self as argument"
 _SELF_NOT_FIRST_ARG = "self is not first method argument"
 _SELF_IS_ARG = "self is argument in function"
+_RETURN_FROM_INIT = "Cannot return a value from __init__"
 
 _GLOBAL_DEFINED_NOT_DECLARED = "Global variable (%s) defined without being declared"
 _INVALID_GLOBAL = "No global (%s) found"
@@ -447,7 +448,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
         _checkComplex(warnings, _cfg.maxLines, lines, func, _FUNC_TOO_LONG)
     _checkComplex(warnings, _cfg.maxReturns, returns, func, _TOO_MANY_RETURNS)
     _checkComplex(warnings, _cfg.maxBranches, branches, func, _TOO_MANY_BRANCHES)
-    return warnings, globalRefs, functionsCalled, codeObjects
+    return warnings, globalRefs, functionsCalled, codeObjects, returnValues
 
 
 def _getUnused(module, globalRefs, dict, msg, filterPrefix = None) :
@@ -462,11 +463,17 @@ def _getUnused(module, globalRefs, dict, msg, filterPrefix = None) :
     return warnings
 
 
-def _checkBaseClassInit(moduleFilename, c, func_code, functionsCalled) :
+def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
     """Return a list of warnings that occur
        for each base class whose __init__() is not called"""
 
     warnings = []
+    functionsCalled, _, returnValues = funcInfo
+    for line, stackItem in returnValues :
+        if stackItem.data != None :
+            warn = Warning(moduleFilename, line, _RETURN_FROM_INIT)
+            warnings.append(warn)
+
     for base in c.classObject.__bases__ :
         if hasattr(base, '__init__') :
             initName = str(base)
@@ -485,11 +492,11 @@ def _updateFunctionWarnings(module, func, c, warnings, globalRefs,
                             main = 0, in_class = 0) :
     "Update function warnings and global references"
 
-    newWarnings, newGlobalRefs, funcs, codeObjects = \
+    newWarnings, newGlobalRefs, funcs, codeObjects, returnValues = \
                  _checkFunction(module, func, c, main, in_class)
     warnings.extend(newWarnings)
     globalRefs.update(newGlobalRefs)
-    return funcs, codeObjects
+    return funcs, codeObjects, returnValues
 
 
 def find(moduleList, cfg) :
@@ -507,9 +514,9 @@ def find(moduleList, cfg) :
 
         # main_code can be null if there was a syntax error
         if module.main_code != None :
-            _, codeObjects = _updateFunctionWarnings(module, module.main_code,
+            funcInfo = _updateFunctionWarnings(module, module.main_code,
                                                 None, warnings, globalRefs, 1)
-            for code in codeObjects :
+            for code in funcInfo[1] :
                 classCodes[code.co_name] = code
 
         moduleFilename = module.filename()
@@ -554,13 +561,12 @@ def find(moduleList, cfg) :
                     warnings.append(warn)
 
                 _addWarning(warnings, _checkSelfArg(method))
-                functionsCalled, _ = _updateFunctionWarnings(module, method, c,
-                                                          warnings, globalRefs)
-
+                funcInfo = _updateFunctionWarnings(module, method, c,
+                                                   warnings, globalRefs)
                 if func_code.co_name == '__init__' :
                     if '__init__' in dir(c.classObject) :
                         warns = _checkBaseClassInit(moduleFilename, c,
-                                                    func_code, functionsCalled)
+                                                    func_code, funcInfo)
                         warnings.extend(warns)
                     elif cfg.initDefinedInSubclass :
                         warn = Warning(moduleFilename, c.getFirstLine(),

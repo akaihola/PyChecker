@@ -1,19 +1,18 @@
 
 * Add script to /usr/local/bin to invoke PyChecker
-* Add check that __init__ returns no values
 * Add check that private functions are used in module/class
 * Add check for right # of args to object construction
+* Check format strings: "%s %d" % (strValue, intValue)
 * Fix deriving from class by alias name
-* Fix Variable not used when used as default argument value
 * Fix using from XXX import YYY ; from XXX import ZZZ causing re-import warning
 * Fix checking files in standard library before local file
 * Fix sys.exc_value, etc. generating No attribute warning in except clause
 * Fix Local variable (xxx) not used, when have:  "%(xxx)s" % locals()
 * Check function return values
-* Check format strings: "%s %d" % (strValue, intValue)
 * Finer grain control of warnings/config options (per module/class/method)
 * Use real line numbers for class warnings
 * Allow import checker to catch errors, rather than starting checker.py
+* Find lines that end w/semi-colons (;)
 * Spell check doc strings
 
 Eric's code review:
