@@ -177,7 +177,10 @@ def _getNameFromStack(value, prefix = None) :
 
 def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
     """Checks for warnings,
-       returns (warning [or None], new stack, function called)"""
+       returns (warning [or None], function called)"""
+
+    if not stack :
+        return None, None
 
     kwArgCount = argCount >> _VAR_ARGS_BITS
     argCount = argCount & _MAX_ARGS_MASK
@@ -209,8 +212,8 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
         except KeyError :
             warn = Warning(code, lastLineNum, _INVALID_METHOD % loadValue[1])
 
-    stack = stack[:funcIndex] + [ '0' ]
-    return warn, stack, loadValue
+    stack[:] = stack[:funcIndex] + [ '0' ]
+    return warn, loadValue
 
 
 def _checkFunction(module, func, c = None) :
@@ -304,9 +307,8 @@ def _checkFunction(module, func, c = None) :
                     unpackCount = unpackCount - 1
                 stack = stack[:-2]
             elif OP.CALL_FUNCTION(op) :
-                warn, stack, funcCalled = \
-                      _handleFunctionCall(module, func_code, c,
-                                          stack, oparg, lastLineNum)
+                warn, funcCalled = _handleFunctionCall(module, func_code, c,
+                                                    stack, oparg, lastLineNum)
 
                 tmpModuleName = None
                 if not (type(funcCalled) == types.TupleType and 
