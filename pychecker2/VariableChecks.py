@@ -124,3 +124,23 @@ class UnknownCheck(Check.Check):
                     else:
                         if not UnknownCheck.builtins.has_key(var):
                             file.warning(scope, self.unknown, var)
+
+class SelfCheck(Check.Check):
+    'Report any methods whose first argument is not self'
+    
+    selfName = Warning(__doc__,
+                       'First argument to method %s is not in %s')
+    
+    def get_options(self, options):
+        desc = 'Name of self parameter'
+        default = ["self", "this", "s"]
+        options.add(Opt(self, 'selfNames', desc, default))
+
+    def check(self, unused_modules, file, unused_options):
+        if type(self.selfNames) == type(''):
+            self.selfNames = eval(self.selfNames)
+
+        for nodes, scope in file.scopes.items():
+            for var in scope.defs:
+                if _is_self(scope, nodes, var) and var not in self.selfNames:
+                    file.warning(scope, self.selfName, nodes.name, var)
