@@ -1,30 +1,16 @@
 import os
 import sys
 import unittest
-import inspect
 import glob
 
-class Tester:
-    def __init__(self):
-        self.modules = []
-        self.exit_status = 0
-        self.verbosity = 1
-        self.coverage = None
+def test(modules, verbosity):
+    for m in modules:
+        s = unittest.defaultTestLoader.loadTestsFromName(m)
+        result = unittest.TextTestRunner(verbosity=verbosity).run(s)
+        if not result.wasSuccessful():
+            return 1
+    return 0
 
-    def __call__(self):
-        for m in self.modules:
-            s = unittest.defaultTestLoader.loadTestsFromName(m)
-            result = unittest.TextTestRunner(verbosity=self.verbosity).run(s)
-            if not result.wasSuccessful():
-                exit_status = 1
-test = Tester()
-
-class Usage(Exception): pass
-
-def _make_coverage_dirs(root):
-    coverage_dir = os.path.join(root, 'coverage', root[1:], 'utest')
-    if not os.path.exists(coverage_dir):
-        os.makedirs(coverage_dir)
 
 def _modules(root):
     modules = []
@@ -38,22 +24,23 @@ def _modules(root):
     return modules
 
 def _root_path_to_file(fname):
-    result = os.path.dirname(sys.argv[0])
+    result = os.path.dirname(fname)
     if not result:
         result = os.getcwd()
     if not result.startswith(os.sep):
         result = os.path.join(os.getcwd(), result)
     return os.path.normpath(result)
 
+class Usage(Exception): pass
+
 def main(args):
     import getopt
+    verbosity = 1
     try:
-        opts, files = getopt.getopt(args, 'vc')
+        opts, files = getopt.getopt(args, 'v')
         for opt, arg in opts:
             if opt == '-v':
-                test.verbosity += 1
-            elif opt == '-c':
-                test.coverage = 1
+                verbosity += 1
             else:
                 raise Usage('unknown option ' + opt)
     except getopt.GetoptError, detail:
@@ -63,34 +50,14 @@ def main(args):
     pychecker2 = os.path.split(root)[0]
     sys.path.append(pychecker2)
 
-    _make_coverage_dirs(root)
-    test.modules = _modules(root)
-
-    try:
-        import trace
-    except Exception, detail:
-        if test.coverage:
-            print 'Error: not tracing (%s)' % detail
-        coverage = None
-
-    if test.coverage:
-        ignore = trace.Ignore(dirs = [sys.prefix, sys.exec_prefix])
-        coverage = trace.Coverage(ignore)
-        trace.run(coverage.trace, 'test()')
-        trace.create_results_log(coverage.results(),
-                                 os.path.join(root, 'coverage'))
-    else:
-        test()
+    return test(_modules(root), verbosity)
         
 
 if __name__ == '__main__':
     try:
-        main(sys.argv[1:])
-    except Usage, detail:
+        sys.exit(main(sys.argv[1:]))
+    except Usage, error:
         err = sys.stderr
-        print >>err, "Error: " + str(detail)
-        print >>err
-        print >>err, "Usage: %s [-v] [-c]" % sys.argv[0]
+        print >>err, "Error: " + str(error)
+        print >>err, "Usage: %s [-v]" % sys.argv[0]
         sys.exit(1)
-    else:
-        sys.exit(test.exit_status)
