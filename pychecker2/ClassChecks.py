@@ -223,7 +223,7 @@ class AttributeCheck(Check):
                 n = check_special(m)
                 if n:
                     file.warning(m.node, self.specialMethod, m.name, n,
-                                 {1: ""}.get(n, "s"))
+                                 n > 1 and "s" or "")
                 name = m.name
                 if len(name) > 4 and \
                    name.startswith('__') and \
