@@ -1,12 +1,12 @@
 
-import sre 
+import UserDict 
 
-class jj(sre.Scanner) :
+class jj(UserDict.UserDict) :
     def __init__(self):
-      sre.Scanner.__init__(self, None)
+      UserDict.UserDict.__init__(self, None)
 
-class jj2(sre.Scanner) :
+class jj2(UserDict.UserDict) :
     def __init__(self):
-      "Warning don't call sre.Scanner.__init__()"
-      print "don't call sre.Scanner.__init__()"
+      "Warning don't call UserDict.UserDict.__init__()"
+      print "don't call UserDict.UserDict.__init__()"
 

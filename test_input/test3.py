@@ -4,11 +4,11 @@
 import string
 
 def describeSyntax(syntax):
-    return string.join(['<%s>' % x.Description for x in syntax])
+    return string.join(['<%s>' % x.Description])
 
-from sre import Scanner
+from UserDict import UserDict
 
-class jj(Scanner) :
+class jj(UserDict) :
     def __init__(self):
-      Scanner.__init__(self, None)
+      UserDict.__init__(self)
 
