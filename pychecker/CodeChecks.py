@@ -443,13 +443,13 @@ _UNCHECKABLE_FORMAT_STACK_TYPES = \
       Stack.TYPE_UNKNOWN, Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,
     ]
 
-def _getFormatWarnings(code, module) :
+def _getFormatWarnings(code, codeSource) :
     if len(code.stack) <= 1 :
         return
 
     format = code.stack[-2]
     if format.type != types.StringType or not format.const :
-        format = _getConstant(code, module, format)
+        format = _getConstant(code, codeSource.module, format)
         if format is None or type(format) != types.StringType :
             return
     else :
@@ -464,21 +464,24 @@ def _getFormatWarnings(code, module) :
                 code.addWarning(msgs.NO_LOCAL_VAR % varname)
             else :
                 code.unusedLocals[varname] = None
-    elif topOfStack.type == types.TupleType :
-        args = topOfStack.length
-    elif topOfStack.type == types.DictType and len(vars) > 0 :
-        pass
-    elif topOfStack.type not in _UNCHECKABLE_FORMAT_STACK_TYPES :
-        args = 1
-        # if we have a variable reference
-        if topOfStack.type == types.StringType and not topOfStack.const :
-            # and if the type is a tuple, get the length
-            dataTypes = code.typeMap.get(topOfStack.data, [])
-            if types.TupleType in dataTypes :
-                if len(dataTypes) == 1 :
-                    args = len(code.constants.get(topOfStack.data, (0,)))
-                else :
+    else :
+        if ((topOfStack.type == types.DictType and len(vars) > 0) or
+            codeSource.func.isParam(topOfStack.data) or
+            topOfStack.type in _UNCHECKABLE_FORMAT_STACK_TYPES) :
+            return
+
+        if topOfStack.type == types.TupleType :
+            args = topOfStack.length
+        else :
+            args = 1
+            # if we have a variable reference
+            if topOfStack.type == types.StringType and not topOfStack.const :
+                # and if the type is a tuple, get the length
+                dataTypes = code.typeMap.get(topOfStack.data, [])
+                if types.TupleType in dataTypes :
                     args = 0
+                    if len(dataTypes) == 1 :
+                        args = len(code.constants.get(topOfStack.data, (0,)))
 
     if args and count != args :
         code.addWarning(msgs.INVALID_FORMAT_COUNT % (count, args))
@@ -992,7 +995,7 @@ def _BINARY_DIVIDE(oparg, operand, codeSource, code) :
     code.popStack()
 
 def _BINARY_MODULO(oparg, operand, codeSource, code) :
-    _getFormatWarnings(code, codeSource.module)
+    _getFormatWarnings(code, codeSource)
     code.popStack()
 
 def _ROT_TWO(oparg, operand, codeSource, code) :
