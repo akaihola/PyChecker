@@ -1,6 +1,7 @@
 
 * Fix spurious warnings (Base class __init__ not called)
 	(only known case is subclass from Exception)
+* Fix Local variable (xxx) not used, when have:  "%(xxx)s" % locals()
 * Fix Local variable (xxx) not used, when have:  except Error, xxx:
 * Check module.Attribute exists (e.g., except getopt.GetoptError:)
 * Check function return values
@@ -9,4 +10,14 @@
 * Use real line numbers for import & class warnings
 * Spell check doc strings
 * Allow import checker to catch errors, rather than starting checker.py
+
+Eric's code review:
+
+* __addBaseMethods, __addBaseMembers are also almost identical
+* would it be simpler to treat self.f() as f(self)?
+* use %(name)s expansion for warnings
+* Fix (for i in list: if i in other_list: continue) by using filter func
+* Maybe _addWarning can be removed by using list flattening?
+* checker.py:  use one list for warnings (remove importWarnings)?
+* Consider i18n for cfg strings, warnings, etc.
 

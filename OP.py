@@ -3,7 +3,7 @@
 # Copyright (c) 2001, MetaSlash Inc.  All rights reserved.
 
 """
-Python code operations.
+Python code operations.  This is a convenience wrapper around dis.
 """
 
 import dis

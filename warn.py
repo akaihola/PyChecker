@@ -183,8 +183,8 @@ def _isMethodCall(stackValue, c) :
            len(stackValue) == 2 and stackValue[0] == 'self'
     
 def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
-    """Checks for warnings,
-       returns (warning [or None], function called)"""
+    """Checks for warnings, returns (warning, function called)
+                                     warning can be None"""
 
     if not stack :
         return None, None

@@ -94,7 +94,8 @@ class Class :
         self.module = module
         self.classObject = getattr(module, name)
         self.methods = {}
-        self.members = { '__class__': types.ClassType, '__doc__': None,
+        self.members = { '__class__': types.ClassType,
+                         '__doc__': types.StringType,
                          '__dict__': types.DictType, }
 
     def getFirstLine(self) :
@@ -105,9 +106,8 @@ class Class :
         for m in self.methods.values() :
             if m != None and m.function.func_code.co_name in classDir:
                 lineNums.append(m.function.func_code.co_firstlineno)
-        if len(lineNums) > 0 :
-            lineNums.sort()
-            return lineNums[0]
+        if lineNums :
+            return min(lineNums)
         return 0
 
 
