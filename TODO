@@ -1,0 +1,10 @@
+
+* Make more warnings configurable
+* Make warnings configurable from the command line
+* Spell check doc strings
+* Check code in module scope (not in a function/method)
+* Check function return values
+* Parse more executable instructions
+* Use real line numbers for import & class warnings
+* Allow import checker to catch errors, rather than starting checker.py
+

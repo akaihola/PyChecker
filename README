@@ -1,0 +1,45 @@
+
+PyChecker is a python source code checking tool.  Its purpose is to
+help you find common problems.  It is meant to find problems that are
+typically caught by a compiler.  Because of the dynamic nature of
+python, warnings can be produced which are incorrect; however,
+spurious warnings are fairly infrequent.
+
+PyChecker works in a combination of ways.  First, it imports each
+module.  If there is an import error, the module cannot be processed.
+The import provides some basic information about the module.  For each
+function, class, and method, the code within the function is checked
+for possible problems.
+
+Types of problems that can be found include:
+
+  * No doc strings in modules, classes, functions, and methods
+  * self not the first parameter to a method
+  * Wrong number of parameters passed to functions/methods
+  * No global found (e.g., using a module without importing it)
+  * Global not used (module or variable)
+
+
+To use PyChecker, pass the python source files you want to check on
+the command line:
+
+	python $PY_CHECKER_HOME/checker.py file1.py file2.py ...
+
+If there are import dependencies in your source files, you should
+import those files first on the command line in order to get as many
+files checked as possible.
+
+
+To look at a little example, you can use the two test files included:
+
+	python checker.py test.py test2.py
+
+
+Good Luck!  As always, feedback is greatly appreciated.
+
+Neal
+pychecker@metaslash.com
+
+PyChecker can be found on SourceForge at:
+	http://sourceforge.net/projects/pychecker
+
