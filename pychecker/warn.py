@@ -213,15 +213,14 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     codeSource = CodeChecks.CodeSource(module, func, c, main, in_class, code)
     try :
         _checkCode(code, codeSource)
+        if not in_class :
+            _findUnreachableCode(code)
 
-        # handle lambdas
+        # handle lambdas and nested functions
         codeSource.calling_code.append(func)
         for func_code in code.codeObjects.values() :
             _handleNestedCode(func_code, code, codeSource)
         del codeSource.calling_code[-1]
-
-        if not in_class :
-            _findUnreachableCode(code)
 
     except (SystemExit, KeyboardInterrupt) :
         exc_type, exc_value, exc_tb = sys.exc_info()

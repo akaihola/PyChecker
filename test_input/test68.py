@@ -157,3 +157,14 @@ def func22(x):
             break
         return 1
 
+def catchup(slave, image, inProgress):
+    d = func1.bogus()
+    def next():
+        defer = slave.call('', image.next())
+        try:
+            defer.add(d.errback)
+        except:
+            slave.call(inProgress)
+    next()
+    return d
+

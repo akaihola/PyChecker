@@ -6,6 +6,7 @@ Version 0.8.15   - XX XXX 2005
     rather than raising any error
   * Fix spurious warnings in Python 2.4 for Using is (not) None warnings
   * Fix spurious warnings for some instances of No class attribute found
+  * Fix spurious warnings for implicit returns when using nested functions
 
 Version 0.8.14   - 6 June 2004
   * Fix spurious warning in Python 2.3+ when doing a,b = 1,2

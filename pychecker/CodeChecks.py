@@ -771,6 +771,7 @@ class Code :
         self.func_code, self.bytes, self.index, self.maxCode, self.extended_arg = \
                         OP.initFuncCode(func.function)
         self.lastLineNum = self.func_code.co_firstlineno
+        self.returnValues = []
 
         # initialize the arguments to unused
         for arg in func.arguments() :
