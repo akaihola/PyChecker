@@ -116,6 +116,12 @@ class UnusedCheck(Check):
                 # local variables
                 if len(code) == 1 and isinstance(code[0], compiler.ast.Pass):
                     continue
+                # functions which just return a constant (such as None)
+                # probably won't use locals,
+                if len(code) == 1 and \
+                   isinstance(code[0], compiler.ast.Return) and \
+                   isinstance(code[0].value, compiler.ast.Const):
+                    continue
                 # functions which only assert falsehood are unlikely to use
                 # their local variables
                 if isinstance(code[0], compiler.ast.Assert) and \
