@@ -1,0 +1,38 @@
+This is a re-write of pychecker using traditional parse tree
+techniques, rather than the bytecode.
+
+There are some other design changes, related to Warning objects and
+Option handling.  In general, pychecker2 tries to distribute checks to
+separate classes.  These classes are more self-contained: they hold
+onto the option variables and define the Warning objects they support.
+
+Items still missing:
+
+        Error suppression (errors may be suppressed globally)
+
+        Module imports:
+                from sys import *
+                def f():
+                     stdout.write('Hello\n')
+
+            now gives an 'unknown identifier "stdout"'
+
+        Line numbers for where identifiers are defined.
+            (This will probably entail a re-write of 
+             compiler.symbol.SymbolVisitor)
+
+        Typing of any kind:
+             consistent return types
+             consistent return styles (mplicit and explicit)
+             object members
+             object methods
+
+        New python features:
+             slots
+             properties
+             integer division
+
+        Complexity
+
+        Doc strings
+
