@@ -511,7 +511,7 @@ def _getConstant(code, module, data) :
 
 _UNCHECKABLE_FORMAT_STACK_TYPES = \
       (Stack.TYPE_UNKNOWN, Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,
-       Stack.TYPE_GLOBAL,)
+       Stack.TYPE_GLOBAL, Stack.TYPE_EXCEPT)
 _UNCHECKABLE_STACK_TYPES = _UNCHECKABLE_FORMAT_STACK_TYPES + (types.NoneType,)
 
 def _getFormatString(code, codeSource) :
@@ -1132,7 +1132,11 @@ def _popStackRef(code, operand, count = 2) :
 def _pop(oparg, operand, codeSource, code) :
     code.popStack()
 _POP_TOP = _BINARY_LSHIFT = _BINARY_RSHIFT = \
-           _BINARY_AND = _BINARY_XOR = _BINARY_OR = _pop
+           _BINARY_AND = _BINARY_XOR = _BINARY_OR = \
+           _PRINT_ITEM = _pop
+
+def _PRINT_ITEM_TO(oparg, operand, codeSource, code) :
+    _popStackRef(code, operand)
 
 try:
     ComplexType = types.ComplexType
@@ -1420,6 +1424,8 @@ DISPATCH[ 64] = _BINARY_AND
 DISPATCH[ 65] = _BINARY_XOR
 DISPATCH[ 66] = _BINARY_OR
 DISPATCH[ 68] = _GET_ITER
+DISPATCH[ 71] = _PRINT_ITEM
+DISPATCH[ 73] = _PRINT_ITEM_TO
 DISPATCH[ 83] = _RETURN_VALUE
 DISPATCH[ 84] = _IMPORT_STAR
 DISPATCH[ 85] = _EXEC_STMT
