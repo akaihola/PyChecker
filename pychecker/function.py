@@ -70,9 +70,13 @@ class Function(_ReturnValues):
         if function.func_defaults is not None :
             self.minArgs = self.minArgs - len(function.func_defaults)
         # if function uses *args, there is no max # args
-        if function.func_code.co_flags & _ARGS_ARGS_FLAG != 0 :
-            self.maxArgs = None
-        self.supportsKW = function.func_code.co_flags & _KW_ARGS_FLAG
+        try:
+            if function.func_code.co_flags & _ARGS_ARGS_FLAG != 0 :
+                self.maxArgs = None
+            self.supportsKW = function.func_code.co_flags & _KW_ARGS_FLAG
+        except AttributeError:
+            # this happens w/Zope
+            self.supportsKW = 0
 
     def __str__(self):
         return self.function.func_name
