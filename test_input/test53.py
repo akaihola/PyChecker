@@ -2,7 +2,7 @@
 
 def x():
     # these are broken, this is BAD code!!!
-    i = ~~ 10
+    i = ~~ (10)
     while i > 0 :
       --i
     while i < 100 :
