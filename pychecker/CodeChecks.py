@@ -1393,7 +1393,9 @@ def _BINARY_MODULO(oparg, operand, codeSource, code) :
 
 def _ROT_TWO(oparg, operand, codeSource, code) :
     if len(code.stack) >= 2 :
-        del code.stack[-2]
+        tmp = code.stack[-2]
+        code.stack[-2] = code.stack[-1]
+        code.stack[-1] = tmp
 
 def _SETUP_EXCEPT(oparg, operand, codeSource, code) :
     code.has_except = 1

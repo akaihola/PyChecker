@@ -35,3 +35,6 @@ def nn2():
     n.append(1)
     n.append(1, 2)
     n.append((1, 2))
+
+def run():
+    foobar(x={0:5})
