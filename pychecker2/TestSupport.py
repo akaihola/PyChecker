@@ -43,7 +43,7 @@ class WarningTester(unittest.TestCase):
         self.check_warning(f.warnings[0], line, warning, *args)
 
     def warning(self, test, line, warning, *args):
-        assert test.endswith('\n'), "Tests should end with newline"
+        test += '\n'
         f = self.check_file(test)
         self.warning_file(f, line, warning, *args)
 
