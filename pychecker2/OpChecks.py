@@ -46,7 +46,7 @@ class OpCheck(Check.Check):
         if not file.parseTree:
             return
         for p in compiler.walk(file.parseTree, self.visitor_class()).nodes:
-            file.warning(p.lineno, self.msg)
+            file.warning(p, self.msg)
 
 Check.pass1.append(OpCheck(PlusPlus,  "Operator (++) doesn't exist, statement has no effect"))
 Check.pass1.append(OpCheck(Plus,      "Operator (+) normally has no effect"))

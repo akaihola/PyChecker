@@ -6,12 +6,9 @@ _REDEFINE_MSG = "Scope (%s) is redefined at line %d"
 class RedefineCheck(Check.Check):
 
     def check(self, file, unused_options):
-        if not file.scopes:
-            return
-
         names = {}                      # map name, parent to this scope
         for node, scope in file.scopes.items():
-            if hasattr(node, 'name'):
+            if hasattr(node, 'name'):	# classes, functions
                 key = (scope.parent, node.name)
                 if names.has_key(key):
                     # oops, another scope has the same name and parent
@@ -19,7 +16,7 @@ class RedefineCheck(Check.Check):
                     second = names[key]
                     if first.lineno > second.lineno:
                         second, first = first, second
-                    file.warning(first.lineno,
+                    file.warning(first,
                                  _REDEFINE_MSG % (first.name, second.lineno))
                 names[key] = node
 

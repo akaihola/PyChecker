@@ -14,22 +14,21 @@ class ShadowCheck(Check.Check):
         options.add(BoolOpt(self, 'shadowBuiltins', desc))
 
     def check(self, file, unused_options):
-        if not file.parseTree or not file.scopes:
-            return
-
         def find_shadow(scope, parents):
             "Calculate parents by recursing into child scopes"
             for name in scope.defs:
                 if self.shadowBuiltins and __builtins__.has_key(name):
-                    file.warning(scope.lineno,
+                    file.warning(scope,
                                  "Identifier (%s) shadows builtin" % name)
                     continue
                 for p in parents:
                     if name in p.defs:
-                        file.warning(scope.lineno, _SHADOW_MSG % (name, `p`))
+                        file.warning(scope, _SHADOW_MSG % (name, `p`))
             for c in scope.get_children():
                 find_shadow(c, parents + [scope])
-        find_shadow(file.root_scope, [])
+
+	if file.root_scope:
+            find_shadow(file.root_scope, [])
 
 Check.pass2.append(ShadowCheck())
 
@@ -48,9 +47,6 @@ class UnusedCheck(Check.Check):
         options.add(BoolOpt(self, 'reportUnusedSelf', desc))
 
     def check(self, file, unused_options):
-        if not file.parseTree or not file.scopes:
-            return
-
         if type(self.unusedPrefixes) == type(''):
             self.unusedPrefixes = eval(self.unusedPrefixes)
 
@@ -106,7 +102,7 @@ class UnusedCheck(Check.Check):
                         break
                 else:
                     if not used(var, scope):
-                        file.warning(scope.lineno, _UNUSED_MSG % var)
+                        file.warning(scope, _UNUSED_MSG % var)
 
 Check.pass2.append(UnusedCheck())
 
@@ -117,7 +113,7 @@ class UnknownCheck(Check.Check):
     not defined in a parent scope"""
 
     def check(self, file, unused_options):
-        if not file.parseTree or not file.scopes:
+        if not file.root_scope:
             return
 
         # collect the defs for each scope (including the parents)
@@ -134,6 +130,6 @@ class UnknownCheck(Check.Check):
                 if var not in defs[scope] and \
                    not __builtins__.has_key(var) and \
                    var != '__builtins__':
-                    file.warning(scope.lineno, _UNKNOWN_MSG % var)
+                    file.warning(scope, _UNKNOWN_MSG % var)
 
 Check.pass2.append(UnknownCheck())
