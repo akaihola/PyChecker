@@ -68,7 +68,6 @@ GLOBAL_FUNC_INFO = { '__import__': (types.ModuleType, 1, 4),
                      'type': (types.TypeType, 1, 1),
                      'vars': (types.DictType, 0, 1),
                      'xrange': (types.ListType, 1, 3),
-                     'zip': (types.ListType, 1, None),
                    }
 
 if utils.pythonVersion() >= utils.PYTHON_2_2 :
@@ -77,6 +76,9 @@ if utils.pythonVersion() >= utils.PYTHON_2_2 :
 if hasattr(types, 'UnicodeType') :
     GLOBAL_FUNC_INFO['unichr'] = (types.UnicodeType, 1, 1)
     GLOBAL_FUNC_INFO['unicode'] = (types.UnicodeType, 1, 3)
+
+if globals().has_key('zip') :
+    GLOBAL_FUNC_INFO['zip'] = (types.ListType, 1, None)
 
 _STRING_METHODS = { 'capitalize': (types.StringType, 0, 0),
                     'center': (types.StringType, 1, 1),
@@ -156,27 +158,30 @@ BUILTIN_METHODS = { types.DictType :
                     },
                   }
 
-if utils.pythonVersion() >= utils.PYTHON_2_2 :
-    PY22_DICT_METHODS = { 'iteritems': (types.ListType, 0, 0),
-                          'iterkeys': (types.ListType, 0, 0),
-                          'itervalues': (types.ListType, 0, 0),
-                        }
+def _setupBuiltinMethods() :
+    if utils.pythonVersion() >= utils.PYTHON_2_2 :
+        PY22_DICT_METHODS = { 'iteritems': (types.ListType, 0, 0),
+                              'iterkeys': (types.ListType, 0, 0),
+                              'itervalues': (types.ListType, 0, 0),
+                            }
 
-    BUILTIN_METHODS[types.DictType].update(PY22_DICT_METHODS)
+        BUILTIN_METHODS[types.DictType].update(PY22_DICT_METHODS)
 
-try :
-    BUILTIN_METHODS[types.ComplexType] = \
-                              { 'conjugate': (types.ComplexType, 0, 0), }
-except NameError :
-    pass
+    try :
+        BUILTIN_METHODS[types.ComplexType] = \
+                                  { 'conjugate': (types.ComplexType, 0, 0), }
+    except NameError :
+        pass
 
-if len(dir('')) > 0 :
-    BUILTIN_METHODS[types.StringType] = _STRING_METHODS
+    if len(dir('')) > 0 :
+        BUILTIN_METHODS[types.StringType] = _STRING_METHODS
 
-try :
-    BUILTIN_METHODS[types.UnicodeType] = _STRING_METHODS
-except AttributeError :
-    pass
+    try :
+        BUILTIN_METHODS[types.UnicodeType] = _STRING_METHODS
+    except AttributeError :
+        pass
+
+_setupBuiltinMethods()
 
 MUTABLE_TYPES = (types.ListType, types.DictType, types.InstanceType,)
 
