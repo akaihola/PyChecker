@@ -379,29 +379,21 @@ def _setupBuiltinAttrs() :
     w = Warning.Warning('', 0, '')
     _BUILTINS_ATTRS[types.MethodType] = dir(w.__init__)
     del w
-    try :
-        _BUILTINS_ATTRS[types.ComplexType] = dir(complex(0, 1))
-    except NameError :
-        pass
+    try: _BUILTINS_ATTRS[types.ComplexType] = dir(complex(0, 1))
+    except: pass
 
-    try :
-        _BUILTINS_ATTRS[types.UnicodeType] = dir(u'')
-    except (NameError, SyntaxError) :
-        pass
+    try: _BUILTINS_ATTRS[types.UnicodeType] = dir(unicode(''))
+    except: pass
 
-    try :
-        _BUILTINS_ATTRS[types.CodeType] = dir(_setupBuiltinAttrs.func_code)
-    except :
-        pass
+    try: _BUILTINS_ATTRS[types.CodeType] = dir(_setupBuiltinAttrs.func_code)
+    except: pass
 
-    try :
-        _BUILTINS_ATTRS[types.FileType] = dir(sys.__stdin__)
-    except :
-        pass
+    try: _BUILTINS_ATTRS[types.FileType] = dir(sys.__stdin__)
+    except: pass
 
     try:
         raise TypeError
-    except TypeError:
+    except TypeError :
         try:
             tb = sys.exc_info()[2]
             _BUILTINS_ATTRS[types.TracebackType] = dir(tb)
@@ -680,6 +672,9 @@ def _IMPORT_NAME(oparg, operand, codeSource, code) :
     code.stack.append(Stack.Item(operand, types.ModuleType))
     nextOp = code.nextOpInfo()[0]
     if not OP.IMPORT_FROM(nextOp) and not OP.IMPORT_STAR(nextOp) :
+        # handle import xml.sax as sax
+        if OP.LOAD_ATTR(nextOp) :
+            operand = code.getNextOp()[2]
         _handleImport(code, operand, codeSource.module, codeSource.main, None)
 
 def _IMPORT_FROM(oparg, operand, codeSource, code) :

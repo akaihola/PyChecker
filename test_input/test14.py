@@ -17,3 +17,8 @@ if string.lower(used) == '':
 if 1 :
     _noglobal = 0
 
+import xml.sax as sax
+
+def zzz():
+    print sax
+
