@@ -30,18 +30,17 @@ Figure out which names come from 'import name'.
             for scope in scopes:
                 try:
                     smodule, snode = scope.imports[name]
-                    if util.under_simple_try_if(snode, node):
-                        raise KeyError('a lie')
-                    if smodule == module:
-                        if scope == scopes[0]:
-                            extra = " in current scope"
+                    if not util.under_simple_try_if(snode, node):
+                        if smodule == module:
+                            if scope == scopes[0]:
+                                extra = " in current scope"
+                            else:
+                                extra = " of import in parent scope %s" % scope
+                            file.warning(node, ImportCheck.duplicateImport,
+                                         name, extra)
                         else:
-                            extra = " of import in parent scope %s" % scope
-                        file.warning(node, ImportCheck.duplicateImport,
-                                     name, extra)
-                    else:
-                        file.warning(node, ImportCheck.shadowImport,
-                                     name, smodule.__name__, snode.lineno)
+                            file.warning(node, ImportCheck.shadowImport,
+                                         name, smodule.__name__, snode.lineno)
                 except KeyError:
                     pass
             scopes[0].imports[name] = (module, node)
