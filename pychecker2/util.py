@@ -21,12 +21,14 @@ def try_if_exclusive(stmt_node1, stmt_node2):
             parts = [code for test, code in parent.tests]
             parts.append(parent.else_)
             for part in parts:
-                if stmt_node1 in part.nodes:
+                if part and stmt_node1 in part.nodes:
                     return stmt_node2 not in part.nodes
         if isinstance(parent, ast.TryExcept):
             parts = []
-            parts.extend(parent.body.nodes)
-            parts.extend(parent.else_.nodes)
+            if parent.body:
+                parts.extend(parent.body.nodes)
+            if parent.else_:
+                parts.extend(parent.else_.nodes)
             if stmt_node1 in parts and \
                stmt_node2 in parts:
                 return None
