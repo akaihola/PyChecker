@@ -43,7 +43,7 @@ _OPTIONS = (
  ('n', 0, 'namedargs', 'namedArgs', 'functions called with named arguments (like keywords)'),
  ('a', 0, 'initattr', 'onlyCheckInitForMembers', 'Attributes (members) must be defined in __init__()'),
  ('I', 0, 'initsubclass', 'initDefinedInSubclass', 'Subclass.__init__() not defined'),
- ('u', 0, 'callinit', 'baseClassInitted', 'Subclass.__init__() not called'),
+ ('u', 0, 'callinit', 'baseClassInitted', 'Baseclass.__init__() not called'),
  ('0', 0, 'abstract', 'abstractClasses', 'Subclass needs to override methods that only throw exceptions'),
  ('N', 0, 'initreturn', 'returnNoneFromInit', 'Return None from __init__()'),
  ('8', 0, 'unreachable', 'unreachableCode', 'unreachable code'),
