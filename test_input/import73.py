@@ -6,4 +6,4 @@ class AbstractLib:
     def abstract(self):
         "This is doc"
         "this is an expression, sneaky"
-        raise SystemError("This method must be overridden")
+        raise NotImplementedError("This method must be overridden")
