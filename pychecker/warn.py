@@ -393,16 +393,15 @@ def _handleComparison(stack, operand) :
     stack[-si:] = [ Stack.makeComparison(compareValues, operand) ]
 
 
-def _handleImport(operand, module, func_code, lastLineNum, main) :
+def _handleImport(operand, module, func_code, lastLineNum, main, fromName) :
     warn = None
     filename = func_code.co_filename
     if not module.moduleLineNums.has_key(operand) :
         if main :
             module.moduleLineNums[operand] = (filename, lastLineNum)
     else :
-        lineInfo = module.moduleLineNums.get(operand)
-        if lineInfo and (lineInfo[0] != filename or
-                         lineInfo[1] != lastLineNum) :
+        modline = module.moduleLineNums.get(operand)
+        if modline and (modline[0] != filename or modline[1] != lastLineNum) :
             warn = Warning(func_code, lastLineNum,
                            _MODULE_IMPORTED_AGAIN % operand)
     return warn
@@ -452,7 +451,6 @@ def _getFormatInfo(format, func_code, lastLineNum) :
                         w = Warning(func_code, lastLineNum,
                                     _USING_STAR_IN_FORMAT_MAPPING % section)
                         warns.append(w)
-                continue
 
         if stars > 2 :
             warns.append(Warning(func_code, lastLineNum,
@@ -563,28 +561,30 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                                        _VAR_USED_BEFORE_SET % operand)
                     unusedLocals[operand] = None
                 elif OP.LOAD_ATTR(op) :
-                    topOfStack = stack[-1]
-                    if topOfStack.data == _cfg.methodArgName and c != None :
-                        warn = _checkAttribute(operand, c, func_code, lastLineNum)
-                    elif type(topOfStack.type) == types.StringType :
-                        warn = _checkModuleAttribute(operand, module, func_code,
-                                                    lastLineNum, topOfStack.data)
-                    # FIXME: need to keep type of objects
-                    elif 0 and _METHODLESS_OBJECTS.has_key(topOfStack.type) :
-                        warn = Warning(func_code, lastLineNum,
-                                       _OBJECT_HAS_NO_METHODS % operand)
-                    topOfStack.addAttribute(operand)
+                    if len(stack) > 0 :
+                        topOfStack = stack[-1]
+                        if topOfStack.data == _cfg.methodArgName and c != None :
+                            warn = _checkAttribute(operand, c, func_code,
+                                                   lastLineNum)
+                        elif type(topOfStack.type) == types.StringType :
+                            warn = _checkModuleAttribute(operand, module,
+                                       func_code, lastLineNum, topOfStack.data)
+                        # FIXME: need to keep type of objects
+                        elif 0 and _METHODLESS_OBJECTS.has_key(topOfStack.type) :
+                            warn = Warning(func_code, lastLineNum,
+                                           _OBJECT_HAS_NO_METHODS % operand)
+                        topOfStack.addAttribute(operand)
                 elif OP.IMPORT_NAME(op) :
                     stack.append(Stack.Item(operand, type(operand)))
                     warn = _handleImport(operand, module, func_code,
-                                         lastLineNum, main)
+                                         lastLineNum, main, None)
                 elif OP.IMPORT_FROM(op) :
                     fromName = stack[-1].data
                     if module.moduleLineNums.has_key(fromName) :
                         del module.moduleLineNums[fromName]
                     stack.append(Stack.Item(operand, type(operand)))
                     warn = _handleImport(operand, module, func_code,
-                                         lastLineNum, main)
+                                         lastLineNum, main, fromName)
                 elif OP.UNPACK_SEQUENCE(op) :
                     unpackCount = oparg
                 elif OP.FOR_LOOP(op) :
