@@ -268,6 +268,8 @@ BUILTIN_ATTRS = { types.StringType : dir(''),
 # have to setup the rest this way to support different versions of Python
 _setupBuiltinAttrs()
 
+PENDING_DEPRECATED_MODULES = { 'string': None, 'types': None,
+                             }
 DEPRECATED_MODULES = { 'audioop': None, 'FCNTL': 'fcntl', 'gopherlib': None,
                        'posixfile': 'fcntl', 'pre': None, 'regsub': 're',
                        'statcache': 'os.stat()',
@@ -277,7 +279,7 @@ DEPRECATED_MODULES = { 'audioop': None, 'FCNTL': 'fcntl', 'gopherlib': None,
 
                        # C Modules
                        'mpz': None, 'pcre': None, 'pypcre': None,
-                       'rgbimg': None, 'strop': None, 
+                       'rgbimg': None, 'strop': None, 'xreadlines': 'file',
                      }
 DEPRECATED_ATTRS = { 'array.read': None, 'array.write': None,
                      'operator.isCallable': None,
@@ -288,11 +290,14 @@ DEPRECATED_ATTRS = { 'array.read': None, 'array.write': None,
                      'string.atof': None, 'string.atoi': None,
                      'string.atol': None, 'string.zfill': None,
                      'sys.exc_traceback': None, 'sys.exit_thread': None,
-                     'tempfile.template': None,
+                     'tempfile.mktemp': None, 'tempfile.template': None,
                    }
 
 # FIXME: can't check these right now, maybe later
-DEPRECATED_METHODS = { 
+DEPRECATED_METHODS = {
+                       'email.Message.get_type': 'email.Message.get_content_type',
+                       'email.Message.get_subtype': 'email.Message.get_content_subtype',
+                       'email.Message.get_main_type': 'email.Message.get_content_maintype',
                        'htmllib.HTMLParser.do_nextid': None,
                        'pstats.Stats.ignore': None,
                        'random.Random.cunifvariate': None,
