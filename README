@@ -17,6 +17,7 @@ Types of problems that can be found include:
   * Using format strings that don't match arguments
   * Using class methods and attributes that don't exist
   * Changing signature when overriding a method
+  * Redefining a function/class/method in the same scope
   * Using a variable before setting it
   * self not the first parameter to a method
   * Unused globals and locals (module or variable)

@@ -5,6 +5,7 @@ Version 0.8	- xx July 2001
   * Suppress warnings by setting __pychecker__ in source code
   * Change long argument behaviour --arg sets arg to true,
 	--no-arg sets arg to false (also works for warning suppression)
+  * Add -U/--reuseattr check if function/class/method names are reused
   * Add -T/--argsused check for unused method/function arguments
   * Add -G/--selfused ignore if self is unused in a method (requires --argsused)
   * Add -q/--stdlib to disable warnings from the standard library

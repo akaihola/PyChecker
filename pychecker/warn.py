@@ -42,6 +42,8 @@ _UNUSED_PARAMETER = "Parameter (%s) not used"
 _NO_LOCAL_VAR = "No local variable (%s)"
 _VAR_USED_BEFORE_SET = "Variable (%s) used before being set"
 
+_REDEFINING_ATTR = "Redefining attribute (%s) original line (%d)"
+
 _MODULE_IMPORTED_AGAIN = "Module (%s) re-imported"
 _MODULE_MEMBER_IMPORTED_AGAIN = "Module member (%s) re-imported"
 _MODULE_MEMBER_ALSO_STAR_IMPORTED = "Module member (%s) re-imported with *"
@@ -592,7 +594,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     # disable these checks for this crappy code
     __pychecker__ = 'maxbranches=0 maxlines=0'
 
-    warnings, codeObjects = [], []
+    warnings, codeObjects = [], {}
     globalRefs, unusedLocals, functionsCalled = {}, {}, {}
 
     # initialize the arguments to unused
@@ -659,7 +661,15 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                 elif OP.LOAD_CONST(op) :
                     stack.append(Stack.Item(operand, type(operand), 1))
                     if type(operand) == types.CodeType :
-                        codeObjects.append(operand)
+                        name = operand.co_name
+                        obj = codeObjects.get(name, None)
+                        if obj is None or name == '<lambda>' :
+                            codeObjects[name] = operand
+                        elif cfg().redefiningFunction :
+                            warn = Warning(func_code, lastLineNum,
+                                           _REDEFINING_ATTR % \
+                                           (name, obj.co_firstlineno))
+                            warnings.append(warn)
                 elif OP.LOAD_FAST(op) :
                     stack.append(Stack.Item(operand, type(operand)))
                     if not unusedLocals.has_key(operand) and \
@@ -840,7 +850,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
 
     if not main :
         popConfig()
-    return warnings, globalRefs, functionsCalled, codeObjects, returnValues
+    return warnings, globalRefs, functionsCalled, codeObjects.values(), returnValues
 
 
 def _getUnused(module, globalRefs, dict, msg, filterPrefix = None) :
