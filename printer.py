@@ -37,7 +37,8 @@ def module(module) :
     print ""
     for c in module.classes.values() :
         for method in c.methods.values() :
-            printFunction("  ", "", method, c.name)
+            if method != None :
+                printFunction("  ", "", method.function, c.name)
         print ""
 
 def attrs(object) :
