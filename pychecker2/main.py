@@ -21,6 +21,7 @@ def main():
                OpChecks.OpCheck(),
                ImportChecks.ImportCheck(),
                VariableChecks.ShadowCheck(),
+               VariableChecks.UnpackCheck(),
                VariableChecks.UnusedCheck(),
                VariableChecks.UnknownCheck(),
                VariableChecks.SelfCheck(),
