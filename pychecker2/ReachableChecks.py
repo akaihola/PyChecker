@@ -12,36 +12,36 @@ class ReachableCheck(Check):
     def check(self, file, unused_checker):
         class ReturnsVisitor(BaseVisitor):
             def __init__(s):
-                s.returns = 0           #  icky: result value by side-effect
+                s.always_returns = 0    #  icky: result value by side-effect
 
             def alternatives_with_else(s, nodes, else_):
                 for n in nodes:
-                    s.returns = 0                
+                    s.always_returns = 0                
                     s.visit(n)
-                    if not s.returns:
+                    if not s.always_returns:
                         return
-                s.returns = 0
+                s.always_returns = 0
                 if else_:
                     s.visit(else_)
 
             def visitAssert(s, node):
                 if isinstance(node.test, ast.Const):
-                    s.returns = not node.test.value
+                    s.always_returns = not node.test.value
                 if isinstance(node.test, ast.Name):
                     if node.test.name == 'None':
-                        s.returns = 1
+                        s.always_returns = 1
 
             def visitReturn(s, node):
-                s.returns = 1
+                s.always_returns = 1
             visitRaise = visitReturn
 
             def visitTryExcept(s, node):
-                s.returns = 0
+                s.always_returns = 0
                 # if body always returns, else code is unreachable
                 s.visit(node.body)
-                if s.returns and node.else_:
+                if s.always_returns and node.else_:
                     file.warning(node.else_.nodes[0], self.unreachable)
-                s.returns = 0
+                s.always_returns = 0
                 # no matter what happens in the try clause, it might
                 # cause an exception, so check the handlers and else
                 # conditions all return
@@ -54,23 +54,23 @@ class ReachableCheck(Check):
                     
             def visitStmt(s, node):
                 for n in range(len(node.nodes) - 1):
-                    s.returns = 0
+                    s.always_returns = 0
                     s.visit(node.nodes[n])
-                    if s.returns:
+                    if s.always_returns:
                         file.warning(node.nodes[n + 1], self.unreachable)
                 if node.nodes:
-                    s.returns = 0
+                    s.always_returns = 0
                     s.visit(node.nodes[-1])
                 
             def visitFunction(s, node):
-                tmp = s.returns
-                s.returns = 0
+                tmp = s.always_returns
+                s.always_returns = 0
                 s.visit(node.code)
-                s.returns = tmp
+                s.always_returns = tmp
 
             def visitWhile(s, node):    # while's may never execute,
                                         # and not return
-                s.returns = 0
+                s.always_returns = 0
 
             visitFor = visitWhile
 
