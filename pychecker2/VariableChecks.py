@@ -193,7 +193,7 @@ class UnpackCheck(Check):
             def visitAssTuple(self, node, *scopes):
                 for c in node.getChildNodes():
                     try:
-                        scopes[-1].uses[c.name] = node.lineno
+                        scopes[0].uses[c.name] = node.lineno
                     except AttributeError:
                         pass
                 

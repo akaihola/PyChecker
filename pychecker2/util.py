@@ -26,7 +26,7 @@ class ScopeVisitor:
     # Add a scope, if the node corresponds to a new scope
     def default(self, node, *scopes):
         try:
-            scopes = scopes + (self.scopes[node],)
+            scopes = (self.scopes[node],) + scopes
         except KeyError:
             pass
         for c in node.getChildNodes():
