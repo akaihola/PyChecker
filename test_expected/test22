@@ -9,3 +9,5 @@ test_input/test22.py:10 No local variable (ddd)
 test_input/test22.py:13 No local variable ()
 test_input/test22.py:15 Invalid format string
 test_input/test22.py:16 Invalid format string
+test_input/test22.py:19 Format string argument count (2) doesn't match arguments (3)
+test_input/test22.py:22 Format string argument count (3) doesn't match arguments (4)
