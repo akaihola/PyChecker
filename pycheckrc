@@ -49,6 +49,10 @@ namedArgs = 1
 # str: name of 'self' parameter
 methodArgName = 'self'
 
+# bool:  check if an overriden method has the same signature
+#	 as base class method (__init__() methods are not checked)
+checkOverridenMethods = 1
+
 # int: warnings for code complexity, max value before generating a warning
 maxLines = 200
 maxBranches = 50

@@ -1,0 +1,20 @@
+Processing test38...
+
+Warnings...
+
+test_input/test38.py:23: Overriden method (m1) doesn't match signature in class (test38.X)
+test_input/test38.py:24: Overriden method (m2) doesn't match signature in class (test38.X)
+test_input/test38.py:25: Overriden method (m3) doesn't match signature in class (test38.X)
+test_input/test38.py:26: Overriden method (m4) doesn't match signature in class (test38.X)
+test_input/test38.py:27: Overriden method (m5) doesn't match signature in class (test38.X)
+test_input/test38.py:28: Overriden method (m6) doesn't match signature in class (test38.X)
+test_input/test38.py:32: Overriden method (m3) doesn't match signature in class (test38.X)
+test_input/test38.py:33: Overriden method (m6) doesn't match signature in class (test38.X)
+test_input/test38.py:37: Overriden method (m3) doesn't match signature in class (test38.X)
+test_input/test38.py:38: Overriden method (m6) doesn't match signature in class (test38.X)
+test_input/test38.py:42: Overriden method (m1) doesn't match signature in class (test38.X)
+test_input/test38.py:43: Overriden method (m2) doesn't match signature in class (test38.X)
+test_input/test38.py:44: Overriden method (m3) doesn't match signature in class (test38.X)
+test_input/test38.py:45: Overriden method (m4) doesn't match signature in class (test38.X)
+test_input/test38.py:46: Overriden method (m5) doesn't match signature in class (test38.X)
+test_input/test38.py:47: Overriden method (m6) doesn't match signature in class (test38.X)

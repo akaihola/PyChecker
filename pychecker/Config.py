@@ -39,6 +39,7 @@ _OPTIONS = [
  ('N', 0, 'initreturn', 'returnNoneFromInit', 'Return None from __init__()'),
  ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
  ('S', 1, 'self', 'methodArgName', 'First argument to methods'),
+ ('o', 0, 'override', 'checkOverridenMethods', 'check if overridden methods have the same signature'),
  None,
  ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
  None,
@@ -144,6 +145,7 @@ class Config :
         self.variablesToIgnore = _DEFAULT_VARIABLE_IGNORE_LIST
         self.blacklist = _DEFAULT_BLACK_LIST
         self.methodArgName = 'self'
+        self.checkOverridenMethods = 1
 
         self.maxLines = 200
         self.maxBranches = 50

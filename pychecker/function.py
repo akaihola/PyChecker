@@ -66,4 +66,16 @@ def create_from_file(file, filename, module) :
     code = compile(codestr, filename, 'exec')
     return Function(FakeFunction('__main__', code, module.__dict__))
 
+def same_signature(func, object) :
+    '''Return a boolean value if the <func> has the same signature as
+       a function with the same name in <object> (ie, an overriden method)'''
+
+    try :
+        baseMethod = getattr(object, func.func_name)
+        base_func_code = baseMethod.im_func.func_code
+    except AttributeError :
+        return 1
+
+    return base_func_code.co_flags == func.func_code.co_flags and \
+           base_func_code.co_argcount == func.func_code.co_argcount
 

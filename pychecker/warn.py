@@ -59,6 +59,7 @@ _INVALID_CLASS_ATTR = "No class attribute (%s) found"
 _INVALID_MODULE_ATTR = "No module attribute (%s) found"
 _USING_METHOD_AS_ATTR = "Using method (%s) as an attribute (not invoked)"
 _OBJECT_HAS_NO_METHODS = "Object (%s) has no methods"
+_METHOD_SIGNATURES_DONT_MATCH = "Overriden method (%s) doesn't match signature in class (%s)"
 
 _INVALID_ARG_COUNT1 = "Invalid arguments to (%s), got %d, expected %d"
 _INVALID_ARG_COUNT2 = "Invalid arguments to (%s), got %d, expected at least %d"
@@ -848,6 +849,17 @@ def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
     return warnings
 
 
+def _checkOverridenMethods(func, baseClasses, warnings) :
+    for baseClass in baseClasses :
+        if func.func_name != _INIT and \
+           not function.same_signature(func, baseClass) :
+            warn = Warning(func.func_code, func.func_code,
+                           _METHOD_SIGNATURES_DONT_MATCH % \
+                           (func.func_name, str(baseClass)))
+            warnings.append(warn)
+            break
+
+
 def _handleLambda(module, code, warnings, globalRefs, in_class = 0):
     if code.co_name == '<lambda>' :
         func = function.create_fake(code.co_name, code)
@@ -905,7 +917,8 @@ def find(moduleList, initialCfg) :
             _updateFunctionWarnings(module, func, None, warnings, globalRefs)
 
         for c in module.classes.values() :
-            for base in c.allBaseClasses() :
+            baseClasses = c.allBaseClasses()
+            for base in baseClasses :
                 baseModule = str(base)
                 if '.' in baseModule :
                     # make sure we handle import x.y.z
@@ -926,6 +939,10 @@ def find(moduleList, initialCfg) :
                     continue
                 func_code = method.function.func_code
                 debug("method:", func_code)
+
+                if cfg().checkOverridenMethods :
+                    _checkOverridenMethods(method.function, baseClasses,
+                                           warnings)
 
                 if cfg().noDocFunc and method.function.__doc__ == None :
                     warn = Warning(moduleFilename, func_code,

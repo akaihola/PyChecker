@@ -1,21 +1,22 @@
 
-* Add check for a[1,2] for lists (ok for dict)
+* Finer grain control of warnings/config options (per module/class/method)
+	(first part done, can do with __pychecker__ variable in module/function)
 * Improve handling when importing packages
-* Fix error msg to base constructors (msg count is wrong)
 * Make check for 'self' a list instead of a string
+* Check function return values - partially complete
+* Add check for a[1,2] for lists (ok for dict)
 * Add option to ignore all warnings in standard library
-* Add check that derived method has same signature as base class
 * Add check for except: pass
 * Add check for unused parameters
 * Add check for multiple functions/methods/classes w/same name
 * Add check that private functions are used in module/class
 * Add check that subclass overrides method that only raises NotImplementedError
+* Add check for using object members outside of class
+* Fix error msg to base constructors (msg count is wrong)
 * Fix deriving from class by alias name
 * Fix sys.exc_value, etc. generating No attribute warning in except clause
-* Add check for using object members outside of class
-* Check function return values - partially complete
-* Finer grain control of warnings/config options (per module/class/method)
-	(first part done, can do with __pychecker__ variable in module/function)
+	(does anyone see this???)
+
 * Allow import checker to catch errors, rather than starting checker.py
 * Find lines that end w/semi-colons (;)
 * Spell check doc strings
