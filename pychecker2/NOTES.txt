@@ -31,8 +31,8 @@ Bugs:
         locals() should use locals
         globals() should use globals
 
-        attributes defined from inherited classes treated as undefined
-        attributes defined at class scope are treated as undefined
+        attributes defined from inherited classes from other modules 
+           are treated as undefined
 
         class C:
               def f(a, b): pass
