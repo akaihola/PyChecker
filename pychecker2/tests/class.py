@@ -1,9 +1,9 @@
 import compiler.ast
 
 class B(compiler.ast.Const):
-
+    inherited2 = 1
     def x(self):
-        self.inherited = 1
+        self.inherited1 = 1
 
 class A(B):
     def __init__(self):
@@ -26,7 +26,8 @@ class A(B):
         print self.x                    # assigned
         print self.a                    # unpacked
         print self.w                    # unknown
-        print self.known                # known is known from B
+        print self.inherited1           # known from B
+        print self.inherited2           # known from B
         print self.value                # from compiler.ast.Const
         print self.goofy                # defined in class scope
 
