@@ -1,4 +1,3 @@
-from compiler import ast
 
 class BaseVisitor:
 
@@ -11,6 +10,8 @@ class BaseVisitor:
             self.visit(c)     
 
 def try_if_exclusive(stmt_node1, stmt_node2):
+    from compiler import ast as ast
+    
     """return true if the statements are in exclusive parts of if/elif/else
     or try/finally/else"""
     
