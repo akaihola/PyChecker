@@ -1,5 +1,9 @@
 
 Version 0.9	- xx August 2001
+  * Add -x/--miximport config option (warning was not configurable before)
+  	(warn if mixing: import/from ... import)
+  * Add -u/--callinit config option (warning was not configurable before)
+  	(warn if Subclass.__init__() not called)
   * Add warnings for --, ++, ~~:
   	"Operator (%s) doesn't exist, statement has no effect"
   * Fix Object (x) has no attribute warnings for Python 2.2a1 built-in types

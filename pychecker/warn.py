@@ -227,11 +227,12 @@ def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
                 warn = Warning(moduleFilename, line, msgs.RETURN_FROM_INIT)
                 warnings.append(warn)
 
-    for base in c.classObject.__bases__ :
-        if not _baseInitCalled(base, functionsCalled) :
-            warn = Warning(moduleFilename, func_code,
-                           msgs.BASE_CLASS_NOT_INIT % str(base))
-            warnings.append(warn)
+    if cfg().baseClassInitted :
+        for base in c.classObject.__bases__ :
+            if not _baseInitCalled(base, functionsCalled) :
+                warn = Warning(moduleFilename, func_code,
+                               msgs.BASE_CLASS_NOT_INIT % str(base))
+                warnings.append(warn)
     return warnings
 
 

@@ -252,14 +252,15 @@ def _handleImport(code, operand, module, main, fromName) :
         if fromName is None :
             if modline1 is not None :
                 err = msgs.MODULE_IMPORTED_AGAIN % operand
-            else :
+            elif cfg().mixImport :
                 err = msgs.MIX_IMPORT_AND_FROM_IMPORT % tmpFromName
         else :
             if modline3 is not None and operand != '*' :
                 err = 'from %s import %s' % (tmpFromName, operand)
                 err = msgs.MODULE_MEMBER_IMPORTED_AGAIN % err
             elif modline1 is not None :
-                err = msgs.MIX_IMPORT_AND_FROM_IMPORT % tmpFromName
+                if cfg().mixImport :
+                    err = msgs.MIX_IMPORT_AND_FROM_IMPORT % tmpFromName
             else :
                 err = msgs.MODULE_MEMBER_ALSO_STAR_IMPORTED % fromName
 

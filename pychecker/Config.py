@@ -30,6 +30,7 @@ _OPTIONS = [
  ('i', 0, 'import', 'importUsed', 'unused imports'),
  ('k', 0, 'pkgimport', 'packageImportUsed', 'unused imports from __init__.py'),
  ('M', 0, 'reimportself', 'reimportSelf', 'module imports itself'),
+ ('x', 0, 'miximport', 'mixImport', 'module does import and from ... import'),
  ('l', 0, 'local', 'localVariablesUsed', 'unused local variables, except tuples'),
  ('t', 0, 'tuple', 'unusedLocalTuple', 'all unused local variables, including tuples'),
  ('v', 0, 'var', 'allVariablesUsed', 'all unused module variables'),
@@ -38,6 +39,7 @@ _OPTIONS = [
  ('n', 0, 'namedargs', 'namedArgs', 'functions called with named arguments (like keywords)'),
  ('a', 0, 'initattr', 'onlyCheckInitForMembers', 'Attributes (members) must be defined in __init__()'),
  ('I', 0, 'initsubclass', 'initDefinedInSubclass', 'Subclass.__init__() not defined'),
+ ('u', 0, 'callinit', 'baseClassInitted', 'Subclass.__init__() not called'),
  ('N', 0, 'initreturn', 'returnNoneFromInit', 'Return None from __init__()'),
  ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
  ('S', 1, 'self', 'methodArgName', 'First argument to methods'),
@@ -151,10 +153,12 @@ class Config :
         self.privateVariableUsed = 1
         self.importUsed = 1
         self.reimportSelf = 1
+        self.mixImport = 1
         self.packageImportUsed = 1
         self.localVariablesUsed = 1
         self.unusedLocalTuple = 0
         self.initDefinedInSubclass = 0
+        self.baseClassInitted = 1
         self.callingAttribute = 0
         self.namedArgs = 1
         self.returnNoneFromInit = 1
