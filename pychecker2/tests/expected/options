@@ -17,7 +17,7 @@ Error:
  --no-unknown           Report names that are not defined
  --no-unused            Report names not used
  --unusedPrefixes       Ignore unused identifiers that start with these values
-                        ['unused', 'empty', 'dummy', '__pychecker__']
+                        ['unused', 'empty', 'dummy', '__pychecker__', '__all__', '__version__']
 
 Miscellaneous:
  --verbose              turn on verbose messages
