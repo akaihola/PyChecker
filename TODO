@@ -45,7 +45,6 @@ Longer Term goals:
 * Add check for creating tuple when don't want a tuple, like: 1,
             or not creating tuple when want one, like: (1)
 
-* Allow import checker to catch errors, rather than starting checker.py
 * Find lines that end w/semi-colons (;)
 * Spell check doc strings
 

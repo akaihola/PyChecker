@@ -505,3 +505,37 @@ if __name__ == '__main__' :
     except Config.UsageError :
         sys.exit(127)
 
+else :
+    _orig__import__ = None
+    _suppressions = None
+
+    def __import__(name, globals={}, locals={}, fromlist=[]) :
+        check = not sys.modules.has_key(name) and name[:10] != 'pychecker.'
+        pymodule = _orig__import__(name, globals, locals, fromlist)
+        if check :
+            try :
+                module = Module(pymodule.__name__)
+                if module.load() :
+                    _printWarnings(warn.find([module], _cfg, _suppressions))
+                else :
+                    print 'Unable to load module', pymodule.__name__
+            except Exception, detail:
+                name = getattr(pymodule, '__name__', str(pymodule))
+                print 'PyChecker error processing %s: %s' % (name, detail)
+
+        return pymodule
+
+    def _init() :
+        global _cfg, _suppressions, _orig__import__
+
+        args = string.split(os.environ.get('PYCHECKER', ''))
+        _cfg, files, _suppressions = Config.setupFromArgs(args)
+        fixupBuiltinModules()
+
+        # keep the orig __import__ around so we can call it
+        import __builtin__
+        _orig__import__ = __builtin__.__import__
+        __builtin__.__import__ = __import__
+
+    if not os.environ.get('PYCHECKER_DISABLED', 0) :
+        _init()
