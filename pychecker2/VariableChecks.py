@@ -4,6 +4,18 @@ from pychecker2.Warning import Warning
 
 import compiler
 
+def _is_self(scope, node, name):
+    return isinstance(scope, compiler.symbols.FunctionScope) and \
+           scope.klass and \
+           name in node.argnames[:1]
+
+class Parents:
+    def __init__(self, scope):
+        self.scope = scope
+    def __call__(self):
+        retval = self.scope.parent
+        self.scope = retval
+        return retval
 
 class ShadowCheck(Check.Check):
     """Use symbol information to check that no scope defines a name
@@ -15,20 +27,17 @@ class ShadowCheck(Check.Check):
                                'Identifier (%s) shadows definition in scope %s')
 
     def check(self, unused_modules, file, unused_options):
-        def find_shadow(scope, parents):
-            "Calculate parents by recursing into child scopes"
+        # warn if any name defined in a scope is defined in a parent scope
+        # or even the builtins
+        for scope in file.scopes.values():
             for name in scope.defs:
+                if _is_self(scope, file.scope_node[scope], name):
+                    continue
                 if __builtins__.has_key(name):
                     file.warning(scope, self.shadowBuiltins, name)
-                    continue
-                for p in parents:
-                    if name in p.defs:
+                for p in iter(Parents(scope), None):
+                    if p.defs.has_key(name):
                         file.warning(scope, self.shadowIdentifier, name, `p`)
-            for c in scope.get_children():
-                find_shadow(c, parents + [scope])
-
-	if file.root_scope:
-            find_shadow(file.root_scope, [])
 
 class UnusedCheck(Check.Check):
     """Use symbol information to check that no scope defines a name
@@ -82,10 +91,7 @@ class UnusedCheck(Check.Check):
             # ensure that every defined variable is used in some scope
             for var in scope.defs:
                 # check for method self
-                if not self.reportUnusedSelf and \
-                   isinstance(scope, compiler.symbols.FunctionScope) and \
-                   scope.klass and \
-                   var in nodes.argnames[:1]:
+                if not self.reportUnusedSelf and _is_self(scope, nodes, var):
                     continue
 
                 for prefix in self.unusedPrefixes:
@@ -107,20 +113,14 @@ class UnknownCheck(Check.Check):
     builtins['__builtins__'] = __builtins__
 
     def check(self, unused_modules, file, unused_options):
-        if not file.root_scope:
-            return
-
-        # collect the defs for each scope (including the parents)
-        defs = {}
-        def collect_defs(parent_scope, parents):
-            defs[parent_scope] = parent_scope.defs.keys() + parents
-            for c in parent_scope.get_children():
-                collect_defs(c, defs[parent_scope])
-        collect_defs(file.root_scope, [])
 
         # if a name used is not found in the defined variables, complain
         for scope in file.scopes.values():
             for var in scope.uses:
-                if var not in defs[scope] and \
-                   not UnknownCheck.builtins.has_key(var):
-                    file.warning(scope, self.unknown, var)
+                if not scope.defs.has_key(var):
+                    for p in iter(Parents(scope), None):
+                        if p.defs.has_key(var):
+                            break
+                    else:
+                        if not UnknownCheck.builtins.has_key(var):
+                            file.warning(scope, self.unknown, var)
