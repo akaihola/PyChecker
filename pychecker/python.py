@@ -96,7 +96,7 @@ if utils.pythonVersion() >= utils.PYTHON_2_2 :
 
     GLOBAL_FUNC_INFO['bool'] = (BOOL, 1, 1, ['x'])
 
-if utils.pythonVersion() >= utils.PYTHON_2_4:
+if utils.pythonVersion() >= utils.PYTHON_2_3:
     GLOBAL_FUNC_INFO['dict'] = (types.DictType, 0, 1, [])
 
 def tryAddGlobal(name, *args):
