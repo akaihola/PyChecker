@@ -8,6 +8,9 @@ Error:
  --no-operatorPlus      Check for unary +
  --no-redefinedScope    Report redefined scopes
  --reportUnusedSelf     Ignore unused method "self" parameter
+ --no-selfName          Report any methods whose first argument is not self
+ --selfNames            Name of self parameter
+                        ['self', 'this', 's']
  --shadowBuiltins       Report names that shadow builtins
  --no-shadowIdentifier  Report names already defined in outer scopes
  --no-syntaxErrors      Report/ignore syntax errors

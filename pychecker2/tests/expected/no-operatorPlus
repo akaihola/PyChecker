@@ -12,6 +12,7 @@ tests/op.py:2 Operator (++) doesn't exist, statement has no effect
 tests/op.py:4 Scope (g) is redefined at line 7
 tests/op.py:8 Operator (--) doesn't exist, statement has no effect
 
+tests/self.py:9 First argument to method f is not in x
 tests/self.py:14 Identifier (a) not used
 
 tests/shadow.py:2 Scope (f) is redefined at line 8
