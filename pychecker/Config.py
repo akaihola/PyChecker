@@ -14,7 +14,7 @@ import string
 
 _RC_FILE = ".pycheckrc"
 
-_DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", ]
+_DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", "gtk", "GTK", "GDK", ]
 
 _OPTIONS = [ 
  ('s', 0, 'doc', None, 'turn off all warnings for no doc strings'),

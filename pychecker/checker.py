@@ -254,7 +254,7 @@ def importError(moduleName, info):
     # detail may contain a newline replace with - 
     # use str to avoid undestanding the tuple structure in the exception
     info = string.join(string.split(str(info), '\n' ), ' - ')
-    print "  Problem importing module %s - %s" % (moduleName, info)
+    sys.stderr.write("  Problem importing module %s - %s\n" % (moduleName, info))
 
 
 class Module :
@@ -379,7 +379,7 @@ def main(argv) :
     _cfg, files = Config.setupFromArgs(argv[1:])
     importWarnings = []
     for moduleName in _getModules(files) :
-        print "Processing %s..." % moduleName
+        sys.stderr.write("Processing %s...\n" % moduleName)
         module = Module(moduleName)
         if not module.load() :
             w = warn.Warning(module.filename(), 1, "NOT PROCESSED UNABLE TO IMPORT")
