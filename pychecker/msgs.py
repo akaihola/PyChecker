@@ -55,6 +55,7 @@ FUNC_USES_NAMED_ARGS = "Function (%s) uses named arguments"
 
 BASE_CLASS_NOT_INIT = "Base class (%s) __init__() not called"
 NO_INIT_IN_SUBCLASS = "No __init__() in subclass (%s)"
+METHODS_NEED_OVERRIDE = "Methods (%s) in %s need to be overridden in a subclass"
 
 FUNC_TOO_LONG = "Function (%s) has too many lines (%d)"
 TOO_MANY_BRANCHES = "Function (%s) has too many branches (%d)"

@@ -89,6 +89,15 @@ def initFuncCode(func) :
     code = func_code.co_code
     return func_code, code, 0, len(code), 0
 
+def conditional(op):
+    "returns true if the code results in conditional execution"
+    return op in [83,                   # return
+                  93,                   # for_iter
+                  111, 112, 114,        # conditional jump
+                  121,                  # setup_exec
+                  130                   # raise_varargs
+                  ]
+
 # this code is here for debugging purposes.
 # Jython doesn't support dis, so don't rely on it
 try :

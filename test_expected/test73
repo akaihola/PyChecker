@@ -1,0 +1,7 @@
+
+Warnings...
+
+test_input/test73.py:12: Methods (f, g) in Abstract need to be overridden in a subclass
+test_input/test73.py:13: Methods (f) in ConcreteBad need to be overridden in a subclass
+test_input/test73.py:26: Methods (abstract) in import73.AbstractLib need to be overridden in a subclass
+test_input/test73.py:27: Methods (abstract) in ImplAbstract need to be overridden in a subclass

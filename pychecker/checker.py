@@ -227,7 +227,7 @@ class Class :
         if not methodName :
             methodName = self.__getMethodName(method.func_name, className)
         self.methods[methodName] = function.Function(method)
-
+                
     def addMethods(self, classObject) :
         for classToken in _getClassTokens(classObject) :
             token = getattr(classObject, classToken)
@@ -280,6 +280,32 @@ class Class :
             del self.memberRefs['__pychecker__']
         except KeyError :
             pass
+
+    def abstractMethod(self, m):
+        """Return 1 if method is abstract, None if not
+           An abstract method always raises an exception.
+        """
+        if not self.methods.get(m, None):
+            return None
+        func_code, bytes, i, maxCode, extended_arg = \
+                   OP.initFuncCode(self.methods[m].function)
+        # abstract if the first conditional is RAISE_VARARGS
+        while i < maxCode:
+            op, oparg, i, extended_arg = OP.getInfo(bytes, i, extended_arg)
+            if OP.RAISE_VARARGS(op):
+                return 1
+            if OP.conditional(op):
+                break
+        return None
+
+    def isAbstract(self):
+        """Return the method names that make a class abstract.
+           An abstract class has at least one abstract method."""
+        result = []
+        for m in self.methods.keys():
+            if self.abstractMethod(m):
+                result.append(m)
+        return result
 
 def importError(moduleName, info):
     # detail may contain a newline replace with - 
