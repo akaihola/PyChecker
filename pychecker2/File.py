@@ -1,4 +1,4 @@
-from pychecker2.util import type_filter
+from pychecker2.util import parents
 
 from compiler import ast
 
@@ -14,11 +14,20 @@ class File:
         return cmp(self.name, other.name)
 
     def warning(self, line, warn, *args):
+        lineno = line
 	try:
-	    line = line.lineno
+	    lineno = line.lineno
         except AttributeError:
 	    pass
-        self.warnings.append( (line, warn, args) )
+        if not lineno:
+            try:
+                for p in parents(line):
+                    if p.lineno:
+                        lineno = p.lineno
+                        break
+            except AttributeError:
+                pass
+        self.warnings.append( (lineno, warn, args) )
 
     def scope_filter(self, type):
         return [(n, s)
