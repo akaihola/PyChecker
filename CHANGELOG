@@ -1,5 +1,7 @@
 
 Version 0.7	- xx July 2001
+  * Add config option (-N/--initreturn) to turn off warnings 
+	when returning None from __init__()
   * Fix internal error with python 2.1 which defines a new op: LOAD_DEREF
   * Check in lambda functions for module/variable use
   * Fix inability to evaluate { 1: 'a' } inline,

@@ -654,8 +654,9 @@ def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
     functionsCalled, _, returnValues = funcInfo
     for line, stackItem in returnValues :
         if stackItem.data != None :
-            warn = Warning(moduleFilename, line, _RETURN_FROM_INIT)
-            warnings.append(warn)
+            if not stackItem.isNone() or _cfg.returnNoneFromInit :
+                warn = Warning(moduleFilename, line, _RETURN_FROM_INIT)
+                warnings.append(warn)
 
     for base in c.classObject.__bases__ :
         if hasattr(base, '__init__') :
