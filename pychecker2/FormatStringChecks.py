@@ -44,6 +44,7 @@ _DICT_FORMAT_REGEX = re.compile('%([(]([a-zA-Z_]+)[)])?[ #+-]*'
 
 class FormatError(Exception):
     def __init__(self, position):
+        Exception.__init__(self)
         self.position = position
 
 def _check_format(s):
@@ -64,6 +65,7 @@ def _check_format(s):
             specs.append( (match.group(2), match.group(3), match.group(5),
                            match.group(6)) )
         pos = match.end(0)
+    return specs
 
 class _GetMod(BaseVisitor):
     def __init__(self):
@@ -161,7 +163,6 @@ class FormatStringCheck(Check):
 
                 elif len(names) == len(formats): # dictionary
                     defines = None
-                    used = {}
                     if isinstance(mod.right, ast.CallFunc) and \
                        isinstance(mod.right.node, ast.Name):
                         if mod.right.node.name in ['locals', 'vars']:
