@@ -412,7 +412,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
         func_code, code, i, maxCode, extended_arg = OP.initFuncCode(func.function)
         lastLineNum = func_code.co_firstlineno
         stack, returnValues = [], []
-        lastReturnLabel = 0
+        lastReturnLabel, maxLabel = 0, 0
         unpackCount = 0
         returns, loops, branches = 0, 0, {}
         while i < maxCode :
@@ -421,12 +421,13 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                 warn = None
                 label = OP.getLabel(op, oparg, i)
                 if label != None :
+                    maxLabel = max(label, maxLabel)
                     if branches.has_key(label) :
                         branches[label] = branches[label] + 1
                     else :
                         branches[label] = 1
                 operand = OP.getOperand(op, func_code, oparg)
-                debug("  " + OP.name[op], oparg, operand)
+                debug("  " + str(i) + " " +OP.name[op], oparg, operand)
                 if OP.LINE_NUM(op) :
                     lastLineNum = oparg
                 elif OP.COMPARE_OP(op) :
@@ -474,7 +475,8 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                                          lastLineNum, main)
                 elif OP.IMPORT_FROM(op) :
                     fromName = stack[-1].data
-                    del module.moduleLineNums[fromName]
+                    if module.moduleLineNums.has_key(fromName) :
+                        del module.moduleLineNums[fromName]
                     stack.append(Stack.Item(operand, type(operand)))
                     warn = _handleImport(operand, module, func_code,
                                          lastLineNum, main)
@@ -529,7 +531,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                 # Add a warning if there was any from any of the operations
                 _addWarning(warnings, warn)
             else :
-                debug("  " + OP.name[op])
+                debug("  " + str(i) + " " + OP.name[op])
                 if _startswith(OP.name[op], 'BINARY_') :
                     if OP.name[op] == 'BINARY_MODULO' and len(stack) > 1 :
                         warn = _getFormatWarnings(stack, func_code,
@@ -556,6 +558,12 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                     if len(stack) > 0 :
                         returnValues.append((lastLineNum, stack[-1]))
                         del stack[-1]
+
+        # check if last return is unreachable due to a raise just before
+        tmpIndex = i - _BACK_RETURN_INDEX - 3
+        if tmpIndex >= maxLabel and OP.RAISE_VARARGS(ord(code[tmpIndex])) :
+            del returnValues[-1]
+
     except (SystemExit, KeyboardInterrupt) :
         exc_type, exc_value, exc_tb = sys.exc_info()
         raise exc_type, exc_value
@@ -571,9 +579,9 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     # (when last 2 return lines are the same)
     if len(returnValues) >= 2 :
         if returnValues[-1][0] == returnValues[-2][0] and \
-           not branches.has_key(lastReturnLabel) and \
            not branches.has_key(lastReturnLabel-1) :
-            del returnValues[-1]
+            if len(branches) <= 1 or not branches.has_key(lastReturnLabel) :
+                del returnValues[-1]
 
     if _cfg.checkReturnValues :
         _addWarning(warnings, _checkReturnWarnings(returnValues, func_code))

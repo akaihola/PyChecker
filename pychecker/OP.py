@@ -32,6 +32,7 @@ def POP_TOP(op):               return dis.opname[op] == 'POP_TOP'
 def DUP_TOP(op):               return dis.opname[op] == 'DUP_TOP'
 def FOR_LOOP(op):              return dis.opname[op] == 'FOR_LOOP'
 def JUMP_FORWARD(op):          return dis.opname[op] == 'JUMP_FORWARD'
+def RAISE_VARARGS(op):         return dis.opname[op] == 'RAISE_VARARGS'
 
 def UNPACK_SEQUENCE(op) :
     "Deal w/Python 1.5.2 (UNPACK_[LIST|TUPLE]) or 2.0 (UNPACK_SEQUENCE)"
