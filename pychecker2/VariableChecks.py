@@ -235,7 +235,7 @@ class SelfCheck(Check):
                 argnames = scope.node.argnames
                 name = getattr(scope.node, 'name', 'lambda')
                 if _is_method(scope):
-                    if len(argnames) > 0 and argnames[0] in self.selfNames:
+                    if len(argnames) > 0 and argnames[0] not in self.selfNames:
                         file.warning(scope.node, self.selfName,
                                      name, argnames[0], `self.selfNames`)
                     if _first_arg_defaulted(scope.node):
