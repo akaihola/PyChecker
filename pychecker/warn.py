@@ -592,7 +592,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                 elif OP.STORE_FAST(op) :
                     if not unusedLocals.has_key(operand) :
                         errLine = lastLineNum
-                        if _cfg.unusedLocalTuple :
+                        if unpackCount and not _cfg.unusedLocalTuple :
                             errLine = -errLine
                         unusedLocals[operand] = errLine
                     if unpackCount :
