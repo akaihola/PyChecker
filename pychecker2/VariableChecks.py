@@ -42,6 +42,8 @@ class ShadowCheck(Check):
     """Use symbol information to check that no scope defines a name
     already known to a parent scope"""
 
+    defineNone = Warning('Report any redefinition of None',
+                         'Do not redefine None')
     shadowBuiltins = Warning('Report names that shadow builtins',
                             'Identifier (%s) shadows builtin', 0)
     shadowIdentifier = Warning('Report names already defined in outer scopes',
@@ -54,6 +56,9 @@ class ShadowCheck(Check):
             if isinstance(scope.node, ast.Class):
                 continue
             for name in scope.defs:
+                if name == 'None':
+                    file.warning(scope.defs[name], self.defineNone)
+                    continue
                 if name in scope.globals:
                     continue
                 if is_arg_and_defaulted_to_same_name(name, scope):

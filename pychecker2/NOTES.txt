@@ -17,8 +17,6 @@ ToDo:
 Items still missing:
         Error suppression (errors may be suppressed globally)
 
-        Define None
-        Using `self` in __repr__
         Not calling base class __init__
         Using return value which is always None
         Wrong # of args on function (including ctor)
