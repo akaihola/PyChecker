@@ -3,5 +3,5 @@
 class Test:
     'doc'
     def x(self):
-	import struct
+        import struct
         print struct
