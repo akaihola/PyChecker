@@ -1,4 +1,7 @@
 Version 0.8.9   - xx February 2002
+  * Don't warn about inconsistent return types from __getattr[ibute]__
+  * Fix spurious warning for inconsistent return types 
+        when objects are subclasses
   * Fix crash due to import module problems
   * Fix crash with nested scopes
 

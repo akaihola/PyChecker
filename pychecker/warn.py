@@ -47,12 +47,20 @@ def _checkNoSelfArg(func, warnings) :
         warnings.append(Warning(code, code, msgs.SELF_IS_ARG))
 
 
+def _checkSubclass(c1, c2):
+    try:
+        return issubclass(c1.classObject, c2.classObject)
+    except (TypeError, AttributeError):
+        return 0
+
+
 _IGNORE_RETURN_TYPES = ( Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,
                          Stack.TYPE_GLOBAL, Stack.TYPE_COMPARISON,
                          Stack.TYPE_UNKNOWN)
 
 def _checkReturnWarnings(code) :
-    if code.func_code.co_name in ('__getattr__', '__getattribute__') :
+    is_getattr = code.func_code.co_name in ('__getattr__', '__getattribute__')
+    if is_getattr :
         for line, retval, dummy in code.returnValues :
             if retval.isNone() :
                 err = msgs.DONT_RETURN_NONE % code.func_code.co_name
@@ -71,6 +79,10 @@ def _checkReturnWarnings(code) :
                 code.addWarning(msgs.IMPLICIT_AND_EXPLICIT_RETURNS,
                                 lastReturn[0]+1)
                 break
+
+    # getattr can return different types, so don't warn about inconsistency
+    if is_getattr :
+        return
 
     returnType, returnData = None, None
     for line, value, dummy in code.returnValues :
@@ -95,6 +107,9 @@ def _checkReturnWarnings(code) :
                         # ONLY IF one of the lengths is truly unknown
                         if returnData.length > 0 and value.length > 0:
                             ok = returnData.length == value.length
+                else :
+                    ok = _checkSubclass(returnType, valueType) or \
+                         _checkSubclass(valueType, returnType)
                 if not ok :
                     code.addWarning(msgs.INCONSISTENT_RETURN_TYPE, line)
 
