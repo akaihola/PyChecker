@@ -30,3 +30,8 @@ def nn():
 def start() :
     int(args=(lambda x=None: x,))
 
+def nn2():
+    n = []
+    n.append(1)
+    n.append(1, 2)
+    n.append((1, 2))

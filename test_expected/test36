@@ -2,4 +2,5 @@ Processing test36...
 
 Warnings...
 
-None
+test_input/test36.py:31: Function (int) doesn't support **kwArgs
+test_input/test36.py:36: [].append() only takes 1 argument in Python 1.6 and above for (n)

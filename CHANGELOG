@@ -1,5 +1,7 @@
 
 Version 0.9	- xx August 2001
+  * Add check that [].append() only takes one argument
+  * Add check that # parameters are correct for builtin functions
   * Fix method and attribute checks for None and Ellipsis
   * Fix spurious warnings when object attribute has same name as class
   * Add constants together on stack when get + to avoid some spurious warnings

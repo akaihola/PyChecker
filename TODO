@@ -10,7 +10,6 @@ Goals for next release:
 
 Longer Term goals:
 ------------------
-* Add warning for python > 1.5.2 when doing [].append(1, 2, 3)
 * Add capability to check features from a specified version of python
 	which is different from runtime interpreter
 * Security checks for known issues.  Adrian Likins @redhat recommends 

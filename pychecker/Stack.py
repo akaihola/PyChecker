@@ -39,7 +39,7 @@ class Item :
                len(self.data) == 2 and self.data[0] == methodArgName
 
     def isLocals(self):
-        return self.type == TYPE_FUNC_RETURN and self.data == LOCALS
+        return self.type == types.DictType and self.data == LOCALS
 
     def getName(self, module) :
         if self.type == TYPE_ATTRIBUTE and \

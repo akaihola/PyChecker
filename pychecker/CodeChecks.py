@@ -22,6 +22,27 @@ __pychecker__ = 'no-argsused'
 def cfg() :
     return utils.cfg()
 
+def _checkFunctionArgCount(code, func_name, argCount, minArgs, maxArgs,
+                           objectReference = 0) :
+    # there is an implied argument for object creation and self.xxx()
+    if objectReference :
+        minArgs = minArgs - 1
+        if maxArgs is not None :
+            maxArgs = maxArgs - 1
+
+    err = None
+    if maxArgs == None :
+        if argCount < minArgs :
+            err = msgs.INVALID_ARG_COUNT2 % (func_name, argCount, minArgs)
+    elif argCount < minArgs or argCount > maxArgs :
+        if minArgs == maxArgs :
+            err = msgs.INVALID_ARG_COUNT1 % (func_name, argCount, minArgs)
+        else :
+            err = msgs.INVALID_ARG_COUNT3 % (func_name, argCount, minArgs, maxArgs)
+
+    if err :
+        code.addWarning(err)
+
 def _checkFunctionArgs(code, func, objectReference, argCount, kwArgs) :
     func_name = func.function.func_code.co_name
     if kwArgs :
@@ -43,27 +64,8 @@ def _checkFunctionArgs(code, func, objectReference, argCount, kwArgs) :
         if not func.supportsKW :
             code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW % func_name)
 
-    # there is an implied argument for object creation and self.xxx()
-    minArgs = func.minArgs
-    maxArgs = func.maxArgs
-    if objectReference :
-        minArgs = minArgs - 1
-        if maxArgs is not None :
-            maxArgs = maxArgs - 1
-
-    err = None
-    if func.maxArgs == None :
-        if argCount < minArgs :
-            err = msgs.INVALID_ARG_COUNT2 % (func_name, argCount, minArgs)
-    elif argCount < minArgs or argCount > maxArgs :
-        if func.minArgs == func.maxArgs :
-            err = msgs.INVALID_ARG_COUNT1 % (func_name, argCount, minArgs)
-        else :
-            err = msgs.INVALID_ARG_COUNT3 % (func_name, argCount, minArgs, maxArgs)
-
-    if err :
-        code.addWarning(err)
-
+    _checkFunctionArgCount(code, func_name, argCount,
+                           func.minArgs, func.maxArgs, objectReference)
 
 def _getReferenceFromModule(module, identifier) :
     func = module.functions.get(identifier, None)
@@ -114,6 +116,83 @@ def _getFunction(module, stackValue) :
         return None, None, 0
     return c.methods.get(identifier[-1], None), c, 0
 
+_BOOL = types.IntType
+#                     name   (type,  args: min, max, kwArgs?
+_GLOBAL_FUNC_INFO = { 'abs': (Stack.TYPE_UNKNOWN, 1, 1),
+                      'buffer': (types.BufferType, 1, 3),
+                      'callable': (_BOOL, 1, 1),
+                      'chr': (types.StringType, 1, 1),
+                      'cmp': (_BOOL, 2, 2),
+                      'coerce': ([ types.NoneType, types.TupleType ], 2, 2),
+                      'compile': (types.CodeType, 3, 3),
+                      'complex': (types.ComplexType, 1, 2),
+                      'delattr': (types.NoneType, 2, 2),
+                      'dir': (types.ListType, 0, 1),
+                      'divmod': (types.TupleType, 2, 2),
+                      'eval': (Stack.TYPE_UNKNOWN, 1, 3),
+                      'execfile': (types.NoneType, 1, 3),
+                      'filter': (types.ListType, 2, 2),
+                      'float': (types.FloatType, 1, 1),
+                      'getattr': (Stack.TYPE_UNKNOWN, 2, 3),
+                      'globals': (types.DictType, 0, 0),
+                      'hasattr': (_BOOL, 2, 2),
+                      'hash': (types.IntType, 1, 1),
+                      'hex': (types.StringType, 1, 1),
+                      'id': (types.IntType, 1, 1),
+                      'int': (types.IntType, 1, 2),
+                      'intern': (types.StringType, 1, 1),
+                      'isinstance': (_BOOL, 2, 2),
+                      'issubclass': (_BOOL, 2, 2),
+                      'len': (types.IntType, 1, 1),
+                      'list': (types.ListType, 1, 1),
+                      'locals': (types.DictType, 0, 0),
+                      'long': (types.LongType, 1, 2),
+                      'map': (types.ListType, 2, None),
+                      'max': (Stack.TYPE_UNKNOWN, 1, None),
+                      'min': (Stack.TYPE_UNKNOWN, 1, None),
+                      'oct': (types.StringType, 1, 1),
+                      'open': (types.FileType, 1, 3),
+                      'ord': (types.IntType, 1, 1),
+                      'pow': (Stack.TYPE_UNKNOWN, 2, 3),
+                      'range': (types.ListType, 1, 3),
+                      'reduce': (Stack.TYPE_UNKNOWN, 2, 3),
+                      'reload': (types.ModuleType, 1, 1),
+                      'repr': (types.StringType, 1, 1),
+                      'round': (types.FloatType, 1, 2),
+                      'setattr': (types.NoneType, 3, 3),
+                      'slice': (types.SliceType, 1, 3),
+                      'str': (types.StringType, 1, 1),
+                      'tuple': (types.TupleType, 1, 1),
+                      'type': (types.TypeType, 1, 1),
+                      'unichr': (types.StringType, 1, 1), # FIXME: unicode
+                      'unicode': (types.StringType, 1, 3), # FIXME: unicode
+                      'vars': (types.DictType, 0, 1),
+                      'xrange': (types.ListType, 1, 3),
+                      'zip': (types.ListType, 1, None),
+                    }
+
+def _checkBuiltin(code, loadValue, argCount, kwArgs) :
+    returnValue = Stack.makeFuncReturnValue(loadValue)
+    func_name = loadValue.data
+    if loadValue.type == Stack.TYPE_GLOBAL :
+        info = _GLOBAL_FUNC_INFO.get(func_name, None)
+        if info is not None :
+            if kwArgs :
+                code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW % func_name)
+            else :
+                _checkFunctionArgCount(code, func_name, argCount,
+                                       info[1], info[2])
+            returnValue = Stack.Item(func_name, info[0])
+    elif type(func_name) == types.TupleType and len(func_name) <= 2 :
+        objType = code.typeMap.get(str(func_name[0]), [])
+        if types.ListType in objType :
+            try :
+                if func_name[1] == 'append' and argCount > 1 :
+                    code.addWarning(msgs.LIST_APPEND_ARGS % func_name[0])
+            except AttributeError :
+                pass
+
+    return returnValue
 
 def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0) :
     'Checks for warnings, returns function called (may be None)'
@@ -170,6 +249,8 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0) :
                    not refClass.methods.has_key(utils.INIT) and \
                    not issubclass(refClass.classObject, Exception) :
                     code.addWarning(msgs.NO_CTOR_ARGS)
+            else :
+                returnValue = _checkBuiltin(code, loadValue, argCount, kwArgs)
 
     code.stack = code.stack[:funcIndex] + [ returnValue ]
     if loadValue is not None :
