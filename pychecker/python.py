@@ -205,7 +205,7 @@ if utils.pythonVersion() >= utils.PYTHON_2_4:
     BUILTIN_METHODS[types.ListType]['sort'] =(types.NoneType, 0, 3, kwargs)
 
 if hasattr({}, 'pop'):
-    BUILTIN_METHODS[types.DictType]['pop'] = (Stack.TYPE_UNKNOWN, 1, 1)
+    BUILTIN_METHODS[types.DictType]['pop'] = (Stack.TYPE_UNKNOWN, 1, 2)
 
 def _setupBuiltinMethods() :
     if utils.pythonVersion() >= utils.PYTHON_2_2 :
