@@ -38,5 +38,5 @@ try:
             pass
 
 except NameError:
-    print 'This should fail on Python versions prior to 2.2'
+    pass
 
