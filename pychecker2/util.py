@@ -56,14 +56,11 @@ def enclosing_scopes(scopes, node):
 def type_filter(seq, *classes):
     return [s for s in seq if isinstance(s, classes)]
 
-# http://mail.python.org/pipermail/python-list/2000-December/023319.html
-# Fredric Lundh
-def flatten(seq):
-    res = []
-    for item in seq:
-        if type(item) in (types.TupleType, types.ListType):
-            res.extend(flatten(item))
-        else:
-            res.append(item)
-    return res
+def line(node):
+    "find a node with a line number on it"
+    for n in parents(node):
+        if n.lineno is not None:
+            return n
+    raise AssertionError('Should be unreachable')
 
+    
