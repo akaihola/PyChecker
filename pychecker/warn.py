@@ -82,7 +82,12 @@ def _checkReturnWarnings(code) :
                returnData.type not in _IGNORE_RETURN_TYPES :
                 ok = returnType in (type(value.data), valueType)
                 if ok and returnType == types.TupleType :
-                    ok = returnData.length == value.length
+                    # FIXME: this isn't perfect, if len == 0
+                    # the length can really be 0 OR unknown
+                    # we shouldn't check the lengths for equality
+                    # ONLY IF one of the lengths is truly unknown
+                    if returnData.length > 0 and value.length > 0:
+                        ok = returnData.length == value.length
                 if not ok :
                     code.addWarning(msgs.INCONSISTENT_RETURN_TYPE, line)
 
@@ -124,12 +129,17 @@ def _findUnreachableCode(code) :
         if not code.branches.has_key(i) :
             unreachable[i] = line
 
-    # remove last return if it's unreachable AND implicit
+    # find the index of the last return
     lastLine, lastItem, lastIndex = code.returnValues[-1]
     if len(code.returnValues) >= 2 :
         lastIndex = code.returnValues[-2][2]
+    elif lastIndex < 0 and code.raiseValues :
+        lastIndex = code.raiseValues[-1][2]
+
+    # remove last return if it's unreachable AND implicit
     if unreachable.get(lastIndex) == lastLine and lastItem.isImplicitNone() :
         del code.returnValues[-1]
+        del unreachable[lastIndex]
 
     # FIXME: add warning about unreachable code
 
