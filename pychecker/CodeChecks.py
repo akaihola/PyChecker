@@ -203,6 +203,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
         kwArgs.reverse()
 
     loadValue = code.stack[funcIndex]
+    funcName = loadValue.getName(codeSource.module)
     returnValue = Stack.makeFuncReturnValue(loadValue)
     if loadValue.isMethodCall(codeSource.classObject, cfg().methodArgName) :
         methodName = loadValue.data[1]
@@ -211,13 +212,19 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
             if m != None :
                 _checkFunctionArgs(code, m, 1, argCount, kwArgs, check_arg_count)
         except KeyError :
-            if cfg().callingAttribute :
+            staticAttr = getattr(codeSource.classObject.classObject,
+                                 methodName, None)
+            if staticAttr is not None :
+                funcName = str(staticAttr.im_class) + '.' + staticAttr.__name__
+            elif cfg().callingAttribute :
                 code.addWarning(msgs.INVALID_METHOD % methodName)
+
     elif loadValue.type in (Stack.TYPE_ATTRIBUTE, Stack.TYPE_GLOBAL) and \
          type(loadValue.data) in (types.StringType, types.TupleType) :
         # apply(func, (args)), can't check # of args, so just return func
         if loadValue.data == 'apply' :
             loadValue = code.stack[funcIndex+1]
+            funcName = loadValue.getName(codeSource.module)
         else :
             if cfg().modifyDefaultValue and \
                type(loadValue.data) == types.TupleType :
@@ -266,8 +273,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                     code.addWarning(msgs.USING_NONE_RETURN_VALUE % name)
 
     code.stack = code.stack[:funcIndex] + [ returnValue ]
-    if loadValue is not None :
-        code.functionsCalled[loadValue.getName(codeSource.module)] = loadValue
+    code.functionsCalled[funcName] = loadValue
 
 
 def _classHasAttribute(c, attr) :

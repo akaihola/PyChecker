@@ -1,5 +1,7 @@
 
-Version 0.8.7	- xx December 2001
+Version 0.8.7	- xx January 2002
+  * Fix spurious warning when accessing 'static' class members that are methods
+        (e.g. class C(B): __super_init = B.__init__)
   * Add -9/--members option to warn about unused data members
   * Fix some strange spurious warnings and exceptions
   * Handle string multiplication (helps format strings)

@@ -227,7 +227,7 @@ class Class :
         for classToken in _getClassTokens(classObject) :
             token = getattr(classObject, classToken)
             if type(token) == types.MethodType :
-                self.addMethod(token.im_func, classObject.__name__, classToken)
+                self.addMethod(token.im_func, classObject.__name__, token.__name__)
             else :
                 self.members[classToken] = type(token)
                 self.memberRefs[classToken] = None
