@@ -3,6 +3,7 @@ Version 0.8	- xx July 2001
   * Suppress warnings by setting __pychecker__ in source code
   * Change long argument behaviour --arg sets arg to true,
 	--no-arg sets arg to false (also works for warning suppression)
+  * Fix tests (forgot to add : after line number in expected results)
 
 Version 0.7	- 16 July 2001
   * Improve import warning messages, add from checks
