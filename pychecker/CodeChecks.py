@@ -1248,7 +1248,9 @@ def _MAKE_FUNCTION(oparg, operand, codeSource, code) :
     newValue = Stack.makeFuncReturnValue(code.stack[-1], oparg)
     code.popStackItems(oparg+1)
     code.pushStack(newValue)
-_MAKE_CLOSURE = _MAKE_FUNCTION
+
+def _MAKE_CLOSURE(oparg, operand, codeSource, code) :
+    _MAKE_FUNCTION(oparg - 1, operand, codeSource, code)
 
 def _BUILD_MAP(oparg, operand, codeSource, code) :
     _makeConstant(code, oparg, Stack.makeDict)
