@@ -572,8 +572,16 @@ def _getFormatInfo(format, code) :
 
     return formatCount, vars
 
+try:
+    unicode, UnicodeError
+except NameError:
+    UnicodeError = None
+
 def _getConstant(code, module, data) :
-    data = str(data.data)
+    try:
+        data = str(data.data)
+    except UnicodeError:
+        data = unicode(data.data)
     format = code.constants.get(data)
     if format is not None :
         return format
