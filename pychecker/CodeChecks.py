@@ -6,7 +6,6 @@
 Find warnings in byte code from Python source files.
 """
 
-import sys
 import string
 import types
 
@@ -15,6 +14,7 @@ from pychecker import utils
 from pychecker import Warning
 from pychecker import OP
 from pychecker import Stack
+from pychecker import python
 
 __pychecker__ = 'no-argsused'
 
@@ -119,66 +119,11 @@ def _getFunction(module, stackValue) :
         return None, None, 0
     return c.methods.get(identifier[-1], None), c, 0
 
-_BOOL = types.IntType
-#                     name   (type,  args: min, max, kwArgs?
-_GLOBAL_FUNC_INFO = { 'abs': (Stack.TYPE_UNKNOWN, 1, 1),
-                      'buffer': (types.BufferType, 1, 3),
-                      'callable': (_BOOL, 1, 1),
-                      'chr': (types.StringType, 1, 1),
-                      'cmp': (_BOOL, 2, 2),
-                      'coerce': ([ types.NoneType, types.TupleType ], 2, 2),
-                      'compile': (types.CodeType, 3, 3),
-                      'complex': (types.ComplexType, 1, 2),
-                      'delattr': (types.NoneType, 2, 2),
-                      'dir': (types.ListType, 0, 1),
-                      'divmod': (types.TupleType, 2, 2),
-                      'eval': (Stack.TYPE_UNKNOWN, 1, 3),
-                      'execfile': (types.NoneType, 1, 3),
-                      'filter': (types.ListType, 2, 2),
-                      'float': (types.FloatType, 1, 1),
-                      'getattr': (Stack.TYPE_UNKNOWN, 2, 3),
-                      'globals': (types.DictType, 0, 0),
-                      'hasattr': (_BOOL, 2, 2),
-                      'hash': (types.IntType, 1, 1),
-                      'hex': (types.StringType, 1, 1),
-                      'id': (types.IntType, 1, 1),
-                      'int': (types.IntType, 1, 2),
-                      'intern': (types.StringType, 1, 1),
-                      'isinstance': (_BOOL, 2, 2),
-                      'issubclass': (_BOOL, 2, 2),
-                      'len': (types.IntType, 1, 1),
-                      'list': (types.ListType, 1, 1),
-                      'locals': (types.DictType, 0, 0),
-                      'long': (types.LongType, 1, 2),
-                      'map': (types.ListType, 2, None),
-                      'max': (Stack.TYPE_UNKNOWN, 1, None),
-                      'min': (Stack.TYPE_UNKNOWN, 1, None),
-                      'oct': (types.StringType, 1, 1),
-                      'open': (types.FileType, 1, 3),
-                      'ord': (types.IntType, 1, 1),
-                      'pow': (Stack.TYPE_UNKNOWN, 2, 3),
-                      'range': (types.ListType, 1, 3),
-                      'reduce': (Stack.TYPE_UNKNOWN, 2, 3),
-                      'reload': (types.ModuleType, 1, 1),
-                      'repr': (types.StringType, 1, 1),
-                      'round': (types.FloatType, 1, 2),
-                      'setattr': (types.NoneType, 3, 3),
-                      'slice': (types.SliceType, 1, 3),
-                      'str': (types.StringType, 1, 1),
-                      'tuple': (types.TupleType, 1, 1),
-                      'type': (types.TypeType, 1, 1),
-                      'unichr': (types.StringType, 1, 1), # FIXME: unicode
-                      'unicode': (types.StringType, 1, 3), # FIXME: unicode
-                      'vars': (types.DictType, 0, 1),
-                      'xrange': (types.ListType, 1, 3),
-                      'zip': (types.ListType, 1, None),
-                    }
-
 def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
     returnValue = Stack.makeFuncReturnValue(loadValue)
     func_name = loadValue.data
     if loadValue.type == Stack.TYPE_GLOBAL :
-        info = _GLOBAL_FUNC_INFO.get(func_name, None)
+        info = python.GLOBAL_FUNC_INFO.get(func_name, None)
         if info is not None :
             if kwArgs :
                 code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW % func_name)
@@ -192,20 +137,45 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
             try :
                 if func_name[1] == 'append' and argCount > 1 :
                     code.addWarning(msgs.LIST_APPEND_ARGS % func_name[0])
+                    check_arg_count = 0
             except AttributeError :
+                # FIXME: why do we need to catch AttributeError???
                 pass
+        if len(objType) == 1 :
+            # if it's a builtin, check method
+            builtinType = python.BUILTIN_METHODS.get(objType[0])
+            if builtinType is not None :
+                methodInfo = builtinType.get(func_name[1])
+                # set func properly
+                if kwArgs :
+                    code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW % func_name[1])
+                elif methodInfo :
+                    returnValue = Stack.Item(func_name[1], methodInfo[0])
+                    if check_arg_count and methodInfo is not None :
+                        _checkFunctionArgCount(code, func_name[1], argCount,
+                                               methodInfo[1], methodInfo[2])
 
     return returnValue
-
-_MUTABLE_TYPES = (types.ListType, types.DictType, types.InstanceType,)
 
 def _checkModifyDefaultArg(code, objectName) :
     try :
         value = code.func.defaultValue(objectName)
-        if type(value) in _MUTABLE_TYPES :
+        if type(value) in python.MUTABLE_TYPES :
             code.addWarning(msgs.MODIFYING_DEFAULT_ARG % objectName)
     except ValueError :
         pass
+
+def _isexception(object) :
+    # FIXME: i have no idea why this function is necessary
+    # it seems that the issubclass() should work, but it doesn't always
+    if issubclass(object, Exception) :
+        return 1
+    for c in object.__bases__ :
+        if utils.startswith(str(c), 'exceptions.') :
+            return 1
+        if len(c.__bases__) > 0 and _isexception(c) :
+            return 1
+    return 0
 
 def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                         check_arg_count = 1) :
@@ -253,23 +223,43 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                type(loadValue.data) == types.TupleType :
                 _checkModifyDefaultArg(code, loadValue.data[0])
 
-            func, refClass, create = _getFunction(codeSource.module, loadValue)
+            func, refClass, method = _getFunction(codeSource.module, loadValue)
+            if func == None and type(loadValue.data) == types.TupleType and \
+               len(loadValue.data) == 2 :
+                # looks like we are making a method call
+                data = loadValue.data
+                if type(data[0]) == types.StringType :
+                    # do we know the type of the local variable?
+                    varType = code.typeMap.get(data[0])
+                    if varType is not None and len(varType) == 1 :
+                        if hasattr(varType[0], 'methods') :
+                            # it's a class & we know the type, get the method
+                            func = varType[0].methods.get(data[1])
+                            if func is not None :
+                                method = 1
+
             if func != None :
-                _checkFunctionArgs(code, func, create, argCount, kwArgs, check_arg_count)
-                if refClass and argCount > 0 and not create and \
+                _checkFunctionArgs(code, func, method, argCount, kwArgs, check_arg_count)
+                if refClass and argCount > 0 and not method and \
                    code.stack[funcIndex].type == Stack.TYPE_ATTRIBUTE and \
                    code.stack[funcIndex+1].data != cfg().methodArgName :
                     code.addWarning(msgs.SELF_NOT_FIRST_ARG % cfg().methodArgName)
-            elif refClass and create :
+            elif refClass and method :
                 returnValue = Stack.Item(loadValue, refClass)
                 if (argCount > 0 or len(kwArgs) > 0) and \
                    not refClass.ignoreAttrs and \
                    not refClass.methods.has_key(utils.INIT) and \
-                   not issubclass(refClass.classObject, Exception) :
+                   not _isexception(refClass.classObject) :
                     code.addWarning(msgs.NO_CTOR_ARGS)
             else :
                 returnValue = _checkBuiltin(code, loadValue, argCount, kwArgs,
                                             check_arg_count)
+                if returnValue.type is types.NoneType and \
+                   not OP.POP_TOP(code.nextOpInfo()[0]) :
+                    name = str(loadValue.data)
+                    if type(loadValue.data) == types.TupleType :
+                        name = string.join(loadValue.data, '.')
+                    code.addWarning(msgs.USING_NONE_RETURN_VALUE % name)
 
     code.stack = code.stack[:funcIndex] + [ returnValue ]
     if loadValue is not None :
@@ -374,7 +364,7 @@ def _handleImport(code, operand, module, main, fromName) :
                 err = msgs.MODULE_MEMBER_ALSO_STAR_IMPORTED % fromName
 
         # filter out warnings when files are different (ie, from X import ...)
-        if err :
+        if err is not None and cfg().moduleImportErrors :
             bytes = module.main_code
             if bytes is None or \
                bytes.function.func_code.co_filename == code.func_code.co_filename :
@@ -459,9 +449,7 @@ def _getConstant(code, module, data) :
     return None
 
 _UNCHECKABLE_FORMAT_STACK_TYPES = \
-    [
-      Stack.TYPE_UNKNOWN, Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,
-    ]
+      (Stack.TYPE_UNKNOWN, Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,)
 
 def _getFormatWarnings(code, codeSource) :
     if len(code.stack) <= 1 :
@@ -506,74 +494,6 @@ def _getFormatWarnings(code, codeSource) :
     if args and count != args :
         code.addWarning(msgs.INVALID_FORMAT_COUNT % (count, args))
 
-# identifiers which will become a keyword in a future version
-_FUTURE_KEYWORDS = { 'yield': '2.2' }
-
-_METHODLESS_OBJECTS = { types.NoneType : None, types.IntType : None,
-                        types.LongType : None, types.FloatType : None,
-                        types.BufferType : None, types.TupleType : None,
-                        types.EllipsisType : None,
-                      }
-
-_BUILTINS_ATTRS = { types.StringType : dir(''),
-                    types.TypeType : dir(type(0)),
-                    types.ListType : dir([]),
-                    types.DictType : dir({}),
-                    types.FunctionType : dir(cfg),
-                    types.BuiltinFunctionType : dir(len),
-                    types.BuiltinMethodType : dir([].append),
-                    types.ClassType : dir(Stack.Item),
-                    types.UnboundMethodType : dir(Stack.Item.__init__),
-                    types.LambdaType : dir(lambda: None),
-                    types.SliceType : dir(slice(0)),
-                  }
-
-def _setupBuiltinAttrs() :
-    w = Warning.Warning('', 0, '')
-    _BUILTINS_ATTRS[types.MethodType] = dir(w.__init__)
-    del w
-
-    if utils.pythonVersion() >= utils.PYTHON_2_2 :
-        # FIXME: I'm sure more types need to be added here
-        _BUILTINS_ATTRS[types.StringType] = dir(''.__class__)
-        _BUILTINS_ATTRS[types.ListType] = dir([].__class__)
-        _BUILTINS_ATTRS[types.DictType] = dir({}.__class__)
-
-    try :
-        import warnings
-        _MSG = "xrange object's 'start', 'stop' and 'step' attributes are deprecated"
-        warnings.filterwarnings('ignore', _MSG)
-        del warnings, _MSG
-    except ImportError :
-        pass
-    _BUILTINS_ATTRS[types.XRangeType] = dir(xrange(0))
-
-    try: _BUILTINS_ATTRS[types.ComplexType] = dir(complex(0, 1))
-    except: pass
-
-    try: _BUILTINS_ATTRS[types.UnicodeType] = dir(unicode(''))
-    except: pass
-
-    try: _BUILTINS_ATTRS[types.CodeType] = dir(_setupBuiltinAttrs.func_code)
-    except: pass
-
-    try: _BUILTINS_ATTRS[types.FileType] = dir(sys.__stdin__)
-    except: pass
-
-    try:
-        raise TypeError
-    except TypeError :
-        try:
-            tb = sys.exc_info()[2]
-            _BUILTINS_ATTRS[types.TracebackType] = dir(tb)
-            _BUILTINS_ATTRS[types.FrameType] = dir(tb.tb_frame)
-        except:
-            pass
-        tb = None; del tb
-
-# have to setup the rest this way to support different versions of Python
-_setupBuiltinAttrs()
-
 def _checkAttributeType(code, stackValue, attr) :
     if not cfg().checkObjectAttrs :
         return None
@@ -584,13 +504,13 @@ def _checkAttributeType(code, stackValue, attr) :
 
     for varType in varTypes :
         # ignore built-in types that have no attributes
-        if _METHODLESS_OBJECTS.has_key(varType) :
+        if python.METHODLESS_OBJECTS.has_key(varType) :
             continue
 
         if type(varType) == types.StringType :
             return None
 
-        attrs = _BUILTINS_ATTRS.get(varType, None)
+        attrs = python.BUILTIN_ATTRS.get(varType, None)
         if attrs is not None :
             if attr in attrs :
                 return None
@@ -777,8 +697,9 @@ def _checkException(code, name) :
             code.addWarning(msgs.SET_EXCEPT_TO_BUILTIN % name)
 
 def _checkFutureKeywords(code, varname) :
-    if _FUTURE_KEYWORDS.has_key(varname) :
-        code.addWarning(msgs.USING_KEYWORD % (varname, _FUTURE_KEYWORDS[varname]))
+    kw = python.FUTURE_KEYWORDS.get(varname)
+    if kw is not None :
+        code.addWarning(msgs.USING_KEYWORD % (varname, kw))
 
 def _STORE_NAME(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :
@@ -884,6 +805,8 @@ def _STORE_FAST(oparg, operand, codeSource, code) :
                 code.constants[operand] = code.stack[-1].data
 
         _checkException(code, operand)
+        if code.deletedLocals.has_key(operand) :
+            del code.deletedLocals[operand]
         if not code.unusedLocals.has_key(operand) :
             errLine = code.lastLineNum
             if code.unpackCount and not cfg().unusedLocalTuple :
@@ -980,8 +903,13 @@ def _BUILD_LIST(oparg, operand, codeSource, code) :
 
 def _UNARY_CONVERT(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
-        code.stack[-1].data = str(code.stack[-1].data)
-        code.stack[-1].type = types.StringType
+        stackValue = code.stack[-1]
+        if stackValue.data == cfg().methodArgName and \
+           stackValue.const == 0 and codeSource.classObject is not None and \
+           codeSource.func.function.func_name == '__repr__' :
+            code.addWarning(msgs.USING_SELF_IN_REPR)
+        stackValue.data = str(stackValue.data)
+        stackValue.type = types.StringType
 
 def _UNARY_POSITIVE(oparg, operand, codeSource, code) :
     if OP.UNARY_POSITIVE(code.nextOpInfo()[0]) :
@@ -1153,5 +1081,3 @@ DISPATCH[132] = _MAKE_FUNCTION
 DISPATCH[140] = _CALL_FUNCTION_VAR
 DISPATCH[141] = _CALL_FUNCTION_KW
 DISPATCH[142] = _CALL_FUNCTION_VAR_KW
-
-

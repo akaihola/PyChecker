@@ -1,14 +1,12 @@
 Goals for next release:
 -----------------------
 * Improve handling when importing packages
-* Check object method calls for # args
 * Add check for magic #s/consts
 	(need dict of consts, count, max count, consts to ignore)
 * Add check for unsupported operand type(s) for * + / etc
 
 Longer Term goals:
 ------------------
-* Check object method calls for # args for builtin type methods
 * Store types of globals, class attributes, function & method return values
 * Handle slots in Python 2.2
 * Add original line warnings for those that refer to another place
@@ -17,21 +15,21 @@ Longer Term goals:
 	which is different from runtime interpreter
 * Security checks for known issues.  Adrian Likins @redhat recommends 
   looking at http://www.securesw.com/rats/
-* Recursive calls to __repr__ implementations
 * Make check for 'self' a list instead of a string
 * Check function return values - partially complete
-* Add check for unreachable code
-* Add check if __getattr[ibute]__ returns None (instead of raising an exception)
-* Add check for except: pass
+* Add check that an assert is not passed a tuple
 * Add check that private functions are used in module/class
 * Add check that subclass overrides method that only raises NotImplementedError
 * Add check for using object members outside of class
+* Add portability checks for win32/unix
+* Fix deriving from class by alias name
+
+* Add check for unreachable code
+* Add check if __getattr[ibute]__ returns None (instead of raising an exception)
+* Add check for except: pass
 * Add check for implicit string concatentation
 * Add check for creating tuple when don't want a tuple, like: 1,
             or not creating tuple when want one, like: (1)
-* Add check that an assert is not passed a tuple
-* Fix deriving from class by alias name
-* Add portability checks for win32/unix
 
 * Allow import checker to catch errors, rather than starting checker.py
 * Find lines that end w/semi-colons (;)
