@@ -18,10 +18,12 @@ Longer Term goals:
 * Make check for 'self' a list instead of a string
 * Check function return values - partially complete
 * Add check for unreachable code
+* Add check for except Error1, Error2 : # should be except (Error1, Error2) :
 * Add check for except: pass
 * Add check that private functions are used in module/class
 * Add check that subclass overrides method that only raises NotImplementedError
 * Add check for using object members outside of class
+* Add check for implicit string concatentation
 * Fix deriving from class by alias name
 
 * Allow import checker to catch errors, rather than starting checker.py
