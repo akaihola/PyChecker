@@ -6,6 +6,7 @@
 Find warnings in byte code from Python source files.
 """
 
+import sys
 import string
 import types
 
@@ -133,6 +134,7 @@ def _handleFunctionCall(module, code, c, argCount) :
         kwArgs.reverse()
 
     loadValue = code.stack[funcIndex]
+    returnValue = Stack.makeFuncReturnValue(loadValue)
     if loadValue.isMethodCall(c, cfg().methodArgName) :
         methodName = loadValue.data[1]
         try :
@@ -155,19 +157,24 @@ def _handleFunctionCall(module, code, c, argCount) :
                    code.stack[funcIndex].type == Stack.TYPE_ATTRIBUTE and \
                    code.stack[funcIndex+1].data != cfg().methodArgName :
                     code.addWarning(msgs.SELF_NOT_FIRST_ARG % cfg().methodArgName)
-            elif refClass and create and (argCount > 0 or len(kwArgs) > 0) :
-                if not refClass.ignoreAttrs and \
+            elif refClass and create :
+                returnValue = Stack.Item(loadValue, refClass)
+                if (argCount > 0 or len(kwArgs) > 0) and \
+                   not refClass.ignoreAttrs and \
                    not refClass.methods.has_key(utils.INIT) and \
                    not issubclass(refClass.classObject, Exception) :
                     code.addWarning(msgs.NO_CTOR_ARGS)
 
-    code.stack = code.stack[:funcIndex] + [ Stack.makeFuncReturnValue(loadValue) ]
+    code.stack = code.stack[:funcIndex] + [ returnValue ]
     return loadValue
 
 
+def _classHasAttribute(c, attr) :
+    return (c.methods.has_key(attr) or c.members.has_key(attr) or
+            hasattr(c.classObject, attr))
+
 def _checkAttribute(attr, c, code) :
-    if not c.methods.has_key(attr) and not c.members.has_key(attr) and \
-       not hasattr(c.classObject, attr) :
+    if not _classHasAttribute(c, attr) :
         code.addWarning(msgs.INVALID_CLASS_ATTR % attr)
 
 def _checkModuleAttribute(attr, module, code, ref) :
@@ -271,7 +278,7 @@ def _handleImport(code, operand, module, main, fromName) :
 
 def _handleImportFrom(code, operand, module, main) :
     fromName = code.stack[-1].data
-    code.stack.append(Stack.Item(operand, type(operand)))
+    code.stack.append(Stack.Item(operand, types.ModuleType))
     _handleImport(code, operand, module, main, fromName)
 
 
@@ -354,19 +361,77 @@ _METHODLESS_OBJECTS = { types.NoneType : None, types.IntType : None,
                         types.EllipsisType : None,
                       }
 
+# FIXME: need to handle these types: Frame, Traceback, Module
+_BUILTINS_ATTRS = { types.StringType : dir(''),
+                    types.TypeType : dir(type(0)),
+                    types.ListType : dir([]),
+                    types.DictType : dir({}),
+                    types.FunctionType : dir(cfg),
+                    types.BuiltinFunctionType : dir(len),
+                    types.BuiltinMethodType : dir([].append),
+                    types.ClassType : dir(Stack.Item),
+                    types.UnboundMethodType : dir(Stack.Item.__init__),
+                    types.LambdaType : dir(lambda: None),
+                    types.XRangeType : dir(xrange(0)),
+                    types.SliceType : dir(slice(0)),
+                  }
+
+def _setupBuiltinAttrs() :
+    w = Warning.Warning('', 0, '')
+    _BUILTINS_ATTRS[types.MethodType] = dir(w.__init__)
+    del w
+    try :
+        _BUILTINS_ATTRS[types.ComplexType] = dir(complex(0, 1))
+    except NameError :
+        pass
+
+    try :
+        _BUILTINS_ATTRS[types.UnicodeType] = dir(u'')
+    except (NameError, SyntaxError) :
+        pass
+
+    try :
+        _BUILTINS_ATTRS[types.CodeType] = dir(_setupBuiltinAttrs.func_code)
+    except :
+        pass
+
+    try :
+        _BUILTINS_ATTRS[types.FileType] = dir(sys.__stdin__)
+    except :
+        pass
+
+# have to setup the rest this way to support different versions of Python
+_setupBuiltinAttrs()
+
 def _checkAttributeType(code, stackValue, attr) :
-    varTypes = code.typeMap.get(stackValue, None)
+    if not cfg().checkObjectAttrs :
+        return None
+
+    varTypes = code.typeMap.get(str(stackValue.data), None)
     if not varTypes :
         return None
+
     for varType in varTypes :
         # ignore built-in types that have no attributes
         if _METHODLESS_OBJECTS.has_key(varType) :
             continue
-        if hasattr(varType, 'attributes') and attr in varType.attributes :
+
+        if type(varType) == types.StringType :
             return None
 
-    code.addWarning(msgs.OBJECT_HAS_NO_METHODS % attr)
+        attrs = _BUILTINS_ATTRS.get(varType, None)
+        if attrs is not None :
+            if attr in attrs :
+                return None
+            continue
 
+        if hasattr(varType, 'ignoreAttrs') :
+            if varType.ignoreAttrs or _classHasAttribute(varType, attr) :
+                return None
+        elif not hasattr(varType, 'attributes') or attr in varType.attributes :
+            return None
+
+    code.addWarning(msgs.OBJECT_HAS_NO_ATTR % (stackValue.data, attr))
 
 
 class Code :
@@ -407,6 +472,7 @@ class Code :
         # initialize the arguments to unused
         for arg in func.arguments() :
             self.unusedLocals[arg] = 0
+            self.typeMap[arg] = [ Stack.TYPE_UNKNOWN ]
 
     def addWarning(self, err, line = None) :
         if line is None :
@@ -454,13 +520,32 @@ class Code :
         stackLen = len(self.stack)
         if stackLen > 0 :
             count = min(count, stackLen)
-            del self.stack[(-1 - count):-1]
+            del self.stack[(-1 - count):]
 
     def unpack(self) :
         if self.unpackCount :
             self.unpackCount = self.unpackCount - 1
-        self.popStack()
+        else :
+            self.popStack()
 
+    def setType(self, name) :
+        valueList = self.typeMap.get(name, [])
+        type = Stack.TYPE_UNKNOWN
+        if self.stack :
+            if not self.unpackCount :
+                type = self.stack[-1].type
+            else :
+                data = self.stack[-1].data
+                try :
+                    type = data[len(data)-self.unpackCount].type
+                except (TypeError, AttributeError) :
+                    # len(data) fails if we don't know what data is
+                    #   (eg, for loop), or it may not be a Stack.Item
+                    pass
+
+        valueList.append(type)
+        self.typeMap[name] = valueList
+            
     def addReturn(self) :
         self.returns = self.returns + 1
         self.lastReturnLabel = self.index - utils.BACK_RETURN_INDEX
@@ -554,6 +639,7 @@ def _LOAD_FAST(oparg, operand, codeSource, code) :
 
 def _STORE_FAST(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :
+        code.setType(operand)
         if not code.unusedLocals.has_key(operand) :
             errLine = code.lastLineNum
             if code.unpackCount and not cfg().unusedLocalTuple :
@@ -563,16 +649,15 @@ def _STORE_FAST(oparg, operand, codeSource, code) :
 
 def _LOAD_ATTR(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
-        topOfStack = code.stack[-1]
-        if topOfStack.data == cfg().methodArgName and codeSource.classObject != None :
+        top = code.stack[-1]
+        if top.data == cfg().methodArgName and codeSource.classObject != None :
             _checkAttribute(operand, codeSource.classObject, code)
-        elif type(topOfStack.type) == types.StringType :
-            _checkModuleAttribute(operand, codeSource.module,
-                                  code, topOfStack.data)
-        # FIXME: need to keep type of objects
+        elif type(top.type) == types.StringType or \
+             top.type == types.ModuleType :
+            _checkModuleAttribute(operand, codeSource.module, code, top.data)
         else :
-            _checkAttributeType(code, topOfStack, operand)
-        topOfStack.addAttribute(operand)
+            _checkAttributeType(code, top, operand)
+        top.addAttribute(operand)
 
 def _STORE_ATTR(oparg, operand, codeSource, code) :
     code.unpack()
@@ -581,7 +666,7 @@ def _COMPARE_OP(oparg, operand, codeSource, code) :
     _handleComparison(code.stack, operand)
 
 def _IMPORT_NAME(oparg, operand, codeSource, code) :
-    code.stack.append(Stack.Item(operand, type(operand)))
+    code.stack.append(Stack.Item(operand, types.ModuleType))
     nextOp = code.nextOpInfo()[0]
     if not OP.IMPORT_FROM(nextOp) and not OP.IMPORT_STAR(nextOp) :
         _handleImport(code, operand, codeSource.module, codeSource.main, None)
@@ -604,7 +689,7 @@ def _DUP_TOP(oparg, operand, codeSource, code) :
         code.stack.append(code.stack[-1])
 
 def _STORE_SUBSCR(oparg, operand, codeSource, code) :
-    code.popStackItems(3)
+    code.popStackItems(2)
 
 def _CALL_FUNCTION(oparg, operand, codeSource, code) :
     func = _handleFunctionCall(codeSource.module, code,
@@ -619,11 +704,18 @@ def _BUILD_TUPLE(oparg, operand, codeSource, code) :
 def _BUILD_LIST(oparg, operand, codeSource, code) :
     _makeConstant(code.stack, oparg, Stack.makeList)
 
+def _popStackRef(code, operand, count = 2) :
+    code.popStackItems(count)
+    code.stack.append(Stack.Item(operand, Stack.TYPE_UNKNOWN))
+
 def _pop(oparg, operand, codeSource, code) :
     code.popStack()
-_POP_TOP = _BINARY_POWER = _BINARY_MULTIPLY = _BINARY_DIVIDE = _BINARY_ADD = \
-           _BINARY_SUBTRACT = _BINARY_SUBSCR = _BINARY_LSHIFT = \
-           _BINARY_RSHIFT = _BINARY_AND = _BINARY_XOR = _BINARY_OR = _pop
+_POP_TOP = _BINARY_POWER = _BINARY_MULTIPLY = _BINARY_DIVIDE = \
+           _BINARY_ADD = _BINARY_SUBTRACT = _BINARY_LSHIFT = _BINARY_RSHIFT = \
+           _BINARY_AND = _BINARY_XOR = _BINARY_OR = _pop
+
+def _BINARY_SUBSCR(oparg, operand, codeSource, code) :
+    _popStackRef(code, operand)
 
 def _BINARY_MODULO(oparg, operand, codeSource, code) :
     _getFormatWarnings(code)
@@ -635,8 +727,17 @@ def _UNPACK_SEQUENCE(oparg, operand, codeSource, code) :
     code.unpackCount = oparg
 
 
+def _SLICE_1_ARG(oparg, operand, codeSource, code) :
+    _popStackRef(code, operand)
+    
+_SLICE1 = _SLICE2 = _SLICE_1_ARG
+
+def _SLICE3(oparg, operand, codeSource, code) :
+    _popStackRef(code, operand, 3)
+
 def _FOR_LOOP(oparg, operand, codeSource, code) :
     code.loops = code.loops + 1
+    _popStackRef(code, '<for_loop>', 2)
 
 def _jump(oparg, operand, codeSource, code) :
     try :
@@ -672,6 +773,9 @@ DISPATCH[ 22] = _BINARY_MODULO
 DISPATCH[ 23] = _BINARY_ADD
 DISPATCH[ 24] = _BINARY_SUBTRACT
 DISPATCH[ 25] = _BINARY_SUBSCR
+DISPATCH[ 31] = _SLICE1
+DISPATCH[ 32] = _SLICE2
+DISPATCH[ 33] = _SLICE3
 DISPATCH[ 60] = _STORE_SUBSCR
 DISPATCH[ 62] = _BINARY_LSHIFT
 DISPATCH[ 63] = _BINARY_RSHIFT

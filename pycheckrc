@@ -27,6 +27,9 @@ importUsed = 1
 # bool: warn when imports are not used in __init__.py
 packageImportUsed = 1
 
+# bool: warn when modules import themselves
+reimportSelf = 1
+
 # bool: warn when local variables are not used
 localVariablesUsed = 1
 
@@ -73,11 +76,15 @@ maxReturns = 10
 ignoreStandardLibrary = 0
 
 
+# list of strings: ignore unused locals/arguments if name is one of
+unusedNames = [ '_', 'empty', 'unused', ]
+
+
 # list of strings: ignore warnings generated from these modules
 blacklist = [ 'Tkinter', 'wxPython', 'gtk', 'GTK', 'GDK', ]
 
 
-# list of strings: ignore variable not used warnings from the list
+# list of strings: ignore global variables not used if name is one of
 variablesToIgnore = [ '__all__', '__version__', '__copyright__', ]
 
 
@@ -86,6 +93,9 @@ printParse = 0
 
 # bool: turn debugging of PyChecker on
 debug = 0
+
+# bool: check that attributes of objects exist
+checkObjectAttrs = 1
 
 # bool: check consistent return values
 checkReturnValues = 0

@@ -110,9 +110,6 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
             dispatch_func = CodeChecks.DISPATCH[op]
             if dispatch_func is not None :
                 dispatch_func(oparg, operand, codeSource, code)
-            elif utils.startswith(OP.name[op], 'SLICE+') :
-                #                 len('SLICE+') == 6
-                code.popStackItems(int(OP.name[op][6:]))
 
         # check if last return is unreachable due to a raise just before
         i = code.index - utils.BACK_RETURN_INDEX - 3
@@ -188,6 +185,27 @@ def _getUnused(module, globalRefs, dict, msg, filterPrefix = None) :
     return warnings
 
 
+_DOT_INIT = '.' + utils.INIT
+
+def _baseInitCalled(module, base, functionsCalled) :
+    if not hasattr(base, utils.INIT) :
+        return 1
+
+    initName = str(base)
+    # FIXME: this is a hack, oughta figure a better way to fix
+    if utils.startswith(initName, 'exceptions.') :
+        initName = string.join(string.split(initName, '.')[1:], '.')
+    initName = initName + _DOT_INIT
+    if functionsCalled.has_key(initName) :
+        return 1
+
+    # ok, do this the hard way, there may be aliases, so check here
+    for func in functionsCalled.keys() :
+        if utils.endswith(func, _DOT_INIT) :
+            # FIXME: check if the func is a base class
+            pass
+    return 0
+
 def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
     """Return a list of warnings that occur
        for each base class whose __init__() is not called"""
@@ -201,16 +219,10 @@ def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
                 warnings.append(warn)
 
     for base in c.classObject.__bases__ :
-        if hasattr(base, utils.INIT) :
-            initName = str(base)
-            # FIXME: this is a hack, oughta figure a better way to fix
-            if utils.startswith(initName, 'exceptions.') :
-                initName = string.join(string.split(initName, '.')[1:], '.')
-            initName = initName + '.__init__'
-            if not functionsCalled.has_key(initName) :
-                warn = Warning(moduleFilename, func_code,
-                               msgs.BASE_CLASS_NOT_INIT % str(base))
-                warnings.append(warn)
+        if not _baseInitCalled(c.module, base, functionsCalled) :
+            warn = Warning(moduleFilename, func_code,
+                           msgs.BASE_CLASS_NOT_INIT % str(base))
+            warnings.append(warn)
     return warnings
 
 

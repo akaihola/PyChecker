@@ -47,6 +47,7 @@ _OPTIONS = [
  ('U', 0, 'reuseattr', 'redefiningFunction', 'check if function/class/method names are reused'),
  None,
  ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
+ ('O', 0, 'objattrs', 'checkObjectAttrs', 'check that attributes of objects exist'),
  None,
  ('q', 0, 'stdlib', 'ignoreStandardLibrary', 'ignore warnings from files under standard library'),
  ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules\n\t\t\t'),
@@ -169,6 +170,7 @@ class Config :
         self.maxBranches = 50
         self.maxReturns = 10
 
+        self.checkObjectAttrs = 1
         self.checkReturnValues = 1
 
     def loadFile(self, filename) :

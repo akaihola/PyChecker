@@ -13,6 +13,7 @@ DATA_UNKNOWN = "-unknown-"
 LOCALS = 'locals'
 
 # These should really be defined by subclasses
+TYPE_UNKNOWN = "-unknown-"
 TYPE_FUNC_RETURN = "-return-value-"
 TYPE_ATTRIBUTE = "-attribute-"
 TYPE_COMPARISON = "-comparison-"
