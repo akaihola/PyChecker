@@ -20,3 +20,13 @@ class jj3(jj) :
 class jj4(jj) :
     "jj4"
 
+class A: 
+    'should not generate warnings'
+    def __init__(self): pass
+
+class B(A):
+    'should not generate warnings'
+
+class C(B):
+    'should not generate warnings'
+    def __init__(self): B.__init__(self)

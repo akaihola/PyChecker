@@ -220,19 +220,9 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
             if m != None :
                 _checkFunctionArgs(code, m, 1, argCount, kwArgs, check_arg_count)
         except KeyError :
-            sattr = None
-            cobj = codeSource.classObject
-            # FIXME: this is an awful hack, there's got to be a better way
-            #   im_class meaning changed in 2.2, not sure how best to do this
-            if utils.pythonVersion() >= utils.PYTHON_2_2 :
-                sattr = cobj.statics.get(methodName)
-                if sattr is not None :
-                    funcName = sattr.getName(cobj)
-            else :
-                sattr = getattr(cobj.classObject, methodName, None)
-                if sattr is not None :
-                    funcName = str(getattr(sattr, 'im_class', sattr))
-                    funcName = funcName + '.' + sattr.__name__
+            sattr = codeSource.classObject.statics.get(methodName)
+            if sattr is not None :
+                funcName = sattr.getName(codeSource.classObject)
 
             if sattr is None and cfg().callingAttribute :
                 code.addWarning(msgs.INVALID_METHOD % methodName)

@@ -260,8 +260,7 @@ def _baseInitCalled(classInitInfo, base, functionsCalled) :
     if baseInit is None or _get_func_info(baseInit) == classInitInfo :
         return 1
 
-    # Warning: im_class meaning changed in Python 2.2, but I think this is ok
-    initName = str(baseInit.im_class)
+    initName = str(base)
     # FIXME: this is a hack, oughta figure a better way to fix
     if utils.startswith(initName, 'exceptions.') :
         initName = string.join(string.split(initName, '.')[1:], '.')
