@@ -1140,7 +1140,11 @@ def _getExceptionInfo(codeSource, item):
             pass
 
     if not e:
-        c = codeSource.module.classes.get(item.data)
+        try:
+            c = codeSource.module.classes.get(item.data)
+        except TypeError:     # item.data may not be hashable (e.g., list)
+            return e, 0
+
         if c is not None:
             e = c.classObject
         else:
