@@ -1,5 +1,6 @@
 
 Version 0.8	- xx July 2001
+  * Fix warning when doing:  from X import Y, Z
   * Fix warning when deriving from Exception() and instantiating object
 	with multiple arguments
   * Suppress warnings by setting __pychecker__ in source code

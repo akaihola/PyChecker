@@ -1,6 +1,5 @@
 
 * Module (m) re-imported warning when import m in 2 different functions
-* Handle "from types import StringType, UnicodeType" properly
 * Add check for a[1,2] for lists (ok for dict)
 * Improve handling when importing packages
 * Fix error msg to base constructors (msg count is wrong)
