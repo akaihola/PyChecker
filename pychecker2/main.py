@@ -1,4 +1,4 @@
-import os, sys
+import os.path, sys
 from os.path import dirname, realpath
 sys.path.append(dirname(dirname(realpath(sys.argv[0]))))
 
