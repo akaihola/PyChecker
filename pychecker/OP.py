@@ -23,6 +23,8 @@ def UNARY_NEGATIVE(op):        return op == 11
 def UNARY_INVERT(op):          return op == 15
 def RETURN_VALUE(op):          return op == 83
 def JUMP_FORWARD(op):          return op == 110
+def JUMP_ABSOLUTE(op):         return op == 113
+def BREAK_LOOP(op):            return op == 80
 def RAISE_VARARGS(op):         return op == 130
 def POP_BLOCK(op):             return op == 87
 def END_FINALLY(op):           return op == 88

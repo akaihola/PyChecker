@@ -126,3 +126,17 @@ def func18(x):
     if x != 'j':
         raise AttributeError
 
+def func19(x):
+    'should not produce a warning'
+    while 1:
+        if x:
+            x = x + 1
+        return 1
+
+def func20(x):
+    'should produce a warning'
+    while 1:
+        if x:
+            break
+        return 1
+

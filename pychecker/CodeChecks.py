@@ -1171,22 +1171,48 @@ def _jump(oparg, operand, codeSource, code) :
                 code.addWarning(msgs.USING_METHOD_AS_ATTR % name)
 _JUMP_ABSOLUTE = _jump
 
-def _jump_conditional(oparg, operand, codeSource, code) :
-    if code.stack :
-        if code.stack[-1].const and cfg().constantConditions and \
-           (code.stack[-1].data != 1 or cfg().constant1) :
-            code.addWarning(msgs.CONSTANT_CONDITION % str(code.stack[-1]))
+def _is_unreachable(code, topOfStack, branch, if_false) :
+    # Are we are checking exceptions, but we not catching all exceptions?
+    if (topOfStack.type == Stack.TYPE_COMPARISON and 
+        topOfStack.data[1] == 'exception match' and 
+        topOfStack.data[2] is not Exception) :
+        return 1
 
-        # Remove branches to code when we are checking exceptions
-        # and we aren't catching all exceptions
+    # do we possibly have while 1: ?
+    if not (topOfStack.const and topOfStack.data == 1 and if_false) :
+        return 0
+
+    # get the op just before the branch (ie, -3)
+    op, oparg, i, extended_arg = OP.getInfo(code.bytes, branch - 3, 0)
+    # are we are jumping to before the while 1: (LOAD_CONST, JUMP_IF_FALSE)
+    if not (OP.JUMP_ABSOLUTE(op) and oparg == (code.index - 3*3)) :
+        return 0
+
+    # check if we break out of the loop
+    i = code.index
+    while i < branch :
+        op, oparg, i, extended_arg = OP.getInfo(code.bytes, i, extended_arg)
+        if OP.BREAK_LOOP(op) :
+            return 0
+    return 1
+
+def _jump_conditional(oparg, operand, codeSource, code, if_false) :
+    if code.stack :
         topOfStack = code.stack[-1]
-        if topOfStack.type == Stack.TYPE_COMPARISON and \
-           topOfStack.data[1] == 'exception match' and \
-           topOfStack.data[2] is not Exception :
+        if topOfStack.const and cfg().constantConditions and \
+           (topOfStack.data != 1 or cfg().constant1) :
+            code.addWarning(msgs.CONSTANT_CONDITION % str(topOfStack))
+
+        if _is_unreachable(code, topOfStack, code.index + oparg, if_false) :
             code.removeBranch(code.index + oparg)
                 
     _jump(oparg, operand, codeSource, code)
-_JUMP_IF_FALSE = _JUMP_IF_TRUE = _jump_conditional
+
+def _JUMP_IF_FALSE(oparg, operand, codeSource, code) :
+    _jump_conditional(oparg, operand, codeSource, code, 1)
+
+def _JUMP_IF_TRUE(oparg, operand, codeSource, code) :
+    _jump_conditional(oparg, operand, codeSource, code, 0)
 
 def _JUMP_FORWARD(oparg, operand, codeSource, code) :
     _jump(oparg, operand, codeSource, code)
