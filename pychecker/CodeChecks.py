@@ -636,7 +636,12 @@ def _LOAD_NAME(oparg, operand, codeSource, code) :
     if codeSource.module.modules.has_key(operand) and \
        hasattr(codeSource.module.module, operand) :
         operand = eval("codeSource.module.module.%s.__name__" % operand)
-    code.stack.append(Stack.Item(operand, Stack.TYPE_GLOBAL))
+
+    opType = Stack.TYPE_GLOBAL
+    if operand in [ 'None', 'Ellipsis', ] :
+        operand = eval(operand)
+        opType = type(operand)
+    code.stack.append(Stack.Item(operand, opType))
 
 _LOAD_GLOBAL = _LOAD_DEREF = _LOAD_NAME
 
