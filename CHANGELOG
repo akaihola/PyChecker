@@ -1,5 +1,7 @@
 
 Version 0.8.6	- xx October 2001
+  * Fix spurious warning (Function return types are inconsistent)
+	when multiple returns w/a constant & a local variable of same type
   * Fix spurious warning for format strings when using a dict local variable
   * Rename pychecker.sh script to pychecker on Unix
 

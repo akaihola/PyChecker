@@ -54,7 +54,8 @@ def _implicitReturnUnreachable(code) :
 
 
 _IGNORE_RETURN_TYPES = ( Stack.TYPE_FUNC_RETURN, Stack.TYPE_ATTRIBUTE,
-                         Stack.TYPE_GLOBAL, Stack.TYPE_COMPARISON, )
+                         Stack.TYPE_GLOBAL, Stack.TYPE_COMPARISON,
+                         Stack.TYPE_UNKNOWN)
 
 def _checkReturnWarnings(code) :
     # there must be at least 2 real return values to check for consistency
@@ -78,16 +79,17 @@ def _checkReturnWarnings(code) :
     returnType, returnData = None, None
     for line, value in code.returnValues :
         if not value.isNone() :
+            valueType = value.getType(code.typeMap)
             if returnType is None :
                 returnData = value
-                returnType = type(value.data)
+                returnType = valueType
 
             # always ignore None, None can be returned w/any other type
             # FIXME: if we stored func return values, we could do better
             if returnType is not None and not value.isNone() and \
-               value.type not in _IGNORE_RETURN_TYPES and \
+               valueType not in _IGNORE_RETURN_TYPES and \
                returnData.type not in _IGNORE_RETURN_TYPES :
-                ok = (returnType == type(value.data) or returnType == value.type)
+                ok = returnType in (type(value.data), valueType)
                 if ok and returnType == types.TupleType :
                     ok = returnData.length == value.length
                 if not ok :
