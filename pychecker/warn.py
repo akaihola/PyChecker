@@ -566,6 +566,11 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                 elif OP.DUP_TOP(op) :
                     if len(stack) > 0 :
                         stack.append(stack[-1])
+                elif OP.STORE_SUBSCR(op) :
+                    popCount = len(stack)
+                    if popCount > 0 :
+                        popCount = min(popCount, 3)
+                        stack = stack[:-popCount]
                 elif _startswith(OP.name[op], 'SLICE+') :
                     # len('SLICE+') == 6
                     sliceCount = int(OP.name[op][6:])

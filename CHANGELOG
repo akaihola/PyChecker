@@ -1,6 +1,8 @@
 
 Version 0.7	- xx July 2001
-  * Fix exception when class overrides __special__() methods and raise exception
+  * Fix inability to evaluate { 1: 'a' } inline,
+	led to incorrect __init__() not called warnings
+  * Fix exception when class overrides __special__() methods & raise exception
   * Fix check in format strings when using '%*g %*.*g', etc
   * Add check for static class attributes
   * Fix checking of module attributes
