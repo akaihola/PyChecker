@@ -333,7 +333,6 @@ class Module :
         self.main_code = None
         self.module = None
         self.check = check
-        global _allModules
         _allModules[moduleName] = self
 
     def addVariable(self, var, varType) :
@@ -382,20 +381,13 @@ class Module :
     def load(self) :
         try :
             # there's no need to reload modules we already have
-            if sys.modules.has_key(self.moduleName) :
+            module = sys.modules.get(self.moduleName)
+            if module :
                 if not _allModules[self.moduleName].module :
-                    return self.initModule(sys.modules[self.moduleName])
+                    return self.initModule(module)
                 return 1
 
-            file, filename, smt = _findModule(self.moduleName)
-            # FIXME: if the smt[-1] == imp.PKG_DIRECTORY : load __all__
-            try :
-                module = imp.load_module(self.moduleName, file, filename, smt)
-                self.setupMainCode(file, filename, module)
-            finally :
-                if file != None :
-                    file.close()
-            return self.initModule(module)
+            return self.initModule(self.setupMainCode())
         except (SystemExit, KeyboardInterrupt) :
             exc_type, exc_value, exc_tb = sys.exc_info()
             raise exc_type, exc_value
@@ -428,9 +420,17 @@ class Module :
             utils.popConfig()
         return 1
 
-    def setupMainCode(self, file, filename, module) :
-        if file :
+    def setupMainCode(self) :
+        file, filename, smt = _findModule(self.moduleName)
+        # FIXME: if the smt[-1] == imp.PKG_DIRECTORY : load __all__
+        try :
+            module = imp.load_module(self.moduleName, file, filename, smt)
             self.main_code = function.create_from_file(file, filename, module)
+        finally :
+            if file != None :
+                file.close()
+
+        return module
 
 
 def getAllModules() :
