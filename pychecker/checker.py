@@ -351,13 +351,13 @@ def importError(moduleName):
             if text:
                 sys.stderr.write("      %s\n" % text)
 
-        # And finally print the exception type and value.
-        # Careful formatting exc_value -- can fail for some user exceptions
-        sys.stderr.write("  %s: " % exc_name)
-        try:
-            sys.stderr.write(str(exc_value) + '\n')
-        except:
-            sys.stderr.write('**error formatting exception value**\n')
+    # And finally print the exception type and value.
+    # Careful formatting exc_value -- can fail for some user exceptions
+    sys.stderr.write("  %s: " % exc_name)
+    try:
+        sys.stderr.write(str(exc_value) + '\n')
+    except:
+        sys.stderr.write('**error formatting exception value**\n')
 
 
 class Module :
