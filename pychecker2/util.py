@@ -1,9 +1,9 @@
 
 class BaseVisitor:
 
-    def visit(self, node):
+    def visit(self, unused_node):
         "method is really overridden by compiler.visitor.ASTVisitor"
-        raise NotImplementedError("This should have been overridden")
+        pass
 
     def visitChildren(self, n):
         for c in n.getChildNodes():
@@ -15,9 +15,9 @@ class ScopeVisitor:
         self.scopes = scopes
         self.visitor = visitor
 
-    def visit(self, node):
+    def visit(self, unused_node):
         "method is really overridden by compiler.visitor.ASTVisitor"
-        raise NotImplementedError("This should have been overridden")
+        pass
 
     # return default for any name that isn't in visitor
     def __getattr__(self, name):

@@ -164,11 +164,11 @@ class Scope:
                    or isinstance(self, ClassScope):
                     self.frees[name] = node
                 elif sc == SC_GLOBAL:
-                    child_globals.append(name)
+                    child_globals[name] = node
                 elif isinstance(self, FunctionScope) and sc == SC_LOCAL:
                     self.cells[name] = node
                 elif sc != SC_CELL:
-                    child_globals.append(name)
+                    child_globals[name] = node
             else:
                 if sc == SC_LOCAL:
                     self.cells[name] = node
@@ -210,6 +210,9 @@ class SymbolVisitor:
         self.klass = None
 
     # node that define new scopes
+    def visit(self, unused_node, *args):
+        "overwritten by compiler.walk"
+        pass
 
     def visitModule(self, node):
         scope = self.module = self.scopes[node] = ModuleScope()
@@ -320,18 +323,18 @@ class SymbolVisitor:
             self.visit(n, scope, 1)
         self.visit(node.expr, scope)
 
-    def visitAssName(self, node, scope, assign=1):
+    def visitAssName(self, node, scope, unused_assign=1):
         scope.add_def(node.name, node)
 
-    def visitAssAttr(self, node, scope, assign=0):
+    def visitAssAttr(self, node, scope, unused_assign=0):
         self.visit(node.expr, scope, 0)
 
-    def visitSubscript(self, node, scope, assign=0):
+    def visitSubscript(self, node, scope, unused_assign=0):
         self.visit(node.expr, scope, 0)
         for n in node.subs:
             self.visit(n, scope, 0)
 
-    def visitSlice(self, node, scope, assign=0):
+    def visitSlice(self, node, scope, unused_assign=0):
         self.visit(node.expr, scope, 0)
         if node.lower:
             self.visit(node.lower, scope, 0)
@@ -366,62 +369,4 @@ class SymbolVisitor:
     def visitYield(self, node, scope):
         scope.generator = 1
         self.visit(node.value, scope)
-
-def sort(l):
-    l = l[:]
-    l.sort()
-    return l
-
-def list_eq(l1, l2):
-    return sort(l1) == sort(l2)
-
-if __name__ == "__main__":
-    import sys
-    from compiler import parseFile, walk
-    import symtable
-
-    def get_names(syms):
-        return [s for s in [s.get_name() for s in syms.get_symbols()]
-                if not (s.startswith('_[') or s.startswith('.'))]
-
-    for file in sys.argv[1:]:
-        print file
-        f = open(file)
-        buf = f.read()
-        f.close()
-        syms = symtable.symtable(buf, file, "exec")
-        mod_names = get_names(syms)
-        tree = parseFile(file)
-        s = SymbolVisitor()
-        walk(tree, s)
-
-        # compare module-level symbols
-        names2 = s.scopes[tree].get_names()
-
-        if not list_eq(mod_names, names2):
-            print
-            print "oops", file
-            print sort(mod_names)
-            print sort(names2)
-            sys.exit(-1)
-
-        d = {}
-        d.update(s.scopes)
-        del d[tree]
-        scopes = d.values()
-        del d
-
-        for s in syms.get_symbols():
-            if s.is_namespace():
-                l = [sc for sc in scopes
-                     if sc.name == s.get_name()]
-                if len(l) > 1:
-                    print "skipping", s.get_name()
-                else:
-                    if not list_eq(get_names(s.get_namespace()),
-                                   l[0].get_names()):
-                        print s.get_name()
-                        print sort(get_names(s.get_namespace()))
-                        print sort(l[0].get_names())
-                        sys.exit(-1)
 
