@@ -10,13 +10,6 @@ Items still missing:
 
         Error suppression (errors may be suppressed globally)
 
-        Module imports:
-                from sys import *
-                def f():
-                     stdout.write('Hello\n')
-
-            now gives an 'unknown identifier "stdout"'
-
         Line numbers for where identifiers are defined.
         Ignoring variables created as a result of tuple unpacking
             (This will probably entail a re-write of 
