@@ -107,6 +107,8 @@ class UnusedCheck(Check):
                         file.warning(scope, self.unused, var)
 
 def _implicitlyImported(scope, name):
+    if name.startswith('_'):
+        return None
     for module in scope.importStar.values():
         if getattr(module, name, None):
             return 1
