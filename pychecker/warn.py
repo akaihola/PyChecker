@@ -382,8 +382,11 @@ def _handleImport(operand, module, func_code, lastLineNum, main) :
                            _MODULE_IMPORTED_AGAIN % operand)
     return warn
 
-def countFormatStars(str, ch) :
+def __countFormatStars(str, ch) :
     return string.count(str, ch + '*') + string.count(str, ch + '*.*')
+
+def countFormatStars(str, ch) :
+    return __countFormatStars(str, ch) + __countFormatStars(str, ch + '-')
 
 def _getFormatInfo(format, func_code, lastLineNum) :
     warnings = []
