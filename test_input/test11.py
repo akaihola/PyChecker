@@ -14,3 +14,7 @@ class Test:
 
 def rcParseTest(a = 10, b = 'ten', c = (5, 5)):
     print '%s, %s, %s' % (a, b, str(c))
+
+def a(i):
+    [0, 1, 3].index(i)
+

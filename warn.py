@@ -349,8 +349,9 @@ def _checkFunction(module, func, c = None) :
                 # funcCalled can be () in some cases (e.g., using a map())
                 if funcCalled :
                     tmpModuleName = None
+                    # funcCalled[0] may not be a string
                     if not (type(funcCalled) == types.TupleType and 
-                            sys.modules.has_key(funcCalled[0])) :
+                            sys.modules.has_key(str(funcCalled[0]))) :
                         tmpModuleName = module.moduleName
                     funcName = _getNameFromStack(funcCalled, tmpModuleName)
                     functionsCalled[funcName] = funcCalled
