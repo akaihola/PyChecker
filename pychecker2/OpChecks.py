@@ -49,14 +49,20 @@ class CompareCheck(Check):
                     'use "is" when comparing with None')
 
     def check(self, file, unused_checklist):
+        def checkEqualNone(node, expr, op):
+            if (op == '==' and 
+                expr.__class__ == compiler.ast.Name and
+                expr.name == "None"):
+                file.warning(node, self.useIs)
+
         class CompareVisitor(BaseVisitor):
             def visitCompare(s, node):
-                lt, op, rt = node.getChildren()
-                if op == '==':
-                    if (lt.__class__ == compiler.ast.Name
-                        and lt.name == "None"
-                        or rt.__class__ == compiler.ast.Name
-                        and rt.name == "None"):
-                        file.warning(node, self.useIs)
+                children = node.getChildren()
+                for i in range(0, len(children) - 1, 2):
+                    left, op = children[i:i+2]
+                    checkEqualNone(node, left, op)
+                op, right = children[-2:]
+                checkEqualNone(node, right, op)
+
         if file.parseTree:
             compiler.walk(file.parseTree, CompareVisitor())

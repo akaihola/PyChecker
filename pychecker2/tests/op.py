@@ -17,3 +17,8 @@ def foo():
         print "whoa!"
     else:
         print "whew!"
+
+def bar():
+    a = b = 0
+    if 'a' <= b >= 'c':
+        print ""

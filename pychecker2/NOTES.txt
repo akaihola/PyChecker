@@ -127,3 +127,5 @@ for the types of the nodes or print file.parseTree to see what classes all
 the nodes are.  See the OpChecks.CompareCheck class for an example of a
 check that visits all Compare nodes and the OpChecksExceptCheck class for an
 example that visits all TryExcept nodes.
+
+New checks should have unit tests in utest/.
