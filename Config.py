@@ -8,7 +8,7 @@ Configuration information for checker.
 
 import sys
 import getopt
-
+import string
 
 _DEFAULT_BLACK_LIST = [ "Tkinter", ]
 
@@ -33,32 +33,35 @@ class Config :
         self.blacklist = _DEFAULT_BLACK_LIST
 
 
-def printArg(shortArg, longArg, description, defaultValue = None) :
+def printArg(shortArg, longArg, description, defaultValue, useValue) :
     args = "-%s, --%s" % (shortArg, longArg)
     defStr = ''
     if defaultValue != None :
-        if defaultValue :
-            defaultValue = 'on'
-        else :
-            defaultValue = 'off'
+        if not useValue :
+            if defaultValue :
+                defaultValue = 'on'
+            else :
+                defaultValue = 'off'
         defStr = ' [%s]' % defaultValue
     print "    %-17s %s%s" % (args, description, defStr)
 
 
 _OPTIONS = [ 
-  ('s', 'doc', None, 'turn off all warnings for no doc strings'),
-  ('m', 'moduledoc', 'noDocModule', 'no module doc strings'),
-  ('c', 'classdoc', 'noDocClass', 'no class doc strings'),
-  ('f', 'funcdoc', 'noDocFunc', 'no function/method doc strings'),
-  None,
-  ('i', 'import', 'importUsed', 'unused imports'),
-  ('l', 'local', 'localVariablesUsed', 'unused local variables, except tuples'),
-  ('t', 'tuple', 'unusedLocalTuple', 'all unused local variables, including tuples'),
-  ('v', 'var', 'allVariablesUsed', 'all unused module variables'),
-  ('p', 'privatevar', 'privateVariableUsed', 'unused private module variables'),
-  None,
-  ('d', 'debug', 'debug', 'turn on debugging for checker'),
-  None,
+ ('s', 0, 'doc', None, 'turn off all warnings for no doc strings'),
+ ('m', 0, 'moduledoc', 'noDocModule', 'no module doc strings'),
+ ('c', 0, 'classdoc', 'noDocClass', 'no class doc strings'),
+ ('f', 0, 'funcdoc', 'noDocFunc', 'no function/method doc strings'),
+ None,
+ ('i', 0, 'import', 'importUsed', 'unused imports'),
+ ('l', 0, 'local', 'localVariablesUsed', 'unused local variables, except tuples'),
+ ('t', 0, 'tuple', 'unusedLocalTuple', 'all unused local variables, including tuples'),
+ ('v', 0, 'var', 'allVariablesUsed', 'all unused module variables'),
+ ('p', 0, 'privatevar', 'privateVariableUsed', 'unused private module variables'),
+ None,
+ ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules'),
+ None,
+ ('d', 0, 'debug', 'debug', 'turn on debugging for checker'),
+ None,
 ]
 
 
@@ -73,27 +76,29 @@ def usage() :
             print ""
             continue
 
-        shortArg, longArg, member, description = opt
+        shortArg, useValue, longArg, member, description = opt
         defValue = None
         if member != None :
             defValue = cfg.__dict__[member]
 
-        printArg(shortArg, longArg, description, defValue)
+        printArg(shortArg, longArg, description, defValue, useValue)
 
 
 def setupFromArgs(argList) :
     "Returns (Config, [ file1, file2, ... ]) from argList"
 
+    GET_OPT_VALUE = [ ('', ''), (':', '='), ]
     shortArgs, longArgs = "", []
     for opt in _OPTIONS :
         if opt != None :
-            shortArgs = shortArgs + opt[0]
-            longArgs.append(opt[1])
+            optStr = GET_OPT_VALUE[opt[1]]
+            shortArgs = shortArgs + opt[0] + optStr[0]
+            longArgs.append(opt[2] + optStr[1])
 
     options = {}
     for opt in _OPTIONS :
         if opt != None :
-            shortArg, longArg, member, description = opt
+            shortArg, useValue, longArg, member, description = opt
             options['-' + shortArg] = opt
             options['--' + longArg] = opt
 
@@ -101,12 +106,20 @@ def setupFromArgs(argList) :
         args, files = getopt.getopt(argList, shortArgs, longArgs)
         cfg = Config()
         for arg, value in args :
-            shortArg, longArg, member, description = options[arg]
+            shortArg, useValue, longArg, member, description = options[arg]
             if member == None :
                 # FIXME: this is a hack
                 cfg.noDocModule = 0
                 cfg.noDocClass = 0
                 cfg.noDocFunc = 0
+            elif value  :
+                newValue = value
+                memberType = type(cfg.__dict__[member])
+                if memberType == type(0) :
+                    newValue = int(newValue)
+                elif memberType == type([]) :
+                    newValue = string.split(newValue, ',')
+                cfg.__dict__[member] = newValue
             else :
                 cfg.__dict__[member] = not cfg.__dict__[member]
         return cfg, files
