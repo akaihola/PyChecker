@@ -14,7 +14,7 @@ import re
 
 _RC_FILE = ".pycheckrc"
 CHECKER_VAR = '__pychecker__'
-_VERSION = '0.8.7'
+_VERSION = '0.8.8beta'
 
 _DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", "gtk", "GTK", "GDK", ]
 _DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__', 
