@@ -186,6 +186,7 @@ def _checkFunction(module, func, c = None) :
 
     func_code, code, i, maxCode, extended_arg = OP.initFuncCode(func.function)
     stack = []
+    unpackCount = 0
     while i < maxCode :
         op, oparg, i, extended_arg = OP.getInfo(code, i, extended_arg)
         if op >= OP.HAVE_ARGUMENT :
@@ -214,6 +215,8 @@ def _checkFunction(module, func, c = None) :
                     warn = Warning(func_code, lastLineNum,
                                    _GLOBAL_DEFINED_NOT_DECLARED % operand)
                     func.function.func_globals[operand] = operand
+                if unpackCount :
+                    unpackCount -= 1
             elif OP.LOAD_CONST(op) :
                 debug("  load const", operand)
                 stack.append(operand)
@@ -226,25 +229,32 @@ def _checkFunction(module, func, c = None) :
                 unusedLocals[operand] = None
             elif OP.LOAD_ATTR(op) :
                 debug("  load attr", operand)
-                if len(stack) > 0 :
-                    last = stack[-1]
-                    if last == 'self' and c != None :
-                        if not c.methods.has_key(operand) and \
-                           not c.members.has_key(operand) :
-                            warn = Warning(func_code, lastLineNum,
-                                           _INVALID_ATTR % operand)
-                    if type(last) == types.TupleType :
-                        last = last + (operand,)
-                    else :
-                        last = (last, operand)
-                    stack[-1] = last
+                last = stack[-1]
+                if last == 'self' and c != None :
+                    if not c.methods.has_key(operand) and \
+                       not c.members.has_key(operand) :
+                        warn = Warning(func_code, lastLineNum,
+                                       _INVALID_ATTR % operand)
+                if type(last) == types.TupleType :
+                    last = last + (operand,)
+                else :
+                    last = (last, operand)
+                stack[-1] = last
+            elif OP.UNPACK_SEQUENCE(op) :
+                debug("  unpack seq", oparg)
+                unpackCount = oparg
             elif OP.STORE_FAST(op) :
                 debug("  store fast", operand)
                 if not unusedLocals.has_key(operand) :
-                    unusedLocals[operand] = lastLineNum
+                    if not unpackCount or _cfg.unusedLocalTuple :
+                        unusedLocals[operand] = lastLineNum
+                if unpackCount :
+                    unpackCount -= 1
                 stack = stack[:-2]
             elif OP.STORE_ATTR(op) :
                 debug("  store attr", operand)
+                if unpackCount :
+                    unpackCount -= 1
                 stack = stack[:-2]
             elif OP.CALL_FUNCTION(op) :
                 warn, stack, funcCalled = \
