@@ -181,6 +181,9 @@ shadows = 1
 # bool: check if input() is used, which is a security problem, use raw_input()
 usesInput = 1
 
+# bool: check if using a constant string to getattr()/setattr()
+constAttr = 1
+
 # bool: check for using +variable, since it is almost always has no effect
 unaryPositive = 1
 

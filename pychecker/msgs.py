@@ -123,3 +123,5 @@ USING_DEPRECATED_MODULE = "%s module is deprecated"
 USING_DEPRECATED_ATTR = "%s is deprecated"
 USING_INSECURE_FUNC = "%s() is a security problem"
 USE_INSTEAD = ", consider using %s"
+
+USES_CONST_ATTR = "Passing a constant string to %s, consider direct reference"

@@ -269,6 +269,7 @@ class Config :
         self.modifyDefaultValue = 1
         self.usesExec = 0
         self.usesInput = 1
+        self.constAttr = 1
 
     def loadFile(self, filename) :
         suppressions = {}

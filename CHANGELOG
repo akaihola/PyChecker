@@ -1,4 +1,5 @@
-Version 0.8.13   - xx December 2002
+Version 0.8.13   - xx January 2003
+  * Add warning when passing a constant string to getattr()/setattr()
   * Add --special option to check for __special__ (reserved) method names
     and that their signature (argument count) is correct
   * Add warning for using __getattribute__ in an old-style class

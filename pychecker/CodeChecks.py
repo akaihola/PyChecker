@@ -128,6 +128,13 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
         if info is not None :
             if func_name == 'input' and cfg().usesInput:
                 code.addWarning(msgs.USES_INPUT)
+            if cfg().constAttr and \
+               ((func_name == 'setattr' and argCount >= 2) or 
+                (func_name == 'getattr' and argCount == 2)):
+                arg2 = code.stack[-argCount + 1]
+                if arg2.const:
+                    code.addWarning(msgs.USES_CONST_ATTR % func_name)
+
             if kwArgs:
                 if len(info) < 4:
                     code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW % func_name)
