@@ -112,6 +112,8 @@ def _implicitlyImported(scope, name):
     for module in scope.importStar.values():
         if getattr(module, name, None):
             return 1
+    if scope.parent:
+        return _implicitlyImported(scope.parent, name)
     return None
 
 class UnknownCheck(Check):
