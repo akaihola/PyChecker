@@ -384,7 +384,7 @@ def main(argv) :
     global _cfg
     _cfg, files = Config.setupFromArgs(argv[1:])
     if not files :
-        return 1
+        return 0
 
     # insert this here, so we find files in the local dir before std library
     sys.path.insert(0, '')
