@@ -2,5 +2,5 @@ Processing test80...
 
 Warnings...
 
-test_input/test80.py:8: Variable (x) already has types ([<type 'int'>]) and set to <type 'float'>
-test_input/test80.py:23: Variable (y) already has types ([<type 'list'>]) and set to <type 'dictionary'>
+test_input/test80.py:8: Variable (x) already has types ['int'] and set to float
+test_input/test80.py:23: Variable (y) already has types ['list'] and set to dictionary

@@ -577,6 +577,17 @@ def _checkAttributeType(code, stackValue, attr) :
     code.addWarning(msgs.OBJECT_HAS_NO_ATTR % (stackValue.data, attr))
 
 
+def _getTypeStr(t):
+    returnStr = str(t)
+    strs = string.split(returnStr, "'")
+    try:
+        if len(strs) == 3:
+            returnStr = strs[-2]
+    except IndexError:
+        pass
+    return returnStr
+
+
 class Code :
     'Hold all the code state information necessary to find warnings'
 
@@ -727,11 +738,11 @@ class Code :
                 for typeToAdd in valueList:
                     if typeToAdd not in _UNCHECKABLE_STACK_TYPES and \
                        typeToAdd != newType:
-                        oldTypes.append(typeToAdd)
+                        oldTypes.append(_getTypeStr(typeToAdd))
                 # do we have any "interesting" old types?  if so, warn
                 if oldTypes:
                     self.addWarning(msgs.INCONSISTENT_TYPE % \
-                                    (name, oldTypes, newType))
+                                    (name, oldTypes, _getTypeStr(newType)))
         self.typeMap[name] = valueList
 
     def addReturn(self) :
