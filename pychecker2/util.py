@@ -5,7 +5,7 @@ class BaseVisitor:
 
     def visit(self, unused_node):
         "method is really overridden by compiler.visitor.ASTVisitor"
-        raise AssertionError('Unreachable')
+        assert 0, 'Unreachable'
 
     def visitChildren(self, n):
         for c in n.getChildNodes():
@@ -29,10 +29,7 @@ def try_if_exclusive(stmt_node1, stmt_node2):
                 parts.extend(parent.body.nodes)
             if parent.else_:
                 parts.extend(parent.else_.nodes)
-            if stmt_node1 in parts and \
-               stmt_node2 in parts:
-                return None
-            return 1
+            return not (stmt_node1 in parts and stmt_node2 in parts)
     return None
 
 def parents(obj):
