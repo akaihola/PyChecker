@@ -2,7 +2,7 @@
 from pychecker2.Check import Check
 from pychecker2.Check import Warning
 from pychecker2 import symbols
-from pychecker2 import util
+from pychecker2.util import BaseVisitor, parents, type_filter
 
 from compiler.misc import mangle
 from compiler import ast, walk
@@ -11,7 +11,7 @@ _ignorable = {}
 for i in ['repr', 'dict', 'class', 'doc', 'str']:
     _ignorable['__%s__' % i] = 1
 
-class GetDefs(util.BaseVisitor):
+class GetDefs(BaseVisitor):
     "Record definitions of a attribute of self, who's name is provided"
     def __init__(self, name):
         self.selfname = name
@@ -23,7 +23,7 @@ class GetDefs(util.BaseVisitor):
            isinstance(node.parent, (ast.Assign, ast.AssTuple)):
             self.result[node.attrname] = node
 
-class GetRefs(util.BaseVisitor):
+class GetRefs(BaseVisitor):
     "Record references to a attribute of self, who's name is provided"
     def __init__(self, name):
         self.selfname = name
@@ -42,15 +42,8 @@ class GetRefs(util.BaseVisitor):
         self.visitChildren(node)
 
 
-def get_methods(scope):
-    "if this thing is a class, return the method scopes, " \
-    "else return empty list]"
-    result = []
-    if isinstance(scope, symbols.ClassScope):
-        for m in scope.get_children():
-            if isinstance(m, symbols.FunctionScope):
-                result.insert(0, m)     # list is in reverse order of discovery
-    return result
+def get_methods(class_scope):
+    return type_filter(class_scope.get_children(), symbols.FunctionScope)
 
 def line(node):
     while node:
@@ -81,7 +74,7 @@ def get_base_names(scope):
     return names
 
 def find_local_class(scope, name):
-    for p in util.parents(scope):
+    for p in parents(scope):
         if p.defs.has_key(name):
             for c in p.get_children():
                 if isinstance(c, symbols.ClassScope) and c.name == name:
@@ -120,30 +113,22 @@ class AttributeCheck(Check):
             return walk(method.node, Visitor(method.node.argnames[0])).result
 
         # for all class scopes
-        for scope in file.scopes.values():
-            if not isinstance(scope, symbols.ClassScope):
-                continue
+        for scope in type_filter(file.scopes.values(), symbols.ClassScope):
             bases = get_bases(scope)
             # get attributes defined on self
-            attributes = {}             # "self.foo" = kinda things
-            methods = {}                # methods with scopes
-            for m in get_methods(scope):
-                attributes.update(visit_with_self(GetDefs, m))
-                methods[m.name] = m
-            # get attributes defined on bases
-            for base in bases:
+            attributes = {}             # "self.foo = " kinda things
+            methods = {}                # methods -> scopes
+            inherited = {}              # all class defs
+            for base in [scope] + bases:
                 for m in get_methods(base):
                     attributes.update(visit_with_self(GetDefs, m))
                     methods[m.name] = methods.get(m.name, m)
-            inherited = {}              # all class defs
-            for s in [scope] + bases:
-                inherited.update(s.defs)
+                inherited.update(base.defs)
 
-            # complain about methods already defined by the class
+            # complain about defs with the same name as methods
             for name, node in attributes.items():
                 try:
-                    mangled = mangle(name, scope.name)
-                    orig = methods[mangled]
+                    orig = methods[mangle(name, scope.name)]
                     file.warning(line(node), self.methodRedefined,
                                  name, orig.lineno, scope.name)
                     break
