@@ -4,8 +4,9 @@ from pychecker2 import VariableChecks
 
 import unittest
 
-class WarningTester:
-    def __init__(self):
+class WarningTester(unittest.TestCase):
+    def __init__(self, arg):
+        unittest.TestCase.__init__(self, arg)
         self.options = Options.Options()
         self.checklist = main.create_checklist(self.options)
         self.argv = []
