@@ -376,9 +376,13 @@ def _handleImport(operand, module, func_code, lastLineNum, main) :
                            _MODULE_IMPORTED_AGAIN % operand)
     return warn
 
+def countFormatStars(str, ch) :
+    return string.count(str, ch + '*') + string.count(str, ch + '*.*')
+
 def _getFormatInfo(format, func_code, lastLineNum) :
     warnings = []
     allPercents = string.count(format, '%')
+    stars = countFormatStars(format, '%')
     doublePercents = string.count(format, '%%')
     vars = string.split(format, '%(')
     for i in range(1, len(vars)) :
@@ -386,8 +390,8 @@ def _getFormatInfo(format, func_code, lastLineNum) :
         vars[i] = varname[0]
         if len(varname[1]) == 0 or varname[1][0] in ' \t\r\n' :
             warnings.append(Warning(func_code, lastLineNum, _INVALID_FORMAT))
-        
-    return allPercents - (2 * doublePercents), vars[1:], warnings
+
+    return allPercents + stars - (2 * doublePercents), vars[1:], warnings
 
 def _getFormatWarnings(stack, func_code, lastLineNum, unusedLocals) :
     format = stack[-2]

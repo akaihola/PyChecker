@@ -1,5 +1,6 @@
 
 Version 0.7	- xx July 2001
+  * Fix check in format strings when using '%*g %*.*g', etc
   * Add check for static class attributes
   * Fix checking of module attributes
   * Fix wrong filename in 'Base class (xxx) __init__() not called'
