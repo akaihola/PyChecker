@@ -1,4 +1,4 @@
-Goals for next minor release (0.8.8):
+Goals for next minor release (0.8.9):
 -------------------------------------
 * Check that classes with __slots__ don't set any other attributes
 * Handle sys.exit() as non-returnable condition
