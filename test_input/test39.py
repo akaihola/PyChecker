@@ -20,3 +20,16 @@ class Y2:
     def x(self) : pass
     def y(self) : pass
 
+class check_here:
+    'test __pychecker__ var at class scope'
+    __pychecker__ = 'funcdoc argsused unusednames=foo,bar'
+    def a(self) :
+	'd'
+        pass
+    def x(self, foo) :
+        print self
+    def y(self, bar) :
+        print self
+    def z(self, jjj) :
+        j = 0
+

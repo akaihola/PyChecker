@@ -12,6 +12,7 @@ Barry Scott		barry@scottb.demon.co.uk
 Shakeeb Alireza			bug reports
 Andy Anderson			many bug reports and fixes
 Erwin S. Andreasen		bug reports
+Andrew Bennetts			suggestion: check for modifying def arg values
 Riaan Booysen			bug reports, suggestions, etc.
 John Bowe			bug reports, suggestions, etc.
 Gary Capell			refactoring suggestions
@@ -35,7 +36,7 @@ Jon Nelson			fix setup.py, add MANIFEST.in
 Jon Ribbens			bugs, bugs, bugs
 Jim Rutledge			bug reports and suggestions
 Rich Salz			bug reports and suggestions
-Andrew Bennetts			suggestion: check for modifying def arg values
+Kevin Turner			bug report
 Joe VanAndel			bug reports
 Matt Wilson			bug reports and fixes
 

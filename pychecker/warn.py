@@ -196,7 +196,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     _checkComplex(code, cfg().maxReturns, returns, func, msgs.TOO_MANY_RETURNS)
     _checkComplex(code, cfg().maxBranches, branches, func, msgs.TOO_MANY_BRANCHES)
 
-    if not main :
+    if not (main or in_class) :
         utils.popConfig()
     return (code.warnings, code.globalRefs, code.functionsCalled,
             code.codeObjects.values(), code.returnValues)
@@ -416,7 +416,13 @@ def _findClassWarnings(module, c, class_code,
         #        not a base class file???
         err = msgs.NO_CLASS_DOC % c.classObject.__name__
         warnings.append(Warning(filename, func_code, err))
-                                
+
+    # we have to do this here, b/c checkFunction doesn't popConfig for classes
+    # this allows us to have __pychecker__ apply to all methods
+    # when defined at class scope
+    if class_code is not None :
+        utils.popConfig()
+
     if classSuppress is not None :
         utils.popConfig()
 
