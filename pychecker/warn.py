@@ -272,7 +272,7 @@ def _getGlobalName(name, func) :
 def _makeConstant(stack, index, factoryFunction) :
     "Build a constant on the stack ((), [], or {})"
     if index > 0 :
-        stack[-index:] = [ factoryFunction(stack[index:]) ]
+        stack[-index:] = [ factoryFunction(stack[-index:]) ]
     else :
         stack.append(factoryFunction())
 
@@ -306,20 +306,30 @@ def _checkReturnWarnings(returnValues, func_code) :
     if lastReturn.data == None :
         returnNoneCount = 0
         for line, rv in returnValues :
-            if rv.data is None or (rv.data == 'None' and not rv.const) :
+            if rv.isNone() :
                 returnNoneCount = returnNoneCount + 1
 
         if returnNoneCount != len(returnValues) :
             warn = Warning(func_code, line, _IMPLICIT_AND_EXPLICIT_RETURNS)
             warnings.append(warn)
 
-    # FIXME: we can handle this better
-    #        when we store more info about types in the stack
-    return0Type = type(returnValues[0][1].data)
-    for line, value in returnValues[1:] :
-        if return0Type != type(value.data) :
-            warn = Warning(func_code, line, _INCONSISTENT_RETURN_TYPE)
-            warnings.append(warn)
+    returnType, returnData = None, None
+    for line, value in returnValues :
+        if not value.isNone() :
+            if returnType is None :
+                returnData = value
+                returnType = type(value.data)
+
+            # always ignore None, None can be returned w/any other type
+            # FIXME: if we stored func return values, we could do better
+            if returnType is not None and not value.isNone() and \
+               not value.type == Stack.TYPE_FUNC_RETURN :
+                ok = (returnType == type(value.data))
+                if ok and returnType == types.TupleType :
+                    ok = returnData.length == value.length
+                if not ok :
+                    warn = Warning(func_code, line, _INCONSISTENT_RETURN_TYPE)
+                    warnings.append(warn)
 
     return warnings
 
@@ -350,6 +360,8 @@ def _handleImport(operand, module, func_code, lastLineNum, main) :
                            _MODULE_IMPORTED_AGAIN % operand)
     return warn
 
+# number of instructions to check backwards if it was a return
+_BACK_RETURN_INDEX = 4
 
 def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     "Return a list of Warnings found in a function/method."
@@ -440,6 +452,11 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                     # funcCalled can be empty in some cases (eg, using a map())
                     if funcCalled :
                         functionsCalled[funcCalled.getName(module)] = funcCalled
+                elif OP.JUMP_FORWARD(op) :
+                    # remove unreachable branches
+                    lastOp = ord(code[i - _BACK_RETURN_INDEX])
+                    if OP.RETURN_VALUE(lastOp) :
+                        del branches[label]
                 elif OP.BUILD_MAP(op) :
                     _makeConstant(stack, oparg, Stack.makeDict)
                 elif OP.BUILD_TUPLE(op) :
@@ -460,6 +477,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                     if len(stack) > 0 :
                         stack.append(stack[-1])
                 elif _startswith(OP.name[op], 'SLICE+') :
+                    # len('SLICE+') == 6
                     sliceCount = int(OP.name[op][6:])
                     if sliceCount > 0 :
                         popArgs = 1
@@ -468,10 +486,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                         stack = stack[:-popArgs]
                 elif OP.RETURN_VALUE(op) :
                     returns = returns + 1
-                    # FIXME: 4 is magic (there are 4 op codes before return)
-                    #                    LOAD_CONST None & RETURN_VALUE
-                    lastReturnLabel = i - 4
-                    # FIXME: this check shouldn't really be necessary
+                    lastReturnLabel = i - _BACK_RETURN_INDEX
                     if len(stack) > 0 :
                         returnValues.append((lastLineNum, stack[-1]))
                         del stack[-1]
@@ -490,7 +505,8 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     # (when last 2 return lines are the same)
     if len(returnValues) >= 2 :
         if returnValues[-1][0] == returnValues[-2][0] and \
-           not branches.has_key(lastReturnLabel) :
+           not branches.has_key(lastReturnLabel) and \
+           not branches.has_key(lastReturnLabel-1) :
             del returnValues[-1]
 
     if _cfg.checkReturnValues :
