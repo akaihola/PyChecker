@@ -14,7 +14,7 @@ import re
 
 _RC_FILE = ".pycheckrc"
 CHECKER_VAR = '__pychecker__'
-_VERSION = '0.8.5'
+_VERSION = '0.8.6beta'
 
 _DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", "gtk", "GTK", "GDK", ]
 _DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__', 
@@ -311,8 +311,8 @@ def usage(cfg = None) :
     print "Usage for: checker.py [options] PACKAGE ...\n"
     print "    PACKAGEs can be a python package, module or filename\n"
     print "Long options can be preceded with no- to turn off (e.g., no-namedargs)\n"
-    print "Category and"
-    print "Options:               Change warning for ... [default value]"
+    print "Category"
+    print "  Options:           Change warning for ... [default value]"
     
     if cfg is None :
         cfg = Config()
