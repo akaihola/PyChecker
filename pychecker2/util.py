@@ -1,4 +1,3 @@
-import types
 from compiler import ast
 
 class BaseVisitor:
@@ -58,6 +57,8 @@ def type_filter(seq, *classes):
 
 def line(node):
     "find a node with a line number on it"
+    if node.lineno:
+        return node
     for n in parents(node):
         if n.lineno is not None:
             return n
