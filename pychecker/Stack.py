@@ -18,6 +18,7 @@ TYPE_FUNC_RETURN = "-return-value-"
 TYPE_ATTRIBUTE = "-attribute-"
 TYPE_COMPARISON = "-comparison-"
 TYPE_GLOBAL = "-global-"
+TYPE_EXCEPT = "-except-"
 
 class Item :
     "Representation of data on the stack"

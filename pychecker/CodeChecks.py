@@ -747,6 +747,10 @@ class CodeSource :
         self.code = code
         self.calling_code = None
 
+def _checkException(code, name) :
+    if code.stack and code.stack[-1].type == Stack.TYPE_EXCEPT :
+        if __builtins__.has_key(name) :
+            code.addWarning(msgs.SET_EXCEPT_TO_BUILTIN % name)
 
 def _STORE_NAME(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :
@@ -762,6 +766,7 @@ def _STORE_NAME(oparg, operand, codeSource, code) :
         if code.unpackCount :
             code.unpackCount = code.unpackCount - 1
         else:
+            _checkException(code, operand)
             code.popStack()
         if not module.moduleLineNums.has_key(operand) and codeSource.main :
             code.updateModuleLineNums(module, operand)
@@ -844,6 +849,7 @@ def _STORE_FAST(oparg, operand, codeSource, code) :
             else :
                 code.constants[operand] = code.stack[-1].data
 
+        _checkException(code, operand)
         if not code.unusedLocals.has_key(operand) :
             errLine = code.lastLineNum
             if code.unpackCount and not cfg().unusedLocalTuple :
@@ -1002,6 +1008,10 @@ def _ROT_TWO(oparg, operand, codeSource, code) :
     if len(code.stack) >= 2 :
         del code.stack[-2]
 
+def _SETUP_EXCEPT(oparg, operand, codeSource, code) :
+    code.stack.append(Stack.Item(None, Stack.TYPE_EXCEPT))
+    code.stack.append(Stack.Item(None, Stack.TYPE_EXCEPT))
+
 def _LINE_NUM(oparg, operand, codeSource, code) :
     code.lastLineNum = oparg
 def _UNPACK_SEQUENCE(oparg, operand, codeSource, code) :
@@ -1091,6 +1101,7 @@ DISPATCH[112] = _JUMP_IF_TRUE
 DISPATCH[113] = _JUMP_ABSOLUTE
 DISPATCH[114] = _FOR_LOOP
 DISPATCH[116] = _LOAD_GLOBAL
+DISPATCH[121] = _SETUP_EXCEPT
 DISPATCH[124] = _LOAD_FAST
 DISPATCH[125] = _STORE_FAST
 DISPATCH[126] = _DELETE_FAST

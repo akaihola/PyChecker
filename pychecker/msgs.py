@@ -76,3 +76,5 @@ LIST_APPEND_ARGS = "[].append() only takes 1 argument in Python 1.6 and above fo
 LOCAL_DELETED = "(%s) cannot be used after being deleted on line %d"
 LOCAL_ALREADY_DELETED = "Local variable (%s) has already been deleted on line %d"
 VAR_DELETED_BEFORE_SET = "Variable (%s) deleted before being set"
+
+SET_EXCEPT_TO_BUILTIN = "Setting exception to builtin (%s), consider () around exceptions"
