@@ -12,7 +12,7 @@ class SelfTester2:
 class SelfTester3:
 
     def f(x, a):
-        return x
+        return x, a
 
 class SelfTester4:
 
