@@ -32,6 +32,11 @@ try:
             return 5
         x = property(getx)
 
+    class Solution(list):
+        'this should not generate a warning or crash'
+        def __init__(self):
+            pass
+
 except NameError:
     print 'This should fail on Python versions prior to 2.2'
 

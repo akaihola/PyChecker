@@ -268,9 +268,15 @@ def _getUnused(module, globalRefs, dict, msg, filterPrefix = None) :
 
 
 def _get_func_info(method) :
-    fc = getattr(method.im_func, 'func_code', None)
-    if fc is not None :
-        return fc.co_filename, fc.co_firstlineno
+    try:
+        fc = getattr(method.im_func, 'func_code', None)
+        if fc is not None :
+            return fc.co_filename, fc.co_firstlineno
+    except AttributeError:
+        # if the object derives from any object in 2.2,
+        # the builtin methods are wrapper_descriptors and
+        # have no im_func attr
+        pass
     return None, None
 
 _DOT_INIT = '.' + utils.INIT
