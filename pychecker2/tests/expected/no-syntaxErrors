@@ -1,11 +1,8 @@
-
-
 tests/global.py:1 Identifier (x) not used
 tests/global.py:1 Unknown identifier: y
 
 tests/import.py:1 Identifier (args) not used
 tests/import.py:1 Identifier (getopt) not used
-
 
 tests/op.py:2 Operator (++) doesn't exist, statement has no effect
 tests/op.py:4 Scope (g) is redefined at line 7
@@ -22,3 +19,4 @@ tests/shadow.py:16 Identifier (a) not used
 tests/shadow.py:16 Identifier (b) not used
 tests/shadow.py:16 Identifier (a) shadows definition in scope <FunctionScope: g>
 tests/shadow.py:16 Identifier (b) shadows definition in scope <FunctionScope: g>
+

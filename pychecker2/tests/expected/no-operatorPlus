@@ -1,4 +1,3 @@
-
 tests/badparse.py:1 Unable to parse: could not parse string
 
 tests/global.py:1 Identifier (x) not used
@@ -23,3 +22,4 @@ tests/shadow.py:16 Identifier (a) not used
 tests/shadow.py:16 Identifier (b) not used
 tests/shadow.py:16 Identifier (a) shadows definition in scope <FunctionScope: g>
 tests/shadow.py:16 Identifier (b) shadows definition in scope <FunctionScope: g>
+
