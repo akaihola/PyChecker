@@ -53,7 +53,7 @@ class UnusedCheck(Check):
     def get_options(self, options):
         desc = 'Ignore unused identifiers that start with these values'
         default = ['unused', 'empty', 'dummy',
-                   '__pychecker__', '__all__', '__version__']
+                   '__pychecker__', '__all__', '__version__', 'ignored']
         options.add(Opt(self, 'unusedPrefixes', desc, default))
         
         desc = 'Ignore unused method "self" parameter'
