@@ -103,7 +103,8 @@ class ConfigDialog:
         self._file = Tkinter.StringVar()
         self._results = None
 
-        self._file.set(sys.argv[1])
+	if len(sys.argv) > 1:
+            self._file.set(sys.argv[1])
 
         for name, group in Config._OPTIONS:
           opts = []
