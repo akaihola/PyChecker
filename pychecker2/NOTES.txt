@@ -9,6 +9,8 @@ onto the option variables and define the Warning objects they support.
 ToDo:
         All missing stuff
         Always returning None
+        More path analysis
+            used before set for if/else try/except
 
 Items still missing:
         Error suppression (errors may be suppressed globally)
