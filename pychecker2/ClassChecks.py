@@ -99,9 +99,8 @@ def find_in_module(package, remotename, names, checker):
                  
 def find_scope_going_down(scope, names, checker):
     "Drill down scopes to find definition of x.y.z"
-    root = names[0]
     for c in scope.get_children():
-        if getattr(c, 'name', '') == root:
+        if getattr(c, 'name', '') == names[0]:
             if len(names) == 1:
                 return c
             return find_scope_going_down(c, names[1:], checker)
