@@ -328,6 +328,8 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                 _checkAbstract(refClass, code, funcName)
 
             if func != None :
+                if refClass and func.isClassMethod():
+                    argCount = argCount + 1
                 _checkFunctionArgs(code, func, method, argCount, kwArgs,
                                    check_arg_count)
                 # if this isn't a c'tor, we should check
