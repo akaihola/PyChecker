@@ -157,6 +157,7 @@ class Class :
         self.name = name
         self.module = module
         self.classObject = getattr(module, name)
+        self.ignoreAttrs = 0
         self.methods = {}
         self.members = { '__class__': types.ClassType,
                          '__doc__': types.StringType,
@@ -287,7 +288,8 @@ class Module :
     def addClass(self, name) :
         self.classes[name] = c = Class(name, self.module)
         packages = string.split(str(c.classObject), '.')
-        if packages[0] not in _cfg.blacklist :
+        c.ignoreAttrs = packages[0] in _cfg.blacklist
+        if not c.ignoreAttrs :
             self.__addAttributes(c, c.classObject)
 
     def addModule(self, name) :
