@@ -7,3 +7,7 @@ class Aaa:
 class Bbb(Aaa):
     def __init__(self):
         self.b = 1
+
+def func24():
+    return 53
+

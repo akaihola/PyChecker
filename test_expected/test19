@@ -2,5 +2,5 @@ Processing test19...
 
 Warnings...
 
-/usr/local/lib/python2.1/UserDict.py:8 Invalid arguments to (__init__), got 2, expected between 0 and 1
-/usr/local/lib/python2.1/UserDict.py:9 Invalid arguments to (__init__), got 3, expected between 0 and 1
+test_input/test19.py:8 Invalid arguments to (__init__), got 2, expected between 0 and 1
+test_input/test19.py:9 Invalid arguments to (__init__), got 3, expected between 0 and 1

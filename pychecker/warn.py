@@ -133,7 +133,7 @@ def _checkNoSelfArg(func) :
         return Warning(code, code, _SELF_IS_ARG)
     return None
 
-def _checkFunctionArgs(func, argCount, kwArgs, lastLineNum) :
+def _checkFunctionArgs(caller, func, argCount, kwArgs, lastLineNum) :
     warnings = []
     func_name = func.function.func_code.co_name
     if kwArgs :
@@ -141,7 +141,7 @@ def _checkFunctionArgs(func, argCount, kwArgs, lastLineNum) :
         func_args_len = len(func_args)
         if argCount < func_args_len and kwArgs[0] in func_args[argCount:] :
             if _cfg.namedArgs :
-                warn = Warning(func, lastLineNum,
+                warn = Warning(caller, lastLineNum,
                                _FUNC_USES_NAMED_ARGS % func_name)
                 warnings.append(warn)
 
@@ -152,10 +152,10 @@ def _checkFunctionArgs(func, argCount, kwArgs, lastLineNum) :
                 argCount = argCount + 1
                 kwArgs = kwArgs[1:]
             return warnings + \
-                   _checkFunctionArgs(func, argCount, kwArgs, lastLineNum)
+                   _checkFunctionArgs(caller, func, argCount, kwArgs, lastLineNum)
 
         if not func.supportsKW :
-            warn = Warning(func, lastLineNum,
+            warn = Warning(caller, lastLineNum,
                            _FUNC_DOESNT_SUPPORT_KW % func_name)
             warnings.append(warn)
 
@@ -170,7 +170,7 @@ def _checkFunctionArgs(func, argCount, kwArgs, lastLineNum) :
             err = _INVALID_ARG_COUNT3 % (func_name, argCount, func.minArgs, func.maxArgs)
 
     if err :
-        warnings.append(Warning(func, lastLineNum, err))
+        warnings.append(Warning(caller, lastLineNum, err))
 
     return warnings
 
@@ -237,7 +237,7 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
         try :
             m = c.methods[methodName]
             if m != None :
-                warn = _checkFunctionArgs(m, argCount, kwArgs, lastLineNum)
+                warn = _checkFunctionArgs(code, m, argCount, kwArgs, lastLineNum)
         except KeyError :
             if _cfg.callingAttribute :
                 warn = Warning(code, lastLineNum, _INVALID_METHOD % methodName)
@@ -249,7 +249,7 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
         else :
             func = _getFunction(module, loadValue)
             if func != None :
-                warn = _checkFunctionArgs(func, argCount, kwArgs, lastLineNum)
+                warn = _checkFunctionArgs(code, func, argCount, kwArgs, lastLineNum)
 
     stack[:] = stack[:funcIndex] + [ Stack.makeFuncReturnValue(loadValue) ]
     return warn, loadValue
