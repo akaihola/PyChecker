@@ -18,6 +18,7 @@ _DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", "gtk", "GTK", "GDK", ]
 _DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__all__', ]
 
 _OPTIONS = [ 
+ ('e', 0, 'errors', None, 'turn off all warnings which are not likely errors'),
  ('s', 0, 'doc', None, 'turn off all warnings for no doc strings'),
  ('m', 0, 'moduledoc', 'noDocModule', 'no module doc strings'),
  ('c', 0, 'classdoc', 'noDocClass', 'no class doc strings'),
@@ -34,7 +35,7 @@ _OPTIONS = [
  ('I', 0, 'initsubclass', 'initDefinedInSubclass', 'Subclass.__init__() not defined'),
  ('N', 0, 'initreturn', 'returnNoneFromInit', 'Return None from __init__()'),
  ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
- ('e', 1, 'self', 'methodArgName', 'First argument to methods'),
+ ('S', 1, 'self', 'methodArgName', 'First argument to methods'),
  None,
  ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules\n\t\t\t'),
  ('V', 1, 'varlist', 'variablesToIgnore', 'ignore variables not used from the list\n\t\t\t'),
@@ -115,6 +116,15 @@ class Config :
             print "Warning, error loading defaults file:", filename
 
 
+def errors_only() :
+    "Return {} of Config with all warnings turned off"
+    dict = Config().__dict__
+    for k, v in dict.items() :
+        if type(v) == type(0) :
+            dict[k] = 0
+    return dict
+
+
 def printArg(shortArg, longArg, description, defaultValue, useValue) :
     defStr = ''
     if defaultValue != None :
@@ -175,6 +185,8 @@ def setupFromArgs(argList) :
                 cfg.noDocModule = 0
                 cfg.noDocClass = 0
                 cfg.noDocFunc = 0
+                if longArg == 'errors' :
+                    cfg.__dict__.update(errors_only())
             elif value  :
                 newValue = value
                 memberType = type(cfg.__dict__[member])
