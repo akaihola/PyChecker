@@ -1,7 +1,7 @@
 from pychecker2.Check import Check
 from pychecker2.Options import Opt, BoolOpt
 from pychecker2.Warning import Warning
-from pychecker2.util import parents, BaseVisitor
+from pychecker2.util import parents, BaseVisitor, dict_minus, dict_intersect
 from pychecker2 import symbols
 
 from compiler import ast, walk
@@ -51,10 +51,7 @@ class ShadowCheck(Check):
     def check(self, file, unused_checker):
         # warn if any name defined in a scope is defined in a parent scope
         # or even the builtins
-        for scope in file.scopes.values():
-            # skip methods of classes
-            if isinstance(scope.node, ast.Class):
-                continue
+        for node, scope in file.not_class_scopes():
             for name in scope.defs:
                 if name == 'None':
                     file.warning(scope.defs[name], self.defineNone)
@@ -77,6 +74,28 @@ def _str_value(s):
     if type(s) == type(''):
         return eval(s)
     return s
+
+
+def _empty_function(stmts):
+    if not stmts:
+        return 1
+    stmt = stmts[0]
+    # functions which only raise exceptions 
+    if isinstance(stmt, ast.Raise):
+        return 1
+    # functions which do nothing 
+    if len(stmts) == 1 and isinstance(stmt, ast.Pass):
+        return 1
+    # functions which just return a constant 
+    if len(stmts) == 1 and \
+       isinstance(stmt, ast.Return) and isinstance(stmt.value, ast.Const):
+        return 1
+    # functions which only assert falsehood 
+    if isinstance(stmt, ast.Assert):
+        if (isinstance(stmt.test, ast.Const) and not stmt.test.value) or \
+            (isinstance(stmt.test, ast.Name) and stmt.test.name == 'None'):
+            return 1
+    return 0
 
 class UnusedCheck(Check):
     """Use symbol information to check that no scope defines a name
@@ -108,38 +127,11 @@ class UnusedCheck(Check):
                     return 1
             return 0
 
-        for nodes, scope in file.scopes.items():
+        for nodes, scope in file.not_class_scopes():
             if isinstance(nodes, ast.Function):
-                code = nodes.code.nodes
-                if not code:
+                if _empty_function(nodes.code.nodes):
                     continue
-                # functions which only raise exceptions are unlikely to use
-                # their local variables
-                if isinstance(code[0], ast.Raise):
-                    continue
-                # functions which do nothing are unlikely to use their
-                # local variables
-                if len(code) == 1 and isinstance(code[0], ast.Pass):
-                    continue
-                # functions which just return a constant (such as None)
-                # probably won't use locals,
-                if len(code) == 1 and \
-                   isinstance(code[0], ast.Return) and \
-                   isinstance(code[0].value, ast.Const):
-                    continue
-                # functions which only assert falsehood are unlikely to use
-                # their local variables
-                if isinstance(code[0], ast.Assert):
-                    if (isinstance(code[0].test, ast.Const) and \
-                        not code[0].test.value) or \
-                        (isinstance(code[0].test, ast.Name) and \
-                         code[0].test.name == 'None'):
-                        continue
             
-            # ignore names defined in a class scope
-            if isinstance(scope, symbols.ClassScope):
-                continue
-
             # ensure that every defined variable is used in some scope
             for var in scope.defs:
                 # check for method self
@@ -184,15 +176,15 @@ class UnknownCheck(Check):
 
         # if a name used is not found in the defined variables, complain
         for scope in file.scopes.values():
-            for var in scope.uses:
-                if not scope.defs.has_key(var):
-                    for p in parents(scope):
-                        if p.defs.has_key(var):
-                            break
-                    else:
-                        if not _importedName(scope, var):
-                            if not self.builtins.has_key(var):
-                                file.warning(scope.uses[var], self.unknown, var)
+            unknown = dict_minus(scope.uses, scope.defs)
+            unknown = dict_minus(unknown, self.builtins)
+            for var in unknown:
+                for p in parents(scope):
+                    if p.defs.has_key(var):
+                        break
+                else:
+                    if not _importedName(scope, var):
+                        file.warning(scope.uses[var], self.unknown, var)
 
 def _first_arg_defaulted(function_node):
     count = len(function_node.argnames)
@@ -351,6 +343,6 @@ class UsedBeforeSetCheck(Check):
         for node, scope in file.function_scopes():
             predefined = ast.flatten(scope.params) + scope.imports.keys()
             visitor = walk(node.code, Visitor(predefined))
-            for name, use_node in visitor.uses.items():
-                if scope.defs.has_key(name):
-                    file.warning(use_node, self.usedBeforeDefined, name)
+            usedBefore = dict_intersect(visitor.uses, scope.defs)
+            for name, use_node in usedBefore.items():
+                file.warning(use_node, self.usedBeforeDefined, name)
