@@ -22,3 +22,8 @@ def y():
     from string import lower
     lower = lower('Unknown option')
 
+def foobar(x): return x
+
+def nn():
+    print map(lambda x, s=foobar: s(x), [1,2])
+

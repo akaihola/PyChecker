@@ -709,9 +709,15 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                     if type(operand) == types.CodeType :
                         name = operand.co_name
                         obj = codeObjects.get(name, None)
-                        if obj is None or name == '<lambda>' :
-                            # FIXME: iterate through lambdas to pick stuff
-                            #   off the stack if necessary (params to lambda)?
+                        if name == '<lambda>' :
+                            # use a unique key, so we can have multiple lambdas
+                            codeObjects[i] = operand
+                            if OP.name[ord(code[i])] == 'MAKE_FUNCTION' :
+                                op, oparg, i, extended_arg = \
+                                    OP.getInfo(code, i, extended_arg)
+                                if oparg > 0 :
+                                    del stack[(-1 - oparg):-1]
+                        elif obj is None :
                             codeObjects[name] = operand
                         elif cfg().redefiningFunction :
                             warn = Warning(func_code, lastLineNum,

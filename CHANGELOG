@@ -1,5 +1,6 @@
 
 Version 0.8	- xx August 2001
+  * Fix spurious warnings when using lambdas
   * Fix spurious warning (No global Y) when using: from X import Y
 	(problem in python 1.5 only)
 
