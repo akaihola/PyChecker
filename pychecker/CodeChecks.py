@@ -361,7 +361,6 @@ _METHODLESS_OBJECTS = { types.NoneType : None, types.IntType : None,
                         types.EllipsisType : None,
                       }
 
-# FIXME: need to handle these types: Frame, Traceback, Module
 _BUILTINS_ATTRS = { types.StringType : dir(''),
                     types.TypeType : dir(type(0)),
                     types.ListType : dir([]),
@@ -399,6 +398,17 @@ def _setupBuiltinAttrs() :
         _BUILTINS_ATTRS[types.FileType] = dir(sys.__stdin__)
     except :
         pass
+
+    try:
+        raise TypeError
+    except TypeError:
+        try:
+            tb = sys.exc_info()[2]
+            _BUILTINS_ATTRS[types.TracebackType] = dir(tb)
+            _BUILTINS_ATTRS[types.FrameType] = dir(tb.tb_frame)
+        except:
+            pass
+        tb = None; del tb
 
 # have to setup the rest this way to support different versions of Python
 _setupBuiltinAttrs()
@@ -691,11 +701,10 @@ def _DUP_TOP(oparg, operand, codeSource, code) :
 def _STORE_SUBSCR(oparg, operand, codeSource, code) :
     code.popStackItems(2)
 
-def _CALL_FUNCTION(oparg, operand, codeSource, code) :
-    func = _handleFunctionCall(codeSource.module, code,
-                               codeSource.classObject, oparg)
+def _CALL_FUNCTION(oparg, operand, src, code) :
+    func = _handleFunctionCall(src.module, code, src.classObject, oparg)
     if func :
-        code.functionsCalled[func.getName(codeSource.module)] = func
+        code.functionsCalled[func.getName(src.module)] = func
 
 def _BUILD_MAP(oparg, operand, codeSource, code) :
     _makeConstant(code.stack, oparg, Stack.makeDict)
