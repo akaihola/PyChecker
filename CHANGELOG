@@ -1,5 +1,7 @@
 
 Version 0.8	- xx August 2001
+  * Fix spurious warning (No global Y) when using: from X import Y
+	(problem in python 1.5 only)
 
 Version 0.7.5	- 22 July 2001
   * Suppress warnings on a per module/function/class/method basis

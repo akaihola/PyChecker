@@ -724,6 +724,10 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                 elif OP.IMPORT_FROM(op) :
                     warn = _handleImportFrom(stack, operand, module, func_code,
                                              lastLineNum, main)
+                    # this is necessary for python 1.5 (see STORE_GLOBAL/NAME)
+                    if not module.moduleLineNums.has_key(operand) and main :
+                        filename = func_code.co_filename
+                        module.moduleLineNums[operand] = (filename, lastLineNum)
                 elif OP.UNPACK_SEQUENCE(op) :
                     unpackCount = oparg
                 elif OP.FOR_LOOP(op) :
