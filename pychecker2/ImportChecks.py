@@ -12,7 +12,6 @@ class ModuleReference:
         self.nodes = nodes
 
     def __getstate__(self):
-        print self.module.__name__, self.localname, self.remotename
         return (self.localname, self.remotename, self.module.__name__, 
                 self.nodes)
 
