@@ -106,10 +106,11 @@ def getModules(arg_list) :
     return modules
 
 
-def _findModule(name, path = sys.path) :
+def _findModule(name) :
     """Returns the result of an imp.find_module(), ie, (file, filename, smt)
        name can be a module or a package name.  It is *not* a filename."""
 
+    path = sys.path[:]
     packages = string.split(name, '.')
     for p in packages :
         # smt = (suffix, mode, type)
