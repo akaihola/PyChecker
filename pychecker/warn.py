@@ -435,7 +435,8 @@ def _checkFunction(module, func, c = None, main = 0) :
     #    / 2 to approximate real branches
     branches = (len(branches.keys()) - (2 * loops)) / 2
     lines = (lastLineNum - func_code.co_firstlineno)
-    _checkComplex(warnings, _cfg.maxLines, lines, func, _FUNC_TOO_LONG)
+    if not main :
+        _checkComplex(warnings, _cfg.maxLines, lines, func, _FUNC_TOO_LONG)
     _checkComplex(warnings, _cfg.maxReturns, returns, func, _TOO_MANY_RETURNS)
     _checkComplex(warnings, _cfg.maxBranches, branches, func, _TOO_MANY_BRANCHES)
     return warnings, globalRefs, functionsCalled
