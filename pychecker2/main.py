@@ -21,6 +21,7 @@ def main():
                VariableChecks.ShadowCheck(),
                VariableChecks.UnusedCheck(),
                VariableChecks.UnknownCheck(),
+               VariableChecks.SelfCheck(),
                ScopeChecks.RedefineCheck() ]
     for checker in checks:
         checker.get_warnings(options)
