@@ -57,6 +57,7 @@ TOO_MANY_BRANCHES = "Function (%s) has too many branches (%d)"
 TOO_MANY_RETURNS = "Function (%s) has too many returns (%d)"
 TOO_MANY_ARGS = "Function (%s) has too many arguments (%d)"
 TOO_MANY_LOCALS = "Function (%s) has too many local variables (%d)"
+TOO_MANY_REFERENCES = 'Law of Demeter violated, more than %d references for (%s)'
 
 IMPLICIT_AND_EXPLICIT_RETURNS = "Function returns a value and also implicitly returns None"
 INCONSISTENT_RETURN_TYPE = "Function return types are inconsistent"

@@ -83,6 +83,7 @@ maxBranches = 50
 maxReturns = 10
 maxArgs = 10
 maxLocals = 25
+maxReferences = 5
 
 
 # bool:  ignore all warnings from standard library components

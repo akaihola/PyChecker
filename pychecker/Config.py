@@ -14,7 +14,7 @@ import re
 
 _RC_FILE = ".pycheckrc"
 CHECKER_VAR = '__pychecker__'
-_VERSION = '0.8.6beta'
+_VERSION = '0.8.6'
 
 _DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", "gtk", "GTK", "GDK", ]
 _DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__', 
@@ -74,6 +74,7 @@ _OPTIONS = (
  ('R', 1, 'maxreturns', 'maxReturns', 'maximum returns in a function'),
  ('J', 1, 'maxargs', 'maxArgs', 'maximum # of arguments to a function'),
  ('K', 1, 'maxlocals', 'maxLocals', 'maximum # of locals in a function'),
+ ('5', 1, 'maxrefs', 'maxReferences', 'maximum # of identifier references (Law of Demeter)'),
      ]),
     ('Debug', [
  ('F', 0, 'rcfile', None, 'print a .pycheckrc file generated from command line args'),
@@ -206,6 +207,7 @@ class Config :
         self.maxReturns = 10
         self.maxArgs = 10
         self.maxLocals = 40
+        self.maxReferences = 5
 
         self.checkObjectAttrs = 1
         self.checkReturnValues = 1

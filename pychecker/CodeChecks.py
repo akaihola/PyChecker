@@ -838,13 +838,34 @@ def _checkAttribute(top, operand, codeSource, code) :
     else :
         _checkAttributeType(code, top, operand)
 
+def _checkExcessiveReferences(code, top, extraAttr = None) :
+    if cfg().maxReferences <= 0 :
+        return
+
+    try :
+        data = top.data
+        if extraAttr is not None :
+            data = data + (extraAttr,)
+        
+        maxReferences = cfg().maxReferences
+        if data[0] == cfg().methodArgName :
+            maxReferences = maxReferences + 1
+        if len(data) > maxReferences :
+            name = string.join(top.data, '.')
+            code.addWarning(msgs.TOO_MANY_REFERENCES % (maxReferences, name))
+    except TypeError :
+        pass
+
 def _LOAD_ATTR(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
         top = code.stack[-1]
         _checkAttribute(top, operand, codeSource, code)
         top.addAttribute(operand)
+        if not OP.LOAD_ATTR(code.nextOpInfo()[0]) :
+            _checkExcessiveReferences(code, top)
 
 def _STORE_ATTR(oparg, operand, codeSource, code) :
+    _checkExcessiveReferences(code, code.stack[-1], operand)
     code.unpack()
 
 def _DELETE_ATTR(oparg, operand, codeSource, code) :
