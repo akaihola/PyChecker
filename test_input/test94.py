@@ -38,3 +38,9 @@ def h():
 
   a = (1, 2, 3)
   a, b, c = a
+
+def i(a):
+    z = hash(a.x) & hash(a.y)
+    z = hash(a.x) | hash(a.y)
+    z = hash(a.x) ^ hash(a.y)
+    return z

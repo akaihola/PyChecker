@@ -1426,7 +1426,7 @@ def _checkModifyNoOp(code, op, msg=msgs.MODIFY_VAR_NOOP):
     stack = code.stack
     if len(stack) >= 2:
         name = stack[-1].getName()
-        if name == stack[-2].getName():
+        if name != Stack.TYPE_UNKNOWN and name == stack[-2].getName():
             code.addWarning(msg % (name, op, name))
 
 def _BINARY_AND(oparg, operand, codeSource, code):
