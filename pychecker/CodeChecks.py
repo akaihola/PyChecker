@@ -1009,7 +1009,9 @@ def _CALL_FUNCTION_VAR_KW(oparg, operand, codeSource, code) :
     _handleFunctionCall(codeSource, code, oparg, 2, 0)
 
 def _MAKE_FUNCTION(oparg, operand, codeSource, code) :
+    newValue = Stack.makeFuncReturnValue(code.stack[-1], oparg)
     code.popStackItems(oparg+1)
+    code.stack.append(newValue)
 _MAKE_CLOSURE = _MAKE_FUNCTION
 
 def _BUILD_MAP(oparg, operand, codeSource, code) :

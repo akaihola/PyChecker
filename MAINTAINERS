@@ -1,52 +1,52 @@
 
-Neal Norwitz		neal@metaslash.com
-Eric C. Newton		ecn@metaslash.com
+Neal Norwitz            neal@metaslash.com
+Eric C. Newton          ecn@metaslash.com
 
 
 Other Contributors:
 
-Barry Scott		barry@scottb.demon.co.uk
-				Fix Base class not init spurious warning
-				Other misc suggestions and fixes
+Barry Scott             barry@scottb.demon.co.uk
+                                Fix Base class not init spurious warning
+                                Other misc suggestions and fixes
 
-Shakeeb Alireza			bug reports
-Andy Anderson			many bug reports and fixes
-Erwin S. Andreasen		bug reports
-Andrew Bennetts			suggestion: check for modifying def arg values
-Riaan Booysen			bug reports, suggestions, etc.
-John Bowe			bug reports, suggestions, etc.
-Mike Brown			bug report
-Gary Capell			refactoring suggestions
-Loris Caren			testing, etc.
-Nicolas Chauvat			setup.py
-Jeff Collins			checker.findModule
-Tom Culliton			suggestions
-Walter Doerwald			bug reports and fixes
-Jeff Epler			bug reports
-Mark Favas			bug reports
-Erik Max Francis		bug reports and suggestions
-Dan Fandrich			bug reports
-Alexandre Fayolle		bug reports
-Horst Gassner			bug reports and suggestions
-Stuart D. Gathman		bug reports and suggestions
-greep				bug reports
-Tim Hochberg			bug reports
-Ben Hutchings			bug reports
-Brad Knotwell			bug reports
-John Machin 			bug reports
-Jonathan Mark 			bug reports and suggestions
-Skip Montanaro			bug reports and suggestions
-Michele Moore			many suggestions
-Jon Nelson			fix setup.py, add MANIFEST.in
-Fernando Pérez			bug reports
-Terry Reedy			suggestions
-Jon Ribbens			bugs, bugs, bugs
-Guido van Rossum		bug reports and suggestions
-Jim Rutledge			bug reports and suggestions
-Rich Salz			bug reports and suggestions
-Lucio Torre			suggestions
-Sheng-Te Tsao			bug reports and suggestions
-Kevin Turner			bug report
-Joe VanAndel			bug reports
-Matt Wilson			bug reports and fixes
-
+Shakeeb Alireza                 bug reports
+Andy Anderson                   many bug reports and fixes
+Erwin S. Andreasen              bug reports
+Andrew Bennetts                 suggestion: check for modifying def arg values
+Riaan Booysen                   bug reports, suggestions, etc.
+John Bowe                       bug reports, suggestions, etc.
+Mike Brown                      bug report
+Gary Capell                     refactoring suggestions
+Loris Caren                     testing, etc.
+Nicolas Chauvat                 setup.py
+Jeff Collins                    checker.findModule
+Tom Culliton                    suggestions
+Walter Doerwald                 bug reports and fixes
+Jeff Epler                      bug reports
+Mark Favas                      bug reports
+Erik Max Francis                bug reports and suggestions
+Dan Fandrich                    bug reports
+Alexandre Fayolle               bug reports
+Horst Gassner                   bug reports and suggestions
+Stuart D. Gathman               bug reports and suggestions
+greep                           bug reports
+Tim Hochberg                    bug reports
+Ben Hutchings                   bug reports
+Brad Knotwell                   bug reports
+John Machin                     bug reports
+Jonathan Mark                   bug reports and suggestions
+Skip Montanaro                  bug reports and suggestions
+Michele Moore                   many suggestions
+Jon Nelson                      fix setup.py, add MANIFEST.in
+Fernando Pérez                  bug reports
+Eric S. Raymond                 bug reports and suggestions
+Terry Reedy                     suggestions
+Jon Ribbens                     bugs, bugs, bugs
+Guido van Rossum                bug reports and suggestions
+Jim Rutledge                    bug reports and suggestions
+Rich Salz                       bug reports and suggestions
+Lucio Torre                     suggestions
+Sheng-Te Tsao                   bug reports and suggestions
+Kevin Turner                    bug report
+Joe VanAndel                    bug reports
+Matt Wilson                     bug reports and fixes
