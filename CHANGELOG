@@ -2,6 +2,8 @@
 Version 0.5.1	- xx June 2001
   * Don't produce unused global warnings when using a module in parameters
   * Don't produce unused global warnings when using a module in class variables
+  * Check for returning a value from __init__
+  * Experimental support for checking consistent return values
 
 Version 0.5	- 29 May 2001
   * Catch internal errors "gracefully" and turn into a warning

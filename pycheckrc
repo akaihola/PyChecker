@@ -59,3 +59,7 @@ printParse = 0
 
 # bool: turn debugging of PyChecker on
 debug = 0
+
+# EXPERIMENTAL bool: check consistent return values
+checkReturnValues = 0
+

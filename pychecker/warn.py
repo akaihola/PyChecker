@@ -58,6 +58,9 @@ _FUNC_TOO_LONG = "Function (%s) has too many lines (%d)"
 _TOO_MANY_BRANCHES = "Function (%s) has too many branches (%d)"
 _TOO_MANY_RETURNS = "Function (%s) has too many returns (%d)"
 
+_IMPLICIT_AND_EXPLICIT_RETURNS = "Function returns a value and also implicitly returns None"
+_INCONSISTENT_RETURN_TYPE = "Fuction return types are inconsistent"
+
 
 _cfg = None
 
@@ -268,6 +271,36 @@ def _checkComplex(warnings, maxValue, value, func, err) :
         warnings.append(warn)
 
 
+def _checkReturnWarnings(returnValues, func_code) :
+    # there must be at least 2 real return values to check for consistency
+    if len(returnValues) < 2 :
+        return None
+
+    warnings = []
+    line, lastReturn = returnValues[-1]
+
+    # if the last return is implicit, check if there are non None returns
+    if lastReturn.data == None :
+        returnNoneCount = 0
+        for line, rv in returnValues :
+            if rv.data is None or (rv.data == 'None' and not rv.const) :
+                returnNoneCount = returnNoneCount + 1
+
+        if returnNoneCount != len(returnValues) :
+            warn = Warning(func_code, line, _IMPLICIT_AND_EXPLICIT_RETURNS)
+            warnings.append(warn)
+
+    # FIXME: we can handle this better
+    #        when we store more info about types in the stack
+    return0Type = type(returnValues[0][1].data)
+    for line, value in returnValues[1:] :
+        if return0Type != type(value.data) :
+            warn = Warning(func_code, line, _INCONSISTENT_RETURN_TYPE)
+            warnings.append(warn)
+
+    return warnings
+
+
 def _handleComparison(stack, operand) :
     si = len(stack)
     if si >= 2 :
@@ -306,6 +339,7 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
         func_code, code, i, maxCode, extended_arg = OP.initFuncCode(func.function)
         lastLineNum = func_code.co_firstlineno
         stack, returnValues = [], []
+        lastReturnLabel = 0
         unpackCount = 0
         returns, loops, branches = 0, 0, {}
         while i < maxCode :
@@ -370,11 +404,13 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                             unusedLocals[operand] = lastLineNum
                     if unpackCount :
                         unpackCount = unpackCount - 1
-                    stack = stack[:-2]
+                    if len(stack) > 0 :
+                        del stack[-1]
                 elif OP.STORE_ATTR(op) :
                     if unpackCount :
                         unpackCount = unpackCount - 1
-                    stack = stack[:-2]
+                    if len(stack) > 0 :
+                        del stack[-1]
                 elif OP.CALL_FUNCTION(op) :
                     warn, funcCalled = _handleFunctionCall(module, func_code,
                                                   c, stack, oparg, lastLineNum)
@@ -409,6 +445,9 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                         stack = stack[:-popArgs]
                 elif OP.RETURN_VALUE(op) :
                     returns = returns + 1
+                    # FIXME: 4 is magic (there are 4 op codes before return)
+                    #                    LOAD_CONST None & RETURN_VALUE
+                    lastReturnLabel = i - 4
                     # FIXME: this check shouldn't really be necessary
                     if len(stack) > 0 :
                         returnValues.append((lastLineNum, stack[-1]))
@@ -425,13 +464,14 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
         warnings.append(Warning(func_code, lastLineNum, warn))
 
     # ignore last return of None, it's always there
-    # FIXME: should only return if const (implicit), if global, it's explicit
-    # there must be at least 2 real return values to check for consistency
-    # FIXME: handle this when we store more info about the type in the stack
-    if len(returnValues) > 2 :
-        if type(returnValues[0][1]) == types.TupleType :
-            for value in returnValues[1:-1] :
-                if value: pass
+    # (when last 2 return lines are the same)
+    if len(returnValues) >= 2 :
+        if returnValues[-1][0] == returnValues[-2][0] and \
+           not branches.has_key(lastReturnLabel) :
+            del returnValues[-1]
+
+    if _cfg.checkReturnValues :
+        _addWarning(warnings, _checkReturnWarnings(returnValues, func_code))
             
     if _cfg.localVariablesUsed :
         for var, line in unusedLocals.items() :

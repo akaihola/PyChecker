@@ -1,0 +1,35 @@
+'doc'
+
+def func0(x):
+    'should not be a warning'
+    return 0
+
+def func1(x):
+    'should be a warning'
+    if x == 0 :
+        return 1
+
+def func2(x):
+    'should not be a warning'
+    if x == 0 :
+        return
+
+def func3(x):
+    'should be a warning'
+    if x == 0 :
+        return 1, 2
+    return 1
+
+def func4(x):
+    'should not be a warning'
+    c = (1, 2)
+    if x == 0 :
+        return c
+    return 9, 8
+
+def func5(x):
+    'should not be a warning'
+    if x == 0 :
+        return 1, 2
+    return 9, 8
+

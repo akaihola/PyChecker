@@ -43,6 +43,8 @@ _OPTIONS = [
  ('P', 0, 'printparse', 'printParse', 'print internal checker parse structures'),
  ('d', 0, 'debug', 'debug', 'turn on debugging for checker'),
  None,
+ ('r', 0, 'returnvalues', 'checkReturnValues', 'EXPERIMENTAL - check consistent return values'),
+ None,
 ]
 
 
@@ -91,6 +93,8 @@ class Config :
         self.maxLines = 200
         self.maxBranches = 50
         self.maxReturns = 10
+
+        self.checkReturnValues = 0
 
     def loadFile(self, filename) :
         try :
