@@ -177,6 +177,10 @@ def _getNameFromStack(value, prefix = None) :
     return prefix + `value`
 
 
+def _isMethodCall(stackValue, c) :
+    return type(stackValue) == types.TupleType and c != None and \
+           len(stackValue) == 2 and stackValue[0] == 'self'
+    
 def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
     """Checks for warnings,
        returns (warning [or None], function called)"""
@@ -194,6 +198,7 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
     # store the keyword names/keys to check if using named arguments
     kwArgs = []
     if kwArgCount > 0 :
+        # loop backwards by 2 (keyword, value) in stack to find keyword args
         for i in range(-2, (-2 * kwArgCount - 1), -2) :
             kwArgs.append(stack[i])
         kwArgs.reverse()
@@ -201,12 +206,15 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
     warn = None
     loadValue = stack[funcIndex]
     if type(loadValue) == types.StringType :
-        # already checked if module function w/this name exists
-        func = module.functions.get(loadValue, None)
-        if func != None :
-            warn = _checkFunctionArgs(func, argCount, kwArgs, lastLineNum)
-    elif type(loadValue) == types.TupleType and c != None and \
-         len(loadValue) == 2 and loadValue[0] == 'self' :
+        # apply(func, (args)), can't check # of args, so just return func
+        if loadValue == 'apply' :
+            loadValue = stack[funcIndex+1]
+        else :
+            # already checked if module function w/this name exists
+            func = module.functions.get(loadValue, None)
+            if func != None :
+                warn = _checkFunctionArgs(func, argCount, kwArgs, lastLineNum)
+    elif _isMethodCall(loadValue, c) :
         try :
             m = c.methods[loadValue[1]]
             if m != None :

@@ -3,7 +3,6 @@
 	(only known case is subclass from Exception)
 * Fix **kwArgs warning if named param is not first
 * Fix Local variable (xxx) not used, when have:  except Error, xxx:
-* Handle apply() like a function call, when possible
 * Check function return values
 * Make a .rc file to specify options (like on cmd line)
 * Finer grain control of warnings/config options (per module/class/method)
