@@ -1,4 +1,5 @@
 Version 0.9.0   - xx March 2002
+  * Add --input option to warn when using input()
   * Fix crash with checking properties or deriving from objects (2.2 only)
   * Fix crash with nested scopes and lambdas
   * Fix spurious warnings for constant conditionals when using ('%s' % value)
