@@ -48,6 +48,8 @@ import those files first on the command line in order to get as many
 files checked as possible.
 
 PyChecker works with Python 2.0 through 2.3.
+Some features don't work on earlier versions of Python.
+I only regularly test with versions 2.2 and 2.3.
 
 You can use the test files as examples:
 
