@@ -1,4 +1,13 @@
+import compiler
+import compiler                                          as one
 import compiler.ast
+import compiler.ast                                      as two
+# import compiler.ast.Const
+# import compiler.ast.Const                                as three
+from   compiler import ast
+from   compiler import ast                               as four
+from   compiler.ast import Const
+from   compiler.ast import Const                         as five
 
 func = lambda x: x
 
@@ -31,8 +40,31 @@ class A(D.B):
         print self.w                    # unknown
         print self.inherited1           # known from B
         print self.inherited2           # known from B
-        print self.value                # from compiler.ast.Const
+        print self.value                # from compiler.ast.Const, fails
         print self.goofy                # defined in class scope
 
     goofy = x
     
+class E(one.ast.Const):
+    def f(self):
+        print self.value                # fails
+
+class F(two.Const):
+    def f(self):
+        print self.value
+
+class H(four.Const):
+    def f(self):
+        print self.value                # fails
+
+class I(five):
+    def f(self):
+        print self.value
+
+class J(ast.Const):
+    def f(self):
+        print self.value                # fails
+
+class K(Const):
+    def f(self):
+        print self.value
