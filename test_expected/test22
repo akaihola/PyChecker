@@ -25,3 +25,6 @@ test_input/test22.py:51: Format string argument count (1) doesn't match argument
 test_input/test22.py:65: Format string argument count (2) doesn't match arguments (3)
 test_input/test22.py:66: Format string argument count (3) doesn't match arguments (4)
 test_input/test22.py:67: Format string argument count (4) doesn't match arguments (2)
+test_input/test22.py:70: Local variable (c) not used
+test_input/test22.py:74: Local variable (a) not used
+test_input/test22.py:74: Local variable (b) not used

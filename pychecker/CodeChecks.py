@@ -120,7 +120,7 @@ def _getFunction(module, stackValue) :
     return c.methods.get(identifier[-1], None), c, 0
 
 def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
-    returnValue = Stack.makeFuncReturnValue(loadValue)
+    returnValue = Stack.makeFuncReturnValue(loadValue, argCount)
     func_name = loadValue.data
     if loadValue.type == Stack.TYPE_GLOBAL :
         info = python.GLOBAL_FUNC_INFO.get(func_name, None)
@@ -130,7 +130,7 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
             elif check_arg_count :
                 _checkFunctionArgCount(code, func_name, argCount,
                                        info[1], info[2])
-            returnValue = Stack.Item(func_name, info[0])
+            returnValue = Stack.Item(returnValue.data, info[0])
     elif type(func_name) == types.TupleType and len(func_name) <= 2 :
         objType = code.typeMap.get(str(func_name[0]), [])
         if types.ListType in objType :
@@ -204,7 +204,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
 
     loadValue = code.stack[funcIndex]
     funcName = loadValue.getName(codeSource.module)
-    returnValue = Stack.makeFuncReturnValue(loadValue)
+    returnValue = Stack.makeFuncReturnValue(loadValue, argCount)
     if loadValue.isMethodCall(codeSource.classObject, cfg().methodArgName) :
         methodName = loadValue.data[1]
         try :

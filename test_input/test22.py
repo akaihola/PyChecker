@@ -66,3 +66,11 @@ def string_multiply():
     print '%d ' * 3 % (1, 2, 3, 4)
     print ('%d ' * 4) % (1, 2)
 
+def check_vars1():
+    a = b = c = 5
+    print '%(a)d %(b)d' % vars()
+
+def check_vars2():
+    a = b = c = 5
+    print '%(a)d %(b)d' % vars(c)
+

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2001, MetaSlash Inc.  All rights reserved.
+# Copyright (c) 2001-2002, MetaSlash Inc.  All rights reserved.
 
 """
 Module to hold manipulation of elements on the stack.
@@ -102,9 +102,12 @@ def makeTuple(values = (), const = 1) :
 def makeList(values = [], const = 1) :
     return Item(values, types.ListType, const, len(values))
 
-def makeFuncReturnValue(stackValue) :
+def makeFuncReturnValue(stackValue, argCount) :
     data = DATA_UNKNOWN
-    if stackValue.type == TYPE_GLOBAL and stackValue.data == LOCALS :
+    # vars() without params == locals()
+    if stackValue.type == TYPE_GLOBAL and \
+       (stackValue.data == LOCALS or
+        (argCount == 0 and stackValue.data == 'vars')) :
         data = LOCALS
     return Item(data, TYPE_FUNC_RETURN)
 
