@@ -30,8 +30,8 @@ MIX_IMPORT_AND_FROM_IMPORT = "Using import and from ... import for (%s)"
 IMPORT_SELF = "Module (%s) imports itself"
 
 NO_METHOD_ARGS = "No method arguments, should have %s as argument"
-SELF_NOT_FIRST_ARG = "%s is not first method argument"
-SELF_IS_ARG = "self is argument in function"
+SELF_NOT_FIRST_ARG = "%s is not first %smethod argument"
+SELF_IS_ARG = "self is argument in %s"
 RETURN_FROM_INIT = "Cannot return a value from __init__"
 NO_CTOR_ARGS = "Instantiating an object with arguments, but no constructor"
 

@@ -1,3 +1,7 @@
+Version 0.8.13   - xx December 2002
+  * Suppress 'self as first argument' warning for static and class methods
+  * Add --classmethodargs to specify first argument name for class methods
+
 Version 0.8.12   - 23 December 2002
   * Add --isliteral option to warn when using is/is not against literal
     (e.g., XXX is 5    YYY is not 'abcdef', etc)

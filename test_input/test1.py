@@ -66,3 +66,31 @@ def renderItem(text):
 
 def test_kw_lambda(a, b, c):
     return renderElement(a, ff=lambda value: '=' + renderItem(b))
+
+class MethodArgNames:
+    'check warnings for static/class methods for first arg name'
+    def __init__(self, *args): pass
+
+    # should warn
+    def nn(self, *args): pass
+    nn = classmethod(nn)
+
+    # should warn
+    def mm(self, *args): pass
+    mm = staticmethod(mm)
+
+    # should not warn
+    def oo(cls, *args): pass
+    oo = classmethod(oo)
+
+    # should not warn
+    def pp(*args): pass
+    pp = staticmethod(pp)
+
+    # should not warn
+    def qq(): pass
+    qq = staticmethod(qq)
+
+    # should not warn
+    def rr(klass, *args): pass
+    rr = classmethod(rr)

@@ -15,7 +15,7 @@ import time
 
 _RC_FILE = ".pycheckrc"
 CHECKER_VAR = '__pychecker__'
-_VERSION = '0.8.12'
+_VERSION = '0.8.13beta'
 
 _DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", "gtk", "GTK", "GDK", ]
 _DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__', 
@@ -57,6 +57,7 @@ _OPTIONS = (
  ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
  ('y', 0, 'classattr', 'classAttrExists', 'class attribute does not exist'),
  ('S', 1, 'self', 'methodArgName', 'First argument to methods'),
+ ('',  1, 'classmethodargs', 'classmethodArgNames', 'First argument to classmethods'),
  ('T', 0, 'argsused', 'argumentsUsed', 'unused method/function arguments'),
  ('z', 0, 'varargsused', 'varArgumentsUsed', 'unused method/function variable arguments'),
  ('G', 0, 'selfused', 'ignoreSelfUnused', 'ignore if self is unused in methods'),
@@ -239,6 +240,7 @@ class Config :
         self.blacklist = _DEFAULT_BLACK_LIST
         self.ignoreStandardLibrary = 0
         self.methodArgName = 'self'
+        self.classmethodArgNames = ['cls', 'klass']
         self.checkOverridenMethods = 1
 
         self.argumentsUsed = 1

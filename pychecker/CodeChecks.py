@@ -328,11 +328,15 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                     if method :
                         # c'tor, return the class as the type
                         returnValue = Stack.Item(loadValue, refClass)
-                
+                    elif func.isClassMethod():
+                        # FIXME: do anything here?
+                        pass
                     elif argCount > 0 and cfg().methodArgName and \
+                         not func.isStaticMethod() and \
                          code.stack[funcIndex].type == Stack.TYPE_ATTRIBUTE and \
                          code.stack[funcIndex+1].data != cfg().methodArgName:
-                        code.addWarning(msgs.SELF_NOT_FIRST_ARG % cfg().methodArgName)
+                        e = msgs.SELF_NOT_FIRST_ARG % (cfg().methodArgName, '')
+                        code.addWarning(e)
             elif refClass and method :
                 returnValue = Stack.Item(loadValue, refClass)
                 if (argCount > 0 or len(kwArgs) > 0) and \

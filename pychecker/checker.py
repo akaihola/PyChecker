@@ -243,7 +243,7 @@ class Class :
             self.methods[method] = None
         else :
             assert methodName is not None, "must supply methodName"
-            self.methods[methodName] = function.Function(method)
+            self.methods[methodName] = function.Function(method, 1)
                 
     def addMethods(self, classObject) :
         for classToken in _getClassTokens(classObject) :

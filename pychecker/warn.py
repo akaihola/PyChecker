@@ -35,10 +35,18 @@ def _checkSelfArg(method, warnings) :
 
     code = method.function.func_code
     err = None
-    if code.co_argcount < 1 :
+    if method.isStaticMethod():
+        if code.co_argcount > 0 and cfg().methodArgName == code.co_varnames[0]:
+            err = msgs.SELF_IS_ARG % 'staticmethod'
+    elif code.co_argcount < 1: 
         err = msgs.NO_METHOD_ARGS % cfg().methodArgName
-    elif code.co_varnames[0] != cfg().methodArgName:
-        err = msgs.SELF_NOT_FIRST_ARG % cfg().methodArgName
+    else:
+        if method.isClassMethod():
+            if code.co_varnames[0] not in cfg().classmethodArgNames:
+                err = msgs.SELF_NOT_FIRST_ARG % \
+                      (cfg().classmethodArgNames, 'class')
+        elif code.co_varnames[0] != cfg().methodArgName:
+            err = msgs.SELF_NOT_FIRST_ARG % (cfg().methodArgName, '')
 
     if err is not None :
         warnings.append(Warning(code, code, err))
@@ -49,7 +57,7 @@ def _checkNoSelfArg(func, warnings) :
 
     code = func.function.func_code
     if code.co_argcount > 0 and cfg().methodArgName in code.co_varnames:
-        warnings.append(Warning(code, code, msgs.SELF_IS_ARG))
+        warnings.append(Warning(code, code, msgs.SELF_IS_ARG % 'function'))
 
 
 def _checkSubclass(c1, c2):

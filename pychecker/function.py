@@ -63,9 +63,10 @@ class FakeFunction(_ReturnValues):
 class Function(_ReturnValues):
     "Class to hold all information about a function"
 
-    def __init__(self, function) :
+    def __init__(self, function, isMethod=0):
         _ReturnValues.__init__(self)
         self.function = function
+        self.isMethod = isMethod
         self.minArgs = self.maxArgs = function.func_code.co_argcount
         if function.func_defaults is not None :
             self.minArgs = self.minArgs - len(function.func_defaults)
@@ -96,6 +97,15 @@ class Function(_ReturnValues):
         
     def isParam(self, name) :
         return name in self.arguments()
+
+    def isStaticMethod(self):
+        return self.isMethod and isinstance(self.function, type(create_fake))
+
+    def isClassMethod(self):
+        try:
+            return self.isMethod and self.function.im_self is not None
+        except AttributeError:
+            return 0
 
     def defaultValue(self, name) :
         func_code = self.function.func_code
