@@ -313,6 +313,88 @@ def getSuppression(name, suppressions, warnings) :
     return suppress
 
 
+def _findFunctionWarnings(module, globalRefs, warnings, suppressions) :
+    for func in module.functions.values() :
+        func_code = func.function.func_code
+        utils.debug("function:", func_code)
+
+        name = '%s.%s' % (module.moduleName, func.function.__name__)
+        suppress = getSuppression(name, suppressions, warnings)
+        if cfg().noDocFunc and func.function.__doc__ == None :
+            warn = Warning(module.filename(), func_code,
+                           msgs.NO_FUNC_DOC % func.function.__name__)
+            warnings.append(warn)
+
+        _checkNoSelfArg(func, warnings)
+        _updateFunctionWarnings(module, func, None, warnings, globalRefs)
+        if suppress is not None :
+            utils.popConfig()
+
+def _findClassWarnings(module, c, class_code,
+                       globalRefs, warnings, suppressions) :
+    classSuppress = getSuppression(str(c.classObject), suppressions, warnings)
+    baseClasses = c.allBaseClasses()
+    for base in baseClasses :
+        baseModule = str(base)
+        if '.' in baseModule :
+            # make sure we handle import x.y.z
+            packages = string.split(baseModule, '.')
+            baseModuleDir = string.join(packages[:-1], '.')
+            globalRefs[baseModuleDir] = baseModule
+
+    # handle class variables
+    if class_code is not None :
+        func = function.create_fake(c.name, class_code)
+        _updateFunctionWarnings(module, func, c, warnings, globalRefs,
+                                0, 1)
+
+    func_code = None
+    for method in c.methods.values() :
+        if method == None :
+            continue
+        func_code = method.function.func_code
+        utils.debug("method:", func_code)
+
+        name = str(c.classObject) + '.' + method.function.func_name
+        methodSuppress = getSuppression(name, suppressions,
+                                        warnings)
+
+        if cfg().checkOverridenMethods :
+            _checkOverridenMethods(method.function, baseClasses,
+                                   warnings)
+
+        if cfg().noDocFunc and method.function.__doc__ == None :
+            warn = Warning(module.filename(), func_code,
+                           msgs.NO_FUNC_DOC % method.function.__name__)
+            warnings.append(warn)
+
+        _checkSelfArg(method, warnings)
+        funcInfo = _updateFunctionWarnings(module, method, c,
+                                           warnings, globalRefs)
+        if func_code.co_name == utils.INIT :
+            if utils.INIT in dir(c.classObject) :
+                warns = _checkBaseClassInit(module.filename(), c,
+                                            func_code, funcInfo)
+                warnings.extend(warns)
+            elif cfg().initDefinedInSubclass :
+                warn = Warning(module.filename(), c.getFirstLine(),
+                               msgs.NO_INIT_IN_SUBCLASS % c.name)
+                warnings.append(warn)
+        if methodSuppress is not None :
+            utils.popConfig()
+
+    if cfg().noDocClass and c.classObject.__doc__ == None :
+        method = c.methods.get(utils.INIT, None)
+        if method != None :
+            func_code = method.function.func_code
+        # FIXME: check to make sure this is in our file,
+        #        not a base class file???
+        warnings.append(Warning(module.filename(), func_code,
+                               msgs.NO_CLASS_DOC % c.classObject.__name__))
+    if classSuppress is not None :
+        utils.popConfig()
+
+
 def find(moduleList, initialCfg, suppressions = {}) :
     "Return a list of warnings found in the module list"
 
@@ -329,95 +411,19 @@ def find(moduleList, initialCfg, suppressions = {}) :
         # main_code can be null if there was a syntax error
         if module.main_code != None :
             funcInfo = _updateFunctionWarnings(module, module.main_code,
-                                                None, warnings, globalRefs, 1)
+                                               None, warnings, globalRefs, 1)
             for code in funcInfo[1] :
                 classCodes[code.co_name] = code
 
-        moduleFilename = module.filename()
-        for func in module.functions.values() :
-            func_code = func.function.func_code
-            utils.debug("function:", func_code)
-
-            name = '%s.%s' % (module.moduleName, func.function.__name__)
-            suppress = getSuppression(name, suppressions, warnings)
-            if cfg().noDocFunc and func.function.__doc__ == None :
-                warn = Warning(moduleFilename, func_code,
-                               msgs.NO_FUNC_DOC % func.function.__name__)
-                warnings.append(warn)
-
-            _checkNoSelfArg(func, warnings)
-            _updateFunctionWarnings(module, func, None, warnings, globalRefs)
-            if suppress is not None :
-                utils.popConfig()
-
+        _findFunctionWarnings(module, globalRefs, warnings, suppressions)
+        
         for c in module.classes.values() :
-            classSuppress = getSuppression(str(c.classObject), suppressions,
-                                           warnings)
-            baseClasses = c.allBaseClasses()
-            for base in baseClasses :
-                baseModule = str(base)
-                if '.' in baseModule :
-                    # make sure we handle import x.y.z
-                    packages = string.split(baseModule, '.')
-                    baseModuleDir = string.join(packages[:-1], '.')
-                    globalRefs[baseModuleDir] = baseModule
-
-            # handle class variables
-            class_code = classCodes.get(c.name)
-            if class_code is not None :
-                func = function.create_fake(c.name, class_code)
-                _updateFunctionWarnings(module, func, c, warnings, globalRefs,
-                                        0, 1)
-
-            func_code = None
-            for method in c.methods.values() :
-                if method == None :
-                    continue
-                func_code = method.function.func_code
-                utils.debug("method:", func_code)
-
-                name = str(c.classObject) + '.' + method.function.func_name
-                methodSuppress = getSuppression(name, suppressions,
-                                                warnings)
-
-                if cfg().checkOverridenMethods :
-                    _checkOverridenMethods(method.function, baseClasses,
-                                           warnings)
-
-                if cfg().noDocFunc and method.function.__doc__ == None :
-                    warn = Warning(moduleFilename, func_code,
-                                   msgs.NO_FUNC_DOC % method.function.__name__)
-                    warnings.append(warn)
-
-                _checkSelfArg(method, warnings)
-                funcInfo = _updateFunctionWarnings(module, method, c,
-                                                   warnings, globalRefs)
-                if func_code.co_name == utils.INIT :
-                    if utils.INIT in dir(c.classObject) :
-                        warns = _checkBaseClassInit(moduleFilename, c,
-                                                    func_code, funcInfo)
-                        warnings.extend(warns)
-                    elif cfg().initDefinedInSubclass :
-                        warn = Warning(moduleFilename, c.getFirstLine(),
-                                       msgs.NO_INIT_IN_SUBCLASS % c.name)
-                        warnings.append(warn)
-                if methodSuppress is not None :
-                    utils.popConfig()
-
-            if cfg().noDocClass and c.classObject.__doc__ == None :
-                method = c.methods.get(utils.INIT, None)
-                if method != None :
-                    func_code = method.function.func_code
-                # FIXME: check to make sure this is in our file,
-                #        not a base class file???
-                warnings.append(Warning(moduleFilename, func_code,
-                                       msgs.NO_CLASS_DOC % c.classObject.__name__))
-            if classSuppress is not None :
-                utils.popConfig()
+            _findClassWarnings(module, c, classCodes.get(c.name),
+                               globalRefs, warnings, suppressions)
 
         if cfg().noDocModule and \
            module.module != None and module.module.__doc__ == None :
-            warnings.append(Warning(moduleFilename, 1, msgs.NO_MODULE_DOC))
+            warnings.append(Warning(module.filename(), 1, msgs.NO_MODULE_DOC))
 
         if cfg().allVariablesUsed or cfg().privateVariableUsed :
             prefix = None
