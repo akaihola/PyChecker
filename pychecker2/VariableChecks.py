@@ -45,7 +45,7 @@ class ShadowCheck(Check):
                 if __builtins__.has_key(name):
                     file.warning(scope.defs[name], self.shadowBuiltins, name)
                 for p in iter(Parents(scope), None):
-                    if p.defs.has_key(name):
+                    if p.defs.has_key(name) and not isinstance(p, symbols.ClassScope):
                         file.warning(scope.defs[name], self.shadowIdentifier, name, `p`)
 
 class UnusedCheck(Check):
