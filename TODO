@@ -4,8 +4,6 @@ Goals for next release:
 * Check object method calls for # args
 * Add check for magic #s/consts
 * Add check for unsupported operand type(s) for * + / etc
-* Add check for del xxx, where xxx doesn't exist DELETE_FAST/DELETE_GLOBAL
-* DELETE_SUBSCR should pop 2 items off stack
 
 Longer Term goals:
 ------------------
