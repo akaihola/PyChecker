@@ -25,21 +25,28 @@ _NO_FUNC_DOC = "No doc string for function %s"
 
 _VAR_NOT_USED = "Variable (%s) not used in any function"
 _IMPORT_NOT_USED = "Imported module (%s) not used in any function"
+_UNUSED_LOCAL = "Local variable (%s) not used"
 
 _NO_METHOD_ARGS = "No method arguments, should have self as argument"
 _SELF_NOT_FIRST_ARG = "self is not first method argument"
 _SELF_IS_ARG = "self is argument in function"
+
+_GLOBAL_DEFINED_NOT_DECLARED = "Global variable (%s) defined without being declared"
 _INVALID_GLOBAL = "No global (%s) found"
 _INVALID_METHOD = "No method (%s) found"
 _INVALID_ATTR = "No attribute (%s) found"
+
 _INVALID_ARG_COUNT1 = "Invalid arguments to (%s), got %d, expected %d"
 _INVALID_ARG_COUNT2 = "Invalid arguments to (%s), got %d, expected at least %d"
 _INVALID_ARG_COUNT3 = "Invalid arguments to (%s), got %d, expected between %d and %d"
-_GLOBAL_DEFINED_NOT_DECLARED = "Global variable (%s) defined without being declared"
 _FUNC_DOESNT_SUPPORT_KW = "Function (%s) doesn't support **kwArgs"
+
 _BASE_CLASS_NOT_INIT = "Base class (%s) __init__() not called"
 _NO_INIT_IN_SUBCLASS = "No __init__() in subclass (%s)"
-_UNUSED_LOCAL = "Local variable (%s) not used"
+
+_FUNC_TOO_LONG = "Function (%s) is too many lines (%d)"
+_TOO_MANY_BRANCHES = "Function (%s) has too many branches (%d)"
+_TOO_MANY_RETURNS = "Function (%s) has too many returns (%d)"
 
 
 _cfg = None
@@ -184,15 +191,19 @@ def _checkFunction(module, func, c = None) :
 
     # check the code
     #  see dis.py in std python distribution
-    lastLineNum = func.function.func_code.co_firstlineno
+    firstLineNum = lastLineNum = func.function.func_code.co_firstlineno
 
     func_code, code, i, maxCode, extended_arg = OP.initFuncCode(func.function)
     stack = []
     unpackCount = 0
+    returns, loops, branches = 0, 0, {}
     while i < maxCode :
         op, oparg, i, extended_arg = OP.getInfo(code, i, extended_arg)
         if op >= OP.HAVE_ARGUMENT :
             warn = None
+            label = OP.getLabel(op, oparg, i)
+            if label != None :
+                branches[label] = 1
             operand = OP.getOperand(op, func_code, oparg)
             if OP.LINE_NUM(op) :
                 lastLineNum = oparg
@@ -245,6 +256,9 @@ def _checkFunction(module, func, c = None) :
             elif OP.UNPACK_SEQUENCE(op) :
                 debug("  unpack seq", oparg)
                 unpackCount = oparg
+            elif OP.FOR_LOOP(op) :
+                debug("  for loop", oparg)
+                loops = loops + 1
             elif OP.STORE_FAST(op) :
                 debug("  store fast", operand)
                 if not unusedLocals.has_key(operand) :
@@ -296,6 +310,7 @@ def _checkFunction(module, func, c = None) :
                 stack = stack[:-popArgs]
         elif OP.RETURN_VALUE(op) :
             debug("  return")
+            returns = returns + 1
             # FIXME: this check shouldn't really be necessary
             if len(stack) > 0 :
                 del stack[-1]
@@ -304,6 +319,27 @@ def _checkFunction(module, func, c = None) :
         for var, line in unusedLocals.items() :
             if line :
                 warnings.append(Warning(func_code, line, _UNUSED_LOCAL % var))
+
+    lines = (lastLineNum - firstLineNum)
+    if _cfg.maxLines and lines > _cfg.maxLines :
+        warn = Warning(func_code, firstLineNum,
+                       _FUNC_TOO_LONG % (func.function.__name__, lines))
+        warnings.append(warn)
+
+    # loops should be counted as one branch, but there are typically 3
+    # branches in byte code to setup a loop, so subtract off 2/3's of them
+    # / 2 to approximate real branches
+    branches = (len(branches.keys()) - (2 * loops)) / 2
+    if _cfg.maxBranches and branches > _cfg.maxBranches :
+        warn = Warning(func_code, firstLineNum,
+                       _TOO_MANY_BRANCHES % (func.function.__name__, branches))
+        warnings.append(warn)
+
+    if _cfg.maxReturns and returns > _cfg.maxReturns :
+        warn = Warning(func_code, firstLineNum,
+                       _TOO_MANY_RETURNS % (func.function.__name__, returns))
+        warnings.append(warn)
+
     return warnings, globalRefs, functionsCalled
 
 

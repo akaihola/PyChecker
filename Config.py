@@ -32,6 +32,10 @@ class Config :
         self.unusedLocalTuple = 0
         self.blacklist = _DEFAULT_BLACK_LIST
 
+        self.maxLines = 200
+        self.maxBranches = 50
+        self.maxReturns = 10
+
 
 def printArg(shortArg, longArg, description, defaultValue, useValue) :
     args = "-%s, --%s" % (shortArg, longArg)
@@ -43,7 +47,7 @@ def printArg(shortArg, longArg, description, defaultValue, useValue) :
             else :
                 defaultValue = 'off'
         defStr = ' [%s]' % defaultValue
-    print "    %-17s %s%s" % (args, description, defStr)
+    print "  %-17s %s%s" % (args, description, defStr)
 
 
 _OPTIONS = [ 
@@ -59,6 +63,9 @@ _OPTIONS = [
  ('p', 0, 'privatevar', 'privateVariableUsed', 'unused private module variables'),
  None,
  ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules'),
+ ('L', 1, 'maxlines', 'maxLines', 'maximum lines in a function'),
+ ('B', 1, 'maxbranches', 'maxBranches', 'maximum branches in a function'),
+ ('R', 1, 'maxreturns', 'maxReturns', 'maximum returns in a function'),
  None,
  ('d', 0, 'debug', 'debug', 'turn on debugging for checker'),
  None,
@@ -68,7 +75,7 @@ _OPTIONS = [
 def usage() :
     print "Usage for: checker.py [options] PACKAGE ...\n"
     print "    PACKAGEs can be a python package, module or filename\n"
-    print "  Options:          Toggle warning for ... [default value]"
+    print "Options:          Change warning for ... [default value]"
 
     cfg = Config()
     for opt in _OPTIONS :

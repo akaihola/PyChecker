@@ -26,6 +26,7 @@ def RETURN_VALUE(op):          return dis.opname[op] == 'RETURN_VALUE'
 def COMPARE_OP(op):            return dis.opname[op] == 'COMPARE_OP'
 def POP_TOP(op):               return dis.opname[op] == 'POP_TOP'
 def DUP_TOP(op):               return dis.opname[op] == 'DUP_TOP'
+def FOR_LOOP(op):              return dis.opname[op] == 'FOR_LOOP'
 
 def UNPACK_SEQUENCE(op) :
     "Deal w/Python 1.5.2 (UNPACK_[LIST|TUPLE]) or 2.0 (UNPACK_SEQUENCE)"
@@ -54,6 +55,13 @@ def getOperand(op, func_code, oparg) :
         return func_code.co_consts[oparg]
     elif op in hascompare :
         return dis.cmp_op[oparg]
+    return None
+
+def getLabel(op, oparg, i) :
+    if op in dis.hasjrel :
+        return i + oparg
+    elif op in dis.hasjabs :
+        return oparg
     return None
 
 def getInfo(code, index, extended_arg) :
