@@ -61,6 +61,7 @@ _OPTIONS = (
  ('C', 0, 'implicitreturns', 'checkImplicitReturns', 'check if using implict and explicit return values'),
  ('O', 0, 'objattrs', 'checkObjectAttrs', 'check that attributes of objects exist'),
  ('D', 0, 'intdivide', 'intDivide', 'check if using integer division'),
+ ('w', 0, 'shadow', 'shadows', 'check if local variable shadows a global'),
      ]),
     ('Suppressions', [
  ('q', 0, 'stdlib', 'ignoreStandardLibrary', 'ignore warnings from files under standard library'),
@@ -213,6 +214,7 @@ class Config :
         self.checkReturnValues = 1
         self.checkImplicitReturns = 0
         self.intDivide = 1
+        self.shadows = 1
         self.unaryPositive = 1
         self.modifyDefaultValue = 1
 

@@ -797,7 +797,8 @@ def _LOAD_CONST(oparg, operand, codeSource, code) :
 def _checkLocalShadow(code, module, varname) :
     if module.variables.has_key(varname) :
         line = module.moduleLineNums.get(varname, (0, 0))[1]
-        code.addWarning(msgs.LOCAL_SHADOWS_GLOBAL % (varname, line))
+        if cfg().shadows :
+            code.addWarning(msgs.LOCAL_SHADOWS_GLOBAL % (varname, line))
 
 def _checkLoadLocal(code, codeSource, varname, deletedWarn, usedBeforeSetWarn) :
     _checkFutureKeywords(code, varname)
