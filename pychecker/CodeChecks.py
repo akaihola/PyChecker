@@ -1143,6 +1143,7 @@ def _SLICE3(oparg, operand, codeSource, code) :
 def _FOR_LOOP(oparg, operand, codeSource, code) :
     code.loops = code.loops + 1
     _popStackRef(code, '<for_loop>', 2)
+_FOR_ITER = _FOR_LOOP
 
 def _jump(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
@@ -1212,6 +1213,7 @@ DISPATCH[ 84] = _IMPORT_STAR
 DISPATCH[ 90] = _STORE_NAME
 DISPATCH[ 91] = _DELETE_NAME
 DISPATCH[ 92] = _UNPACK_SEQUENCE
+DISPATCH[ 93] = _FOR_ITER
 DISPATCH[ 95] = _STORE_ATTR
 DISPATCH[ 96] = _DELETE_ATTR
 DISPATCH[ 97] = _STORE_GLOBAL
