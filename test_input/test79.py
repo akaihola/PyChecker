@@ -27,7 +27,7 @@ def func4():
     v = []
     for i in v:
         print 'ok', i
-    v = ()
-    for i in v:
+    w = ()
+    for i in w:
         print 'ok', i
 
