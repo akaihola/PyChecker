@@ -55,6 +55,8 @@ NO_INIT_IN_SUBCLASS = "No __init__() in subclass (%s)"
 FUNC_TOO_LONG = "Function (%s) has too many lines (%d)"
 TOO_MANY_BRANCHES = "Function (%s) has too many branches (%d)"
 TOO_MANY_RETURNS = "Function (%s) has too many returns (%d)"
+TOO_MANY_ARGS = "Function (%s) has too many arguments (%d)"
+TOO_MANY_LOCALS = "Function (%s) has too many local variables (%d)"
 
 IMPLICIT_AND_EXPLICIT_RETURNS = "Function returns a value and also implicitly returns None"
 INCONSISTENT_RETURN_TYPE = "Function return types are inconsistent"

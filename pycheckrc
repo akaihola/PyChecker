@@ -69,6 +69,8 @@ checkOverridenMethods = 1
 maxLines = 200
 maxBranches = 50
 maxReturns = 10
+maxArgs = 10
+maxLocals = 25
 
 
 # bool:  ignore all warnings from standard library components

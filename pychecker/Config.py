@@ -58,6 +58,8 @@ _OPTIONS = [
  ('L', 1, 'maxlines', 'maxLines', 'maximum lines in a function'),
  ('B', 1, 'maxbranches', 'maxBranches', 'maximum branches in a function'),
  ('R', 1, 'maxreturns', 'maxReturns', 'maximum returns in a function'),
+ ('J', 1, 'maxargs', 'maxArgs', 'maximum # of arguments to a function'),
+ ('K', 1, 'maxlocals', 'maxLocals', 'maximum # of locals in a function'),
  None,
  ('F', 0, 'rcfile', None, 'print a .pycheckrc file generated from command line args'),
  ('P', 0, 'printparse', 'printParse', 'print internal checker parse structures'),
@@ -171,6 +173,8 @@ class Config :
         self.maxLines = 200
         self.maxBranches = 50
         self.maxReturns = 10
+        self.maxArgs = 10
+        self.maxLocals = 40
 
         self.checkObjectAttrs = 1
         self.checkReturnValues = 1

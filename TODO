@@ -1,7 +1,7 @@
 
 Goals for next release:
 -----------------------
-* Type check object access based on possible types
+* Check object method calls for # args
 * Improve handling when importing packages
 
 Longer Term goals:
@@ -9,7 +9,6 @@ Longer Term goals:
 * Security checks for known issues.  Adrian Likins @redhat recommends 
   looking at http://www.securesw.com/rats/
 * Recursive calls to __repr__ implementations
-* Warn about too many paramaters, too many local variables
 * Make check for 'self' a list instead of a string
 * Check function return values - partially complete
 * Add check for unreachable code

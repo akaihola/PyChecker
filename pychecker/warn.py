@@ -168,6 +168,10 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     lines = (code.lastLineNum - code.func_code.co_firstlineno)
     returns = code.returns
     if not main and not in_class :
+        args = code.func_code.co_argcount
+        locals = len(code.func_code.co_varnames) - args
+        _checkComplex(code, cfg().maxArgs, args, func, msgs.TOO_MANY_ARGS)
+        _checkComplex(code, cfg().maxLocals, locals, func, msgs.TOO_MANY_LOCALS)
         _checkComplex(code, cfg().maxLines, lines, func, msgs.FUNC_TOO_LONG)
     _checkComplex(code, cfg().maxReturns, returns, func, msgs.TOO_MANY_RETURNS)
     _checkComplex(code, cfg().maxBranches, branches, func, msgs.TOO_MANY_BRANCHES)
