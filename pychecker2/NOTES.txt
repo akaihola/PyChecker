@@ -37,3 +37,43 @@ Items still missing:
 
         Doc strings
 
+Important stuff:
+
+If you want to add new checks, there are some backs parts to be aware
+of:
+
+        File
+                A stupid data structure to hold everything we know about 
+                a file to be checked.
+
+                Members:
+                   name
+                        The file name.
+                   parseTree
+                        The root of the Abstract Syntax Tree returned from
+                        compiler.parseFile.  Will be null if the file
+                        won't even parse.
+
+                   scopes
+                        A dictionary of { node, scope } computed with
+                        from compiler.symbols. For convenience, scopes
+                        also refer back to the node and to the
+                        enclosing parent scope (node and parent,
+                        respectively).
+
+                    root_scope
+                        Convience for scopes[parseTree]
+
+        Check
+                Basic step for checking a file.  Usually contributes
+                Warnings or additional information to File.  New checks
+                will subclass this, and be added to the chain of checks
+                given in main()
+
+
+        Warning
+                A description of a warning emitted by pychecker
+
+
+        Command line options are pulled from each check.
+        A Warning is also turned into a boolean-style command line option
