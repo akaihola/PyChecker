@@ -22,8 +22,10 @@ Figure out which names come from 'import name'.
                           'Error trying to import %s: %s')
     duplicateImport = Warning('Report/ignore duplicate imports',
                               'Import of "%s" is duplicate%s')
-    shadowImport = Warning('Report imports which shadow names from other imports',
-                           'Import of "%s" duplicates import from module %s at %d')
+    shadowImport = Warning('Report imports which shadow names from '
+                           'other imports',
+                           'Import of "%s" duplicates import from '
+                           'module %s at %d')
 
     def check(self, file, checker):
         def try_import(name, node):
@@ -70,7 +72,8 @@ Figure out which names come from 'import name'.
                                 if not name.startswith('_'):
                                    add_import(node, name, name, m)
                         else:
-                            add_import(node, local_name or module_name, module_name, m)
+                            add_import(node, local_name or module_name,
+                                       module_name, m)
 
             def visitImport(self, node):
                 for module, name in node.names:
