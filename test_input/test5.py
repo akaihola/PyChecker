@@ -1,8 +1,11 @@
 
 "doc string"
 
-def x(a, b):
+def x(a, b, c = None, d = None, **kw):
     pass
+
+def y():
+    x(1, 2, c=3, d=4, e=5)
 
 class X:
     "doc"

@@ -33,6 +33,7 @@ class Config :
         self.localVariablesUsed = 1
         self.unusedLocalTuple = 0
         self.initDefinedInSubclass = 1
+        self.namedArgs = 1
         self.blacklist = _DEFAULT_BLACK_LIST
 
         self.maxLines = 200
@@ -64,6 +65,7 @@ _OPTIONS = [
  ('t', 0, 'tuple', 'unusedLocalTuple', 'all unused local variables, including tuples'),
  ('v', 0, 'var', 'allVariablesUsed', 'all unused module variables'),
  ('p', 0, 'privatevar', 'privateVariableUsed', 'unused private module variables'),
+ ('n', 0, 'namedargs', 'namedArgs', 'functions called with named arguments (like keywords)'),
  ('a', 0, 'initattr', 'onlyCheckInitForMembers', 'Attributes (members) must be defined in __init__()'),
  ('I', 0, 'initsubclass', 'initDefinedInSubclass', 'Subclass.__init__() not defined'),
  None,

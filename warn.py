@@ -40,6 +40,7 @@ _INVALID_ARG_COUNT1 = "Invalid arguments to (%s), got %d, expected %d"
 _INVALID_ARG_COUNT2 = "Invalid arguments to (%s), got %d, expected at least %d"
 _INVALID_ARG_COUNT3 = "Invalid arguments to (%s), got %d, expected between %d and %d"
 _FUNC_DOESNT_SUPPORT_KW = "Function (%s) doesn't support **kwArgs"
+_FUNC_USES_NAMED_ARGS = "Function (%s) uses named arguments"
 
 _BASE_CLASS_NOT_INIT = "Base class (%s) __init__() not called"
 _NO_INIT_IN_SUBCLASS = "No __init__() in subclass (%s)"
@@ -106,9 +107,32 @@ def _checkNoSelfArg(func) :
         return Warning(code, code, _SELF_IS_ARG)
     return None
 
-def _checkFunctionArgs(func, argCount, kwArgCount, lastLineNum) :
-    err = None
+def _checkFunctionArgs(func, argCount, kwArgs, lastLineNum) :
+    warnings = []
     func_name = func.function.func_code.co_name
+    if kwArgs :
+        func_args = func.function.func_code.co_varnames
+        func_args_len = len(func_args)
+        if argCount < func_args_len and kwArgs[0] == func_args[argCount] :
+            if _cfg.namedArgs :
+                warn = Warning(func, lastLineNum,
+                               _FUNC_USES_NAMED_ARGS % func_name)
+                warnings.append(warn)
+
+            # convert the named args into regular params, and really check
+            while kwArgs and argCount < func_args_len and \
+                  kwArgs[0] == func_args[argCount] :
+                argCount = argCount + 1
+                kwArgs = kwArgs[1:]
+            return warnings + \
+                   _checkFunctionArgs(func, argCount, kwArgs, lastLineNum)
+
+        if not func.supportsKW :
+            warn = Warning(func, lastLineNum,
+                           _FUNC_DOESNT_SUPPORT_KW % func_name)
+            warnings.append(warn)
+
+    err = None
     if func.maxArgs == None :
         if argCount < func.minArgs :
             err = _INVALID_ARG_COUNT2 % (func_name, argCount, func.minArgs)
@@ -118,14 +142,8 @@ def _checkFunctionArgs(func, argCount, kwArgCount, lastLineNum) :
         else :
             err = _INVALID_ARG_COUNT3 % (func_name, argCount, func.minArgs, func.maxArgs)
 
-    warnings = []
     if err :
-        warn = Warning(func, lastLineNum, err)
-        warnings.append(warn)
-
-    if kwArgCount > 0 and not func.supportsKW :
-        warn = Warning(func, lastLineNum, _FUNC_DOESNT_SUPPORT_KW % func_name)
-        warnings.append(warn)
+        warnings.append(Warning(func, lastLineNum, err))
 
     return warnings
 
@@ -167,19 +185,26 @@ def _handleFunctionCall(module, code, c, stack, argCount, lastLineNum) :
     if (-funcIndex) > len(stack) :
         funcIndex = 0
 
+    # store the keyword names/keys to check if using named arguments
+    kwArgs = []
+    if kwArgCount > 0 :
+        for i in range(-2, (-2 * kwArgCount - 1), -2) :
+            kwArgs.append(stack[i])
+        kwArgs.reverse()
+
     warn = None
     loadValue = stack[funcIndex]
     if type(loadValue) == types.StringType :
         # already checked if module function w/this name exists
         func = module.functions.get(loadValue, None)
         if func != None :
-            warn = _checkFunctionArgs(func, argCount, kwArgCount, lastLineNum)
+            warn = _checkFunctionArgs(func, argCount, kwArgs, lastLineNum)
     elif type(loadValue) == types.TupleType and c != None and \
          len(loadValue) == 2 and loadValue[0] == 'self' :
         try :
             m = c.methods[loadValue[1]]
             if m != None :
-                warn = _checkFunctionArgs(m, argCount, kwArgCount, lastLineNum)
+                warn = _checkFunctionArgs(m, argCount, kwArgs, lastLineNum)
         except KeyError :
             warn = Warning(code, lastLineNum, _INVALID_METHOD % loadValue[1])
 

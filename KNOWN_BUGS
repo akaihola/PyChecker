@@ -36,14 +36,3 @@ when processing multiple files at once.
 
 ---------------------------------------------------------------------
 
-Spurious warnings (Function (x) doesn't support **kwArgs) can be produced
-when using named paramters:
-
-	def x(a, b, c):
-	    pass
-
-	def y():
-	    x(a=1, b=2, c=3)
-
----------------------------------------------------------------------
-
