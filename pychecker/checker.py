@@ -46,9 +46,9 @@ _allModules = {}
 _cfg = None
 
 # Constants
-_DEFAULT_MODULE_TOKENS = [ '__builtins__', '__doc__', '__file__', '__name__',
-                           '__path__', ]
-_DEFAULT_CLASS_TOKENS = [ '__doc__', '__name__', '__module__', ]
+_DEFAULT_MODULE_TOKENS = ('__builtins__', '__doc__', '__file__', '__name__',
+                          '__path__')
+_DEFAULT_CLASS_TOKENS = ('__doc__', '__name__', '__module__')
 
 _VERSION_MISMATCH_ERROR = '''
 There seem to be two versions of PyChecker being used.
@@ -67,7 +67,7 @@ def _flattenList(list) :
             new_list.extend(_flattenList(element))
         else :
             new_list.append(element)
-    
+
     return new_list
 
 def getModules(arg_list) :
@@ -127,7 +127,7 @@ def _findModule(name, path = sys.path) :
                 finally :
                     if file is not None :
                         file.close()
-        
+
 	    new_path = m.__path__
 	    if type(new_path) == types.ListType :
 	        new_path = filename
@@ -401,7 +401,7 @@ def fixupBuiltinModules() :
             else :
                 extra_attrs = _BUILTIN_MODULE_ATTRS.get(moduleName, [])
                 module.attributes = [ '__dict__' ] + dir(m) + extra_attrs
-                    
+
 
 def _printWarnings(warnings, stream = sys.stdout) :
     warnings.sort()
@@ -490,3 +490,4 @@ if __name__ == '__main__' :
         sys.exit(main(sys.argv))
     except Config.UsageError :
         sys.exit(127)
+
