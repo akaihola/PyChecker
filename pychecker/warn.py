@@ -266,6 +266,33 @@ def _checkComplex(warnings, maxValue, value, func, err) :
         warnings.append(warn)
 
 
+def _handleComparison(stack, operand) :
+    si = len(stack)
+    if si >= 2 :
+        si = 2
+        compareValues = stack[-si:]
+    elif si == 1 :
+        compareValues = [ stack[-1], None ]
+    else :
+        compareValues = [ None, None ]
+    stack[-si:] = [ Stack.makeComparison(compareValues, operand) ]
+
+
+def _handleImport(operand, module, func_code, lastLineNum, main) :
+    warn = None
+    filename = func_code.co_filename
+    if not module.moduleLineNums.has_key(operand) :
+        if main :
+            module.moduleLineNums[operand] = (filename, lastLineNum)
+    else :
+        lineInfo = module.moduleLineNums.get(operand)
+        if lineInfo and (lineInfo[0] != filename or
+                         lineInfo[1] != lastLineNum) :
+            warn = Warning(func_code, lastLineNum,
+                           _MODULE_IMPORTED_AGAIN % operand)
+    return warn
+
+
 def _checkFunction(module, func, c = None, main = 0) :
     "Return a list of Warnings found in a function/method."
 
@@ -291,15 +318,7 @@ def _checkFunction(module, func, c = None, main = 0) :
                 if OP.LINE_NUM(op) :
                     lastLineNum = oparg
                 elif OP.COMPARE_OP(op) :
-                    si = len(stack)
-                    if si >= 2 :
-                        si = 2
-                        compareValues = stack[-si:]
-                    elif si == 1 :
-                        compareValues = [ stack[-1], None ]
-                    else :
-                        compareValues = [ None, None ]
-                    stack[-si:] = [ Stack.makeComparison(compareValues, operand) ]
+                    _handleComparison(stack, operand)
                 elif OP.LOAD_GLOBAL(op) or OP.LOAD_NAME(op) :
                     # make sure we remember each global ref to check for unused
                     globalRefs[_getGlobalName(operand, func)] = operand
@@ -333,16 +352,8 @@ def _checkFunction(module, func, c = None, main = 0) :
                                                      lastLineNum, topOfStack)
                     topOfStack.addAttribute(operand)
                 elif OP.IMPORT_NAME(op) :
-                    filename = func_code.co_filename
-                    if not module.moduleLineNums.has_key(operand) :
-                        if main :
-                            module.moduleLineNums[operand] = (filename, lastLineNum)
-                    else :
-                        lineInfo = module.moduleLineNums.get(operand)
-                        if lineInfo and (lineInfo[0] != filename or
-                                         lineInfo[1] != lastLineNum) :
-                            warn = Warning(func_code, lastLineNum,
-                                           _MODULE_IMPORTED_AGAIN % operand)
+                    warn = _handleImport(operand, module, func_code,
+                                         lastLineNum, main)
                 elif OP.UNPACK_SEQUENCE(op) :
                     unpackCount = oparg
                 elif OP.FOR_LOOP(op) :
@@ -359,8 +370,8 @@ def _checkFunction(module, func, c = None, main = 0) :
                         unpackCount = unpackCount - 1
                     stack = stack[:-2]
                 elif OP.CALL_FUNCTION(op) :
-                    warn, funcCalled = _handleFunctionCall(module, func_code, c,
-                                                        stack, oparg, lastLineNum)
+                    warn, funcCalled = _handleFunctionCall(module, func_code,
+                                                  c, stack, oparg, lastLineNum)
                     # funcCalled can be empty in some cases (eg, using a map())
                     if funcCalled :
                         functionsCalled[funcCalled.getName(module)] = funcCalled
