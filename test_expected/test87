@@ -13,3 +13,11 @@ test_input/test87.py:16: Comparisons with TRUE are not necessary and may not wor
 test_input/test87.py:16: Comparisons with True are not necessary and may not work as expected
 test_input/test87.py:16: Comparisons with true are not necessary and may not work as expected
 test_input/test87.py:20: Comparisons with false are not necessary and may not work as expected
+test_input/test87.py:22: Using is false, may not always work
+test_input/test87.py:24: Using is True, may not always work
+test_input/test87.py:26: Using is 53343, may not always work
+test_input/test87.py:28: Using is 10000000.0, may not always work
+test_input/test87.py:30: Using is not false, may not always work
+test_input/test87.py:32: Using is not True, may not always work
+test_input/test87.py:34: Using is not 53343, may not always work
+test_input/test87.py:36: Using is not 10000000.0, may not always work
