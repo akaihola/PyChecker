@@ -12,6 +12,32 @@ import string
 
 _DEFAULT_BLACK_LIST = [ "Tkinter", ]
 
+_OPTIONS = [ 
+ ('s', 0, 'doc', None, 'turn off all warnings for no doc strings'),
+ ('m', 0, 'moduledoc', 'noDocModule', 'no module doc strings'),
+ ('c', 0, 'classdoc', 'noDocClass', 'no class doc strings'),
+ ('f', 0, 'funcdoc', 'noDocFunc', 'no function/method doc strings'),
+ None,
+ ('i', 0, 'import', 'importUsed', 'unused imports'),
+ ('l', 0, 'local', 'localVariablesUsed', 'unused local variables, except tuples'),
+ ('t', 0, 'tuple', 'unusedLocalTuple', 'all unused local variables, including tuples'),
+ ('v', 0, 'var', 'allVariablesUsed', 'all unused module variables'),
+ ('p', 0, 'privatevar', 'privateVariableUsed', 'unused private module variables'),
+ ('n', 0, 'namedargs', 'namedArgs', 'functions called with named arguments (like keywords)'),
+ ('a', 0, 'initattr', 'onlyCheckInitForMembers', 'Attributes (members) must be defined in __init__()'),
+ ('I', 0, 'initsubclass', 'initDefinedInSubclass', 'Subclass.__init__() not defined'),
+ ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
+ None,
+ ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules'),
+ ('L', 1, 'maxlines', 'maxLines', 'maximum lines in a function'),
+ ('B', 1, 'maxbranches', 'maxBranches', 'maximum branches in a function'),
+ ('R', 1, 'maxreturns', 'maxReturns', 'maximum returns in a function'),
+ None,
+ ('P', 0, 'printparse', 'printParse', 'print internal checker parse structures'),
+ ('d', 0, 'debug', 'debug', 'turn on debugging for checker'),
+ None,
+]
+
 
 class Config :
     "Hold configuration information"
@@ -43,7 +69,6 @@ class Config :
 
 
 def printArg(shortArg, longArg, description, defaultValue, useValue) :
-    args = "-%s, --%s" % (shortArg, longArg)
     defStr = ''
     if defaultValue != None :
         if not useValue :
@@ -52,35 +77,8 @@ def printArg(shortArg, longArg, description, defaultValue, useValue) :
             else :
                 defaultValue = 'off'
         defStr = ' [%s]' % defaultValue
+    args = "-%s, --%s" % (shortArg, longArg)
     print "  %-18s %s%s" % (args, description, defStr)
-
-
-_OPTIONS = [ 
- ('s', 0, 'doc', None, 'turn off all warnings for no doc strings'),
- ('m', 0, 'moduledoc', 'noDocModule', 'no module doc strings'),
- ('c', 0, 'classdoc', 'noDocClass', 'no class doc strings'),
- ('f', 0, 'funcdoc', 'noDocFunc', 'no function/method doc strings'),
- None,
- ('i', 0, 'import', 'importUsed', 'unused imports'),
- ('l', 0, 'local', 'localVariablesUsed', 'unused local variables, except tuples'),
- ('t', 0, 'tuple', 'unusedLocalTuple', 'all unused local variables, including tuples'),
- ('v', 0, 'var', 'allVariablesUsed', 'all unused module variables'),
- ('p', 0, 'privatevar', 'privateVariableUsed', 'unused private module variables'),
- ('n', 0, 'namedargs', 'namedArgs', 'functions called with named arguments (like keywords)'),
- ('a', 0, 'initattr', 'onlyCheckInitForMembers', 'Attributes (members) must be defined in __init__()'),
- ('I', 0, 'initsubclass', 'initDefinedInSubclass', 'Subclass.__init__() not defined'),
- ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
- None,
- ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules'),
- ('L', 1, 'maxlines', 'maxLines', 'maximum lines in a function'),
- ('B', 1, 'maxbranches', 'maxBranches', 'maximum branches in a function'),
- ('R', 1, 'maxreturns', 'maxReturns', 'maximum returns in a function'),
- None,
- ('P', 0, 'printparse', 'printParse', 'print internal checker parse structures'),
- ('d', 0, 'debug', 'debug', 'turn on debugging for checker'),
- None,
-]
-
 
 def usage() :
     print "Usage for: checker.py [options] PACKAGE ...\n"
