@@ -6,7 +6,6 @@ from pychecker2.util import BaseVisitor, parents, type_filter
 
 from compiler.misc import mangle
 from compiler import ast, walk
-import inspect
 
 _ignorable = {}
 for i in ['repr', 'dict', 'class', 'doc', 'str']:
