@@ -1,4 +1,4 @@
-"doc"
+"doesn't work in 1.5.2"
 
 import string
 import string as nn

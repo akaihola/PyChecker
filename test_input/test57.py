@@ -1,4 +1,4 @@
-'d'
+"doesn't work in 1.5.2"
 
 def ttt(c):
   pass
