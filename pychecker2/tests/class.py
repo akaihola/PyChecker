@@ -118,9 +118,17 @@ class Node2(compiler.ast.Slice):
 
 class BadSpecial:
 
-    def __del__(self, x):
-        return x
-
-    def __cmp__(self):
+    def __del__(self):
         return 0
 
+    def __cmp__(self, x):
+        return x
+
+    def __len__(self):
+        return 0
+
+    def __le__(self):
+        return 0
+
+    def __gt__(self, a, b):
+        return 0

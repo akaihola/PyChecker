@@ -173,7 +173,7 @@ special = {
 def check_special(scope):
     try:
         if special[scope.name] != len(scope.node.argnames) or \
-           scope.node.varargs or not scope.node.kwargs:
+           scope.node.varargs or scope.node.kwargs:
             return special[scope.name]
     except KeyError:
         return None
