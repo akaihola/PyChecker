@@ -18,16 +18,17 @@ import warn
 import OP
 import Config
 
+# Globals for storing a dictionary of info about modules and classes
+_allModules = {}
+_cfg = None
+
+# Constants
 _DEFAULT_MODULE_TOKENS = [ '__builtins__', '__doc__', '__file__', '__name__', ]
 _DEFAULT_CLASS_TOKENS = [ '__doc__', '__name__', '__module__', ]
 
 _ARGS_ARGS_FLAG = 4
 _KW_ARGS_FLAG = 8
 
-
-# Globals for storing a dictionary of info about modules and classes
-_allModules = {}
-_cfg = None
 
 def _flattenList(list) :
     "Returns a list which contains no lists"
@@ -40,7 +41,7 @@ def _flattenList(list) :
     
     return new_list
 
-def getModules(arg_list) :
+def _getModules(arg_list) :
     "Returns a list of module names that can be imported"
 
     new_arguments = []
@@ -67,7 +68,7 @@ def getModules(arg_list) :
     return _flattenList(modules)
 
 
-def findModule(name, path = sys.path) :
+def _findModule(name, path = sys.path) :
     """Returns the result of an imp.find_module(), ie, (file, filename, smt)
        name can be a module or a package name.  It is *not* a filename."""
 
@@ -281,14 +282,17 @@ class Module :
 
     def load(self) :
         try :
-	    file, filename, smt = findModule(self.moduleName)
+	    file, filename, smt = _findModule(self.moduleName)
             if file != None :
-                self.module = imp.load_module(self.moduleName, file, filename, smt)
+                module = imp.load_module(self.moduleName, file, filename, smt)
                 file.close()
+                return self.initModule(module)
         except (ImportError, NameError, SyntaxError), detail:
             # not sure which errors we should check here, maybe all?
             return importError(self.moduleName, detail)
 
+    def initModule(self, module) :
+        self.module = module
         self.attributes = dir(self.module)
         for tokenName in _filterDir(self.module, _DEFAULT_MODULE_TOKENS) :
             token = getattr(self.module, tokenName)
@@ -316,6 +320,22 @@ def _getAllModules() :
     return modules
 
 
+def _printWarnings(warnings) :
+    warnings.sort()
+    lastWarning = None
+    for warning in warnings :
+        if lastWarning != None :
+            # ignore duplicate warnings
+            if cmp(lastWarning, warning) == 0 :
+                continue
+            # print blank line between files
+            if lastWarning.file != warning.file :
+                print ""
+
+        lastWarning = warning
+        warning.output()
+
+
 def main(argv) :
     if not '.' in sys.path :
         sys.path.append('.')
@@ -323,7 +343,7 @@ def main(argv) :
     global _cfg
     _cfg, files = Config.setupFromArgs(argv[1:])
     importWarnings = []
-    for moduleName in getModules(files) :
+    for moduleName in _getModules(files) :
         print "Processing %s..." % moduleName
         module = Module(moduleName)
         if not module.load() :
@@ -337,19 +357,7 @@ def main(argv) :
     print "\nWarnings...\n"
     warnings = warn.find(_getAllModules(), _cfg)
     if warnings or importWarnings :
-        warnings.sort()
-        lastWarning = None
-        for warning in importWarnings + warnings :
-            if lastWarning != None :
-                # ignore duplicate warnings
-                if cmp(lastWarning, warning) == 0 :
-                    continue
-                # print blank line between files
-                if lastWarning.file != warning.file :
-                    print ""
-
-            lastWarning = warning
-            warning.output()
+        _printWarnings(importWarnings + warnings)
         return 1
     else :
         print "None"
