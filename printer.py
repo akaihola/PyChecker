@@ -14,13 +14,13 @@ def printFunction(spaces, prefix, func, className = None) :
     for i in range(0, argcount) :
         arg = func.func_code.co_varnames[i]
         if i >= defaultArgStart :
-            arg += " = %s" % func.func_defaults[i - defaultArgStart]
-        params += "%s, " % arg
+            arg = arg + " = %s" % func.func_defaults[i - defaultArgStart]
+        params = params + "%s, " % arg
     params = "(%s)" % params[:-2]
     if className == None :
         className = ""
     else :
-        className += "."
+        className = className + "."
     print "%s%s%s%s%s" % (spaces, prefix, className, func.func_name, params)
 
 

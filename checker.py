@@ -11,6 +11,7 @@ _printParse = 0    # set to 1 if you want to see parse prints, 0 for no prints
 _onlyCheckInitForMembers = 0   # cfg param
 
 
+import string
 import types
 import sys
 import imp
@@ -33,9 +34,9 @@ def getModules(list) :
 
     modules = []
     for file in list :
-        if file.endswith('.py') :
+        if file[-3:] == '.py' :
             file = file[:-3]
-        modules.append((file, file.replace(os.sep, '.')))
+        modules.append((file, string.replace(file, os.sep, '.')))
     return modules
 
 
@@ -54,10 +55,10 @@ class Function :
         self.function = function
         self.maxArgs = function.func_code.co_argcount
         if isMethod :
-            self.maxArgs -= 1
+            self.maxArgs = self.maxArgs - 1
         self.minArgs = self.maxArgs
         if function.func_defaults != None :
-            self.minArgs -= len(function.func_defaults)
+            self.minArgs = self.minArgs - len(function.func_defaults)
         # if function uses *args, there is no max # args
         if function.func_code.co_flags & _ARGS_ARGS_FLAG != 0 :
             self.maxArgs = None
@@ -95,11 +96,11 @@ class Class :
         if c == None :
             c = self.classObject
         for base in c.__bases__ :
-            baseClasses += [ base ] + self.allBaseClasses(base)
+            baseClasses = baseClasses + [ base ] + self.allBaseClasses(base)
         return baseClasses
 
     def __getMethodName(self, func_name, className = None) :
-        if func_name.startswith('__') and not func_name.endswith('__') :
+        if func_name[0:2] == '__' and func_name[-2:] != '__' :
             if className == None :
                 className = self.name
             if className[0] != '_' :
@@ -207,8 +208,10 @@ class Module :
 
     def load(self) :
         try :
+	    # smt = (suffix, mode, type)
+	    file, filename, smt = imp.find_module(self.filename)
             self.module = imp.load_module(self.moduleName,
-                                          *imp.find_module(self.filename))
+                                          file, filename, smt)
         except :
             print "  Problem importing module %s" % self.moduleName
             return

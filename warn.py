@@ -7,6 +7,7 @@ Print out warnings from Python source files.
 """
 
 import imp
+import string
 import types
 import OP
 
@@ -115,7 +116,7 @@ def _checkFunctionArgs(func, argCount, kwArgCount, lastLineNum) :
 def _addWarning(warningList, warning) :
     if warning != None :
         if type(warning) == types.ListType :
-            warningList += warning
+            warningList = warningList + warning
         else :
             warningList.append(warning)
 
@@ -256,14 +257,14 @@ def _checkFunction(module, func, c = None) :
 
             _addWarning(warnings, warn)
 
-        elif OP.name[op].startswith('BINARY_') :
+        elif OP.name[op][0:len('BINARY_')] == 'BINARY_' :
             debug("  binary op", op)
             del stack[-1]
         elif OP.POP_TOP(op) :
             debug("  pop top")
             if len(stack) > 0 :
                 del stack[-1]
-        elif OP.name[op].startswith('SLICE+') :
+        elif OP.name[op][0:len('SLICE+')] == 'SLICE+' :
             sliceCount = int(OP.name[op][6:])
             if sliceCount > 0 :
                 popArgs = 1
@@ -284,7 +285,7 @@ def _getUnused(moduleName, globalRefs, dict, msg, filterPrefix = None) :
 
     warnings = []
     for ref in dict.keys() :
-        check = not filterPrefix or ref.startswith(filterPrefix)
+        check = not filterPrefix or ref[0:len(filterPrefix)] == filterPrefix
         if check and globalRefs.get(ref) == None :
             # FIXME: get real line #
             warnings.append(Warning(moduleName, 1, msg % ref))
@@ -352,14 +353,15 @@ def find(moduleList, cfg = None) :
 
             _addWarning(warnings, _checkNoSelfArg(func))
             newWarnings, newGlobalRefs, funcs = _checkFunction(module, func)
-            warnings += newWarnings
+            warnings = warnings + newWarnings
             globalRefs.update(newGlobalRefs)
 
         for c in module.classes.values() :
             for base in c.allBaseClasses() :
                 baseModule = str(base)
                 if '.' in baseModule :
-                    globalRefs[baseModule.split('.')[0]] = baseModule
+		    s = string.split(baseModule, '.')
+                    globalRefs[s[0]] = baseModule
 
             func_code = None
             for method in c.methods.values() :
@@ -380,14 +382,14 @@ def find(moduleList, cfg = None) :
 
                 if func_code.co_name == '__init__' :
                     if '__init__' in dir(c.classObject) :
-                        warnings += _checkBaseClassInit(moduleFilename, c,
+                        warnings = warnings + _checkBaseClassInit(moduleFilename, c,
                                                    func_code, functionsCalled)
                     else :
                         warn = Warning(moduleFilename, c.getFirstLine(),
                                        _NO_INIT_IN_SUBCLASS % c.name)
                         warnings.append(warn)
 
-                warnings += newWarnings
+                warnings = warnings + newWarnings
                 globalRefs.update(newGlobalRefs)
 
             if cfg.noDocClass and c.classObject.__doc__ == None :
@@ -407,10 +409,10 @@ def find(moduleList, cfg = None) :
                 prefix = "_"
             for ignoreVar in [ '__version__', '__all__', ] :
                 globalRefs[ignoreVar] = ignoreVar
-            warnings += _getUnused(moduleFilename, globalRefs,
+            warnings = warnings + _getUnused(moduleFilename, globalRefs,
                                    module.variables, _VAR_NOT_USED, prefix)
         if cfg.importUsed :
-            warnings += _getUnused(moduleFilename, globalRefs,
+            warnings = warnings + _getUnused(moduleFilename, globalRefs,
                                    module.modules, _IMPORT_NOT_USED)
 
     blacklist = []

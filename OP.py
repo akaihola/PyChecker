@@ -27,7 +27,13 @@ def COMPARE_OP(op):            return dis.opname[op] == 'COMPARE_OP'
 def POP_TOP(op):               return dis.opname[op] == 'POP_TOP'
 
 HAVE_ARGUMENT = dis.HAVE_ARGUMENT
-EXTENDED_ARG = dis.EXTENDED_ARG
+
+try:
+	# EXTENDED_ARG is a Python2.0 feature
+	EXTENDED_ARG = dis.EXTENDED_ARG
+except:
+	EXTENDED_ARG = None
+
 hasname = dis.hasname
 haslocal = dis.haslocal
 hasconst = dis.hasconst
@@ -47,13 +53,13 @@ def getOperand(op, func_code, oparg) :
 
 def getInfo(code, index, extended_arg) :
     op = ord(code[index])
-    index += 1
+    index = index + 1
     if op >= HAVE_ARGUMENT :
         oparg = ord(code[index]) + ord(code[index+1])*256 + extended_arg
-        index += 2
+        index = index + 2
         extended_arg = 0
         if op == EXTENDED_ARG :
-            extended_arg = oparg * 65536L
+        	extended_arg = oparg * 65536L
     else :
         oparg, extended_arg = 0, 0
     return op, oparg, index, extended_arg
