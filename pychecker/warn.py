@@ -36,6 +36,9 @@ _NO_LOCAL_VAR = "No local variable (%s)"
 _VAR_USED_BEFORE_SET = "Variable (%s) used before being set"
 
 _MODULE_IMPORTED_AGAIN = "Module (%s) re-imported"
+_MODULE_MEMBER_IMPORTED_AGAIN = "Module member (%s) re-imported"
+_MODULE_MEMBER_ALSO_STAR_IMPORTED = "Module member (%s) re-imported with *"
+_MIX_IMPORT_AND_FROM_IMPORT = "Using import and from ... import for (%s)"
 
 _NO_METHOD_ARGS = "No method arguments, should have %s as argument"
 _SELF_NOT_FIRST_ARG = "%s is not first method argument"
@@ -198,6 +201,8 @@ def _getFunction(module, stackValue) :
             module = refModule
         else :
             c = module.classes.get(ref, None)
+            if c is None :
+                identifier = None
 
     func = module.functions.get(identifier, None)
     if func is None :
@@ -382,29 +387,60 @@ def _checkReturnWarnings(returnValues, func_code) :
 
 
 def _handleComparison(stack, operand) :
-    si = len(stack)
-    if si >= 2 :
-        si = 2
-        compareValues = stack[-si:]
-    elif si == 1 :
-        compareValues = [ stack[-1], None ]
-    else :
-        compareValues = [ None, None ]
+    si = min(len(stack), 2)
+    compareValues = stack[-si:]
+    for _ in range(si, 2) :
+        compareValues.append(None)
     stack[-si:] = [ Stack.makeComparison(compareValues, operand) ]
 
 
 def _handleImport(operand, module, func_code, lastLineNum, main, fromName) :
+    # FIXME: this function should be refactored/cleaned up
+    key = operand
+    tmpOperand = tmpFromName = operand
+    if fromName is not None :
+        tmpOperand = tmpFromName = fromName
+        key = (fromName, operand)
+    modline1 = module.moduleLineNums.get(tmpOperand, None)
+    modline2 = module.moduleLineNums.get((tmpFromName, '*'), None)
+    key2 = (tmpFromName,)
+    if fromName is not None and operand != '*' :
+        key2 = (tmpFromName, operand)
+    modline3 = module.moduleLineNums.get(key2, None)
+
     warn = None
-    filename = func_code.co_filename
-    if not module.moduleLineNums.has_key(operand) :
-        if main :
-            module.moduleLineNums[operand] = (filename, lastLineNum)
-    else :
-        modline = module.moduleLineNums.get(operand)
-        if modline and (modline[0] != filename or modline[1] != lastLineNum) :
-            warn = Warning(func_code, lastLineNum,
-                           _MODULE_IMPORTED_AGAIN % operand)
+    fileline = (func_code.co_filename, lastLineNum)
+    if modline1 is not None or modline2 is not None or modline3 is not None :
+        err = None
+
+        if fromName is None :
+            if modline1 is not None :
+                err = _MODULE_IMPORTED_AGAIN % operand
+            else :
+                err = _MIX_IMPORT_AND_FROM_IMPORT % tmpFromName
+        else :
+            if modline3 is not None and operand != '*' :
+                err = 'from %s import %s' % (tmpFromName, operand)
+                err = _MODULE_MEMBER_IMPORTED_AGAIN % err
+            elif modline1 is not None :
+                err = _MIX_IMPORT_AND_FROM_IMPORT % tmpFromName
+            else :
+                err = _MODULE_MEMBER_ALSO_STAR_IMPORTED % fromName
+
+        if err :
+            warn = Warning(func_code, lastLineNum, err)
+
+    if main :
+        module.moduleLineNums[key] = fileline
+        if fromName is not None :
+            module.moduleLineNums[(fromName,)] = fileline
+
     return warn
+
+def _handleImportFrom(stack, operand, module, func_code, lastLineNum, main) :
+    fromName = stack[-1].data
+    stack.append(Stack.Item(operand, type(operand)))
+    return _handleImport(operand, module, func_code, lastLineNum, main, fromName)
 
 
 # http://www.python.org/doc/current/lib/typesseq-strings.html
@@ -576,15 +612,13 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                         topOfStack.addAttribute(operand)
                 elif OP.IMPORT_NAME(op) :
                     stack.append(Stack.Item(operand, type(operand)))
-                    warn = _handleImport(operand, module, func_code,
-                                         lastLineNum, main, None)
+                    if not OP.IMPORT_FROM(ord(code[i])) and \
+                       not OP.IMPORT_STAR(ord(code[i])) :
+                        warn = _handleImport(operand, module, func_code,
+                                             lastLineNum, main, None)
                 elif OP.IMPORT_FROM(op) :
-                    fromName = stack[-1].data
-                    if module.moduleLineNums.has_key(fromName) :
-                        del module.moduleLineNums[fromName]
-                    stack.append(Stack.Item(operand, type(operand)))
-                    warn = _handleImport(operand, module, func_code,
-                                         lastLineNum, main, fromName)
+                    warn = _handleImportFrom(stack, operand, module, func_code,
+                                             lastLineNum, main)
                 elif OP.UNPACK_SEQUENCE(op) :
                     unpackCount = oparg
                 elif OP.FOR_LOOP(op) :
@@ -646,6 +680,10 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
                                                   lastLineNum, unusedLocals)
                         _addWarning(warnings, warn)
                     del stack[-1]
+                elif OP.IMPORT_STAR(op) :
+                    warn = _handleImportFrom(stack, '*', module, func_code,
+                                             lastLineNum, main)
+                    _addWarning(warnings, warn)
                 elif OP.POP_TOP(op) :
                     if len(stack) > 0 :
                         del stack[-1]
