@@ -329,8 +329,9 @@ def _checkReturnWarnings(returnValues, func_code) :
     warnings = []
     line, lastReturn = returnValues[-1]
 
+    # FIXME: disabled until it works properly
     # if the last return is implicit, check if there are non None returns
-    if lastReturn.data == None :
+    if 0 and lastReturn.data == None :
         returnNoneCount = 0
         for line, rv in returnValues :
             if rv.isNone() :
@@ -613,9 +614,8 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
 
     # ignore last return of None, it's always there
     # (when last 2 return lines are the same)
-    if len(returnValues) >= 2 :
-        if returnValues[-1][0] == returnValues[-2][0] and \
-           not branches.has_key(lastReturnLabel-1) :
+    if len(returnValues) >= 2 and returnValues[-1][0] == returnValues[-2][0] :
+        if not branches.has_key(lastReturnLabel-1) :
             if len(branches) <= 1 or not branches.has_key(lastReturnLabel) :
                 del returnValues[-1]
 

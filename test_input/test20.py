@@ -1,4 +1,4 @@
-'doc'
+'this test will fail unless -r/--returnvalues is used'
 
 def func0(x):
     'should not be a warning'

@@ -37,6 +37,8 @@ _OPTIONS = [
  ('A', 0, 'callattr', 'callingAttribute', 'Calling data members as functions'),
  ('S', 1, 'self', 'methodArgName', 'First argument to methods'),
  None,
+ ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
+ None,
  ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules\n\t\t\t'),
  ('V', 1, 'varlist', 'variablesToIgnore', 'ignore variables not used from the list\n\t\t\t'),
  ('L', 1, 'maxlines', 'maxLines', 'maximum lines in a function'),
@@ -45,8 +47,6 @@ _OPTIONS = [
  None,
  ('P', 0, 'printparse', 'printParse', 'print internal checker parse structures'),
  ('d', 0, 'debug', 'debug', 'turn on debugging for checker'),
- None,
- ('r', 0, 'returnvalues', 'checkReturnValues', 'EXPERIMENTAL - check consistent return values'),
  None,
 ]
 
