@@ -368,7 +368,10 @@ def importError(moduleName):
         e = exc_value
         msg = '%s (%s, line %d)' % (e.msg, e.filename, e.lineno)
         line = _getLineInFile(moduleName, e.lineno)
-        exc_value = '%s\n    %s\n   %s^' % (msg, line, ' ' * e.offset)
+        offset = e.offset
+        if type(offset) is not types.IntType:
+            offset = 0
+        exc_value = '%s\n    %s\n   %s^' % (msg, line, ' ' * offset)
     elif exc_type is not ImportError:
         sys.stderr.write("  Caught exception importing module %s:\n" %
                          moduleName)
