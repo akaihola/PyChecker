@@ -682,7 +682,9 @@ class Code :
         if newType not in valueList :
             valueList.append(newType)
         self.typeMap[name] = valueList
-            
+
+    # FIXME: addReturn/addRaise should be parallel in structure
+    #        why does return need nextOpInfo()[2] and raise need index
     def addReturn(self) :
         if len(self.stack) > 0 :
             value = (self.lastLineNum, self.stack[-1], self.nextOpInfo()[2])
