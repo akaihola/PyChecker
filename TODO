@@ -1,5 +1,6 @@
-Goals for next minor release (0.8.9):
--------------------------------------
+Goals for next minor release:
+-----------------------------
+* Check for return from finally (disables exception, default off?)
 * Check that classes with __slots__ don't get/set any other attributes
 * Handle sys.exit() as non-returnable condition
 * Warn about non-escaping backslashes???
