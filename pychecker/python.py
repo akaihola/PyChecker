@@ -248,7 +248,7 @@ def _setupBuiltinAttrs() :
             BUILTIN_ATTRS[types.FrameType] = dir(tb.tb_frame)
         except:
             pass
-        tb = None; del tb
+        tb = None
 
 BUILTIN_ATTRS = { types.StringType : dir(''),
                   types.TypeType : dir(type(0)),
