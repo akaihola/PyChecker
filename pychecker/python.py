@@ -99,7 +99,7 @@ if utils.pythonVersion() >= utils.PYTHON_2_2 :
 if globals().has_key('zip') :
     GLOBAL_FUNC_INFO['zip'] = (types.ListType, 1, None)
 
-if hasattr(types, 'enumerate'):
+if globals().has_key('enumerate'):
     GLOBAL_FUNC_INFO['enumerate'] = (types.TupleType, 1, 1, ['sequence'])
 
 _STRING_METHODS = { 'capitalize': (types.StringType, 0, 0),
