@@ -6,6 +6,7 @@ Version 0.5.1	- xx June 2001
   * Add check for right # of args to object construction
   * Add check for right # of args to function calls in other modules
   * Check for returning a value from __init__
+  * Fix UNABLE TO IMPORT errors for files that don't end with a newline
   * Support for checking consistent return values - not complete and probably
   	will produce false positives, although I don't have any test cases
 
