@@ -72,7 +72,7 @@ CODE_UNREACHABLE = "Code appears to be unreachable"
 CONSTANT_CONDITION = "Using a conditional statement with a constant value (%s)"
 STRING_ITERATION = "Iterating over a string (%s)"
 DONT_RETURN_NONE = "%s should not return None, raise an exception if not found"
-
+IS_LITERAL = "Using is%s %s, may not always work"
 INVALID_FORMAT = "Invalid format string, problem starts near: '%s'"
 INVALID_FORMAT_COUNT = "Format string argument count (%d) doesn't match arguments (%d)"
 TOO_MANY_STARS_IN_FORMAT = "Too many *s in format flags"

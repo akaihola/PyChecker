@@ -1,4 +1,6 @@
 Version 0.8.12   - xx October 2002
+  * Add --isliteral option to warn when using is/is not against literal
+    (e.g., XXX is 5    YYY is not 'abcdef', etc)
   * Add --modulo1 option to warn when using (expr % 1),
     which is constant when expr is an integer or string
   * Add -4/--noeffect option to disable warnings for 'Statement has no effect'

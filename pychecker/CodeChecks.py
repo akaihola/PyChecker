@@ -1221,6 +1221,18 @@ def _COMPARE_OP(oparg, operand, codeSource, code) :
         _handleExceptionChecks(codeSource, code, compareValues)
     elif oparg < OP.IS_COMPARISON:
         _checkBoolean(code, compareValues)
+    elif cfg().isLiteral:
+        # X is Y   or   X is not Y   comparison
+        second_arg = code.stack[-1].data[2]
+        if second_arg.const:
+            data = second_arg.data
+            if second_arg.type is types.DictType:
+                data = {}
+            not_str = ''
+            if oparg != OP.IS_COMPARISON:
+                not_str = ' not'
+            code.addWarning(msgs.IS_LITERAL % (not_str, data))
+
     _checkNoEffect(code)
 
 def _IMPORT_NAME(oparg, operand, codeSource, code) :

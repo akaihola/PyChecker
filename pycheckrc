@@ -85,6 +85,13 @@ badExceptions = 1
 # bool: warn when statements appear to have no effect
 noEffect = 1
 
+# bool: warn when using (expr % 1), it has no effect on integers and strings
+modulo1 = 1
+
+# bool: warn if using (expr is const-literal), 
+# doesn't always work on integers and strings
+isLiteral = 1
+
 # bool: warn when using a deprecated module or function
 deprecated = 1
 

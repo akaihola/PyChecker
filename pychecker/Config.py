@@ -70,6 +70,7 @@ _OPTIONS = (
  ( '', 0, 'badexcept', 'badExceptions', 'check if raising or catching bad exceptions'),
  ('4', 0, 'noeffect', 'noEffect', 'check if statement appears to have no effect'),
  ('',  0, 'modulo1', 'modulo1', 'check if using (expr % 1), it has no effect on integers and strings'),
+ ('',  0, 'isliteral', 'isLiteral', "check if using (expr is const-literal), doesn't always work on integers and strings"),
      ]),
     ('Possible Errors', [
  ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
@@ -231,6 +232,7 @@ class Config :
         self.noEffect = 1
         self.deprecated = 1
         self.modulo1 = 1
+        self.isLiteral = 1
 
         self.unusedNames = _DEFAULT_UNUSED_LIST
         self.variablesToIgnore = _DEFAULT_VARIABLE_IGNORE_LIST
