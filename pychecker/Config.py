@@ -24,6 +24,7 @@ _DEFAULT_UNUSED_LIST = [ '_', 'empty', 'unused', 'dummy', ]
 _OPTIONS = (
     ('Major Options', [
  ('e', 0, 'errors', None, 'turn off all warnings which are not likely errors'),
+ ( '', 0, 'complexity', None, 'turn off all warnings which are related to complexity'),
  ('s', 0, 'doc', None, 'turn off all warnings for no doc strings'),
  ('m', 0, 'moduledoc', 'noDocModule', 'no module doc strings'),
  ('c', 0, 'classdoc', 'noDocClass', 'no class doc strings'),
@@ -199,7 +200,7 @@ class Config :
         self.abstractClasses = 1
         self.callingAttribute = 0
         self.classAttrExists = 1
-        self.namedArgs = 1
+        self.namedArgs = 0
         self.returnNoneFromInit = 1
         self.unreachableCode = 0
         self.constantConditions = 1
@@ -285,6 +286,8 @@ class Config :
                 self.noDocFunc = 0
                 if longArg == 'errors' :
                     self.__dict__.update(errors_only())
+                elif longArg == 'complexity' :
+                    self.__dict__.update(errors_only(2))
             elif value  :
                 newValue = value
                 memberType = type(getattr(self, member))
@@ -307,11 +310,11 @@ class Config :
 
         return files
 
-def errors_only() :
+def errors_only(complexity = 0) :
     "Return {} of Config with all warnings turned off"
     dict = Config().__dict__
     for k, v in dict.items() :
-        if type(v) == type(0) :
+        if type(v) == type(0) and v >= complexity :
             dict[k] = 0
     return dict
 
