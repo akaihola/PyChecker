@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2001, MetaSlash Inc.  All rights reserved.
+# Copyright (c) 2001-2002, MetaSlash Inc.  All rights reserved.
 
 """
 Configuration information for checker.
@@ -104,7 +104,8 @@ def init() :
     for _, group in _OPTIONS :
         for opt in group:
             shortArg, useValue, longArg, member, description = opt
-            options['-' + shortArg] = opt
+            if shortArg != '' :
+                options['-' + shortArg] = opt
             options['--no-' + longArg] = options['--' + longArg] = opt
 
     return shortArgs, longArgs, options
