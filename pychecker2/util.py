@@ -1,3 +1,4 @@
+import types
 
 class BaseVisitor:
 
@@ -31,3 +32,14 @@ class ScopeVisitor:
             pass
         for c in node.getChildNodes():
             self.visit(c, *scopes)
+
+# http://mail.python.org/pipermail/python-list/2000-December/023319.html
+# Fredric Lundh
+def flatten(seq):
+    res = []
+    for item in seq:
+        if type(item) in (types.TupleType, types.ListType):
+            res.extend(flatten(item))
+        else:
+            res.append(item)
+    return res
