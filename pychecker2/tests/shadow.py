@@ -28,3 +28,12 @@ class D:
     def h(self, arg):
         CONSTANT = D.CONSTANT
         arg.append(CONSTANT)
+
+def xyzzy(a, max=max, *args, **kw):
+    print a, args, kw
+    return max
+
+if __name__ == '__main__':
+    a = 2
+if '__main__' == __name__:
+    a = 2
