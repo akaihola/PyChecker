@@ -23,8 +23,8 @@ _NO_MODULE_DOC = "No module doc string"
 _NO_CLASS_DOC = "No doc string for class %s"
 _NO_FUNC_DOC = "No doc string for function %s"
 
-_VAR_NOT_USED = "Variable (%s) not used"
-_IMPORT_NOT_USED = "Imported module (%s) not used"
+_VAR_NOT_USED = "Variable (%s) not used in any function"
+_IMPORT_NOT_USED = "Imported module (%s) not used in any function"
 
 _NO_METHOD_ARGS = "No method arguments, should have self as argument"
 _SELF_NOT_FIRST_ARG = "self is not first method argument"
@@ -328,7 +328,7 @@ def _checkBaseClassInit(moduleName, moduleFilename, c, func_code, functionsCalle
     for base in c.classObject.__bases__ :
         if hasattr(base, '__init__') :
             # create full name, make sure file is in name
-            modules = str(base).split('.')[moduleDepth:]
+            modules = string.split(str(base), '.')[moduleDepth:]
             # handle import ...
             initName1 = moduleName + '.' + string.join(modules, '.') + '.__init__'
             # handle from ... inport ...
@@ -433,8 +433,9 @@ def find(moduleList, cfg) :
     for badBoy in cfg.blacklist :
 	try :
             file, path, flags = imp.find_module(badBoy)
-            file.close()
-            blacklist.append(path)
+            if file :
+                file.close()
+                blacklist.append(path)
 	except ImportError :
 	    pass
 
