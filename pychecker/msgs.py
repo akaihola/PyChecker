@@ -107,7 +107,7 @@ WRONG_UNPACK_FUNCTION = "Unpacking function (%s) which returns %d values into %d
 UNPACK_NON_SEQUENCE = "Unpacking a non-sequence (%s) of type %s"
 
 USING_PROPERTIES_IN_CLASSIC_CLASS = "Using property (%s) in classic class %s may not work"
-USING_SLOTS_IN_CLASSIC_CLASS = "Using __slots__ in classic class %s is not used by Python"
+USING_SLOTS_IN_CLASSIC_CLASS = "Using __slots__ in classic class %s has no effect, consider deriving from object"
 EMPTY_SLOTS = "__slots__ are empty in %s"
 
 USES_EXEC = "Using the exec statement"
