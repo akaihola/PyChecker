@@ -1,5 +1,9 @@
 Version 0.9.0   - xx March 2002
+  * Fix crash with checking properties or deriving from objects (2.2 only)
   * Fix crash with nested scopes and lambdas
+  * Fix spurious warnings for constant conditionals when using ('%s' % value)
+  * Fix spurious warnings for unused identifiers caused by from XXX import *
+  * Add more information when module cannot be imported
   * Fix spurious warnings for implicit returns when using while 1:
   * Fix spurious warnings for implicit returns when using try/finally:
   * Fix spurious warnings for modifying default arguments 
