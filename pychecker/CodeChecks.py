@@ -212,11 +212,20 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
             if m != None :
                 _checkFunctionArgs(code, m, 1, argCount, kwArgs, check_arg_count)
         except KeyError :
-            staticAttr = getattr(codeSource.classObject.classObject,
-                                 methodName, None)
-            if staticAttr is not None :
-                funcName = str(staticAttr.im_class) + '.' + staticAttr.__name__
-            elif cfg().callingAttribute :
+            sattr = None
+            cobj = codeSource.classObject
+            # FIXME: this is an awful hack, there's got to be a better way
+            #   im_class meaning changed in 2.2, not sure how best to do this
+            if utils.pythonVersion() >= utils.PYTHON_2_2 :
+                sattr = cobj.statics.get(methodName)
+                if sattr is not None :
+                    funcName = sattr.getName(cobj)
+            else :
+                sattr = getattr(cobj.classObject, methodName, None)
+                if sattr is not None :
+                    funcName = str(sattr.im_class) + '.' + sattr.__name__
+
+            if sattr is None and cfg().callingAttribute :
                 code.addWarning(msgs.INVALID_METHOD % methodName)
 
     elif loadValue.type in (Stack.TYPE_ATTRIBUTE, Stack.TYPE_GLOBAL) and \
@@ -726,6 +735,9 @@ def _STORE_NAME(oparg, operand, codeSource, code) :
         if not codeSource.in_class :
             _checkGlobal(operand, module, codeSource.func, code,
                          msgs.GLOBAL_DEFINED_NOT_DECLARED, codeSource.main)
+        else :
+            if code.stack :
+                codeSource.classObject.statics[operand] = code.stack[-1]
 
         var = module.variables.get(operand)
         if var is not None and code.stack and code.stack[-1].const :
