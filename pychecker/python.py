@@ -170,7 +170,7 @@ def _setupBuiltinMethods() :
     try :
         BUILTIN_METHODS[types.ComplexType] = \
                                   { 'conjugate': (types.ComplexType, 0, 0), }
-    except NameError :
+    except AttributeError :
         pass
 
     if len(dir('')) > 0 :
