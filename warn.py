@@ -294,16 +294,19 @@ def _getUnused(moduleName, globalRefs, dict, msg, filterPrefix = None) :
     return warnings
 
 
-def _checkBaseClassInit(moduleName, c, func_code, functionsCalled) :
+def _checkBaseClassInit(moduleName, moduleFilename, c, func_code, functionsCalled) :
     """Return a list of warnings that occur
        for each base class whose __init__() is not called"""
     
     warnings = []
     for base in c.classObject.__bases__ :
         if hasattr(base, '__init__') :
-            initName = str(base) + '.__init__'
-            if functionsCalled.get(initName) == None :
-                warn = Warning(moduleName, func_code.co_firstlineno,
+            # FIXME: this isn't right, we should just figure out the real name
+            initName1 = str(base) + '.__init__'
+            initName2 = moduleName + '.' + base.__name__ + '.__init__'
+            if functionsCalled.get(initName1) == None and \
+               functionsCalled.get(initName2) == None :
+                warn = Warning(moduleFilename, func_code.co_firstlineno,
                                _BASE_CLASS_NOT_INIT % str(base))
                 warnings.append(warn)
     return warnings
@@ -386,8 +389,10 @@ def find(moduleList, cfg = None) :
 
                 if func_code.co_name == '__init__' :
                     if '__init__' in dir(c.classObject) :
-                        warnings.extend(_checkBaseClassInit(moduleFilename, c,
-                                                   func_code, functionsCalled))
+                        warns = _checkBaseClassInit(module.moduleName,
+                                                    moduleFilename, c,
+                                                    func_code, functionsCalled)
+                        warnings.extend(warns)
                     else :
                         warn = Warning(moduleFilename, c.getFirstLine(),
                                        _NO_INIT_IN_SUBCLASS % c.name)
