@@ -30,14 +30,17 @@ class ReachableCheck(Check):
             def visitTryExcept(s, node):
                 # no matter what happens in the try clause, it might
                 # cause an exception, so just check the handlers and
-                # else conditions for returning
+                # else conditions all return
                 for exc, detail, code in node.handlers:
                     s.returns = 0                
                     s.visit(code)
                     if not s.returns:
                         return
                 if node.else_:
+                    s.returns = 0
                     s.visit(node.else_)
+                    return
+                s.returns = 0
 
             def visitIf(s, node):
                 for cond, code in node.tests:
