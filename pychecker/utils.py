@@ -66,6 +66,8 @@ def debug(*args) :
 
 PYTHON_1_5 = 10500
 PYTHON_2_0 = 20000
+PYTHON_2_1 = 20100
+PYTHON_2_2 = 20200
 
 def pythonVersion() :
     major, minor, release = 1, 5, 0

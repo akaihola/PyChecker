@@ -1,4 +1,7 @@
 
+Version 0.9	- xx August 2001
+  * Fix Object (x) has no attribute warnings for Python 2.2a1 built-in types
+
 Version 0.8.1	- 9 August 2001
   * Fix internal error when referencing a list constant:  [1,2,3][1]
   * Fix internal error for Python 1.5 not catching unicode syntax error

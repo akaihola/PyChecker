@@ -380,6 +380,12 @@ def _setupBuiltinAttrs() :
     _BUILTINS_ATTRS[types.MethodType] = dir(w.__init__)
     del w
 
+    if utils.pythonVersion() >= utils.PYTHON_2_2 :
+        # FIXME: I'm sure more types need to be added here
+        _BUILTINS_ATTRS[types.StringType] = dir(''.__class__)
+        _BUILTINS_ATTRS[types.ListType] = dir([].__class__)
+        _BUILTINS_ATTRS[types.DictType] = dir({}.__class__)
+
     try :
         import warnings
         _MSG = "xrange object's 'start', 'stop' and 'step' attributes are deprecated"
