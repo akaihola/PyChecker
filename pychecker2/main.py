@@ -12,6 +12,7 @@ from pychecker2 import ScopeChecks
 from pychecker2 import ImportChecks
 from pychecker2 import ClassChecks
 from pychecker2 import ReachableChecks
+from pychecker2 import ConditionalChecks
 from pychecker2 import FormatStringChecks
 
 def print_warnings(f, out):
@@ -37,6 +38,7 @@ def create_checklist(options):
                OpChecks.OpCheck(),
                OpChecks.ExceptCheck(),
                ReachableChecks.ReachableCheck(),
+               ConditionalChecks.ConstantCheck(),
                ImportChecks.ImportCheck(),
                FormatStringChecks.FormatStringCheck(),
                VariableChecks.ShadowCheck(),
