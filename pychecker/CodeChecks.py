@@ -626,7 +626,7 @@ class Code :
         stackLen = len(self.stack)
         if stackLen > 0 :
             count = min(count, stackLen)
-            del self.stack[(-1 - count):]
+            del self.stack[-count:]
 
     def unpack(self) :
         if self.unpackCount :
@@ -895,6 +895,10 @@ def _BINARY_MODULO(oparg, operand, codeSource, code) :
     _getFormatWarnings(code)
     code.popStack()
 
+def _ROT_TWO(oparg, operand, codeSource, code) :
+    if len(code.stack) >= 2 :
+        del code.stack[-2]
+
 def _LINE_NUM(oparg, operand, codeSource, code) :
     code.lastLineNum = oparg
 def _UNPACK_SEQUENCE(oparg, operand, codeSource, code) :
@@ -939,6 +943,7 @@ def _RETURN_VALUE(oparg, operand, codeSource, code) :
 
 DISPATCH = [ None ] * 256
 DISPATCH[  1] = _POP_TOP
+DISPATCH[  2] = _ROT_TWO
 DISPATCH[  4] = _DUP_TOP
 DISPATCH[ 10] = _UNARY_POSITIVE
 DISPATCH[ 11] = _UNARY_NEGATIVE
