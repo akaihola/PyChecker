@@ -553,23 +553,30 @@ class Code :
         else :
             self.popStack()
 
+    def __getStringStackType(self, data) :
+        try :
+            if data.type == types.StringType and not data.const :
+                return Stack.TYPE_UNKNOWN
+            return data.type
+        except AttributeError :
+            return Stack.TYPE_UNKNOWN
+
+    def __getStackType(self) :
+        if not self.stack :
+            return Stack.TYPE_UNKNOWN
+
+        if not self.unpackCount :
+            return self.__getStringStackType(self.stack[-1])
+
+        data = self.stack[-1].data
+        if type(data) == types.TupleType :
+            return self.__getStringStackType(data[len(data)-self.unpackCount])
+
+        return Stack.TYPE_UNKNOWN
+
     def setType(self, name) :
         valueList = self.typeMap.get(name, [])
-        stackType = Stack.TYPE_UNKNOWN
-        if self.stack :
-            if not self.unpackCount :
-                stackType = self.stack[-1].type
-            else :
-                data = self.stack[-1].data
-                if type(data) == types.TupleType :
-                    try :
-                        stackType = data[len(data)-self.unpackCount].type
-                    except (AttributeError, IndexError) :
-                        # we may not have a Stack.Item (no .type) (AttrError)
-                        # or no size (IndexError)
-                        pass
-
-        valueList.append(stackType)
+        valueList.append(self.__getStackType())
         self.typeMap[name] = valueList
             
     def addReturn(self) :
@@ -637,11 +644,10 @@ def _LOAD_NAME(oparg, operand, codeSource, code) :
        hasattr(codeSource.module.module, operand) :
         operand = eval("codeSource.module.module.%s.__name__" % operand)
 
-    opType = Stack.TYPE_GLOBAL
+    opType, const = Stack.TYPE_GLOBAL, 0
     if operand in [ 'None', 'Ellipsis', ] :
-        operand = eval(operand)
-        opType = type(operand)
-    code.stack.append(Stack.Item(operand, opType))
+        opType, const = type(operand), 1
+    code.stack.append(Stack.Item(operand, opType, const))
 
 _LOAD_GLOBAL = _LOAD_DEREF = _LOAD_NAME
 
