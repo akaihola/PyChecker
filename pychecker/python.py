@@ -167,7 +167,7 @@ BUILTIN_METHODS = { types.DictType :
                       'truncate': (types.NoneType, 0, 1),
                       'write': (types.NoneType, 1, 1),
                       'writelines': (types.NoneType, 1, 1),
-                      'xreadlines': (types.NoneType, 0, 0),
+                      'xreadlines': (types.ListType, 0, 0),
                     },
                   }
 
