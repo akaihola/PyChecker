@@ -43,3 +43,6 @@ def f14():
 
 def f15():
     return ('%s' * 6) % ((1, 2) + 3 * 7)
+
+def f16():
+    return '%(foo)*.*s' % {'foo': 'bar'}
