@@ -1,4 +1,4 @@
-# Sample defaults file for PyChecker 0.8.9
+# Sample defaults file for PyChecker 0.8.10
 # This file should be called:  .pycheckrc
 # It should be placed in your home directory (value of $HOME).
 # If $HOME is not set, it will look in the current directory.
@@ -159,11 +159,11 @@ unaryPositive = 1
 #       modifying the value may have undesirable/unexpected side-effects
 modifyDefaultValue = 1
 
-# bool: check if the exec statement is used (possible security problems
+# bool: check if the exec statement is used (possible security problem)
 usesExec = 0
 
 # bool: check consistent return values
-checkReturnValues = 0
+checkReturnValues = 1
 
 # bool: check if using implict and explicit return values
 checkImplicitReturns = 1
