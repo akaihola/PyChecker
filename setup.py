@@ -20,7 +20,7 @@ some warnings may be incorrect; however, spurious warnings should be
 fairly infrequent."""
 
     setup(name			= "PyChecker",
-	  version		= "0.5",
+	  version		= "0.5.1beta",
 	  license		= "BSD-like",
 	  description		= "Python source code checking tool",
 	  author		= "Neal Norwitz, MetaSlash, Inc.",
