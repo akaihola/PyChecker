@@ -52,7 +52,7 @@ def printArg(shortArg, longArg, description, defaultValue, useValue) :
             else :
                 defaultValue = 'off'
         defStr = ' [%s]' % defaultValue
-    print "  %-17s %s%s" % (args, description, defStr)
+    print "  %-18s %s%s" % (args, description, defStr)
 
 
 _OPTIONS = [ 
@@ -85,7 +85,7 @@ _OPTIONS = [
 def usage() :
     print "Usage for: checker.py [options] PACKAGE ...\n"
     print "    PACKAGEs can be a python package, module or filename\n"
-    print "Options:          Change warning for ... [default value]"
+    print "Options:           Change warning for ... [default value]"
 
     cfg = Config()
     for opt in _OPTIONS :
