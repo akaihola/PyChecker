@@ -30,3 +30,4 @@ test_input/test22.py:74: Local variable (a) not used
 test_input/test22.py:74: Local variable (b) not used
 test_input/test22.py:79: ... % 1 may be constant
 test_input/test22.py:81: ... % 1 may be constant
+test_input/test22.py:86: Invalid format string, problem starts near: '' (end of format string)

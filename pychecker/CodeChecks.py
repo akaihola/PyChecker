@@ -535,6 +535,11 @@ def _getFormatInfo(format, code) :
     # skip the first item in the list, it's always empty
     for section in sections[1:] :
         orig_section = section
+        if not section:
+            code.addWarning(msgs.INVALID_FORMAT % orig_section +
+                            ' (end of format string)')
+            continue
+
         # handle dictionary formats
         if section[0] == '(' :
             mappingFormatCount = mappingFormatCount + 1

@@ -81,3 +81,6 @@ def check_modulo_1():
   print 55555 % 1
   f = 55555.55 
   print f % 1
+
+def check_bad_format_end_percent(arg):
+  print 'ha, better not crash %' % arg
