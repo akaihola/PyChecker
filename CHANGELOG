@@ -1,4 +1,5 @@
 Version 0.8.11   - xx June 2002
+  * Improve error message for syntax errors from user files
   * Fix pychecker.bat so it should work now
   * Add a warning for using __coerce__ in new-style classes
   * Add --deprecated option for using deprecated modules or functions

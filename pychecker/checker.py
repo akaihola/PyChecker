@@ -335,6 +335,17 @@ class Class :
                 result.append(m)
         return result
 
+def _getLineInFile(moduleName, linenum):
+    line = ''
+    file, filename, smt = _findModule(moduleName)
+    try:
+        lines = file.readlines()
+        line = string.rstrip(lines[linenum - 1])
+    except (IOError, IndexError):
+        pass
+    file.close()
+    return line
+
 def importError(moduleName):
     exc_type, exc_value, tb = sys.exc_info()
 
@@ -350,7 +361,14 @@ def importError(moduleName):
     # the clutter of a traceback most of the time.  Also, the locus of
     # the error is usually irrelevant for ImportError, so the lack of
     # traceback shouldn't be a problem.
-    if exc_type is not ImportError:
+    if exc_type is SyntaxError:
+        # SyntaxErrors are special, we want to control how we format
+        # the output and make it consistent for all versions of Python
+        e = exc_value
+        msg = '%s (%s, line %d)' % (e.msg, e.filename, e.lineno)
+        line = _getLineInFile(moduleName, e.lineno)
+        exc_value = '%s\n    %s\n   %s^' % (msg, line, ' ' * e.offset)
+    elif exc_type is not ImportError:
         sys.stderr.write("  Caught exception importing module %s:\n" %
                          moduleName)
 
