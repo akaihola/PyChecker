@@ -1,5 +1,8 @@
 #! /bin/sh
-CHECKER='python2.2 pychecker2/main.py'
+NAME=`dirname $0`
+NAME=`dirname $NAME`/..
+PYTHONPATH=$NAME:$PYTHONPATH export PYTHONPATH
+CHECKER='python2.2 $NAME/pychecker2/main.py'
 
 if [ "$1" = "generate" ]
 then

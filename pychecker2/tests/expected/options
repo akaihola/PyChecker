@@ -1,6 +1,6 @@
 Error: option -? not recognized
 Usage:
- pychecker2/main.py [options] [--] file1.py file2.py ...
+ ./../pychecker2/main.py [options] [--] file1.py file2.py ...
 available options:
 
 Error:
