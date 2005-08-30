@@ -87,8 +87,12 @@ def _checkReturnWarnings(code) :
 
     # if the last return is implicit, check if there are non None returns
     lastReturn = code.returnValues[-1]
-    if not code.starts_and_ends_with_finally and \
-       cfg().checkImplicitReturns and lastReturn[1].isImplicitNone() :
+
+    # Python 2.4 optimizes the dead implicit return out, so we can't
+    # distinguish implicit and explicit "return None"
+    if utils.pythonVersion() < utils.PYTHON_2_4 and \
+           not code.starts_and_ends_with_finally and \
+           cfg().checkImplicitReturns and lastReturn[1].isImplicitNone():
         for line, retval, dummy in code.returnValues[:-1] :
             if not retval.isNone() :
                 code.addWarning(msgs.IMPLICIT_AND_EXPLICIT_RETURNS,
@@ -182,14 +186,17 @@ def _findUnreachableCode(code) :
             unreachable[i] = line
 
     # find the index of the last return
-    lastLine, lastItem, lastIndex = code.returnValues[-1]
+    lastLine = lastItem = lastIndex = None
+    if code.returnValues:
+        lastLine, lastItem, lastIndex = code.returnValues[-1]
     if len(code.returnValues) >= 2 :
         lastIndex = code.returnValues[-2][2]
     if code.raiseValues :
         lastIndex = max(lastIndex, code.raiseValues[-1][2])
 
     # remove last return if it's unreachable AND implicit
-    if unreachable.get(lastIndex) == lastLine and lastItem.isImplicitNone() :
+    if unreachable.get(lastIndex) == lastLine and lastItem and \
+           lastItem.isImplicitNone():
         del code.returnValues[-1]
         del unreachable[lastIndex]
 

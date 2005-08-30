@@ -1,4 +1,6 @@
 Version 0.8.15   - XX XXX 2005
+  * Fix constant tuples in Python 2.4
+  * Don't warn about implicit/explicit returns in Python 2.4, we can't tell
   * Fix crash when __slots__ was an instance w/o __len__
   * Fix bug that declated {}.pop to only take one argument, it takes 1 or 2
   * Fix spurious warning when using tuples for exceptions

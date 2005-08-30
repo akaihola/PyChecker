@@ -1067,8 +1067,13 @@ def _DELETE_NAME(oparg, operand, codeSource, code) :
     # FIXME: handle deleting global multiple times
 _DELETE_GLOBAL = _DELETE_NAME
 
+def _make_const(value):
+    if type(value) == types.TupleType:
+        return Stack.makeTuple(map(_make_const, value))
+    return Stack.Item(value, type(value), 1)
+
 def _LOAD_CONST(oparg, operand, codeSource, code) :
-    code.pushStack(Stack.Item(operand, type(operand), 1))
+    code.pushStack(_make_const(operand))
     if type(operand) == types.CodeType :
         name = operand.co_name
         obj = code.codeObjects.get(name, None)
