@@ -38,8 +38,14 @@ for test_file in $TESTS ; do
         continue
     fi
 
+    # make sure to use the -F option for this special test
+    extra_args=""
+    if [ "$test_file" == "test_input/test39.py" ]; then
+        extra_args="-F test_input/pycheckrc"
+    fi
+
     test_path=$TMP/$test_name
-    $PYTHON -tt ./pychecker/checker.py --moduledoc --classdoc --no-argsused $test_file > $test_path 2>&1
+    $PYTHON -tt ./pychecker/checker.py --moduledoc --classdoc --no-argsused $extra_args $test_file > $test_path 2>&1
     diff $test_path $expected
     if [ $? -ne 0 ]; then
         error=`expr $error + 1`
