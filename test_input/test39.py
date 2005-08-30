@@ -33,3 +33,12 @@ class check_here:
     def z(self, jjj) :
         j = 0
 
+# Requires Python 2.2+
+try:
+    class NewStyle(object):
+        'test that suppressions work with new style classes'
+        def f(self):
+            i = 5
+
+except NameError:
+    pass

@@ -12,6 +12,7 @@ import string
 import types
 import traceback
 import imp
+import re
 
 from pychecker import OP
 from pychecker import Stack
@@ -425,9 +426,20 @@ def _updateSuppressions(suppress, warnings) :
         utils.popConfig()
         raise _SuppressionError
 
+_CLASS_NAME_RE = re.compile("<class '([A-Za-z0-9.]+)'>(\\..+)?")
+
 def getSuppression(name, suppressions, warnings) :
     try :
         utils.pushConfig()
+
+        # cheesy hack to deal with new-style classes.  i don't see a
+        # better way to get the name, '<' is an invalid identifier, so
+        # we can reliably check it and extract name from:
+        # <class 'class-name'>[.identifier[.identifier]...]
+        matches = _CLASS_NAME_RE.match(name)
+        if matches:
+            # pull out the names and make a complete identifier (ignore None)
+            name = string.join(filter(None, matches.groups()), '')
 
         suppress = suppressions[0].get(name, None)
         if suppress is not None :
