@@ -1048,8 +1048,6 @@ _LOAD_GLOBAL = _LOAD_NAME
 def _LOAD_DEREF(oparg, operand, codeSource, code) :
     if type(oparg) == types.IntType :
         func_code = code.func_code
-        if codeSource.calling_code :
-            func_code = codeSource.calling_code[-1].function.func_code
         try:
             argname = func_code.co_cellvars[oparg]
         except IndexError:
