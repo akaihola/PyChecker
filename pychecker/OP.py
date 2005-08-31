@@ -122,5 +122,6 @@ except ImportError :
     class Name:
         'Turn name[x] into x'
         def __getitem__(self, x):
-            return str(x)
+            from pychecker import utils
+            return utils.safestr(x)
     name = Name()

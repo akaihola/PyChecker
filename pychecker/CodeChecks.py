@@ -93,7 +93,7 @@ def _getFunction(module, stackValue) :
     # find the module this references
     i, maxLen = 0, len(identifier)
     while i < maxLen :
-        id = str(identifier[i])
+        id = utils.safestr(identifier[i])
         if module.classes.has_key(id) or module.functions.has_key(id) :
             break
         refModule = module.modules.get(id, None)
@@ -153,7 +153,7 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
             returnValue = Stack.Item(returnValue.data, info[0])
             returnValue.setStringType(info[0])
     elif type(func_name) == types.TupleType and len(func_name) <= 2 :
-        objType = code.typeMap.get(str(func_name[0]), [])
+        objType = code.typeMap.get(utils.safestr(func_name[0]), [])
         if types.ListType in objType :
             try :
                 if func_name[1] == 'append' and argCount > 1 :
@@ -219,7 +219,7 @@ def _isexception(object) :
         return 0
 
     for c in object.__bases__ :
-        if utils.startswith(str(c), 'exceptions.') :
+        if utils.startswith(utils.safestr(c), 'exceptions.') :
             return 1
         if len(c.__bases__) > 0 and _isexception(c) :
             return 1
@@ -264,7 +264,7 @@ def _checkReturnValueUse(code, func):
                 return
 
         if not OP.POP_TOP(opInfo[0]):
-            err = msgs.USING_NONE_RETURN_VALUE % str(func)
+            err = msgs.USING_NONE_RETURN_VALUE % utils.safestr(func)
     elif OP.UNPACK_SEQUENCE(opInfo[0]):
         # verify unpacking into proper # of vars
         varCount = opInfo[1]
@@ -273,9 +273,9 @@ def _checkReturnValueUse(code, func):
         funcCount = stackRV.length
         if returnType in _SEQUENCE_TYPES:
             if varCount != funcCount and funcCount > 0:
-                err = msgs.WRONG_UNPACK_FUNCTION % (str(func), funcCount, varCount)
+                err = msgs.WRONG_UNPACK_FUNCTION % (utils.safestr(func), funcCount, varCount)
         elif returnType not in _UNCHECKABLE_STACK_TYPES:
-            err = msgs.UNPACK_NON_SEQUENCE % (str(func), _getTypeStr(returnType))
+            err = msgs.UNPACK_NON_SEQUENCE % (utils.safestr(func), _getTypeStr(returnType))
     if err:
         code.addWarning(err)
 
@@ -391,7 +391,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                                             check_arg_count)
                 if returnValue.type is types.NoneType and \
                    not OP.POP_TOP(code.nextOpInfo()[0]) :
-                    name = str(loadValue.data)
+                    name = utils.safestr(loadValue.data)
                     if type(loadValue.data) == types.TupleType :
                         name = string.join(loadValue.data, '.')
                     code.addWarning(msgs.USING_NONE_RETURN_VALUE % name)
@@ -608,16 +608,8 @@ def _getFormatInfo(format, code) :
 
     return formatCount, vars
 
-try:
-    unicode, UnicodeError
-except NameError:
-    UnicodeError = None
-
 def _getConstant(code, module, data) :
-    try:
-        data = str(data.data)
-    except UnicodeError:
-        data = unicode(data.data)
+    data = utils.safestr(data.data)
     format = code.constants.get(data)
     if format is not None :
         return format
@@ -680,7 +672,7 @@ def _checkAttributeType(code, stackValue, attr) :
     if not cfg().checkObjectAttrs :
         return
 
-    varTypes = code.typeMap.get(str(stackValue.data), None)
+    varTypes = code.typeMap.get(utils.safestr(stackValue.data), None)
     if not varTypes :
         return
 
@@ -710,7 +702,7 @@ def _checkAttributeType(code, stackValue, attr) :
 
 
 def _getTypeStr(t):
-    returnStr = str(t)
+    returnStr = utils.safestr(t)
     strs = string.split(returnStr, "'")
     try:
         if len(strs) == 3:
@@ -1445,7 +1437,7 @@ def _UNARY_CONVERT(oparg, operand, codeSource, code) :
            stackValue.const == 0 and codeSource.classObject is not None and \
            codeSource.func.function.func_name == '__repr__' :
             code.addWarning(msgs.USING_SELF_IN_REPR)
-        stackValue.data = str(stackValue.data)
+        stackValue.data = utils.safestr(stackValue.data)
         stackValue.type = types.StringType
     _modifyStackName(code, '-repr')
 
@@ -1556,7 +1548,7 @@ def _BINARY_SUBSCR(oparg, operand, codeSource, code) :
     _checkNoEffect(code)
     if len(code.stack) >= 2 :
         stack = code.stack
-        varType = code.typeMap.get(str(stack[-2].data), [])
+        varType = code.typeMap.get(utils.safestr(stack[-2].data), [])
         if types.ListType in varType and stack[-1].type == types.TupleType :
             code.addWarning(msgs.USING_TUPLE_ACCESS_TO_LIST % stack[-2].data)
     _popStackRef(code, operand)
@@ -1639,7 +1631,7 @@ def _UNPACK_SEQUENCE(oparg, operand, codeSource, code) :
             length = top.length
             # we don't know the length, maybe it's constant and we can find out
             if length == 0:
-                value = code.constants.get(str(top.data))
+                value = code.constants.get(utils.safestr(top.data))
                 if type(value) in _SEQUENCE_TYPES:
                     length = len(value)
             if length > 0 and length != oparg:
@@ -1761,7 +1753,7 @@ def _checkConstantCondition(code, topOfStack, if_false):
     if if_false or not OP.LOAD_CONST(code.nextOpInfo(1)[0]) or \
        not topOfStack.data or topOfStack.type is types.NoneType:
         if not _shouldIgnoreBogusJumps(code):
-            code.addWarning(msgs.CONSTANT_CONDITION % str(topOfStack))
+            code.addWarning(msgs.CONSTANT_CONDITION % utils.safestr(topOfStack))
     
 def _jump_conditional(oparg, operand, codeSource, code, if_false) :
     # FIXME: this doesn't work in 2.3+ since constant conditions

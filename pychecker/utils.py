@@ -85,4 +85,15 @@ def endswith(s, substr) :
 
 # generic method that can be slapped into any class, thus the self parameter
 def std_repr(self) :
-    return "<%s at 0x%x: %s>" % (self.__class__.__name__, id(self), str(self))
+    return "<%s at 0x%x: %s>" % (self.__class__.__name__, id(self), safestr(self))
+
+try:
+    unicode, UnicodeError
+except NameError:
+    class UnicodeError(Exception): pass
+
+def safestr(value):
+   try:
+      return str(value)
+   except UnicodeError:
+      return unicode(value)

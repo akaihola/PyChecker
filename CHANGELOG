@@ -1,4 +1,5 @@
 Version 0.8.15   - XX XXX 2005
+  * Don't barf if there is # -*- encoding: ... -*- lines and unicode strings
   * setup.py was rewritten to honor --root, --home, etc options
   * Fix internal error on processing nested scopes
   * Fix constant tuples in Python 2.4

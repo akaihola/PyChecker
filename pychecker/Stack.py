@@ -7,7 +7,7 @@ Module to hold manipulation of elements on the stack.
 """
 
 import types
-
+from pychecker import utils
 
 DATA_UNKNOWN = "-unknown-"
 LOCALS = 'locals'
@@ -34,12 +34,12 @@ class Item :
         if type(self.data) == types.TupleType :
             value = '('
             for item in self.data :
-                value = value + str(item) + ', '
+                value = value + utils.safestr(item) + ', '
             # strip off the ', ' for multiple items
             if len(self.data) > 1 :
                 value = value[:-2]
             return value + ')'
-        return str(self.data)
+        return utils.safestr(self.data)
 
     def __repr__(self):
         return 'Stack Item: (%s, %s, %d)' % (self.data, self.type, self.const)
@@ -77,9 +77,9 @@ class Item :
             strValue = ""
             # convert the tuple into a string ('self', 'data') -> self.data
             for item in self.data :
-                strValue = '%s.%s' % (strValue, str(item))
+                strValue = '%s.%s' % (strValue, utils.safestr(item))
             return strValue[1:]
-        return str(self.data)
+        return utils.safestr(self.data)
 
     def addAttribute(self, attr) :
         if type(self.data) == types.TupleType :

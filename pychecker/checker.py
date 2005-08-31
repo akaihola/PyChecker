@@ -410,7 +410,7 @@ def importError(moduleName):
     if not exc_name:
         # either it's a string exception or a user-defined exception class
         # show string or fully-qualified class name
-        exc_name = str(exc_type)
+        exc_name = utils.safestr(exc_type)
         
     # Print a traceback, unless this is an ImportError.  ImportError is
     # presumably the most common import-time exception, so this saves
@@ -448,7 +448,7 @@ def importError(moduleName):
     # Careful formatting exc_value -- can fail for some user exceptions
     sys.stderr.write("  %s: " % exc_name)
     try:
-        sys.stderr.write(str(exc_value) + '\n')
+        sys.stderr.write(utils.safestr(exc_value) + '\n')
     except:
         sys.stderr.write('**error formatting exception value**\n')
 
@@ -497,7 +497,7 @@ class Module :
     def addClass(self, name) :
         self.classes[name] = c = Class(name, self.module)
         try:
-            objName = str(c.classObject)
+            objName = utils.safestr(c.classObject)
         except TypeError:
             # this can happen if there is a goofy __getattr__
             c.ignoreAttrs = 1
@@ -774,7 +774,7 @@ else :
                 else :
                     print 'Unable to load module', pymodule.__name__
             except Exception:
-                name = getattr(pymodule, '__name__', str(pymodule))
+                name = getattr(pymodule, '__name__', utils.safestr(pymodule))
                 importError(name)
 
         return pymodule

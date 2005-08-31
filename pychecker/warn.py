@@ -312,7 +312,7 @@ def _baseInitCalled(classInitInfo, base, functionsCalled) :
     if baseInit is None or _get_func_info(baseInit) == classInitInfo :
         return 1
 
-    initName = str(base) + _DOT_INIT
+    initName = utils.safestr(base) + _DOT_INIT
     if functionsCalled.has_key(initName) :
         return 1
 
@@ -350,7 +350,7 @@ def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
         for base in c.classObject.__bases__ :
             if not _baseInitCalled(classInitInfo, base, functionsCalled) :
                 warn = Warning(moduleFilename, func_code,
-                               msgs.BASE_CLASS_NOT_INIT % str(base))
+                               msgs.BASE_CLASS_NOT_INIT % utils.safestr(base))
                 warnings.append(warn)
     return warnings
 
@@ -359,7 +359,7 @@ def _checkOverridenMethods(func, baseClasses, warnings) :
     for baseClass in baseClasses :
         if func.func_name != utils.INIT and \
            not function.same_signature(func, baseClass) :
-            err = msgs.METHOD_SIGNATURE_MISMATCH % (func.func_name, str(baseClass))
+            err = msgs.METHOD_SIGNATURE_MISMATCH % (func.func_name, utils.safestr(baseClass))
             warnings.append(Warning(func.func_code, func.func_code, err))
             break
 
@@ -498,14 +498,14 @@ except NameError:
 def _findClassWarnings(module, c, class_code,
                        globalRefs, warnings, suppressions) :
     try:
-        className = str(c.classObject)
+        className = utils.safestr(c.classObject)
     except TypeError:
         # goofy __getattr__
         return
     classSuppress = getSuppression(className, suppressions, warnings)
     baseClasses = c.allBaseClasses()
     for base in baseClasses :
-        baseModule = str(base)
+        baseModule = utils.safestr(base)
         if '.' in baseModule :
             # make sure we handle import x.y.z
             packages = string.split(baseModule, '.')
@@ -526,7 +526,7 @@ def _findClassWarnings(module, c, class_code,
         utils.debug("method:", func_code)
 
         try:
-            name = str(c.classObject) + '.' + method.function.func_name
+            name = utils.safestr(c.classObject) + '.' + method.function.func_name
         except AttributeError:
             # func_name may not exist
             continue
