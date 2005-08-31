@@ -472,10 +472,14 @@ def _checkGlobal(operand, module, func, code, err, main = 0) :
 
 
 def _handleComparison(stack, operand) :
-    si = min(len(stack), 2)
+    num_ops = 2
+    if operand == 'exception match':
+        num_ops = 1
+
+    si = min(len(stack), num_ops)
     compareValues = stack[-si:]
     for _ in range(si, 2) :
-        compareValues.append(None)
+        compareValues.append(Stack.Item(None, None))
     stack[-si:] = [ Stack.makeComparison(compareValues, operand) ]
     return compareValues
 
