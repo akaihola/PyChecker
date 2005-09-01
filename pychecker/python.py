@@ -376,8 +376,9 @@ SPECIAL_METHODS = {
     '__add__': 2,	'__radd__': 2,		'__iadd__': 2,    
     '__sub__': 2,	'__rsub__': 2,		'__isub__': 2,
     '__mul__': 2,	'__rmul__': 2,		'__imul__': 2,    
-    '__div__': 2,	'__rdiv__': 2,		'__idiv__': 2,    
-    '__pow__': 2,	'__rpow__': 2,		'__ipow__': 2,    # 2 or 3
+    '__div__': 2,	'__rdiv__': 2,		'__idiv__': 2,
+    #  __pow__: 2 or 3                           __ipow__: 2 or 3
+    '__pow__': 3,	'__rpow__': 2,		'__ipow__': 3,
     '__truediv__': 2,	'__rtruediv__': 2,	'__itruediv__': 2,	
     '__floordiv__': 2,	'__rfloordiv__': 2,	'__ifloordiv__': 2,	
     '__mod__': 2,	'__rmod__': 2,		'__imod__': 2,    
