@@ -145,11 +145,11 @@ however, spurious warnings should be fairly infrequent.
 """
 
 kw =  { 'name'             : "PyChecker",
-        'version'          : "0.8.15beta",
+        'version'          : "0.8.15",
         'license'          : "BSD-like",
         'description'      : "Python source code checking tool",
         'author'           : "Neal Norwitz, MetaSlash, Inc.",
-        'author_email'     : "pychecker@metaslash.com",
+        'author_email'     : "nnorwitz@gmail.com",
         'url'              : "http://pychecker.sourceforge.net/",
         'packages'         : [ 'pychecker', ],
         'scripts'          : [ "pychecker" ],   # note: will be replaced by customized action
