@@ -6,7 +6,7 @@ TESTS="test_input/test[1-9]*.py"
 #PYTHON="$HOME/build/python/2_3/python"
 #PYTHON="$PYTHON -tt coverage.py -x"
 
-if [ "$PYTHON" == "" ]; then
+if [ "$PYTHON" = "" ]; then
     PYTHON=python
 fi
 
@@ -40,7 +40,7 @@ for test_file in $TESTS ; do
 
     # make sure to use the -F option for this special test
     extra_args=""
-    if [ "$test_file" == "test_input/test39.py" ]; then
+    if [ "$test_file" = "test_input/test39.py" ]; then
         extra_args="-F test_input/pycheckrc"
     fi
 
