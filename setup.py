@@ -21,8 +21,9 @@ a prefix or a home directory install to, etc.
 After some research, I've decided that the best way to make this work is to
 customize (override) some of the distutils action classes.  This way, we get
 access to the distutils configuration and can "do the right thing" when options
-are specified.  It turns out that I needed to customize the build_scripts and
-install_data sections.  There are more notes below by each customized action.
+are specified.  It turns out that I needed to customize the build_scripts,
+install_scripts and install_data sections.  There are more notes below by each
+customized action.
 
 @author: Kenneth J. Pronovici <pronovic@ieee.org>, after Nicolas Chauvat.
 """
@@ -36,6 +37,7 @@ import os
 from distutils import core
 from distutils.util import execute
 from distutils.command.install_data import install_data
+from distutils.command.install_scripts import install_scripts
 from distutils.command.build_scripts import build_scripts
 
 
@@ -65,6 +67,27 @@ class my_install_data(install_data):
       self.set_undefined_options('install', ('install_lib', 'install_dir'))
       install_data.finalize_options(self) # invoke "standard" action
 
+class my_install_scripts(install_scripts):
+   """
+   Customized install_scripts distutils action.
+
+   This customized action fills in the pychecker script (either Windows or
+   shell style, depending on platform) using the proper path to the checker.py
+   file and Python interpreter.  This all is done through the execute() method,
+   so that the action obeys the --dry-run flag, etc.  
+
+   The pychecker script must be built here, in the install action, because the
+   proper path to checker.py cannot be known before this point.
+   """
+   def run(self):
+      install_lib = self.distribution.get_command_obj("install").install_lib
+      scripts = self.distribution.get_command_obj("build_scripts").scripts
+      script_path = get_script_path(self.build_dir)
+      if scripts is not None and script_path in scripts:
+         package_path = os.path.join(install_lib, "pychecker")
+         self.execute(func=create_script, args=[script_path, package_path], msg="filling in script %s" % script_path)
+      install_scripts.run(self) # invoke "standard" action
+
 class my_build_scripts(build_scripts):
    """
    Customized build_scripts distutils action.
@@ -72,32 +95,42 @@ class my_build_scripts(build_scripts):
    This action looks through the configured scripts list, and if "pychecker" is
    in the list, replaces that entry with the real name of the script to be
    created within the build directory (including the .bat extension if needed).
-   Then, it builds the script (either Windows or shell style, depending on
-   platform) using the proper path to the checker.py file and Python
-   interpreter.  This is done through the execute() method, so that the action
-   obeys the --dry-run flag, etc.
+   Then, it creates an empty script file at that path to make distutils happy.
+   This is all done through the execute() method, so that the action obeys the
+   --dry-run flag, etc.
+
+   It might be surprising that we don't fill in the pychecker script here.
+   This is because in order to fill in the script, we need to know the
+   installed location of checker.py.  This information isn't available until
+   the install action is executed.
 
    This action completely ignores any scripts other than "pychecker" which are
    listed in the setup configuration, and it only does anything if "pychecker"
    is listed in the first place.  This way, new scripts with constant contents
    (if any) can be added to the setup configuration without writing any new
-   code.
+   code.  It also helps OS package maintainers (like for the Debian package)
+   because they can still avoid installing scripts just by commenting out the
+   scripts line in configuration, just like usual.
    """
    def run(self):
       if self.scripts is not None and "pychecker" in self.scripts:
-         if sys.platform == "win32":
-            script_path = os.path.join(self.build_dir, "pychecker.bat")
-         else:
-            script_path = os.path.join(self.build_dir, "pychecker")
+         script_path = get_script_path(self.build_dir)
          self.scripts.remove("pychecker")
          self.scripts.append(script_path)
          self.mkpath(self.build_dir)
-         install_lib = self.distribution.get_command_obj("install").install_lib
-         package_path = os.path.join(install_lib, "pychecker")
-         self.execute(func=create_pychecker, args=[script_path, package_path], msg="Building %s" % script_path)
+         self.execute(func=open, args=[script_path, "w"], msg="creating empty script %s" % script_path)
       build_scripts.run(self) # invoke "standard" action
 
-def create_pychecker(script_path, package_path):
+def get_script_path(build_dir):
+   """
+   Returns the platform-specific path to the pychecker script within the build dir.
+   """
+   if sys.platform == "win32":
+      return os.path.join(build_dir, "pychecker.bat")
+   else:
+      return os.path.join(build_dir, "pychecker")
+
+def create_script(script_path, package_path):
    """
    Creates the pychecker script at the indicated path.
 
@@ -130,6 +163,7 @@ def create_pychecker(script_path, package_path):
 ######################
 
 CUSTOMIZED_ACTIONS = { 'build_scripts'  : my_build_scripts, 
+                       'install_scripts': my_install_scripts, 
                        'install_data'   : my_install_data,
                      }
 
