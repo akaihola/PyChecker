@@ -1,3 +1,6 @@
+Version 0.8.16   - 4 September 2005
+  * Fix problems installing on Windows and running setup.py build 
+
 Version 0.8.15   - 31 August 2005
   * Fix spurious warning about catching string exceptions
   * Don't barf if there is # -*- encoding: ... -*- lines and unicode strings
