@@ -21,9 +21,7 @@ a prefix or a home directory install to, etc.
 After some research, I've decided that the best way to make this work is to
 customize (override) some of the distutils action classes.  This way, we get
 access to the distutils configuration and can "do the right thing" when options
-are specified.  It turns out that I needed to customize the build_scripts,
-install_scripts and install_data sections.  There are more notes below by each
-customized action.
+are specified.  
 
 @author: Kenneth J. Pronovici <pronovic@ieee.org>, after Nicolas Chauvat.
 """
@@ -36,6 +34,10 @@ import sys
 import os
 from distutils import core
 from distutils.util import execute
+from distutils.command.bdist import bdist
+from distutils.command.bdist_dumb import bdist_dumb
+from distutils.command.bdist_rpm import bdist_rpm
+from distutils.command.bdist_wininst import bdist_wininst
 from distutils.command.install_data import install_data
 from distutils.command.install_scripts import install_scripts
 from distutils.command.build_scripts import build_scripts
@@ -44,6 +46,36 @@ from distutils.command.build_scripts import build_scripts
 ###############################
 # Overridden distutils actions
 ###############################
+
+using_bdist = 0   # assume we're not using bdist
+
+class my_bdist(bdist):
+   """Customized action which flags that a binary distribution is being produced."""
+   def run(self):
+      global using_bdist
+      using_bdist = 1
+      bdist.run(self)
+
+class my_bdist_dumb(bdist_dumb):
+   """Customized action which flags that a binary distribution is being produced."""
+   def run(self):
+      global using_bdist
+      using_bdist = 1
+      bdist_dumb.run(self)
+
+class my_bdist_rpm(bdist_rpm):
+   """Customized action which flags that a binary distribution is being produced."""
+   def run(self):
+      global using_bdist
+      using_bdist = 1
+      bdist_rpm.run(self)
+
+class my_bdist_wininst(bdist_wininst):
+   """Customized action which flags that a binary distribution is being produced."""
+   def run(self):
+      global using_bdist
+      using_bdist = 1
+      bdist_wininst.run(self)
 
 class my_install_data(install_data):
    """
@@ -83,9 +115,21 @@ class my_install_scripts(install_scripts):
    access to certain configuration, such as the list of scripts.  Instead of
    trying to work around all that (it's a pain), I've just disallowed the
    action if it doesn't have the information it needs.
+
+   We have some special behavior around binary distributions.  If we're
+   building a binary distibution, then we don't try to figure out where
+   checker.py will be installed "for real".  We just assume it will be put in
+   the standard site-packages location (which is built per the official
+   documentation for sys.prefix).
    """
    def run(self):
-      install_lib = self.distribution.get_command_obj("install").install_lib
+      global using_bdist
+      if not using_bdist:
+         install_lib = self.distribution.get_command_obj("install").install_lib
+      else:
+         install_lib = os.path.join(sys.prefix, "lib", 
+                                    "python%s" % sys.version[:3], 
+                                    "site-packages")
       scripts = self.distribution.get_command_obj("build_scripts").scripts
       if install_lib is None or scripts is None or self.build_dir is None:
          print "note: install_scripts can only be invoked by install"
@@ -175,6 +219,10 @@ def create_script(script_path, package_path):
 CUSTOMIZED_ACTIONS = { 'build_scripts'  : my_build_scripts, 
                        'install_scripts': my_install_scripts, 
                        'install_data'   : my_install_data,
+                       'bdist'          : my_bdist,
+                       'bdist_dumb'     : my_bdist_dumb,
+                       'bdist_rpm'      : my_bdist_rpm,
+                       'bdist_wininst'  : my_bdist_wininst,
                      }
 
 DATA_FILES = [ 'COPYRIGHT', 'README', 'VERSION', 'CHANGELOG', 
