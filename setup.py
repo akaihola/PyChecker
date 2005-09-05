@@ -78,15 +78,25 @@ class my_install_scripts(install_scripts):
 
    The pychecker script must be built here, in the install action, because the
    proper path to checker.py cannot be known before this point.
+
+   If this action is invoked directly from the command-line, it won't have
+   access to certain configuration, such as the list of scripts.  Instead of
+   trying to work around all that (it's a pain), I've just disallowed the
+   action if it doesn't have the information it needs.
    """
    def run(self):
       install_lib = self.distribution.get_command_obj("install").install_lib
       scripts = self.distribution.get_command_obj("build_scripts").scripts
-      script_path = get_script_path(self.build_dir)
-      if scripts is not None and script_path in scripts:
-         package_path = os.path.join(install_lib, "pychecker")
-         self.execute(func=create_script, args=[script_path, package_path], msg="filling in script %s" % script_path)
-      install_scripts.run(self) # invoke "standard" action
+      if install_lib is None or scripts is None or self.build_dir is None:
+         print "note: install_scripts can only be invoked by install"
+      else:
+         script_path = get_script_path(self.build_dir)
+         if script_path in scripts:
+            package_path = os.path.join(install_lib, "pychecker")
+            self.execute(func=create_script, 
+                         args=[script_path, package_path], 
+                         msg="filling in script %s" % script_path)
+         install_scripts.run(self) # invoke "standard" action
 
 class my_build_scripts(build_scripts):
    """
