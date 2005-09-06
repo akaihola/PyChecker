@@ -516,13 +516,12 @@ class Module :
             self.__addAttributes(c, c.classObject)
 
     def addModule(self, name) :
-        if _EVIL_C_EXTENSIONS.has_key(name):
-          return
-
         module = _allModules.get(name, None)
         if module is None :
             self.modules[name] = module = Module(name, 0)
-            if imp.is_builtin(name) == 0 :
+
+            if (imp.is_builtin(name) == 0 and
+		not _EVIL_C_EXTENSIONS.has_key(name)):
                 module.load()
             else :
                 globalModule = globals().get(name)
