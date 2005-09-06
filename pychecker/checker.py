@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2001-2004, MetaSlash Inc.  All rights reserved.
+# Portions Copyright (c) 2005, Google, Inc.  All rights reserved.
 
 """
 Check python source code files for possible errors and print warnings
@@ -52,6 +53,13 @@ _cfg = None
 _DEFAULT_MODULE_TOKENS = ('__builtins__', '__doc__', '__file__', '__name__',
                           '__path__')
 _DEFAULT_CLASS_TOKENS = ('__doc__', '__name__', '__module__')
+
+# C extensions that should not be loaded since they cause
+# the interpreter to crash when running pychecker
+# FIXME: this is really a hack.  ideally, we should figure out why these
+# extensions crash and fix pychecker/python/extension module.
+_EVIL_C_EXTENSIONS = { 'matplotlib.axes': None,
+                     }
 
 _VERSION_MISMATCH_ERROR = '''
 There seem to be two versions of PyChecker being used.
@@ -508,6 +516,9 @@ class Module :
             self.__addAttributes(c, c.classObject)
 
     def addModule(self, name) :
+        if _EVIL_C_EXTENSIONS.has_key(name):
+          return
+
         module = _allModules.get(name, None)
         if module is None :
             self.modules[name] = module = Module(name, 0)
