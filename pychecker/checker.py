@@ -519,7 +519,6 @@ class Module :
         module = _allModules.get(name, None)
         if module is None :
             self.modules[name] = module = Module(name, 0)
-
             if (imp.is_builtin(name) == 0 and
 		not _EVIL_C_EXTENSIONS.has_key(name)):
                 module.load()
