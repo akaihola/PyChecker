@@ -66,8 +66,9 @@ _DEFAULT_CLASS_TOKENS = ('__doc__', '__name__', '__module__')
 # that are broken.  We shouldn't ignore good modules.
 
 _EVIL_C_OBJECTS = {
-    'matplotlib.axes.BinOpType': None,
+    'matplotlib.axes.BinOpType': None,  # broken on versions <= 0.83.2
 
+    # broken on versions at least 2.5.5 up to 2.6
     'wx.TheClipboard': None,
     'wx._core.TheClipboard': None,
     'wx._misc.TheClipboard': None,
