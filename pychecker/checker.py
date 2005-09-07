@@ -55,9 +55,11 @@ _DEFAULT_MODULE_TOKENS = ('__builtins__', '__doc__', '__file__', '__name__',
 _DEFAULT_CLASS_TOKENS = ('__doc__', '__name__', '__module__')
 
 # When using introspection on objects from some C extension modules,
-# the interpreter will crash.  Since pychecker exercises these bugs
-# we need to blacklist them and do no checking on those particular
-# objects.  For more info search for this comment below:
+# the interpreter will crash.  Since pychecker exercises these bugs we
+# need to blacklist the objects and ignore them.  For more info on how
+# to determine what object is causing the crash, search for this
+# comment below (ie, it is also several hundred lines down):
+#
 #     README if interpreter is crashing:
 
 # FIXME: the values should indicate the versions of these modules
