@@ -54,13 +54,22 @@ _DEFAULT_MODULE_TOKENS = ('__builtins__', '__doc__', '__file__', '__name__',
                           '__path__')
 _DEFAULT_CLASS_TOKENS = ('__doc__', '__name__', '__module__')
 
-# C extensions that should not be loaded since they cause
-# the interpreter to crash when running pychecker
-# FIXME: the values need to indicate the versions of these modules
-# that are broken.
-_EVIL_C_EXTENSIONS = { 'matplotlib.axes': None, # broken on versions <= 0.83.2
-                       'wx': None,
-                     }
+# When using introspection on objects from some C extension modules,
+# the interpreter will crash.  Since pychecker exercises these bugs
+# we need to blacklist them and do no checking on those particular
+# objects.  For more info search for this comment below:
+#     README if interpreter is crashing:
+
+# FIXME: the values should indicate the versions of these modules
+# that are broken.  We shouldn't ignore good modules.
+
+_EVIL_C_OBJECTS = {
+    'matplotlib.axes.BinOpType': None,
+
+    'wx.TheClipboard': None,
+    'wx._core.TheClipboard': None,
+    'wx._misc.TheClipboard': None,
+  }
 
 _VERSION_MISMATCH_ERROR = '''
 There seem to be two versions of PyChecker being used.
@@ -520,8 +529,7 @@ class Module :
         module = _allModules.get(name, None)
         if module is None :
             self.modules[name] = module = Module(name, 0)
-            if (imp.is_builtin(name) == 0 and
-		not _EVIL_C_EXTENSIONS.has_key(name)):
+            if imp.is_builtin(name) == 0:
                 module.load()
             else :
                 globalModule = globals().get(name)
@@ -577,6 +585,16 @@ class Module :
             utils.updateCheckerArgs(pychecker_attr, 'suppressions', 0, [])
 
         for tokenName in _filterDir(self.module, _DEFAULT_MODULE_TOKENS) :
+            if _EVIL_C_OBJECTS.has_key('%s.%s' % (self.moduleName, tokenName)):
+                continue
+
+            # README if interpreter is crashing:
+            # Change 0 to 1 if the interpretter is crashing and re-run.
+            # Follow the instructions from the last line printed.
+            if 0:
+                print "Add the following line to _EVIL_C_OBJECTS:\n" \
+                      "    '%s.%s': None, " % (self.moduleName, tokenName)
+
             token = getattr(self.module, tokenName)
             if isinstance(token, types.ModuleType) :
                 # get the real module name, tokenName could be an alias
