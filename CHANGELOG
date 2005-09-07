@@ -1,5 +1,10 @@
+Version 0.8.17   - XX September 2005
+  * Add code to skip loading of extension modules that are known to crash
+    the interpreter.  Currently, the list includes matplotlib and wx.
+    Bugs have been files with those projects.
+
 Version 0.8.16   - 4 September 2005
-  * Fix problems installing on Windows and running setup.py build 
+  * Fix problems installing on Windows and running setup.py build
 
 Version 0.8.15   - 31 August 2005
   * Fix spurious warning about catching string exceptions
