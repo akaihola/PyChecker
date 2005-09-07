@@ -1,7 +1,8 @@
 Version 0.8.17   - XX September 2005
-  * Add code to skip loading of extension modules that are known to crash
-    the interpreter.  Currently, the list includes matplotlib and wx.
-    Bugs have been files with those projects.
+  * Add code to skip testing objects from extension modules that are
+    known to crash the interpreter.  Currently, the list includes
+    matplotlib.axes.BinOpType and wx.TheClipboard. Bugs have been
+    files with those projects.
 
 Version 0.8.16   - 4 September 2005
   * Fix problems installing on Windows and running setup.py build
