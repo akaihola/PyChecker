@@ -56,9 +56,9 @@ _DEFAULT_CLASS_TOKENS = ('__doc__', '__name__', '__module__')
 
 # C extensions that should not be loaded since they cause
 # the interpreter to crash when running pychecker
-# FIXME: this is really a hack.  ideally, we should figure out why these
-# extensions crash and fix pychecker/python/extension module.
-_EVIL_C_EXTENSIONS = { 'matplotlib.axes': None,
+# FIXME: the values need to indicate the versions of these modules
+# that are broken.
+_EVIL_C_EXTENSIONS = { 'matplotlib.axes': None, # broken on versions <= 0.83.2
                        'wx': None,
                      }
 
