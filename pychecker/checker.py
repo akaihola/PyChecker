@@ -238,8 +238,8 @@ class Class :
         self.module = sys.modules.get(modname)
         if not self.module:
             self.module = module
-            sys.stderr.write("warning: couldn't find real module for class %s "
-                             "(module name: %s)\n"
+            sys.stderr.write("warning: couldn't find real module "
+                             "for class %s (module name: %s)\n"
                              % (self.classObject, modname))
         self.ignoreAttrs = 0
         self.methods = {}
