@@ -59,6 +59,7 @@ _DEFAULT_CLASS_TOKENS = ('__doc__', '__name__', '__module__')
 # FIXME: this is really a hack.  ideally, we should figure out why these
 # extensions crash and fix pychecker/python/extension module.
 _EVIL_C_EXTENSIONS = { 'matplotlib.axes': None,
+                       'wx': None,
                      }
 
 _VERSION_MISMATCH_ERROR = '''
