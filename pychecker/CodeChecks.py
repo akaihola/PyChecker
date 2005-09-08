@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2001-2004, MetaSlash Inc.  All rights reserved.
+# Portions Copyright (c) 2005, Google, Inc.  All rights reserved.
 
 """
 Find warnings in byte code from Python source files.
@@ -1570,7 +1571,11 @@ def _BINARY_DIVIDE(oparg, operand, codeSource, code) :
     _checkModifyNoOp(code, '/', msgs.DIVIDE_VAR_BY_ITSELF, 0)
     if cfg().intDivide and len(code.stack) >= 2 :
         if _isint(code.stack[-1], code) and _isint(code.stack[-2], code) :
-            code.addWarning(msgs.INTEGER_DIVISION % tuple(code.stack[-2:]))
+            # don't warn if we are going to convert the result to an int
+            if not (len(code.stack) >= 3 and
+                    code.stack[-3].data == 'int' and
+                    OP.CALL_FUNCTION(code.nextOpInfo()[0])):
+                code.addWarning(msgs.INTEGER_DIVISION % tuple(code.stack[-2:]))
 
     _popModifiedStack(code, '/')
 

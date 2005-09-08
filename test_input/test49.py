@@ -31,3 +31,7 @@ def z(e):
     y = 0
     return (x * 100.0) / y
 
+def should_not_warn(a):
+    # this warning should be suppressed automatically
+    x = int(a)
+    return int(x / 5)

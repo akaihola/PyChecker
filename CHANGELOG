@@ -1,4 +1,5 @@
 Version 0.8.17   - XX September 2005
+  * Suppress warning about integer division when the code is: int(x / y)
   * Add code to skip testing objects from extension modules that are
     known to crash the interpreter.  Currently, the list includes
     matplotlib.axes.BinOpType and wx.TheClipboard. Bugs have been

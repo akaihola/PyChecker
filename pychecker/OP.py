@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2001-2004, MetaSlash Inc.  All rights reserved.
+# Portions Copyright (c) 2005, Google, Inc.  All rights reserved.
 
 """
 Python byte code operations.
@@ -32,6 +33,7 @@ def BREAK_LOOP(op):            return op == 80
 def RAISE_VARARGS(op):         return op == 130
 def POP_BLOCK(op):             return op == 87
 def END_FINALLY(op):           return op == 88
+def CALL_FUNCTION(op):         return op == 131
 
 def UNPACK_SEQUENCE(op) :
     "Deal w/Python 1.5.2 (UNPACK_[LIST|TUPLE]) or 2.0 (UNPACK_SEQUENCE)"
