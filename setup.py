@@ -82,8 +82,8 @@ class my_install_data(install_data):
    Customized install_data distutils action.
 
    This customized action forces all data files to all be installed relative to
-   the normal library install directory rather than in the standard location.
-   This directory is usually something like /usr/share/python2.3/site-packages.   
+   the normal library install directory (within site-packages) rather than in
+   the standard location.
 
    This action does not obey any --install-data flag that the user specifies.
    Distutils apparently does not provide a way to tell whether the install data
@@ -119,17 +119,14 @@ class my_install_scripts(install_scripts):
    We have some special behavior around binary distributions.  If we're
    building a binary distibution, then we don't try to figure out where
    checker.py will be installed "for real".  We just assume it will be put in
-   the standard site-packages location (which is built per the official
-   documentation for sys.prefix).
+   the standard site-packages location.
    """
    def run(self):
       global using_bdist
       if not using_bdist:
          install_lib = self.distribution.get_command_obj("install").install_lib
       else:
-         install_lib = os.path.join(sys.prefix, "lib", 
-                                    "python%s" % sys.version[:3], 
-                                    "site-packages")
+         install_lib = get_site_packages_path()
       scripts = self.distribution.get_command_obj("build_scripts").scripts
       if install_lib is None or scripts is None or self.build_dir is None:
          print "note: install_scripts can only be invoked by install"
@@ -183,6 +180,19 @@ def get_script_path(build_dir):
       return os.path.join(build_dir, "pychecker.bat")
    else:
       return os.path.join(build_dir, "pychecker")
+
+def get_site_packages_path():
+   """
+   Returns the platform-specific location of the site-packages directory.
+   This directory is usually something like /usr/share/python2.3/site-packages
+   on UNIX platforms and /Python23/Lib/site-packages on Windows platforms.
+   """
+   if sys.platform.lower().startswith('win'):
+      return os.path.join(sys.prefix, "Lib", "site-packages")
+   else:
+      return os.path.join(sys.prefix, "lib", 
+                          "python%s" % sys.version[:3], 
+                          "site-packages")
 
 def create_script(script_path, package_path):
    """
