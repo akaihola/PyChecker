@@ -341,7 +341,7 @@ def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
     for line, stackItem, dummy in returnValues :
         if stackItem.data != None :
             if not stackItem.isNone() or cfg().returnNoneFromInit :
-                warn = Warning(moduleFilename, line, msgs.RETURN_FROM_INIT)
+                warn = Warning(func_code, line, msgs.RETURN_FROM_INIT)
                 warnings.append(warn)
 
     classInit = getattr(c.classObject, utils.INIT, None)

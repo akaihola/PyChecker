@@ -1,4 +1,6 @@
 Version 0.8.17   - XX September 2005
+  * Fix wrong file name when warning about returning values from
+    __init__ functions. (#1291116)
   * Fix a few more glitches with setup.py.
   * Suppress warning about integer division when the code is: int(x / y)
   * Add code to skip testing objects from extension modules that are
