@@ -21,7 +21,7 @@ import traceback
 import re
 
 # see __init__.py for meaning, this must match the version there
-LOCAL_MAIN_VERSION = 2
+LOCAL_MAIN_VERSION = 3
 
 
 def setupNamespace(path) :

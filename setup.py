@@ -247,10 +247,10 @@ however, spurious warnings should be fairly infrequent.
 """
 
 kw =  { 'name'             : "PyChecker",
-        'version'          : "0.8.15",
+        'version'          : "0.8.17beta",
         'license'          : "BSD-like",
         'description'      : "Python source code checking tool",
-        'author'           : "Neal Norwitz, MetaSlash, Inc.",
+        'author'           : "Neal Norwitz",
         'author_email'     : "nnorwitz@gmail.com",
         'url'              : "http://pychecker.sourceforge.net/",
         'packages'         : [ 'pychecker', ],
@@ -274,4 +274,3 @@ if hasattr(core, 'setup_keywords') and 'classifiers' in core.setup_keywords:
 
 if __name__ == '__main__' :
    core.setup(**kw)
-
