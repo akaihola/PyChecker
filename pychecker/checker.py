@@ -745,6 +745,10 @@ def main(argv) :
     if not files :
         return 0
 
+    # Now that we've got the args, update the list of evil C objects
+    for evil_doer in _cfg.evil:
+        _EVIL_C_OBJECTS[evil_doer] = None
+
     # insert this here, so we find files in the local dir before std library
     sys.path.insert(0, '')
 
