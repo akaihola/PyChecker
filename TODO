@@ -1,5 +1,7 @@
 Goals for next minor release:
 -----------------------------
+* Warn if defining a module name that's also in the stdlib
+* Add flag to only output warnings about files on the command line
 * Limit output to N most important
 * Add severity and estimated difficulty to research/fix error
 * Add warning when using listcomp variable (x) outside of [... for x in ...]
