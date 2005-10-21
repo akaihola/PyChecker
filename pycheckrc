@@ -1,4 +1,4 @@
-# Sample defaults file for PyChecker 0.8.13
+# Sample defaults file for PyChecker 0.8.17
 # This file should be called:  .pycheckrc
 # It should be placed in your home directory (value of $HOME).
 # If $HOME is not set, it will look in the current directory.
@@ -39,10 +39,10 @@ reimportSelf = 1
 # bool: warn when local variables are not used
 localVariablesUsed = 1
 
-# bool:  assume a, b, and c are used in this case:  a, b, c = func()
+# bool: assume a, b, and c are used in this case:  a, b, c = func()
 unusedLocalTuple = 0
 
-# bool:  warn when class attributes (data members) are unused
+# bool: warn when class attributes (data members) are unused
 membersUsed = 0
 
 # bool: warn when Subclass.__init__ is not called in a subclass
@@ -92,6 +92,9 @@ modulo1 = 1
 # doesn't always work on integers and strings
 isLiteral = 1
 
+# bool: warn when possibly using string.find() improperly (if s.find():)
+stringFind = 1
+
 # bool: warn when using a deprecated module or function
 deprecated = 1
 
@@ -103,7 +106,7 @@ callingAttribute = 0
 
 # bool: warn when using named arguments: func(a=1, b=2), where def func(a, b):
 #       def func2(a, b, **kw): doesn't generate a warning
-namedArgs = 1
+namedArgs = 0
 
 # str: name of 'self' parameter
 methodArgName = 'self'
@@ -133,7 +136,7 @@ maxLines = 200
 maxBranches = 50
 maxReturns = 10
 maxArgs = 10
-maxLocals = 25
+maxLocals = 40
 maxReferences = 5
 
 
@@ -177,6 +180,9 @@ intDivide = 1
 
 # bool: check if local variables shadow a global variable with same name
 shadows = 1
+
+# bool: check if local variables shadow a builtin variable with same name
+shadowBuiltins = 1
 
 # bool: check if input() is used, which is a security problem, use raw_input()
 usesInput = 1
