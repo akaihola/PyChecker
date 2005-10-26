@@ -3,6 +3,9 @@
 # It should be placed in your home directory (value of $HOME).
 # If $HOME is not set, it will look in the current directory.
 
+# bool: only warn about files passed on the command line
+only = 0
+
 # bool: warnings for Doc Strings
 noDocModule = 0
 noDocClass = 0

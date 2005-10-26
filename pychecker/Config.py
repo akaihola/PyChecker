@@ -29,7 +29,7 @@ _ERRORS = { 'noEffect': 1, }
 
 _OPTIONS = (
     ('Major Options', [
- ('',  0, 'only', 'only', 'only warn about the files on the command line'),
+ ('',  0, 'only', 'only', 'only warn about files passed on the command line'),
  ('e', 0, 'errors', None, 'turn off all warnings which are not likely errors'),
  ( '', 0, 'complexity', None, 'turn off all warnings which are related to complexity'),
  ('F', 1, 'config', None, 'specify .pycheckrc file to use'),
