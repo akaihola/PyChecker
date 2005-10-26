@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2001-2002, MetaSlash Inc.  All rights reserved.
+# Portions Copyright (c) 2005, Google, Inc. All rights reserved.
 
 """
 Print out warnings from Python source files.
@@ -406,7 +407,7 @@ def getStandardLibrary() :
 def normalize_path(path):
     return os.path.normpath(os.path.normcase(path))
 
-def removeWarnings(warnings, blacklist, std_lib) :
+def removeWarnings(warnings, blacklist, std_lib, cfg):
     if std_lib is not None:
         std_lib = normalize_path(std_lib)
     for index in range(len(warnings)-1, -1, -1) :
@@ -414,6 +415,10 @@ def removeWarnings(warnings, blacklist, std_lib) :
         if filename in blacklist or (std_lib is not None and
                                      utils.startswith(filename, std_lib)) :
             del warnings[index]
+        elif cfg.only:
+            # ignore files not specified on the cmd line if requested
+            if os.path.abspath(filename) not in cfg.files:
+                del warnings[index]
 
     return warnings
 
@@ -692,7 +697,8 @@ def find(moduleList, initialCfg, suppressions = None) :
     std_lib = None
     if cfg().ignoreStandardLibrary :
         std_lib = getStandardLibrary()
-    return removeWarnings(warnings, getBlackList(cfg().blacklist), std_lib)
+    return removeWarnings(warnings, getBlackList(cfg().blacklist), std_lib,
+                          cfg())
 
 if 0:
     # if you want to test w/psyco, include this

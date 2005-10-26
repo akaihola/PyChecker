@@ -29,11 +29,12 @@ _ERRORS = { 'noEffect': 1, }
 
 _OPTIONS = (
     ('Major Options', [
+ ('',  0, 'only', 'only', 'only warn about the files on the command line'),
  ('e', 0, 'errors', None, 'turn off all warnings which are not likely errors'),
  ( '', 0, 'complexity', None, 'turn off all warnings which are related to complexity'),
  ('F', 1, 'config', None, 'specify .pycheckrc file to use'),
  ('',  0, 'quixote', None, 'support Quixote\'s PTL modules'),
- ('',  1, 'evil', None, 'list of evil C extensions that crash the interpreter'),
+ ('',  1, 'evil', 'evil', 'list of evil C extensions that crash the interpreter'),
      ]),
     ('Error Control', [
  ('i', 0, 'import', 'importUsed', 'unused imports'),
@@ -115,7 +116,7 @@ _OPTIONS = (
  ( '', 0, 'rcfile', None, 'print a .pycheckrc file generated from command line args'),
  ('P', 0, 'printparse', 'printParse', 'print internal checker parse structures'),
  ('d', 0, 'debug', 'debug', 'turn on debugging for checker'),
- ('Q', 0, 'quiet', None, 'turn off all output except warnings'),
+ ('Q', 0, 'quiet', 'quiet', 'turn off all output except warnings'),
  ('V', 0, 'version', None, 'print the version of PyChecker and exit'),
      ])
 )
@@ -201,8 +202,12 @@ class Config :
     def __init__(self) :
         "Initialize configuration with default values."
 
+        # files to process (typically from cmd line)
+        self.files = {}
+
         self.debug = 0
         self.quiet = 0
+        self.only = 0
         self.onlyCheckInitForMembers = 0
         self.printParse = 0
         self.quixote = 0
@@ -321,7 +326,10 @@ class Config :
         except getopt.error, detail :
             raise UsageError, detail
 
-        quiet = self.quiet
+        # setup files from cmd line
+        for f in files:
+            self.files[os.path.abspath(f)] = 1
+
         if otherConfigFiles is None:
             otherConfigFiles = []
         for arg, value in args :
@@ -331,9 +339,6 @@ class Config :
                 if longArg == 'rcfile' :
                     sys.stdout.write(outputRc(self))
                     continue
-                elif longArg == 'quiet' :
-                    quiet = 1
-                    continue
                 elif longArg == 'quixote' :
                     import quixote
                     quixote.enable_ptl()
@@ -341,9 +346,6 @@ class Config :
                     continue
                 elif longArg == 'config' :
                     otherConfigFiles.append(value)
-                    continue
-                elif longArg == 'evil' :
-                    self.evil.extend(string.split(value, ','))
                     continue
                 elif longArg == 'version' :
                     # FIXME: it would be nice to define this in only one place
@@ -379,7 +381,6 @@ class Config :
                 # for shortArgs we only toggle
                 setattr(self, member, not getattr(self, member))
 
-        self.quiet = quiet
         if self.variablesToIgnore.count(CHECKER_VAR) <= 0 :
             self.variablesToIgnore.append(CHECKER_VAR)
 

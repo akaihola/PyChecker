@@ -1,4 +1,8 @@
-Version 0.8.17   - XX September 2005
+Version 0.8.17   - XX November 2005
+  * Add --only option which displays warnings only for files specified
+    on the command line
+  * Add --evil option for users to prevent the interpreter from crashing
+    due to broken C extensions
   * Fix wrong file name when warning about returning values from
     __init__ functions. (#1291116)
   * Fix a few more glitches with setup.py.
