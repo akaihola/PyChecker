@@ -1,4 +1,9 @@
 Version 0.8.17   - XX November 2005
+  * Remove broken command line options:  -e/--errors, --complexity
+  * Add -e/--level command line options which allows the error level
+    to be specified:  error, security, warning, unused, deprecated, style.
+    These names map to numbers: 90, 90, 70, 50, 40, 10 (error == security).
+    Specifying a value means all levels equal to or greater than it.
   * Add --only option which displays warnings only for files specified
     on the command line
   * Add --evil option for users to prevent the interpreter from crashing

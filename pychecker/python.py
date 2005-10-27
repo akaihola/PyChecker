@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2001-2004, MetaSlash Inc.  All rights reserved.
+# Portions Copyright (c) 2005, Google, Inc. All rights reserved.
 
 """
 Setup a lot of info about Python builtin types, functions, methods, etc.
@@ -244,9 +245,9 @@ METHODLESS_OBJECTS = { types.NoneType : None, types.IntType : None,
                      }
 
 def _setupBuiltinAttrs() :
-    w = Warning.Warning('', 0, '')
-    BUILTIN_ATTRS[types.MethodType] = dir(w.__init__)
-    del w
+    item = Stack.Item(None, None)
+    BUILTIN_ATTRS[types.MethodType] = dir(item.__init__)
+    del item
 
     if utils.pythonVersion() >= utils.PYTHON_2_2 :
         # FIXME: I'm sure more types need to be added here

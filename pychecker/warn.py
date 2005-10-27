@@ -420,6 +420,10 @@ def removeWarnings(warnings, blacklist, std_lib, cfg):
             if os.path.abspath(filename) not in cfg.files:
                 del warnings[index]
 
+        # filter by warning/error level if requested
+        if cfg.level and warnings[index].level < cfg.level:
+            del warnings[index]
+
     return warnings
 
 
