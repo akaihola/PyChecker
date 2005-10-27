@@ -21,9 +21,7 @@ class WarningClass:
     return result
 
   def __str__(self):
-    result = UserString.UserString(self.msg)
-    result.level = self.level
-    return result
+    return self.msg
 
 class Error(WarningClass):
   level = 90
