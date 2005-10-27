@@ -424,6 +424,23 @@ def removeWarnings(warnings, blacklist, std_lib, cfg):
         if cfg.level and warnings[index].level < cfg.level:
             del warnings[index]
 
+    if cfg.limit:
+        # sort by severity first, then normal sort (by file/line)
+        warnings.sort(lambda a, b: cmp(a.level, b.level) or cmp(a, b))
+
+        # strip duplicates
+        lastWarning = None
+        for index in range(len(warnings)-1, -1, -1):
+            warning = warnings[index]
+
+            # remove duplicate warnings
+            if lastWarning is not None and cmp(lastWarning, warning) == 0:
+                del warnings[index]
+            else:
+                lastWarning = warning
+
+        del warnings[:-cfg.limit]
+
     return warnings
 
 

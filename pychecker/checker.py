@@ -665,13 +665,9 @@ def _printWarnings(warnings, stream=None):
     warnings.sort()
     lastWarning = None
     for warning in warnings :
-        if lastWarning != None :
-            # ignore duplicate warnings
-            if cmp(lastWarning, warning) == 0 :
-                continue
-            # print blank line between files
-            if lastWarning.file != warning.file :
-                stream.write("\n")
+        # print blank line between files
+        if lastWarning is not None and lastWarning.file != warning.file:
+            stream.write("\n")
 
         lastWarning = warning
         warning.output(stream)
