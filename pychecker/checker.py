@@ -482,7 +482,7 @@ def _getPyFile(filename):
         return filename[:-1]
     return filename
 
-class Module :
+class PyCheckerModule :
     "Class to hold all information for a module"
 
     def __init__(self, moduleName, check = 1) :
@@ -531,7 +531,7 @@ class Module :
     def addModule(self, name) :
         module = _allModules.get(name, None)
         if module is None :
-            self.modules[name] = module = Module(name, 0)
+            self.modules[name] = module = PyCheckerModule(name, 0)
             if imp.is_builtin(name) == 0:
                 module.load()
             else :
@@ -646,7 +646,7 @@ _BUILTIN_MODULE_ATTRS = { 'sys': [ 'ps1', 'ps2', 'tracebacklimit',
 def fixupBuiltinModules(needs_init=0):
     for moduleName in sys.builtin_module_names :
         if needs_init:
-            _ = Module(moduleName, 0)
+            _ = PyCheckerModule(moduleName, 0)
         module = _allModules.get(moduleName, None)
         if module is not None :
             try :
@@ -694,7 +694,7 @@ def processFiles(files, cfg = None, pre_process_cb = None) :
     for moduleName in getModules(files) :
         if callable(pre_process_cb) :
             pre_process_cb(moduleName)
-        module = Module(moduleName)
+        module = PyCheckerModule(moduleName)
         if not module.load() :
             w = Warning(module.filename(), 1, "NOT PROCESSED UNABLE TO IMPORT")
             warnings.append(w)
@@ -802,7 +802,7 @@ else :
         pymodule = _orig__import__(name, globals, locals, fromlist)
         if check :
             try :
-                module = Module(pymodule.__name__)
+                module = PyCheckerModule(pymodule.__name__)
                 if module.initModule(pymodule):
                     warnings = warn.find([module], _cfg, _suppressions)
                     _printWarnings(_get_unique_warnings(warnings))
