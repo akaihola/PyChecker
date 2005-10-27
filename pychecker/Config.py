@@ -42,7 +42,8 @@ _DEFAULT_UNUSED_LIST = [ '_', 'empty', 'unused', 'dummy', ]
 _OPTIONS = (
     ('Major Options', [
  ('',  0, 'only', 'only', 'only warn about files passed on the command line'),
- ('e', 1, 'level', None, 'specify the maximum error level'),
+ ('e', 1, 'level', None, 'the maximum error level of warnings to be displayed'),
+ ('#', 1, 'limit', 'limit', 'the maximum number of warnings to be displayed'),
  ('F', 1, 'config', None, 'specify .pycheckrc file to use'),
  ('',  0, 'quixote', None, 'support Quixote\'s PTL modules'),
  ('',  1, 'evil', 'evil', 'list of evil C extensions that crash the interpreter'),
@@ -220,6 +221,8 @@ class Config :
         self.quiet = 0
         self.only = 0
         self.level = 0
+        self.limit = 10
+
         self.onlyCheckInitForMembers = 0
         self.printParse = 0
         self.quixote = 0
