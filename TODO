@@ -1,15 +1,17 @@
 Goals for next minor release:
 -----------------------------
 * Warn if defining a module name that's also in the stdlib
-* Add flag to only output warnings about files on the command line
-* Limit output to N most important
-* Add severity and estimated difficulty to research/fix error
+* Add estimated difficulty to research/fix error
 * Add warning when using listcomp variable (x) outside of [... for x in ...]
 * Shouldn't warn about using return value for generators
 * Suppress argument (self) name warnings if func has no impl?
 * Add warning for a variable that is constant 
     ie, initialized and used, but never changed
 
+* Add warning when iterating over a dict (keys, values, items) and mutating it
+* Add warning for catching AttributeError when there is no attr access
+	ZeroDivisionError w/no division?
+	KeyError UnboundLocalError IndexError IndentationError ImportError
 * Add warning for: x % x is always 0
 * Check for "if s.find(str):" s/b "if s.find(str) >= 0:" where s is a string
 * Add warning for a import b & b import a (import loops)
