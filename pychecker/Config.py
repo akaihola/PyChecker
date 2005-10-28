@@ -15,7 +15,8 @@ import re
 import time
 
 def get_warning_levels():
-    import msgs, types
+    import types
+    from pychecker import msgs
     WarningClass = msgs.WarningClass
 
     result = {}
