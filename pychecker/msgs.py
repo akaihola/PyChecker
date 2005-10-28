@@ -23,6 +23,9 @@ class WarningClass:
   def __str__(self):
     return self.msg
 
+class Internal(WarningClass):
+  level = 100
+
 class Error(WarningClass):
   level = 90
 
@@ -41,8 +44,8 @@ class Deprecated(WarningClass):
 class Style(WarningClass):
   level = 10
 
-CHECKER_BROKEN = "INTERNAL ERROR -- STOPPED PROCESSING FUNCTION --\n\t%s"
-INVALID_CHECKER_ARGS = "Invalid warning suppression arguments --\n\t%s"
+CHECKER_BROKEN = Internal("INTERNAL ERROR -- STOPPED PROCESSING FUNCTION --\n\t%s")
+INVALID_CHECKER_ARGS = Internal("Invalid warning suppression arguments --\n\t%s")
 
 NO_MODULE_DOC = Style("No module doc string")
 NO_CLASS_DOC = Style("No doc string for class %s")
