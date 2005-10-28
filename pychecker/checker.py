@@ -43,6 +43,7 @@ from pychecker import warn
 from pychecker import OP
 from pychecker import Config
 from pychecker import function
+from pychecker import msgs
 from pychecker.Warning import Warning
 
 # Globals for storing a dictionary of info about modules and classes
@@ -692,7 +693,8 @@ def processFiles(files, cfg = None, pre_process_cb = None) :
             pre_process_cb(moduleName)
         module = PyCheckerModule(moduleName)
         if not module.load() :
-            w = Warning(module.filename(), 1, "NOT PROCESSED UNABLE TO IMPORT")
+            w = Warning(module.filename(), 1,
+                        msgs.Internal("NOT PROCESSED UNABLE TO IMPORT"))
             warnings.append(w)
     utils.popConfig()
     return warnings
