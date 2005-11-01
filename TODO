@@ -1,5 +1,6 @@
 Goals for next minor release:
 -----------------------------
+* Need way to configure broken (and non-broken) versions of evil C extensions
 * Warn if defining a module name that's also in the stdlib
 * Add estimated difficulty to research/fix error
 * Add warning when using listcomp variable (x) outside of [... for x in ...]
