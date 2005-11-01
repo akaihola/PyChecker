@@ -4,9 +4,13 @@ also test functions w/security implications
 '''
 
 import os
-import whrandom
 import gopherlib
 import string
+
+try:
+    import whrandom
+except ImportError:
+    pass
 
 def t1():
     'get rid of warnings about not using deprecated modules'
