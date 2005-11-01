@@ -5,6 +5,7 @@ TESTS="test_input/test[1-9]*.py"
 #PYTHON="python2"
 #PYTHON="$HOME/build/python/2_3/python"
 #PYTHON="$PYTHON -tt coverage.py -x"
+#PYTHON="/usr/bin/python2.3"
 
 if [ "$PYTHON" = "" ]; then
     PYTHON=python
@@ -45,7 +46,7 @@ for test_file in $TESTS ; do
     fi
 
     test_path=$TMP/$test_name
-    $PYTHON -tt ./pychecker/checker.py --moduledoc --classdoc --no-argsused $extra_args $test_file 2>&1 | egrep -v '\[[0-9]+ refs\]$' > $test_path
+    $PYTHON -tt ./pychecker/checker.py --limit 0 --moduledoc --classdoc --no-argsused $extra_args $test_file 2>&1 | egrep -v '\[[0-9]+ refs\]$' > $test_path
     diff $test_path $expected
     if [ $? -ne 0 ]; then
         error=`expr $error + 1`
