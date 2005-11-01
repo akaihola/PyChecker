@@ -35,3 +35,16 @@ def e(x):
 def f():
     x = e(1)
     print x
+
+class Point:
+    """doc string"""
+    parse = None
+
+    def get_position(self, parts):
+        try:
+            return Point.parse('%s %s' % (parts[1], parts[2]), float(parts[3]))
+        except ValueError, e:
+            # FIXME: handle better than printing
+            print 'Unable to process position report\n', e
+        return None
+
