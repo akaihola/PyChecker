@@ -1482,7 +1482,11 @@ _POP_TOP = _PRINT_ITEM = _pop
 
 def _popModified(oparg, operand, codeSource, code):
     _popModifiedStack(code)
-_BINARY_LSHIFT = _BINARY_RSHIFT = _popModified
+
+def _BINARY_RSHIFT(oparg, operand, codeSource, code):
+    _coerce_type(code)
+    _popModified(oparg, operand, codeSource, code)
+_BINARY_LSHIFT = _BINARY_RSHIFT
 
 def _checkModifyNoOp(code, op, msg=msgs.MODIFY_VAR_NOOP, modifyStack=1):
     stack = code.stack
@@ -1500,12 +1504,15 @@ def _checkModifyNoOp(code, op, msg=msgs.MODIFY_VAR_NOOP, modifyStack=1):
 
 def _BINARY_AND(oparg, operand, codeSource, code):
     _checkModifyNoOp(code, '&')
+    _coerce_type(code)
 
 def _BINARY_OR(oparg, operand, codeSource, code):
     _checkModifyNoOp(code, '|')
+    _coerce_type(code)
 
 def _BINARY_XOR(oparg, operand, codeSource, code):
     _checkModifyNoOp(code, '^', msgs.XOR_VAR_WITH_ITSELF)
+    _coerce_type(code)
 
 def _PRINT_ITEM_TO(oparg, operand, codeSource, code) :
     code.popStackItems(2)

@@ -50,3 +50,5 @@ def i(a):
 def j(x, y):
     return (x + 1.0) / (y + 2.0)
 
+def k(d):
+    return ((1 << d) | (1 << ((d+4) % 8)))
