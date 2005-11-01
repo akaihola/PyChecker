@@ -500,7 +500,7 @@ def _handleImport(code, operand, module, main, fromName) :
         else:
             msg = msgs.USING_DEPRECATED_MODULE % tmpFromName
             if undeprecated:
-                msg = msg + msgs.USE_INSTEAD % undeprecated
+                msg.data = msg.data + msgs.USE_INSTEAD % undeprecated
             code.addWarning(msg)
 
     if cfg().reimportSelf and tmpOperand == module.module.__name__ :
@@ -572,8 +572,9 @@ def _getFormatInfo(format, code) :
     for section in sections[1:] :
         orig_section = section
         if not section:
-            code.addWarning(msgs.INVALID_FORMAT % orig_section +
-                            ' (end of format string)')
+            w = msgs.INVALID_FORMAT % orig_section
+            w.data = w.data + ' (end of format string)'
+            code.addWarning(w)
             continue
 
         # handle dictionary formats
@@ -1182,7 +1183,7 @@ def _checkDeprecated(code, identifierTuple):
     else:
         msg = msgs.USING_DEPRECATED_ATTR % name
         if undeprecated:
-            msg = msg + msgs.USE_INSTEAD % undeprecated
+            msg.data = msg.data + msgs.USE_INSTEAD % undeprecated
         code.addWarning(msg)
 
 def _LOAD_ATTR(oparg, operand, codeSource, code) :
