@@ -439,7 +439,11 @@ def removeWarnings(warnings, blacklist, std_lib, cfg):
             else:
                 lastWarning = warning
 
-        del warnings[:-cfg.limit]
+        num_ignored = len(warnings) - cfg.limit
+        if num_ignored > 0:
+            del warnings[:-cfg.limit]
+            msg = msgs.TOO_MANY_WARNINGS % num_ignored
+            warnings.append(Warning('', 0, msg))
 
     return warnings
 

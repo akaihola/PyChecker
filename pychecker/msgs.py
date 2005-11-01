@@ -44,6 +44,7 @@ class Deprecated(WarningClass):
 class Style(WarningClass):
   level = 10
 
+TOO_MANY_WARNINGS = WarningClass("%d errors suppressed, use -#/--limit to increase the number of errors displayed")
 CHECKER_BROKEN = Internal("INTERNAL ERROR -- STOPPED PROCESSING FUNCTION --\n\t%s")
 INVALID_CHECKER_ARGS = Internal("Invalid warning suppression arguments --\n\t%s")
 
