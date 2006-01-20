@@ -37,7 +37,10 @@ _VERSION = '0.8.17beta'
 _DEFAULT_BLACK_LIST = [ "Tkinter", "wxPython", "gtk", "GTK", "GDK", ]
 _DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__', 
                                   '__all__', '__credits__', '__test__',
-                                  '__author__', '__email__', '__revision__', ]
+                                  '__author__', '__email__', '__revision__',
+                                  '__id__', '__copyright__', '__license__',
+                                  '__date__',
+                                ]
 _DEFAULT_UNUSED_LIST = [ '_', 'empty', 'unused', 'dummy', ]
 
 _OPTIONS = (
