@@ -1,13 +1,20 @@
 Goals for next minor release:
 -----------------------------
+* Check for "if s.find(str):" s/b "if s.find(str) >= 0:" where s is a string
+* Add warning for: x % x is always 0
+* Add warning when using listcomp variable (x) outside of [... for x in ...]
+* Add warning for import overriding builtin (from os import *)
+* Add warning if defining a module name that's also in the stdlib
 * Add decorator so you can do:
 
    @pychecker(maxlocals=42)
    def myfunc():
 
 * Support function attributes in addition to __pychecker__
-* New warning for __special_ or __special or _special__ etc.
-* New warning when base class has similar name and same signature:
+* Add warning when iterating over a dict (keys, values, items) and mutating it
+* Add warning for __special_ or __special or _special__ etc.
+* Add warning about redefining a function/method with different signatures
+* Add warning when base class has similar name and same signature:
 
   class Base:
     def foobar():
@@ -16,32 +23,25 @@ Goals for next minor release:
 
 * If unknown name, suggest similar names
 
+* Check for return from finally (disables exception, default off?)
+* Add another boolean warning for:    if bool(xxx):
 * Need way to configure broken (and non-broken) versions of evil C extensions
-* Warn if defining a module name that's also in the stdlib
 * Add estimated difficulty to research/fix error
-* Add warning when using listcomp variable (x) outside of [... for x in ...]
 * Shouldn't warn about using return value for generators
 * Suppress argument (self) name warnings if func has no impl?
 * Add warning for a variable that is constant 
     ie, initialized and used, but never changed
 
-* Add warning when iterating over a dict (keys, values, items) and mutating it
 * Add warning for catching AttributeError when there is no attr access
 	ZeroDivisionError w/no division?
 	KeyError UnboundLocalError IndexError IndentationError ImportError
-* Add warning for: x % x is always 0
-* Check for "if s.find(str):" s/b "if s.find(str) >= 0:" where s is a string
 * Add warning for a import b & b import a (import loops)
 * Check that classes with __slots__ don't get/set any other attributes
-* Add warning about redefining a function/method with different signatures
 * Expectations of __methods__, constness (don't modify in __nonzero__)
-* Add warning for import overriding builtin (from os import *)
 * Add warning if dict has duplicate keys when creating from literals
 * __new__ should use cls, not self???
 
 * If arg has default value of None, check that arg is assigned some value
-* Check for return from finally (disables exception, default off?)
-* Add another boolean warning for:    if bool(xxx):
 
 * check if returning self from __str__()
 * check for str1 in str2 == otherValue
