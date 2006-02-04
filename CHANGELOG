@@ -18,6 +18,7 @@ Version 0.8.17   - 3 February 2006
     known to crash the interpreter.  Currently, the list includes
     matplotlib.axes.BinOpType and wx.TheClipboard. Bugs have been
     files with those projects.
+  * Support ROT_THREE and ROT_FOUR opcodes
 
 Version 0.8.16   - 4 September 2005
   * Fix problems installing on Windows and running setup.py build
