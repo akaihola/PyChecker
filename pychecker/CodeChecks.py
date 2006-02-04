@@ -1621,6 +1621,28 @@ def _ROT_TWO(oparg, operand, codeSource, code) :
         code.stack[-2] = code.stack[-1]
         code.stack[-1] = tmp
 
+def _ROT_THREE(oparg, operand, codeSource, code) :
+    """Lifts second and third stack item one position up,
+       moves top down to position three."""
+    if len(code.stack) >= 3 :
+        second = code.stack[-2]
+        third = code.stack[-3]
+        code.stack[-3] = code.stack[-1]
+        code.stack[-2] = third
+        code.stack[-1] = second
+
+def _ROT_FOUR(oparg, operand, codeSource, code) :
+    """Lifts second, third and forth stack item one position up,
+       moves top down to position four."""
+    if len(code.stack) >= 4 :
+        second = code.stack[-2]
+        third = code.stack[-3]
+        fourth = code.stack[-4]
+        code.stack[-4] = code.stack[-1]
+        code.stack[-3] = fourth
+        code.stack[-2] = third
+        code.stack[-1] = second
+
 def _SETUP_EXCEPT(oparg, operand, codeSource, code) :
     code.has_except = 1
     code.pushStack(Stack.Item(None, Stack.TYPE_EXCEPT))
@@ -1833,7 +1855,9 @@ def _RAISE_VARARGS(oparg, operand, codeSource, code) :
 DISPATCH = [ None ] * 256
 DISPATCH[  1] = _POP_TOP
 DISPATCH[  2] = _ROT_TWO
+DISPATCH[  3] = _ROT_THREE
 DISPATCH[  4] = _DUP_TOP
+DISPATCH[  5] = _ROT_FOUR
 DISPATCH[ 10] = _UNARY_POSITIVE
 DISPATCH[ 11] = _UNARY_NEGATIVE
 DISPATCH[ 12] = _UNARY_NOT
