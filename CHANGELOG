@@ -1,4 +1,4 @@
-Version 0.8.17   - 26 January 2006
+Version 0.8.17   - 3 February 2006
   * Fix spurious warning for Statement with no effect using bit shifts
   * Add -#/--limit command line option to set the max # of warnings to show
   * Remove broken command line options:  -e/--errors, --complexity
