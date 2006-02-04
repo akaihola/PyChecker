@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2001-2004, MetaSlash Inc.  All rights reserved.
+# Copyright (c) 2001-2006, MetaSlash Inc.  All rights reserved.
 # Portions Copyright (c) 2005, Google, Inc.  All rights reserved.
 
 """
