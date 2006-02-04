@@ -15,9 +15,8 @@ Version 0.8.17   - 3 February 2006
   * Fix a few more glitches with setup.py.
   * Suppress warning about integer division when the code is: int(x / y)
   * Add code to skip testing objects from extension modules that are
-    known to crash the interpreter.  Currently, the list includes
-    matplotlib.axes.BinOpType and wx.TheClipboard. Bugs have been
-    files with those projects.
+    known to crash the interpreter.  Currently, the list includes old versions of
+    matplotlib.axes.BinOpType and wx.TheClipboard.
   * Support ROT_THREE and ROT_FOUR opcodes
 
 Version 0.8.16   - 4 September 2005
