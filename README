@@ -54,7 +54,7 @@ I only regularly test with versions 2.2 and 2.3.
 
 You can use the test files as examples:
 
-	pychecker test_input/*.py
+	pychecker [options] test_input/*.py
 
 If you want to change the default behaviour, you can pass command line options
 or define a .pycheckrc file.  For an example, look at pycheckrc.
@@ -62,6 +62,14 @@ or define a .pycheckrc file.  For an example, look at pycheckrc.
 To show the available options, do:
 
 	pychecker -h
+
+Some of the most common options are:
+
+      --only         only warn about files passed on the command line [off]
+  -#, --limit        the maximum number of warnings to be displayed [10]
+  -s, --shadowbuiltin check if a variable shadows a builtin [on]
+  -q, --stdlib       ignore warnings from files under standard library [off]
+  -T, --argsused     unused method/function arguments [on]
 
 There is a simple GUI which is not maintained much.  It is good
 for showing all the options and also allows you to run pychecker.
