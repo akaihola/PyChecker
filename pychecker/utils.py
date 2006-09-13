@@ -70,6 +70,7 @@ PYTHON_2_1 = 0x20100
 PYTHON_2_2 = 0x20200
 PYTHON_2_3 = 0x20300
 PYTHON_2_4 = 0x20400
+PYTHON_2_5 = 0x20500
 
 def pythonVersion() :
     return sys.hexversion >> 8

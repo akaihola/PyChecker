@@ -117,6 +117,9 @@ tryAddGlobal('sum', types.IntType, 1, 2, ['start'])
 tryAddGlobal('sorted', Stack.TYPE_UNKNOWN, 1, 1)
 tryAddGlobal('reversed', Stack.TYPE_UNKNOWN, 1, 1)
 
+tryAddGlobal('all', BOOL, 1, 1)
+tryAddGlobal('any', BOOL, 1, 1)
+
 _STRING_METHODS = { 'capitalize': (types.StringType, 0, 0),
                     'center': (types.StringType, 1, 1),
                     'count': (types.IntType, 1, 1),
