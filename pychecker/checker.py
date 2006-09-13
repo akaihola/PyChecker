@@ -595,8 +595,8 @@ class PyCheckerModule :
             # README if interpreter is crashing:
             # Change 0 to 1 if the interpretter is crashing and re-run.
             # Follow the instructions from the last line printed.
-            if 0:
-                print "Add the following line to _EVIL_C_OBJECTS:\n" \
+            if _cfg.findEvil:
+                print "Add the following line to _EVIL_C_OBJECTS or the string to evil in a config file:\n" \
                       "    '%s.%s': None, " % (self.moduleName, tokenName)
 
             token = getattr(self.module, tokenName)

@@ -132,6 +132,7 @@ _OPTIONS = (
  ( '', 0, 'rcfile', None, 'print a .pycheckrc file generated from command line args'),
  ('P', 0, 'printparse', 'printParse', 'print internal checker parse structures'),
  ('d', 0, 'debug', 'debug', 'turn on debugging for checker'),
+ ('',  0, 'findevil', 'findEvil', 'print each class object to find one that crashes'),
  ('Q', 0, 'quiet', 'quiet', 'turn off all output except warnings'),
  ('V', 0, 'version', None, 'print the version of PyChecker and exit'),
      ])
@@ -231,6 +232,7 @@ class Config :
         self.printParse = 0
         self.quixote = 0
         self.evil = []
+        self.findEvil = 0
 
         self.noDocModule = 0
         self.noDocClass = 0
