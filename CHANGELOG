@@ -1,3 +1,7 @@
+Version 0.8.18   - XXX
+  * Add --findevil option to make it easier to find objects that crash the interpreter
+  * Add support for Python 2.5
+
 Version 0.8.17   - 3 February 2006
   * Fix spurious warning for Statement with no effect using bit shifts
   * Add -#/--limit command line option to set the max # of warnings to show
