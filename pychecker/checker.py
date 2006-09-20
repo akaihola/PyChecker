@@ -563,7 +563,7 @@ class PyCheckerModule :
             raise exc_type, exc_value
         except :
             importError(self.moduleName)
-            return 0
+            return cfg().ignoreImportErrors
 
     def initModule(self, module) :
         if not self.module:
