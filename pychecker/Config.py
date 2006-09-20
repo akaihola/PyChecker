@@ -51,6 +51,7 @@ _OPTIONS = (
  ('F', 1, 'config', None, 'specify .pycheckrc file to use'),
  ('',  0, 'quixote', None, 'support Quixote\'s PTL modules'),
  ('',  1, 'evil', 'evil', 'list of evil C extensions that crash the interpreter'),
+ ('',  0, 'keepgoing', 'ignoreImportErrors', 'ignore import errors'),
      ]),
     ('Error Control', [
  ('i', 0, 'import', 'importUsed', 'unused imports'),
@@ -228,6 +229,7 @@ class Config :
         self.level = 0
         self.limit = 10
 
+        self.ignoreImportErrors = 0
         self.onlyCheckInitForMembers = 0
         self.printParse = 0
         self.quixote = 0

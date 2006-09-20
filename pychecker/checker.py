@@ -280,7 +280,6 @@ class Class :
             return min(lineNums)
         return 0
 
-
     def allBaseClasses(self, c = None) :
         "Return a list of all base classes for this class and it's subclasses"
 
@@ -678,6 +677,36 @@ def _printWarnings(warnings, stream=None):
         warning.output(stream)
 
 
+class NullModule:
+    def __getattr__(self, unused_attr):
+        return None
+
+def install_ignore__import__():
+
+    _orig__import__ = None
+
+    def __import__(name, globals=None, locals=None, fromlist=None):
+        if globals is None:
+            globals = {}
+        if locals is None:
+            locals = {}
+        if fromlist is None:
+            fromlist = ()
+
+        try:
+            pymodule = _orig__import__(name, globals, locals, fromlist)
+        except ImportError:
+            pymodule = NullModule()
+            if not _cfg.quiet:
+                modname = '.'.join((name,) + fromlist)
+                sys.stderr.write("Can't import module: %s, ignoring.\n" % modname)
+        return pymodule
+
+    # keep the orig __import__ around so we can call it
+    import __builtin__
+    _orig__import__ = __builtin__.__import__
+    __builtin__.__import__ = __import__
+
 def processFiles(files, cfg = None, pre_process_cb = None) :
     # insert this here, so we find files in the local dir before std library
     if sys.path[0] != '' :
@@ -689,6 +718,9 @@ def processFiles(files, cfg = None, pre_process_cb = None) :
         _cfg = cfg
     elif _cfg is None :
         _cfg = Config.Config()
+
+    if _cfg.ignoreImportErrors:
+        install_ignore__import__()
 
     warnings = []
     utils.initConfig(_cfg)
