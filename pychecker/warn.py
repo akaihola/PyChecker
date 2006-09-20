@@ -415,10 +415,12 @@ def removeWarnings(warnings, blacklist, std_lib, cfg):
         if filename in blacklist or (std_lib is not None and
                                      utils.startswith(filename, std_lib)) :
             del warnings[index]
+            continue
         elif cfg.only:
             # ignore files not specified on the cmd line if requested
             if os.path.abspath(filename) not in cfg.files:
                 del warnings[index]
+                continue
 
         # filter by warning/error level if requested
         if cfg.level and warnings[index].level < cfg.level:
