@@ -127,6 +127,13 @@ def _validateKwArgs(code, info, func_name, kwArgs):
     elif not info[3]:
         return
 
+    try:
+        # info could be from a builtin method which means that
+        # info[3] is not a list.
+        dummy = info[3][0]
+    except IndexError:
+        return
+
     for arg in kwArgs:
         if arg not in info[3]:
             code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW_ARG % (func_name, arg))

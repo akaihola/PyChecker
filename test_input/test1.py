@@ -69,3 +69,7 @@ def test_kw_lambda(a, b, c):
 
 str = '53'
 _ = "blah, don't care, shouldn't warn"
+
+def getOneImageFromPath(k, v):
+    d = []
+    d.append(id=k, original_flag=v)
