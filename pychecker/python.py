@@ -206,7 +206,8 @@ BUILTIN_METHODS = { types.DictType :
 
 if utils.pythonVersion() >= utils.PYTHON_2_4:
     kwargs = ['cmp', 'key', 'reverse']
-    BUILTIN_METHODS[types.ListType]['sort'] =(types.NoneType, 0, 3, kwargs)
+    BUILTIN_METHODS[types.ListType]['sort'] = (types.NoneType, 0, 3, kwargs)
+    BUILTIN_METHODS[types.DictType]['update'] = (types.NoneType, 1, 1, [])
 
 if hasattr({}, 'pop'):
     BUILTIN_METHODS[types.DictType]['pop'] = (Stack.TYPE_UNKNOWN, 1, 2)
