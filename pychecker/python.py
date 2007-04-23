@@ -366,7 +366,6 @@ SPECIAL_METHODS = {
     '__len__': 1,
     '__new__': None,			# new-style class constructor
     '__nonzero__': 1,
-    '__reduce__': 1,
 
     '__hex__': 1,
     '__oct__': 1,
@@ -407,5 +406,6 @@ SPECIAL_METHODS = {
     # these are related to pickling 
     '__getstate__': 1,		'__setstate__': 2,
     '__copy__': 1,		'__deepcopy__': 2,
-    '__getinitargs__': 1,	
+    '__getinitargs__': 1,	'__getnewargs__': 1,
+    '__reduce__': 1,		'__reduce_ex__': 2,
     }
