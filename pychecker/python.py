@@ -156,6 +156,7 @@ _STRING_METHODS = { 'capitalize': (types.StringType, 0, 0),
 
 if utils.pythonVersion() >= utils.PYTHON_2_2 :
     _STRING_METHODS['decode'] = (types.UnicodeType, 0, 2)
+    _STRING_METHODS['zfill'] = (types.StringType, 1, 1)
 
 if utils.pythonVersion() >= utils.PYTHON_2_4:
     _STRING_METHODS['rsplit'] = (types.StringType, 0, 2)
@@ -205,12 +206,19 @@ BUILTIN_METHODS = { types.DictType :
                   }
 
 if utils.pythonVersion() >= utils.PYTHON_2_4:
+    GLOBAL_FUNC_INFO['set'] = (Stack.TYPE_UNKNOWN, 1, 1)
+    GLOBAL_FUNC_INFO['frozenset'] = (Stack.TYPE_UNKNOWN, 1, 1)
+
     kwargs = ['cmp', 'key', 'reverse']
     BUILTIN_METHODS[types.ListType]['sort'] = (types.NoneType, 0, 3, kwargs)
     BUILTIN_METHODS[types.DictType]['update'] = (types.NoneType, 1, 1, [])
 
 if hasattr({}, 'pop'):
     BUILTIN_METHODS[types.DictType]['pop'] = (Stack.TYPE_UNKNOWN, 1, 2)
+
+if utils.pythonVersion() >= utils.PYTHON_2_5:
+    _STRING_METHODS['partition'] = (types.TupleType, 1, 1)
+    _STRING_METHODS['rpartition'] = (types.TupleType, 1, 1)
 
 def _setupBuiltinMethods() :
     if utils.pythonVersion() >= utils.PYTHON_2_2 :
@@ -240,7 +248,7 @@ _setupBuiltinMethods()
 MUTABLE_TYPES = (types.ListType, types.DictType, types.InstanceType,)
 
 # identifiers which will become a keyword in a future version
-FUTURE_KEYWORDS = { 'yield': '2.2' }
+FUTURE_KEYWORDS = { 'yield': '2.2', 'with': '2.5', 'as': '2.5' }
 
 METHODLESS_OBJECTS = { types.NoneType : None, types.IntType : None,
                        types.LongType : None, types.FloatType : None,
