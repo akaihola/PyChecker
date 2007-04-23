@@ -42,6 +42,7 @@ _DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__',
                                   '__date__',
                                 ]
 _DEFAULT_UNUSED_LIST = [ '_', 'empty', 'unused', 'dummy', ]
+_DEFAULT_MISSING_ATTRS_LIST = []
 
 _OPTIONS = (
     ('Major Options', [
@@ -116,6 +117,7 @@ _OPTIONS = (
  ('b', 1, 'blacklist', 'blacklist', 'ignore warnings from the list of modules\n\t\t\t'),
  ('Z', 1, 'varlist', 'variablesToIgnore', 'ignore global variables not used if name is one of these values\n\t\t\t'),
  ('E', 1, 'unusednames', 'unusedNames', 'ignore unused locals/arguments if name is one of these values\n\t\t\t'),
+ ('',  1, 'missingattrs', 'missingAttrs', 'ignore missing class attributes if name is one of these values\n\t\t\t'),
  ( '', 0, 'deprecated', 'deprecated', 'ignore use of deprecated modules/functions'),
      ]),
     ('Complexity', [
@@ -275,6 +277,7 @@ class Config :
         self.unusedNames = _DEFAULT_UNUSED_LIST
         self.variablesToIgnore = _DEFAULT_VARIABLE_IGNORE_LIST
         self.blacklist = _DEFAULT_BLACK_LIST
+        self.missingAttrs = _DEFAULT_MISSING_ATTRS_LIST
         self.ignoreStandardLibrary = 0
         self.methodArgName = 'self'
         self.classmethodArgNames = ['cls', 'klass']

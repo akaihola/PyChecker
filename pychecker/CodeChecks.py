@@ -419,7 +419,8 @@ def _checkClassAttribute(attr, c, code) :
         except KeyError :
             pass
     elif cfg().classAttrExists :
-        code.addWarning(msgs.INVALID_CLASS_ATTR % attr)
+        if attr not in cfg().missingAttrs:
+            code.addWarning(msgs.INVALID_CLASS_ATTR % attr)
 
 def _checkModuleAttribute(attr, module, code, ref) :
     try:
