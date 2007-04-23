@@ -692,8 +692,8 @@ def find(moduleList, initialCfg, suppressions = None) :
         _findFunctionWarnings(module, globalRefs, warnings, suppressions)
 
         for c in module.classes.values() :
-                _findClassWarnings(module, c, classCodes.get(c.name),
-                                   globalRefs, warnings, suppressions)
+            _findClassWarnings(module, c, classCodes.get(c.name),
+                               globalRefs, warnings, suppressions)
 
         if cfg().noDocModule and \
            module.module != None and module.module.__doc__ == None :
