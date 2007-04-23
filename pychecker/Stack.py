@@ -42,7 +42,7 @@ class Item :
         return utils.safestr(self.data)
 
     def __repr__(self):
-        return 'Stack Item: (%s, %s, %d)' % (self.data, self.type, self.const)
+        return 'Stack Item: (%r, %r, %d)' % (self.data, self.type, self.const)
 
     def isNone(self) :
         return (self.type != TYPE_UNKNOWN and self.data is None or
