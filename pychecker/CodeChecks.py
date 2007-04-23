@@ -223,6 +223,11 @@ def _isexception(object) :
         # try/except is necessary for globals like NotImplemented
         if issubclass(object, Exception) :
             return 1
+        # Python 2.5 added a BaseException to the hierarchy.  That's
+        # really what we need to check if it exists.
+        if utils.pythonVersion() >= utils.PYTHON_2_5:
+            if issubclass(object, BaseException):
+                return 1
     except TypeError:
         return 0
 
