@@ -12,8 +12,10 @@ import UserString
 class WarningClass:
   level = 0
 
-  def __init__(self, msg):
+  def __init__(self, msg, level_offset=None):
     self.msg = msg
+    if level_offset is not None:
+      self.level += level_offset
 
   def __mod__(self, args):
     result = UserString.UserString(self.msg % args)
