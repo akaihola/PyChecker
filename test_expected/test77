@@ -1,6 +1,6 @@
 Processing test77...
   Caught exception importing module test77:
-    File "./pychecker/checker.py", line 621, in setupMainCode()
+    File "./pychecker/checker.py", line 620, in setupMainCode()
       module = imp.load_module(self.moduleName, file, filename, smt)
     File "test_input/test77.py", line 8
       raise MyError("FOO!")
