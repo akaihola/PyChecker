@@ -1517,15 +1517,18 @@ def _checkModifyNoOp(code, op, msg=msgs.MODIFY_VAR_NOOP, modifyStack=1):
             _modifyStackName(code, op)
 
 def _BINARY_AND(oparg, operand, codeSource, code):
-    _checkModifyNoOp(code, '&')
+    # Don't modify the stack, since _coerce_type() will do it.
+    _checkModifyNoOp(code, '&', modifyStack=0)
     _coerce_type(code)
 
 def _BINARY_OR(oparg, operand, codeSource, code):
-    _checkModifyNoOp(code, '|')
+    # Don't modify the stack, since _coerce_type() will do it.
+    _checkModifyNoOp(code, '|', modifyStack=0)
     _coerce_type(code)
 
 def _BINARY_XOR(oparg, operand, codeSource, code):
-    _checkModifyNoOp(code, '^', msgs.XOR_VAR_WITH_ITSELF)
+    # Don't modify the stack, since _coerce_type() will do it.
+    _checkModifyNoOp(code, '^', msgs.XOR_VAR_WITH_ITSELF, modifyStack=0)
     _coerce_type(code)
 
 def _PRINT_ITEM_TO(oparg, operand, codeSource, code) :
