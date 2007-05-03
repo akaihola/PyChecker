@@ -415,6 +415,8 @@ class Class :
 def _getLineInFile(moduleName, linenum):
     line = ''
     file, filename, smt = _findModule(moduleName)
+    if file is None:
+        return ''
     try:
         lines = file.readlines()
         line = string.rstrip(lines[linenum - 1])

@@ -125,6 +125,9 @@ def create_fake(name, code, func_globals = {}, varnames = None) :
     return Function(FakeFunction(name, code, func_globals, varnames))
 
 def create_from_file(file, filename, module) :
+    if file is not None:
+        return create_fake(filename, compile('', filename, 'exec'))
+
     # Make sure the file is at the beginning
     #   if python compiled the file, it will be at the end
     file.seek(0)
