@@ -206,8 +206,8 @@ BUILTIN_METHODS = { types.DictType :
                   }
 
 if utils.pythonVersion() >= utils.PYTHON_2_4:
-    GLOBAL_FUNC_INFO['set'] = (Stack.TYPE_UNKNOWN, 1, 1)
-    GLOBAL_FUNC_INFO['frozenset'] = (Stack.TYPE_UNKNOWN, 1, 1)
+    GLOBAL_FUNC_INFO['set'] = (Stack.TYPE_UNKNOWN, 0, 1)
+    GLOBAL_FUNC_INFO['frozenset'] = (Stack.TYPE_UNKNOWN, 0, 1)
 
     kwargs = ['cmp', 'key', 'reverse']
     BUILTIN_METHODS[types.ListType]['sort'] = (types.NoneType, 0, 3, kwargs)
