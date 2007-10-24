@@ -1,4 +1,6 @@
 Version 0.8.18   - XXX
+  * Fix spurious warning on min/max not accepting kwarg of key in Python 2.5
+  * Add some __special__ pickling methods that were missing
   * Add --missingattrs option to ignore some (but not all) attribute names
   * Fix crash when using keyword arguments with builtin methods
   * Add --keepgoing option to ignore import errors

@@ -100,6 +100,10 @@ if utils.pythonVersion() >= utils.PYTHON_2_2 :
 if utils.pythonVersion() >= utils.PYTHON_2_3:
     GLOBAL_FUNC_INFO['dict'] = (types.DictType, 0, 1, [])
 
+if utils.pythonVersion() >= utils.PYTHON_2_5:
+    GLOBAL_FUNC_INFO['max'] = (Stack.TYPE_UNKNOWN, 1, None, ['key'])
+    GLOBAL_FUNC_INFO['min'] = (Stack.TYPE_UNKNOWN, 1, None, ['key'])
+
 def tryAddGlobal(name, *args):
     if globals().has_key(name):
         GLOBAL_FUNC_INFO[name] = args
