@@ -384,6 +384,7 @@ SPECIAL_METHODS = {
     '__le__': 2,	'__lt__': 2,
 
     '__getattribute__': 2,	# only in new-style classes
+    '__get__': 3,		'__set__': 3,		'__delete__': 2,
     '__getattr__': 2,		'__setattr__': 3,	'__delattr__': 2,
     '__getitem__': 2,		'__setitem__': 3,	'__delitem__': 2,
     '__getslice__': 3,		'__setslice__': 4,	'__delslice__': 3,
@@ -413,3 +414,5 @@ SPECIAL_METHODS = {
     '__getinitargs__': 1,	'__getnewargs__': 1,
     '__reduce__': 1,		'__reduce_ex__': 2,
     }
+
+NEW_STYLE_CLASS_METHODS = ['__getattribute__', '__set__', '__get__', '__delete__']
