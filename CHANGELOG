@@ -1,4 +1,8 @@
 Version 0.8.18   - XXX
+  * Add warning for using __set__, __get__, and __delete__ in an old-style class
+  * Fix spurious warning about __set__, __get__, and __delete__ not being special
+    methods.
+  * Fix inability to disable Warning about constant setattr()/getattr()
   * Fix spurious warning on min/max not accepting kwarg of key in Python 2.5
   * Add some __special__ pickling methods that were missing
   * Add --missingattrs option to ignore some (but not all) attribute names
