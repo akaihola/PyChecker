@@ -44,6 +44,13 @@ _DEFAULT_VARIABLE_IGNORE_LIST = [ '__version__', '__warningregistry__',
 _DEFAULT_UNUSED_LIST = [ '_', 'empty', 'unused', 'dummy', ]
 _DEFAULT_MISSING_ATTRS_LIST = []
 
+# _OPTIONS = (
+#   (categoryName, [
+#     (shortArg, useValue, longArg, member, description),
+#     ...
+#    ]),
+#   ...
+# )
 _OPTIONS = (
     ('Major Options', [
  ('',  0, 'only', 'only', 'only warn about files passed on the command line'),
@@ -96,6 +103,7 @@ _OPTIONS = (
  ('4', 0, 'noeffect', 'noEffect', 'check if statement appears to have no effect'),
  ('',  0, 'modulo1', 'modulo1', 'check if using (expr % 1), it has no effect on integers and strings'),
  ('',  0, 'isliteral', 'isLiteral', "check if using (expr is const-literal), doesn't always work on integers and strings"),
+ ('',  0, 'constattr', 'constAttr', "check if a constant string is passed to getattr()/setattr()"),
      ]),
     ('Possible Errors', [
  ('r', 0, 'returnvalues', 'checkReturnValues', 'check consistent return values'),
