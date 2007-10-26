@@ -156,7 +156,7 @@ UNPACK_NON_SEQUENCE = Error("Unpacking a non-sequence (%s) of type %s")
 
 NOT_SPECIAL_METHOD = Warning("%s is not a special method")
 USING_COERCE_IN_NEW_CLASS = Error("Using __coerce__ in new-style class (%s) will not work for binary operations")
-USING_GETATTRIBUTE_IN_OLD_CLASS = Error("Using __getattribute__ in old-style class (%s) does not work")
+USING_NEW_STYLE_METHOD_IN_OLD_CLASS = Error("Using %s in old-style class (%s) does not work")
 USING_PROPERTIES_IN_CLASSIC_CLASS = Error("Using property (%s) in classic class %s may not work")
 USING_SLOTS_IN_CLASSIC_CLASS = Error("Using __slots__ in classic class %s has no effect, consider deriving from object")
 EMPTY_SLOTS = Warning("__slots__ are empty in %s")
