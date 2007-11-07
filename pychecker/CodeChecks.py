@@ -1320,7 +1320,7 @@ def _COMPARE_OP(oparg, operand, codeSource, code) :
     compareValues = _handleComparison(code.stack, operand)
     if oparg == OP.EXCEPT_COMPARISON:
         _handleExceptionChecks(codeSource, code, compareValues)
-    elif oparg < OP.IS_COMPARISON:
+    elif oparg < OP.IS_COMPARISON and oparg not in [OP.IN_COMPARISON, OP.NOT_IN_COMPARISON]:
         _checkBoolean(code, compareValues)
     elif cfg().isLiteral:
         # X is Y   or   X is not Y   comparison
