@@ -60,6 +60,8 @@ _CMP_OP =  ('<', '<=', '==', '!=', '>', '>=', 'in', 'not in', 'is',
 
 EXCEPT_COMPARISON = 10
 IS_COMPARISON = 8
+IN_COMPARISON = 6
+NOT_IN_COMPARISON = 7
 
 def getOperand(op, func_code, oparg) :
     if op in _HAS_NAME :
