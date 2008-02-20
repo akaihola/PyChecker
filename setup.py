@@ -213,7 +213,7 @@ def create_script(script_path, package_path):
    try:
       checker_path = os.path.join(package_path, "checker.py")
       if sys.platform == "win32":
-         script_str = "%s %s %%1 %%2 %%3 %%4 %%5 %%6 %%7 %%8 %%9\n" % (sys.executable, checker_path)
+         script_str = "%s %s %%*\n" % (sys.executable, checker_path)
       else:
          script_str = '#! /bin/sh\n\n%s %s "$@"\n' % (sys.executable, checker_path)
       open(script_path, "w").write(script_str)
