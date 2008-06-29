@@ -46,7 +46,9 @@ for test_file in $TESTS ; do
     fi
 
     test_path=$TMP/$test_name
+    set -x
     $PYTHON -tt ./pychecker/checker.py --limit 0 --moduledoc --classdoc --no-argsused $extra_args $test_file 2>&1 | egrep -v '\[[0-9]+ refs\]$' > $test_path
+    set +x
     diff $test_path $expected
     if [ $? -ne 0 ]; then
         error=`expr $error + 1`

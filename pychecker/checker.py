@@ -248,6 +248,17 @@ class Class :
             if mo:
                 modname = ".".join(mo.group(1).split(".")[:-1])
 
+        # zope.interface for example has Provides and Declaration that
+        # look a lot like class objects but do not have __name__
+        if not hasattr(self.classObject, '__name__'):
+            if modname not in cfg().blacklist:
+                sys.stderr.write("warning: no __name__ attribute "
+                                 "for class %s (module name: %s)\n"
+                                 % (self.classObject, modname))
+            self.classObject.__name__ = name
+        # later pychecker code uses this
+        self.classObject__name__ = self.classObject.__name__
+
         self.module = sys.modules.get(modname)
         if not self.module:
             self.module = module
@@ -329,7 +340,7 @@ class Class :
         self.cleanupMemberRefs()
         # add standard methods
         for methodName in ('__class__',) :
-            self.addMethod(methodName, classObject.__name__)
+            self.addMethod(methodName, self.classObject__name__)
 
     def addMembers(self, classObject) :
         if not cfg().onlyCheckInitForMembers :

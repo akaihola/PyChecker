@@ -1,5 +1,14 @@
 2008-06-30  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/checker.py:
+	  If an object looks like a class object because it has __bases__
+	  but it does not have __names__, make up a name.
+	  Fixes #1563494.
+	* test_check.sh:
+	  Add a test that previously failed.
+
+2008-06-30  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* MANIFEST.in:
 	* CHANGELOG:
 	* NEWS:
