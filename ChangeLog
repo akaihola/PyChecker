@@ -1,0 +1,8 @@
+2008-06-30  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* MANIFEST.in:
+	* CHANGELOG:
+	* NEWS:
+	  Moved CHANGELOG to NEWS since it really contains release news.
+	  Created real ChangeLog.
+
