@@ -1,3 +1,9 @@
+2008-07-01  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* test_expected/test100:
+	* test_input/test100.py:
+	  Actually add the tests.
+
 2008-06-30  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/checker.py:
