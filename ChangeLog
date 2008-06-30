@@ -1,6 +1,12 @@
 2008-07-01  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/checker.py:
+	  Revert IDLE patch which breaks test42.py
+	  See #2007203.
+
+2008-07-01  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/checker.py:
 	* pychecker/warn.py:
 	  Respect the blacklist of modules when warning about classes for
 	  which the module cannot be found.
@@ -8,7 +14,7 @@
 	* test_expected/test101:
 	* test_input/test101.py:
 	  Add a test for it.
-	  Fies #1563495.
+	  Fixes #1563495.
 
 2008-07-01  Thomas Vander Stichele  <thomas at apestaart dot org>
 
