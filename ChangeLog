@@ -1,5 +1,17 @@
 2008-07-01  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/checker.py:
+	* pychecker/warn.py:
+	  Respect the blacklist of modules when warning about classes for
+	  which the module cannot be found.
+	* test_check.sh:
+	* test_expected/test101:
+	* test_input/test101.py:
+	  Add a test for it.
+	  Fies #1563495.
+
+2008-07-01  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test_expected/test100:
 	* test_input/test100.py:
 	  Actually add the tests.

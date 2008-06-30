@@ -386,6 +386,9 @@ def getBlackList(moduleList) :
             file, path, flags = imp.find_module(badBoy)
             if file :
                 file.close()
+            # apparently, imp.find_module can return None, path, (triple)
+            # This happened to me with twisted 2.2.0 in a separate path
+            if path:
                 blacklist.append(normalize_path(path))
         except ImportError :
             pass
@@ -412,8 +415,17 @@ def removeWarnings(warnings, blacklist, std_lib, cfg):
         std_lib = normalize_path(std_lib)
     for index in range(len(warnings)-1, -1, -1) :
         filename = normalize_path(warnings[index].file)
-        if filename in blacklist or (std_lib is not None and
-                                     utils.startswith(filename, std_lib)) :
+        # the blacklist contains paths to packages and modules we do not
+        # want warnings for
+        # when we find a match, make sure we continue the warnings for loop
+        found = False
+        for path in blacklist:
+            if not found and filename.startswith(path):
+                found = True
+                del warnings[index]
+        if found:
+            continue
+        if std_lib is not None and utils.startswith(filename, std_lib) :
             del warnings[index]
             continue
         elif cfg.only:
