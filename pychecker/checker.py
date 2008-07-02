@@ -34,8 +34,29 @@ def setupNamespace(path) :
     if checker_path not in sys.path :
         sys.path.append(checker_path)
 
+
+def setupSysPathForDevelopment():
+    import pychecker
+    this_module = sys.modules[__name__]
+    this_path = os.path.normpath(os.path.dirname(this_module.__file__))
+    pkg_path = os.path.normpath(os.path.dirname(pychecker.__file__))
+    if pkg_path != this_path:
+        # pychecker was probably found in site-packages, insert this
+        # directory before the other one so we can do development and run
+        # our local version and not the version from site-packages.
+        pkg_dir = os.path.dirname(pkg_path)
+        i = 0
+        for p in sys.path:
+            if os.path.normpath(p) == pkg_dir:
+                sys.path.insert(i-1, os.path.dirname(this_path))
+                break
+            i = i + 1
+    del sys.modules['pychecker']
+
+
 if __name__ == '__main__' :
     setupNamespace(sys.argv[0])
+    setupSysPathForDevelopment()
 
 from pychecker import utils
 from pychecker import printer
