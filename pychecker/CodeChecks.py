@@ -151,7 +151,10 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
                 (func_name == 'getattr' and argCount == 2)):
                 arg2 = code.stack[-argCount + 1]
                 if arg2.const:
-                    code.addWarning(msgs.USES_CONST_ATTR % func_name)
+                    # lambda with setattr and const is a common way of setting
+                    # attributes, so allow it
+                    if code.func.function.func_name != '<lambda>':
+                        code.addWarning(msgs.USES_CONST_ATTR % func_name)
 
             if kwArgs:
                 _validateKwArgs(code, info, func_name, kwArgs)
@@ -407,7 +410,11 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                     name = utils.safestr(loadValue.data)
                     if type(loadValue.data) == types.TupleType :
                         name = string.join(loadValue.data, '.')
-                    code.addWarning(msgs.USING_NONE_RETURN_VALUE % name)
+                    # lambda with setattr is a common way of setting
+                    # attributes, so allow it
+                    if name != 'setattr' \
+                        or code.func.function.func_name != '<lambda>':
+                        code.addWarning(msgs.USING_NONE_RETURN_VALUE % name)
 
     code.stack = code.stack[:funcIndex] + [ returnValue ]
     code.functionsCalled[funcName] = loadValue

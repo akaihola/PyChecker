@@ -1,3 +1,11 @@
+2008-07-02  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
+	  Allow using setattr with a static argument inside lambda calls,
+	  where the alternative is a syntax error since you're not allowed to
+	  do an assignment expression.
+	  Fixes #1565876.
+
 2008-07-01  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/checker.py:
