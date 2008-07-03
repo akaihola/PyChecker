@@ -86,3 +86,11 @@ def f5(a):
         f2(a)
     except tt:
         pass
+
+def f6(a):
+    'should not warn'
+    # but does in 0.8.17
+    try:
+        pass
+    except KeyboardInterrupt:
+        pass
