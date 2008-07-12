@@ -1,5 +1,16 @@
 2008-07-12  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/warn.py:
+	  Change getStandardLibrary to getStandardLibraries (a list),
+	  so we can handle both the arch-invariant and arch-specific python
+	  site-packages.
+	  This makes sure that -q/--stdlib works the same way on 32-bit and
+	  64-bit systems.
+	  Fixes #1564614, and makes the new test suite pass.
+	  (Try it with python test/main.py)
+
+2008-07-12  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test/test_stdlib.py:
 	  Rename and document test.
 

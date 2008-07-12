@@ -394,16 +394,26 @@ def getBlackList(moduleList) :
             pass
     return blacklist
 
-def getStandardLibrary() :
+def getStandardLibraries() :
+    """
+    Return a list of standard libraries.
+
+    @rtype: list of str or None
+    """
     if cfg().ignoreStandardLibrary :
         try :
             from distutils import sysconfig
 
-            std_lib = sysconfig.get_python_lib()
-            path = os.path.split(std_lib)
-            if path[1] == 'site-packages' :
-                std_lib = path[0]
-            return std_lib
+            std_libs = [
+                sysconfig.get_python_lib(plat_specific=0),
+                sysconfig.get_python_lib(plat_specific=1)
+            ]
+            ret = []
+            for std_lib in std_libs:
+                path = os.path.split(std_lib)
+                if path[1] == 'site-packages' :
+                    ret.append(path[0])
+            return ret
         except ImportError :
             return None
 
@@ -411,8 +421,14 @@ def normalize_path(path):
     return os.path.normpath(os.path.normcase(path))
 
 def removeWarnings(warnings, blacklist, std_lib, cfg):
+    """
+    @param blacklist: list of absolute paths not to warn for
+    @type  blacklist: str
+    @param std_lib:   list of standard library directories
+    @type  std_lib:   list of str or None
+    """
     if std_lib is not None:
-        std_lib = normalize_path(std_lib)
+        std_lib = [normalize_path(p) for p in std_lib]
     for index in range(len(warnings)-1, -1, -1) :
         filename = normalize_path(warnings[index].file)
         # the blacklist contains paths to packages and modules we do not
@@ -425,9 +441,14 @@ def removeWarnings(warnings, blacklist, std_lib, cfg):
                 del warnings[index]
         if found:
             continue
-        if std_lib is not None and utils.startswith(filename, std_lib) :
-            del warnings[index]
-            continue
+        if std_lib:
+            found = False
+            for path in std_lib:
+                if not found and utils.startswith(filename, path) :
+                    found = True
+                    del warnings[index]
+            if found:
+                continue
         elif cfg.only:
             # ignore files not specified on the cmd line if requested
             if os.path.abspath(filename) not in cfg.files:
@@ -736,7 +757,7 @@ def find(moduleList, initialCfg, suppressions = None) :
 
     std_lib = None
     if cfg().ignoreStandardLibrary :
-        std_lib = getStandardLibrary()
+        std_lib = getStandardLibraries()
     return removeWarnings(warnings, getBlackList(cfg().blacklist), std_lib,
                           cfg())
 
