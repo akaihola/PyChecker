@@ -1,5 +1,15 @@
 2008-07-13  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/checker.py:
+	  Document and change getModules such that, for each argument
+	  that is a file, it returns a moduleName, moduleDir tuple
+	  so that modules with the same name can still be treated separately.
+	  Change callers to follow.
+	  First step towards fixing the bug where modules with the same name
+	  shadow each other's pychecker warnings.
+
+2008-07-13  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test/common.py:
 	  Document method.
 

@@ -120,7 +120,15 @@ def _flattenList(list) :
     return new_list
 
 def getModules(arg_list) :
-    "Returns a list of module names that can be imported"
+    """
+    arg_list is a list of arguments to pychecker; arguments can represent
+    a module name, a filename, or a wildcard file specification.
+
+    Returns a list of (module name, dirPath) that can be imported, where
+    dirPath is the on-disk path to the module name for that argument.
+
+    dirPath can be None (in case the given argument is an actual module).
+    """
 
     new_arguments = []
     for arg in arg_list :
@@ -137,6 +145,8 @@ def getModules(arg_list) :
         
     modules = []
     for arg in _flattenList(new_arguments) :
+        # if arg is an actual module, return None for the directory
+        arg_dir = None
         # is it a .py file?
         for suf, suflen in zip(PY_SUFFIXES, PY_SUFFIX_LENS):
             if len(arg) > suflen and arg[-suflen:] == suf:
@@ -148,8 +158,9 @@ def getModules(arg_list) :
                 module_name = os.path.basename(arg)[:-suflen]
                 if arg_dir not in sys.path :
                     sys.path.insert(0, arg_dir)
+
                 arg = module_name
-        modules.append(arg)
+        modules.append((arg, arg_dir))
 
     return modules
 
@@ -765,7 +776,7 @@ def processFiles(files, cfg = None, pre_process_cb = None) :
 
     warnings = []
     utils.initConfig(_cfg)
-    for moduleName in getModules(files) :
+    for file, (moduleName, moduleDir) in zip(files, getModules(files)) :
         if callable(pre_process_cb) :
             pre_process_cb(moduleName)
         module = PyCheckerModule(moduleName)
