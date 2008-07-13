@@ -235,7 +235,7 @@ CUSTOMIZED_ACTIONS = { 'build_scripts'  : my_build_scripts,
                        'bdist_wininst'  : my_bdist_wininst,
                      }
 
-DATA_FILES = [ 'COPYRIGHT', 'README', 'VERSION', 'CHANGELOG', 
+DATA_FILES = [ 'COPYRIGHT', 'README', 'VERSION', 'ChangeLog', 'NEWS', 
                 'KNOWN_BUGS', 'MAINTAINERS', 'TODO', 
              ]
 
