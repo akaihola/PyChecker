@@ -1,5 +1,16 @@
 2008-07-14  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/checker.py:
+	  Make sure args passed for checking now create PyCheckerModule
+	  instances with moduleDir set properly.  This triggers the new
+	  code behaviour where modules are stored as a moduleName, moduleDir
+	  tuple in pcmodules.py, making sure same-named modules get treated
+	  separately.
+	  New test suite now passes again.
+	  Fixes #1563572.
+
+2008-07-14  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test/input/getmodule/A/C.py:
 	* test/input/getmodule/A/__init__.py:
 	* test/input/getmodule/B/C.py:
