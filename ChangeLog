@@ -1,6 +1,15 @@
 2008-07-13  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/checker.py:
+	  Refactor code such that we can pass a moduleDir keyword argument to
+	  PyCheckerModule.  This will allow us to discern between modules
+	  with the same name, but in a different directory.
+	  Change allModules to be a dict of (moduleName, moduleDir) -> module
+	  No behaviour change yet.
+
+2008-07-13  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/checker.py:
 	  When showing what we're processing, show module name and file name.
 	* test_expected/test1:
 	* test_expected/test1-2.3:

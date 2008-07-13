@@ -68,7 +68,7 @@ from pychecker import msgs
 from pychecker.Warning import Warning
 
 # Globals for storing a dictionary of info about modules and classes
-_allModules = {}
+_allModules = {} # dict of moduleName, moduleDir/None -> module
 _cfg = None
 
 # Constants
@@ -531,8 +531,15 @@ def _getPyFile(filename):
 class PyCheckerModule :
     "Class to hold all information for a module"
 
-    def __init__(self, moduleName, check = 1) :
+    def __init__(self, moduleName, check = 1, moduleDir=None) :
+        """
+        @param moduleDir: if specified, the directory where the module can
+                          be loaded from; allows discerning between modules
+                          with the same name in a different directory
+
+        """
         self.moduleName = moduleName
+        self.moduleDir = moduleDir
         self.variables = {}
         self.functions = {}
         self.classes = {}
@@ -542,7 +549,9 @@ class PyCheckerModule :
         self.main_code = None
         self.module = None
         self.check = check
-        _allModules[moduleName] = self
+        # key on a combination of moduleName and moduleDir so we have separate
+        # entries for modules with the same name but in different directories
+        _allModules[(moduleName, moduleDir)] = self
 
     def __str__(self) :
         return self.moduleName
@@ -574,8 +583,8 @@ class PyCheckerModule :
         if not c.ignoreAttrs :
             self.__addAttributes(c, c.classObject)
 
-    def addModule(self, name) :
-        module = _allModules.get(name, None)
+    def addModule(self, name, moduleDir=None) :
+        module = _allModules.get((name, moduleDir), None)
         if module is None :
             self.modules[name] = module = PyCheckerModule(name, 0)
             if imp.is_builtin(name) == 0:
@@ -596,12 +605,14 @@ class PyCheckerModule :
 
     def load(self):
         try :
-            # there's no need to reload modules we already have
-            module = sys.modules.get(self.moduleName)
-            if module :
-                if not _allModules[self.moduleName].module :
-                    return self._initModule(module)
-                return 1
+            # there's no need to reload modules we already have if no moduleDir
+            # is specified for this module
+            if not self.moduleDir:
+                module = sys.modules.get(self.moduleName)
+                if module :
+                    if not _allModules[(self.moduleName, None)].module :
+                        return self._initModule(module)
+                    return 1
 
             return self._initModule(self.setupMainCode())
         except (SystemExit, KeyboardInterrupt) :
@@ -699,7 +710,8 @@ def fixupBuiltinModules(needs_init=0):
 
         if needs_init:
             _ = PyCheckerModule(moduleName, 0)
-        module = _allModules.get(moduleName, None)
+        # builtin modules don't have a moduleDir
+        module = _allModules.get((moduleName, None), None)
         if module is not None :
             try :
                 m = imp.init_builtin(moduleName)
