@@ -1,6 +1,14 @@
 2008-07-13  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/checker.py:
+	  Change _findModule to take an optional moduleDir keyword argument.
+	  Use it in setupMainCode
+	  Make sibling imports work by temporarily putting moduleDir on
+	  sys.path
+
+2008-07-13  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/checker.py:
 	  Add self.moduleDir to filename() for PyCheckerModule.
 
 2008-07-13  Thomas Vander Stichele  <thomas at apestaart dot org>

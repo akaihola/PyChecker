@@ -193,11 +193,14 @@ def _q_find_module(p, path):
                 if os.path.exists(f):
                     return _q_file(file(f)), f, ('.ptl', 'U', 1)
 
-def _findModule(name) :
+def _findModule(name, moduleDir=None) :
     """Returns the result of an imp.find_module(), ie, (file, filename, smt)
        name can be a module or a package name.  It is *not* a filename."""
 
     path = sys.path[:]
+    if moduleDir:
+        path.insert(0, moduleDir)
+
     packages = string.split(name, '.')
     for p in packages :
         # smt = (suffix, mode, type)
@@ -456,9 +459,9 @@ class Class :
                 result.append(m)
         return result
 
-def _getLineInFile(moduleName, linenum):
+def _getLineInFile(moduleName, moduleDir, linenum):
     line = ''
-    file, filename, smt = _findModule(moduleName)
+    file, filename, smt = _findModule(moduleName, moduleDir)
     if file is None:
         return ''
     try:
@@ -469,7 +472,7 @@ def _getLineInFile(moduleName, linenum):
     file.close()
     return line
 
-def importError(moduleName):
+def importError(moduleName, moduleDir=None):
     exc_type, exc_value, tb = sys.exc_info()
 
     # First, try to get a nice-looking name for this exception type.
@@ -489,7 +492,7 @@ def importError(moduleName):
         # the output and make it consistent for all versions of Python
         e = exc_value
         msg = '%s (%s, line %d)' % (e.msg, e.filename, e.lineno)
-        line = _getLineInFile(moduleName, e.lineno)
+        line = _getLineInFile(moduleName, moduleDir, e.lineno)
         offset = e.offset
         if type(offset) is not types.IntType:
             offset = 0
@@ -622,7 +625,7 @@ class PyCheckerModule :
             exc_type, exc_value, exc_tb = sys.exc_info()
             raise exc_type, exc_value
         except :
-            importError(self.moduleName)
+            importError(self.moduleName, self.moduleDir)
             return cfg().ignoreImportErrors
 
     def initModule(self, module) :
@@ -675,9 +678,20 @@ class PyCheckerModule :
         return 1
 
     def setupMainCode(self) :
-        file, filename, smt = _findModule(self.moduleName)
+        file, filename, smt = _findModule(self.moduleName, self.moduleDir)
         # FIXME: if the smt[-1] == imp.PKG_DIRECTORY : load __all__
+        # HACK: to make sibling imports work, we add self.moduleDir to sys.path
+        # temporarily, and remove it later
+        if self.moduleDir:
+            oldsyspath = sys.path[:]
+            sys.path.insert(0, self.moduleDir)
         module = imp.load_module(self.moduleName, file, filename, smt)
+        if self.moduleDir:
+            sys.path = oldsyspath
+            # to make sure that subsequent modules with the same moduleName
+            # do not persist, and get their namespace clobbered, delete it
+            del sys.modules[self.moduleName]
+
         self._setupMainCode(file, filename, module)
         return module
 
@@ -903,6 +917,7 @@ else :
         pymodule = _orig__import__(name, globals, locals, fromlist)
         if check :
             try :
+                # FIXME: can we find a good moduleDir ?
                 module = PyCheckerModule(pymodule.__name__)
                 if module.initModule(pymodule):
                     warnings = warn.find([module], _cfg, _suppressions)
@@ -911,6 +926,7 @@ else :
                     print 'Unable to load module', pymodule.__name__
             except Exception:
                 name = getattr(pymodule, '__name__', utils.safestr(pymodule))
+                # FIXME: can we use it here ?
                 importError(name)
 
         return pymodule
