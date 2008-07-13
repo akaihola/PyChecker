@@ -1,5 +1,13 @@
 2008-07-14  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test/common.py:
+	  add check_multiple test method that allows checking more than one
+	  argument.
+	* test/expected/test_zope_interface:
+	  update expected string
+
+2008-07-14  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/pcmodules.py:
 	  New module; replaces checker._allModules
 	  Allows us to track and differentiate between modules with the same

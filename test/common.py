@@ -48,12 +48,26 @@ class TestCase(unittest.TestCase):
         Run pychecker on the given test, located in input/
         Will compare to output of the same name in expected/
         """
+        return self.check_multiple(testname, [testname + '.py'], args)
+
+    def check_multiple(self, testname, checkables, args=''):
+        """
+        Run pychecker on the given test, located in input/
+        Will compare to output of the same name in expected/
+
+        @type checkables: list of str
+        """
         testdir = os.path.dirname(__file__)
-        testfile = os.path.join(testdir, 'input', testname + '.py')
+        # make this relative to where we are, so paths shown are relative too
+        if testdir.startswith(os.getcwd()):
+            testdir = testdir[len(os.getcwd()) + 1:]
+
         pycheckerpy = os.path.join(os.path.dirname(testdir), 'pychecker', 'checker.py')
+        testfiles = [os.path.join(testdir, 'input', c) for c in checkables]
+
         cmd = "python -tt %s " \
             "--limit 0 --no-argsused " \
-            "%s %s" % (pycheckerpy, args, testfile)
+            "%s %s" % (pycheckerpy, args, " ".join(testfiles))
         # getoutput output never ends on a newline the way
         # pychecker ... > expected/... would
         output = commands.getoutput(cmd) + '\n'
@@ -70,3 +84,4 @@ class TestCase(unittest.TestCase):
         expected = open(expectedfile).read()
 
         diff_strings(output, expected, desc=expectedfile)
+
