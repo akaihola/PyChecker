@@ -1,3 +1,8 @@
+2008-07-13  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* test/common.py:
+	  Document method.
+
 2008-07-12  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/warn.py:

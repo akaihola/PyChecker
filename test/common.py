@@ -6,6 +6,13 @@ import commands
 import unittest
 
 def can_import(module):
+    '''
+    Check if we can import the given module name.
+
+    @type module: str
+
+    @rtype: bool
+    '''
     try:
         __import__(module)
         return True
