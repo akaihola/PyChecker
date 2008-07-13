@@ -270,8 +270,12 @@ def _getClassTokens(c) :
 class Class :
     "Class to hold all information about a class"
 
-    def __init__(self, name, module) :
+    def __init__(self, name, pcmodule) :
+        """
+        @type pcmodule: PyCheckerModule
+        """
         self.name = name
+        module = pcmodule.module
         self.classObject = getattr(module, name)
 
         modname = getattr(self.classObject, '__module__', None)
@@ -295,7 +299,9 @@ class Class :
         self.classObject__name__ = self.classObject.__name__
 
         self.module = sys.modules.get(modname)
-        if not self.module:
+        # if the pcmodule has moduleDir, it means we processed it before,
+        # and deleted it from sys.modules
+        if not self.module and not pcmodule.moduleDir:
             self.module = module
             if modname not in cfg().blacklist:
                 sys.stderr.write("warning: couldn't find real module "
@@ -574,7 +580,7 @@ class PyCheckerModule :
         c.addMembers(classObject)
 
     def addClass(self, name) :
-        self.classes[name] = c = Class(name, self.module)
+        self.classes[name] = c = Class(name, self)
         try:
             objName = utils.safestr(c.classObject)
         except TypeError:

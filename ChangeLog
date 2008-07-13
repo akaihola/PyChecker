@@ -1,6 +1,12 @@
 2008-07-13  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/checker.py:
+	  Instantiate Class with the PycheckerModule instance instead of the
+	  real module; this allows us to see and act on presence of moduleDir.
+
+2008-07-13  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/checker.py:
 	  Change _findModule to take an optional moduleDir keyword argument.
 	  Use it in setupMainCode
 	  Make sibling imports work by temporarily putting moduleDir on
