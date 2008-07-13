@@ -6,6 +6,7 @@
 	* test/input/getmodule/B/__init__.py:
 	* test/input/getmodule/__init__.py:
 	* test/input/test_getmodule.py:
+	* test/test_module.py:
 	* test/main.py:
 	  Add a test that shows how warnings in modules with the same name,
 	  but different directories, shadow each other. See
