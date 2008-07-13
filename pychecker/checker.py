@@ -778,7 +778,7 @@ def processFiles(files, cfg = None, pre_process_cb = None) :
     utils.initConfig(_cfg)
     for file, (moduleName, moduleDir) in zip(files, getModules(files)) :
         if callable(pre_process_cb) :
-            pre_process_cb(moduleName)
+            pre_process_cb("module %s (%s)" % (moduleName, file))
         module = PyCheckerModule(moduleName)
         if not module.load() :
             w = Warning(module.filename(), 1,
