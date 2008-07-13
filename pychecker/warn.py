@@ -19,6 +19,7 @@ from pychecker import OP
 from pychecker import Stack
 from pychecker import function
 from pychecker import python
+from pychecker import pcmodules
 
 from pychecker import msgs
 from pychecker import utils
@@ -319,11 +320,21 @@ def _baseInitCalled(classInitInfo, base, functionsCalled) :
 
     # ok, do this the hard way, there may be aliases, so check here
     names = string.split(initName, '.')
-    try:
-        # i think this can raise an exception if the module is a library (.so)
-        obj = sys.modules[names[0]]
-    except KeyError:
-        return 1
+
+    # first look in our list of PyCheckerModules
+    moduleName = names[0]
+    moduleDir = os.path.dirname(classInitInfo[0])
+    pcmodule = pcmodules.getPCModule(moduleName, moduleDir)
+    if pcmodule:
+        obj = pcmodule.module
+    else:
+        # fall back to looking in sys.modules
+        try:
+            # i think this can raise an exception if the module is a library
+            # (.so)
+            obj = sys.modules[names[0]]
+        except KeyError:
+            return 1
     for i in range(1, len(names)) :
         obj = getattr(obj, names[i], None)
         if obj is None:

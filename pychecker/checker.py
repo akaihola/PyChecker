@@ -65,10 +65,9 @@ from pychecker import OP
 from pychecker import Config
 from pychecker import function
 from pychecker import msgs
+from pychecker import pcmodules
 from pychecker.Warning import Warning
 
-# Globals for storing a dictionary of info about modules and classes
-_allModules = {} # dict of moduleName, moduleDir/None -> module
 _cfg = None
 
 # Constants
@@ -560,7 +559,7 @@ class PyCheckerModule :
         self.check = check
         # key on a combination of moduleName and moduleDir so we have separate
         # entries for modules with the same name but in different directories
-        _allModules[(moduleName, moduleDir)] = self
+        pcmodules.addPCModule(self)
 
     def __str__(self) :
         return self.moduleName
@@ -593,7 +592,7 @@ class PyCheckerModule :
             self.__addAttributes(c, c.classObject)
 
     def addModule(self, name, moduleDir=None) :
-        module = _allModules.get((name, moduleDir), None)
+        module = pcmodules.getPCModule(name, moduleDir)
         if module is None :
             self.modules[name] = module = PyCheckerModule(name, 0)
             if imp.is_builtin(name) == 0:
@@ -610,8 +609,10 @@ class PyCheckerModule :
             filename = self.module.__file__
         except AttributeError :
             filename = self.moduleName
-            if self.moduleDir:
-                filename = self.moduleDir + ': ' + filename
+            # FIXME: this would be nice to have, but changes output of
+            # NOT PROCESSED UNABLE TO IMPORT like in test8
+            #if self.moduleDir:
+            #    filename = self.moduleDir + ': ' + filename
 
         return _getPyFile(filename)
 
@@ -622,7 +623,7 @@ class PyCheckerModule :
             if not self.moduleDir:
                 module = sys.modules.get(self.moduleName)
                 if module :
-                    if not _allModules[(self.moduleName, None)].module :
+                    if not pcmodules.getPCModule(self.moduleName).module :
                         return self._initModule(module)
                     return 1
 
@@ -712,7 +713,7 @@ class PyCheckerModule :
 def getAllModules() :
     "Returns a list of all modules that should be checked."
     modules = []
-    for module in _allModules.values() :
+    for module in pcmodules.getPCModules():
         if module.check :
             modules.append(module)
     return modules
@@ -734,7 +735,7 @@ def fixupBuiltinModules(needs_init=0):
         if needs_init:
             _ = PyCheckerModule(moduleName, 0)
         # builtin modules don't have a moduleDir
-        module = _allModules.get((moduleName, None), None)
+        module = pcmodules.getPCModule(moduleName)
         if module is not None :
             try :
                 m = imp.init_builtin(moduleName)

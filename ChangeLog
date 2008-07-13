@@ -1,3 +1,16 @@
+2008-07-14  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/pcmodules.py:
+	  New module; replaces checker._allModules
+	  Allows us to track and differentiate between modules with the same
+	  name but from different paths.
+	* pychecker/checker.py:
+	  Use it instead of _allModules
+	* pychecker/warn.py:
+	  Also use it in the code that checks if a base class's __init__ was
+	  called, instead of only checking sys.modules, which only works
+	  if we pollute sys.modules (which is what we're trying to fix)
+
 2008-07-13  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/checker.py:
