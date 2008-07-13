@@ -601,6 +601,9 @@ class PyCheckerModule :
             filename = self.module.__file__
         except AttributeError :
             filename = self.moduleName
+            if self.moduleDir:
+                filename = self.moduleDir + ': ' + filename
+
         return _getPyFile(filename)
 
     def load(self):
