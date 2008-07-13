@@ -7,6 +7,7 @@
 # be a problem if one shadows another accidentally ?
 
 from test_stdlib import *
+from test_module import *
 
 if __name__ == '__main__':
     unittest.main()

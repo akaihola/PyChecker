@@ -1,5 +1,18 @@
 2008-07-14  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test/input/getmodule/A/C.py:
+	* test/input/getmodule/A/__init__.py:
+	* test/input/getmodule/B/C.py:
+	* test/input/getmodule/B/__init__.py:
+	* test/input/getmodule/__init__.py:
+	* test/input/test_getmodule.py:
+	* test/main.py:
+	  Add a test that shows how warnings in modules with the same name,
+	  but different directories, shadow each other. See
+	  http://sourceforge.net/tracker/index.php?func=detail&aid=1563572&group_id=24686&atid=382217
+
+2008-07-14  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test/common.py:
 	  add check_multiple test method that allows checking more than one
 	  argument.
