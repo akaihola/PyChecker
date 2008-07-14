@@ -155,8 +155,6 @@ def getModules(arg_list) :
                     continue
 
                 module_name = os.path.basename(arg)[:-suflen]
-                if arg_dir not in sys.path :
-                    sys.path.insert(0, arg_dir)
 
                 arg = module_name
         modules.append((arg, arg_dir))
@@ -815,11 +813,14 @@ def processFiles(files, cfg = None, pre_process_cb = None) :
     for file, (moduleName, moduleDir) in zip(files, getModules(files)) :
         if callable(pre_process_cb) :
             pre_process_cb("module %s (%s)" % (moduleName, file))
+        oldsyspath = sys.path[:]
+        sys.path.insert(0, moduleDir)
         module = PyCheckerModule(moduleName, moduleDir=moduleDir)
         if not module.load() :
             w = Warning(module.filename(), 1,
                         msgs.Internal("NOT PROCESSED UNABLE TO IMPORT"))
             warnings.append(w)
+        sys.path = oldsyspath
     utils.popConfig()
     return warnings
 

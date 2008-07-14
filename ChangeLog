@@ -1,5 +1,14 @@
 2008-07-14  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/checker.py:
+	  Don't pollute sys.path by inserting every moduleDir into it.
+	  This allows projects to have for example a gtk.py file in a
+	  package that does not conflict with the gtk system library.
+	  Instead, pollute it right before loading the module, then clean up
+	  immediately after.
+
+2008-07-14  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* setup.py:
 	  If installing to a staging root, don't include this path in the
 	  install_lib dir.
