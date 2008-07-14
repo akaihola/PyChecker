@@ -1,5 +1,15 @@
 2008-07-14  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* setup.py:
+	  If installing to a staging root, don't include this path in the
+	  install_lib dir.
+	* setup.cfg:
+	  Set optimize = 1 to make rpm not complain about installed but
+	  missing .pyo files.
+	  Fixes python setup.py bdist_rpm
+
+2008-07-14  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/checker.py:
 	  Make sure args passed for checking now create PyCheckerModule
 	  instances with moduleDir set properly.  This triggers the new

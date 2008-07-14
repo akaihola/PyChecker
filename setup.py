@@ -134,6 +134,11 @@ class my_install_scripts(install_scripts):
          script_path = get_script_path(self.build_dir)
          if script_path in scripts:
             package_path = os.path.join(install_lib, "pychecker")
+            # if a staging root is used, we don't want that path to end up
+            # in the install_lib path
+            root = self.distribution.get_command_obj("install").root
+            if root:
+               package_path = package_path[len(root):]
             self.execute(func=create_script, 
                          args=[script_path, package_path], 
                          msg="filling in script %s" % script_path)
