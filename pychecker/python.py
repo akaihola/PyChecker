@@ -224,6 +224,15 @@ if utils.pythonVersion() >= utils.PYTHON_2_5:
     _STRING_METHODS['partition'] = (types.TupleType, 1, 1)
     _STRING_METHODS['rpartition'] = (types.TupleType, 1, 1)
 
+if utils.pythonVersion() >= utils.PYTHON_2_6:
+    GLOBAL_FUNC_INFO['bin'] = (types.StringType, 1, 1)
+    GLOBAL_FUNC_INFO['bytesarray'] = (bytearray, 0, 1)
+    GLOBAL_FUNC_INFO['bytes'] = (bytes, 0, 1)
+    GLOBAL_FUNC_INFO['format'] = (types.StringType, 1, 2)
+    GLOBAL_FUNC_INFO['next'] = (Stack.TYPE_UNKNOWN, 1, 2)
+    GLOBAL_FUNC_INFO['print'] = (types.NoneType, 0, None,
+                                 ['sep', 'end', 'file'])
+
 def _setupBuiltinMethods() :
     if utils.pythonVersion() >= utils.PYTHON_2_2 :
         PY22_DICT_METHODS = { 'iteritems': (types.ListType, 0, 0),

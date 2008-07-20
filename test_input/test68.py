@@ -159,12 +159,12 @@ def func22(x):
 
 def catchup(slave, image, inProgress):
     d = func1.bogus()
-    def next():
+    def next_func():
         defer = slave.call('', image.next())
         try:
             defer.add(d.errback)
         except:
             slave.call(inProgress)
-    next()
+    next_func()
     return d
 
