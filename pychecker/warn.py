@@ -359,8 +359,8 @@ def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
     classInit = getattr(c.classObject, utils.INIT, None)
     if cfg().baseClassInitted and classInit is not None :
         classInitInfo = _get_func_info(classInit)
-        for base in c.classObject.__bases__ :
-            if not _baseInitCalled(classInitInfo, base, functionsCalled) :
+        for base in getattr(c.classObject, '__bases__', None) or ():
+            if not _baseInitCalled(classInitInfo, base, functionsCalled):
                 warn = Warning(moduleFilename, func_code,
                                msgs.BASE_CLASS_NOT_INIT % utils.safestr(base))
                 warnings.append(warn)

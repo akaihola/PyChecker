@@ -284,6 +284,10 @@ class Class :
             if mo:
                 modname = ".".join(mo.group(1).split(".")[:-1])
 
+        # TODO(nnorwitz): this check for __name__ might not be necessary
+        # any more.  Previously we checked objects as if they were classes.
+        # This problem is fixed by not adding objects as if they are classes.
+
         # zope.interface for example has Provides and Declaration that
         # look a lot like class objects but do not have __name__
         if not hasattr(self.classObject, '__name__'):
@@ -336,7 +340,7 @@ class Class :
         baseClasses = []
         if c == None :
             c = self.classObject
-        for base in c.__bases__ :
+        for base in getattr(c, '__bases__', None) or ():
             baseClasses = baseClasses + [ base ] + self.allBaseClasses(base)
         return baseClasses
 
@@ -571,7 +575,7 @@ class PyCheckerModule :
         self.functions[func.__name__] = function.Function(func)
 
     def __addAttributes(self, c, classObject) :
-        for base in classObject.__bases__ :
+        for base in getattr(classObject, '__bases__', None) or ():
             self.__addAttributes(c, base)
         c.addMethods(classObject)
         c.addMembers(classObject)
@@ -673,7 +677,8 @@ class PyCheckerModule :
             elif isinstance(token, types.FunctionType) :
                 self.addFunction(token)
             elif isinstance(token, types.ClassType) or \
-                 hasattr(token, '__bases__') :
+                 hasattr(token, '__bases__') and \
+                 issubclass(type(token), type):
                 self.addClass(tokenName)
             else :
                 self.addVariable(tokenName, type(token))
