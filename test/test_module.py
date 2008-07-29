@@ -10,10 +10,10 @@ import common
 
 class SameModuleNameTestCase(common.TestCase):
     '''
-    test that modules with the same name do not shadow eachother.
+    Test that modules with the same name do not shadow eachother.
     '''
     def test_getmodule(self):
-        self.check_multiple('test_getmodule', [
+        self.checkMultiple('test_getmodule', [
             'getmodule/A/C.py',
             'getmodule/B/C.py',
             ])

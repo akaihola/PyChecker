@@ -5,7 +5,7 @@ import os
 import commands
 import unittest
 
-def can_import(module):
+def canImport(module):
     '''
     Check if we can import the given module name.
 
@@ -34,7 +34,7 @@ def _diff(old, new, desc):
         ("\nError while comparing strings:\n"
          "%s") % (output,))
 
-def diff_strings(orig, new, desc='input'):
+def diffStrings(orig, new, desc='input'):
     def tolines(s):
         return [line + '\n' for line in s.split('\n')]
 
@@ -48,9 +48,9 @@ class TestCase(unittest.TestCase):
         Run pychecker on the given test, located in input/
         Will compare to output of the same name in expected/
         """
-        return self.check_multiple(testname, [testname + '.py'], args)
+        return self.checkMultiple(testname, [testname + '.py'], args)
 
-    def check_multiple(self, testname, checkables, args=''):
+    def checkMultiple(self, testname, checkables, args=''):
         """
         Run pychecker on the given test, located in input/
         Will compare to output of the same name in expected/
@@ -62,7 +62,8 @@ class TestCase(unittest.TestCase):
         if testdir.startswith(os.getcwd()):
             testdir = testdir[len(os.getcwd()) + 1:]
 
-        pycheckerpy = os.path.join(os.path.dirname(testdir), 'pychecker', 'checker.py')
+        pycheckerpy = os.path.join(os.path.dirname(testdir),
+            'pychecker', 'checker.py')
         testfiles = [os.path.join(testdir, 'input', c) for c in checkables]
 
         cmd = "python -tt %s " \
@@ -83,5 +84,5 @@ class TestCase(unittest.TestCase):
 
         expected = open(expectedfile).read()
 
-        diff_strings(output, expected, desc=expectedfile)
+        diffStrings(output, expected, desc=expectedfile)
 

@@ -16,7 +16,7 @@ class ZopeTestCase(common.TestCase):
     See http://sourceforge.net/tracker/index.php?func=detail&aid=1564614&group_id=24686&atid=382217
     '''
     def test_zope_interface(self):
-        if not common.can_import('zope.interface'):
+        if not common.canImport('zope.interface'):
             self.skip = True # FIXME: interpret this
 
         self.check('test_zope_interface', '-q')
