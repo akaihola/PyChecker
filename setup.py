@@ -252,7 +252,7 @@ however, spurious warnings should be fairly infrequent.
 """
 
 kw =  { 'name'             : "PyChecker",
-        'version'          : "0.8.18beta",
+        'version'          : "0.8.18",
         'license'          : "BSD-like",
         'description'      : "Python source code checking tool",
         'author'           : "Neal Norwitz",
