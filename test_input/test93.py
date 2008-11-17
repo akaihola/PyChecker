@@ -9,3 +9,7 @@ def x(a, b):
 
     setattr(a, b, None)
     setattr(a, 'b', None)
+
+def y(a):
+    """Using a keyword to getattr, should not generate a warning."""
+    return getattr(a, "print")

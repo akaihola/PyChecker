@@ -7,6 +7,7 @@
 Find warnings in byte code from Python source files.
 """
 
+import keyword
 import string
 import types
 
@@ -150,7 +151,7 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
                ((func_name == 'setattr' and argCount >= 2) or 
                 (func_name == 'getattr' and argCount == 2)):
                 arg2 = code.stack[-argCount + 1]
-                if arg2.const:
+                if arg2.const and not keyword.iskeyword(arg2.data):
                     # lambda with setattr and const is a common way of setting
                     # attributes, so allow it
                     if code.func.function.func_name != '<lambda>':
