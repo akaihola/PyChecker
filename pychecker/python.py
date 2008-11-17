@@ -387,6 +387,7 @@ SPECIAL_METHODS = {
 
     '__invert__': 1,	'__neg__': 1,	'__pos__': 1,     '__abs__': 1,     
     '__complex__': 1,	'__int__': 1,	'__long__': 1,    '__float__': 1,
+    '__unicode__': 1,
 
     '__eq__': 2,	'__ne__': 2,
     '__ge__': 2,	'__gt__': 2,
