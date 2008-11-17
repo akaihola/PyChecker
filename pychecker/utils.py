@@ -20,6 +20,7 @@ MAX_ARGS_MASK = ((1 << VAR_ARGS_BITS) - 1)
 
 INIT = '__init__'
 LAMBDA = '<lambda>'
+GENEXP = '<generator expression>'
 
 # number of instructions to check backwards if it was a return
 BACK_RETURN_INDEX = 4
