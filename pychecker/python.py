@@ -425,4 +425,8 @@ SPECIAL_METHODS = {
     '__reduce__': 1,		'__reduce_ex__': 2,
     }
 
+if utils.pythonVersion() >= utils.PYTHON_2_5:
+    SPECIAL_METHODS['__enter__'] = 1
+    SPECIAL_METHODS['__exit__'] = 4
+
 NEW_STYLE_CLASS_METHODS = ['__getattribute__', '__set__', '__get__', '__delete__']
