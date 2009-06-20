@@ -48,13 +48,13 @@ function get_expected ()
   for CANDIDATE in $ALL
   do
     WANTED=test_expected/$NAME-$VERSION
-    # echo expected $CANDIDATE, with our version $WANTED
-    if test $CANDIDATE \< $WANTED
+    # echo candidate $CANDIDATE, with our version $WANTED
+    if test ! $CANDIDATE \> $WANTED
     then
       # echo $CANDIDATE sorts before $WANTED
       if test $CANDIDATE \> $EXPECTED
       then
-        # echo $CANDIDATE sorts after $EXPECTED, so new $EXPECTED
+        # echo $CANDIDATE sorts after $EXPECTED, so new EXPECTED is $CANDIDATE
         EXPECTED=$CANDIDATE
       fi
     # else
