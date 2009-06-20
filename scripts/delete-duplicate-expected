@@ -1,14 +1,19 @@
 #!/bin/bash
 
+# Run this from the main directory as scripts/delete-duplicate-expected
+
 VERSIONS="2.2 2.3 2.4 2.5 2.6"
 
-OLD=
-for NEW in $VERSIONS
+for BASE in test_expected/test? test_expected/test?? test_expected/test???
 do
-  if test ! -z $OLD
-  then
-    for BASE in test_expected/test? test_expected/test?? test_expected/test???
-   do
+  OLD=
+  for NEW in $VERSIONS
+  do
+    if test -z $OLD
+    then
+      # set it the first time through
+      OLD=$NEW
+    else
       if test -e $BASE-$NEW && test -e $BASE-$OLD
       then
         if diff $BASE-$OLD $BASE-$NEW > /dev/null
@@ -17,10 +22,11 @@ do
           cvs remove -f $BASE-$NEW
         else
           echo not deleting $BASE-$NEW
+          # since NEW is different, it becomes the new OLD
+          OLD=$NEW
         fi
       fi
-    done
-  fi
-  OLD=$NEW
+    fi
+  done
 done
 

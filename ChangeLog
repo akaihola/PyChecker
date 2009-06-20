@@ -1,5 +1,10 @@
 2009-06-20  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* scripts/delete-duplicate-expected:
+	  Also catch when -2.4 and -2.6 are the same, and there's no -2.5
+
+2009-06-20  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test_expected/test88-2.5:
 	  Add a 2.5-specific version since whrandom really is gone now.
 
