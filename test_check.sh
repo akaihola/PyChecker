@@ -40,7 +40,7 @@ function get_expected ()
   # FIXME: using \< and \> is not elegant, but python's versioning is
   # well-behaved
   ALL=`ls test_expected/$NAME-* 2> /dev/null`
-  if test -z $ALL
+  if test -z "$ALL"
   then
     return
   fi
@@ -83,6 +83,7 @@ for test_file in $TESTS ; do
 
     test_path=$TMP/$test_name
     $PYTHON -tt ./pychecker/checker.py --limit 0 --moduledoc --classdoc --no-argsused $extra_args $test_file 2>&1 | egrep -v '\[[0-9]+ refs\]$' > $test_path
+    echo diff between $test_name output and $EXPECTED:
     diff $test_path $EXPECTED
     if [ $? -ne 0 ]; then
         error=`expr $error + 1`
