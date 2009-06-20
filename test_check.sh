@@ -83,11 +83,10 @@ for test_file in $TESTS ; do
 
     test_path=$TMP/$test_name
     $PYTHON -tt ./pychecker/checker.py --limit 0 --moduledoc --classdoc --no-argsused $extra_args $test_file 2>&1 | egrep -v '\[[0-9]+ refs\]$' > $test_path
-    echo diff between $test_name output and $EXPECTED:
     diff $test_path $EXPECTED
     if [ $? -ne 0 ]; then
         error=`expr $error + 1`
-        echo "  $test_name FAILED"
+        echo "  $test_name FAILED; output different from expected in $EXPECTED"
         FAILED="$FAILED $test_name"
     fi
     rm -f $test_path
