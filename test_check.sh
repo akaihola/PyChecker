@@ -22,6 +22,49 @@ if [ -z "$TMP" ]; then
     TMP=/tmp
 fi
 
+function get_expected ()
+# Find a versioned expected output file
+# Use the expected one with the highest version equal to or lower than
+# our python version
+# Fall back to the unversioned one
+# arg1: test name
+# sets EXPECTED
+{
+  local NAME=$1
+
+  local VERSION=`$PYTHON -c "import sys ; print '%d.%d' % sys.version_info[0:2]"`
+
+  # start with the unversioned one
+  EXPECTED=test_expected/$NAME
+
+  # FIXME: using \< and \> is not elegant, but python's versioning is
+  # well-behaved
+  ALL=`ls test_expected/$NAME-* 2> /dev/null`
+  if test -z $ALL
+  then
+    return
+  fi
+
+  for CANDIDATE in $ALL
+  do
+    WANTED=test_expected/$NAME-$VERSION
+    # echo expected $CANDIDATE, with our version $WANTED
+    if test $CANDIDATE \< $WANTED
+    then
+      # echo $CANDIDATE sorts before $WANTED
+      if test $CANDIDATE \> $EXPECTED
+      then
+        # echo $CANDIDATE sorts after $EXPECTED, so new $EXPECTED
+        EXPECTED=$CANDIDATE
+      fi
+    # else
+      # echo $CANDIDATE sorts equal or after $WANTED
+    fi
+  done
+  # echo EXPECTED: $EXPECTED
+}
+
+
 error=0
 
 VERSION=`$PYTHON -c "import sys ; print '%d.%d' % sys.version_info[0:2]"`
@@ -30,14 +73,7 @@ NO_EXPECTED_RESULTS=""
 for test_file in $TESTS ; do
     echo "Testing $test_file ..."
     test_name=`basename $test_file .py`
-    expected=test_expected/$test_name
-    if [ -e ${expected}-$VERSION ]; then
-        expected=${expected}-$VERSION
-    elif [ ! -e $expected ]; then
-        echo "  WARNING:  $expected expected results does not exist"
-        NO_EXPECTED_RESULTS="$NO_EXPECTED_RESULTS $test_name"
-        continue
-    fi
+    get_expected $test_name
 
     # make sure to use the -F option for this special test
     extra_args=""
@@ -47,7 +83,7 @@ for test_file in $TESTS ; do
 
     test_path=$TMP/$test_name
     $PYTHON -tt ./pychecker/checker.py --limit 0 --moduledoc --classdoc --no-argsused $extra_args $test_file 2>&1 | egrep -v '\[[0-9]+ refs\]$' > $test_path
-    diff $test_path $expected
+    diff $test_path $EXPECTED
     if [ $? -ne 0 ]; then
         error=`expr $error + 1`
         echo "  $test_name FAILED"
