@@ -1,5 +1,10 @@
 2009-06-20  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test_expected/test88-2.5:
+	  Add a 2.5-specific version since whrandom really is gone now.
+
+2009-06-20  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/Warning.py:
 	  remove sys.path list members from the warning's file path, so that
 	  we don't need different expected test outputs for different versions
