@@ -41,10 +41,19 @@ class Warning :
             return cmp(self.line, warn.line)
         return cmp(self.err, warn.err)
 
-    def format(self) :
+    def format(self, removeSysPath=True) :
         if not self.file and not self.line:
             return str(self.err)
-        return "%s:%d: %s" % (self.file, self.line, self.err)
+        file = self.file
+        if removeSysPath:
+            import sys, os
+            for path in sys.path:
+                if not path or path == '.':
+                    continue
+                if file.startswith(path):
+                    file = '[system path]' + file[len(path):]
+        
+        return "%s:%d: %s" % (file, self.line, self.err)
 
-    def output(self, stream) :
-        stream.write(self.format() + "\n")
+    def output(self, stream, removeSysPath=True) :
+        stream.write(self.format(removeSysPath) + "\n")

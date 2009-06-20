@@ -765,7 +765,7 @@ def _printWarnings(warnings, stream=None):
                 stream.write("\n")
 
         lastWarning = warning
-        warning.output(stream)
+        warning.output(stream, removeSysPath=True)
 
 
 class NullModule:

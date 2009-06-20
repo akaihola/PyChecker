@@ -1,5 +1,26 @@
 2009-06-20  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/Warning.py:
+	  remove sys.path list members from the warning's file path, so that
+	  we don't need different expected test outputs for different versions
+	  when nothing important has changed.
+	* pychecker/checker.py:
+	  remove sys.path entries by default.  This could be made configurable
+	  if people would still want to see the old behaviour that lists the
+	  full path for some errors.
+	* test_expected/test3-2.3:
+	* test_expected/test3-2.5:
+	* test_expected/test3-2.6:
+	* test_expected/test34-2.2:
+	* test_expected/test34-2.3:
+	* test_expected/test34-2.5:
+	* test_expected/test34-2.6:
+	  Adapt the expected output to the new [system path] output.
+	  Removes some hardcoded neils in the process, and fixes 3 and 34
+	  on my F9 python 2.5 version.
+
+2009-06-20  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test_check.sh:
 	  Instead of comparing to an exact match for test_expected for our
 	  Python version, allow comparing against the newest expected version
