@@ -7,14 +7,14 @@ for NEW in $VERSIONS
 do
   if test ! -z $OLD
   then
-    for BASE in test_expected/test???
-    do
+    for BASE in test_expected/test? test_expected/test?? test_expected/test???
+   do
       if test -e $BASE-$NEW && test -e $BASE-$OLD
       then
         if diff $BASE-$OLD $BASE-$NEW > /dev/null
         then
           echo deleting $BASE-$NEW
-          cvs remove $BASE-$NEW
+          cvs remove -f $BASE-$NEW
         else
           echo not deleting $BASE-$NEW
         fi
