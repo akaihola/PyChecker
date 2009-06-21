@@ -1,3 +1,9 @@
+2009-06-21  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* test_expected/test34-2.4:
+	  Fix expected output to include [system path] like the others.
+	  Fixes the test on 2.4.
+
 2009-06-20  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* scripts/delete-duplicate-expected:
