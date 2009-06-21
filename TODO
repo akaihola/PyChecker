@@ -104,20 +104,31 @@ Fixing testsuite:
 On Fedora 9, Python 2.5, these tests still fail (tested on 2009-06-20):
   test103 test13 test22 test44 test48 test53 test70 test71 test77
   test78 test87 test88
+On Fedora 9, Python 2.4 built by hand:
+ TESTS FAILED:  test13 test34 test3 test44 test70 test78 test88
+On Fedora 9, Python 2.3 built by hand:
+ TESTS FAILED:  test13 test34 test3 test44 test70 test78 test88
+On Fedora 9, Python 2.2 built by hand:
+  all tests fail due to a bug in this_mod.__filename__
+
+
 
   test103: a generator statement run twice should not generate a warning, but
-           does for at least python 2.5
-  test13:  the wrong functions are triggering the warnings on python 2.5
-  test22:  two constant warnings went away in at least python 2.5
+           does since python 2.5
+  test13:  the wrong functions are triggering the warnings since python 2.3
+  test22:  two constant warnings went away since python 2.5
+  test34:  FIXME: fails in 2.3/2.4, works in 2.5
+  test3:   FIXME: fails in 2.3/2.4, works in 2.5
   test44:  pychecker seems to print a wrong warning about __init__ argument
            number in at least python 2.5
   test48:  line 57 (the single character '5') no longer triggers statement
-           has no effect warning in at least python 2.5
-  test53:  the operator ~~ stopped generating a warning since at least
-           python 2.5
+           has no effect warning since python 2.5
+  test53:  the operator ~~ stopped generating a warning since python 2.5
   test70:  5 conditional warnings went away since python 2.5
+  test71:  FIXME: since 2.5
+  test77:  FIXME: since 2.5
   test78: generated output has, at offset 0x35, [?1034h.Warnings; expected
           output does not have this
   test87: the expected output is able to clearly identify the line number
           of a broken up statement; the current output is not and blames
-          the first line of the broken up statement
+          the first line of the broken up statement; since python 2.5
