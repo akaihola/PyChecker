@@ -57,32 +57,34 @@ class TestCase(unittest.TestCase):
 
         @type checkables: list of str
         """
-        testdir = os.path.dirname(__file__)
+        abstestdir = os.path.dirname(__file__)
+        abspycheckerdir = os.path.dirname(abstestdir)
+
         # make this relative to where we are, so paths shown are relative too
-        if testdir.startswith(os.getcwd()):
-            testdir = testdir[len(os.getcwd()) + 1:]
+        #if abstestdir.startswith(os.getcwd()):
+        #    abstestdir = abstestdir[len(os.getcwd()) + 1:]
 
-        pycheckerpy = os.path.join(os.path.dirname(testdir),
-            'pychecker', 'checker.py')
-        testfiles = [os.path.join(testdir, 'input', c) for c in checkables]
+        pycheckerpy = os.path.join(abspycheckerdir, 'pychecker', 'checker.py')
+        testfiles = [os.path.join('input', c) for c in checkables]
 
-        cmd = "python -tt %s " \
+        cmd = "cd %s; python -tt %s " \
             "--limit 0 --no-argsused " \
-            "%s %s" % (pycheckerpy, args, " ".join(testfiles))
+            "%s %s" % (abstestdir, pycheckerpy, args, " ".join(testfiles))
         # getoutput output never ends on a newline the way
         # pychecker ... > expected/... would
         output = commands.getoutput(cmd) + '\n'
         
         # here we can select a different file based on os/python version/arch
-        expectedfile = os.path.join(testdir, 'expected', testname)
+        relexpectedfile = os.path.join('expected', testname)
+        absexpectedfile = os.path.join(abstestdir, relexpectedfile)
 
         # FIXME: make generating an option
         # for now, do it every time we don't have the expected output
         # to help us
-        if not os.path.exists(expectedfile):
-            open(expectedfile, 'w').write(output)
+        if not os.path.exists(absexpectedfile):
+            open(absexpectedfile, 'w').write(output)
 
-        expected = open(expectedfile).read()
+        expected = open(absexpectedfile).read()
 
-        diffStrings(output, expected, desc=expectedfile)
+        diffStrings(expected, output, desc=relexpectedfile)
 

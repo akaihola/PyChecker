@@ -1,6 +1,18 @@
 2009-06-26  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* HACKING:
+	  Add a note on trial as an option.
+	* test/expected/test_dict:
+	* test/expected/test_getmodule:
+	* test/expected/test_zope_interface:
+	  Make everything relative to the test dir
+	* test/common.py:
+	  Make 'trial test' run similarly to 'python test/main.py'
+	  Diff from expected to output, so the + are what the test has.
+
+2009-06-26  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* HACKING:
 	  Add notes about the testsuite.
 	* test/expected/test_dict:
 	* test/input/test_dict.py:
