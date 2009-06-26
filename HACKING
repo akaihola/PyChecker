@@ -1,0 +1,22 @@
+TESTSUITE
+---------
+
+The old testsuite is in the root directory, and runs through shell code.
+ - test_input contains all of the python code files to be checked.
+ - test_expected contains the expected output
+ - test_check.sh runs the testsuite
+
+The new testsuite is in the test/ directory and uses the unittest module.
+ - test/test_input contains all of the python code files to be checked.
+ - test/test_expected contains the expected output
+ - test/ contains the unittest modules
+ - test/common.py contains common classes used in the unittest modules
+ - test/main.py is the main test loader
+ - python test/main.py runs the testsuite
+
+Adding a test:
+ - add a TestCase in test/test_(type).py
+ - add an input file in test/test_input/test_(name).py
+ - run the test to generate an expected output for this test
+ - adapt it, since it might not be what you want, if for example it generates
+   a warning that it shouldn't

@@ -1,3 +1,14 @@
+2009-06-26  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* HACKING:
+	  Add notes about the testsuite.
+	* test/expected/test_dict:
+	* test/input/test_dict.py:
+	* test/main.py:
+	* test/test_dict.py:
+	  Add a test for someDict.keys() in a function which fails in
+	  python 2.6, but not earlier.
+
 2009-06-21  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* test_expected/test3-2.4:

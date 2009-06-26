@@ -8,6 +8,7 @@
 
 from test_stdlib import *
 from test_module import *
+from test_dict import *
 
 if __name__ == '__main__':
     unittest.main()
