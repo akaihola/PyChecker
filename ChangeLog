@@ -1,5 +1,13 @@
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* bin/pychecker:
+	  Adding a script to be used as the pychecker binary when
+	  running uninstalled.
+	* misc/pychecker-uninstalled:
+	  Add a script to run pychecker uninstalled.
+
+2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/CodeChecks.py:
 	  Implement STORE_MAP dispatcher.
 	  Fixes test/test_dict.py

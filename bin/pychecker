@@ -1,0 +1,6 @@
+#! /bin/sh
+
+ABSOLUTE=$0
+BINDIR=`dirname $ABSOLUTE`
+PYCHECKERDIR=`dirname $BINDIR`
+python $PYCHECKERDIR/pychecker/checker.py $@
