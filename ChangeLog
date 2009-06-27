@@ -1,5 +1,11 @@
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test/test_stdlib.py:
+	  For now, return OK if we can't import zope.interface,
+	  since there is no skip support in the standard unittest.
+
+2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* HACKING:
 	  Add note on setting PYTHONPATH for running tests.
 	* test/common.py:

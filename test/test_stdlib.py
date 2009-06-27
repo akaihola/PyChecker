@@ -18,6 +18,7 @@ class ZopeTestCase(common.TestCase):
     def test_zope_interface(self):
         if not common.canImport('zope.interface'):
             self.skip = True # FIXME: interpret this
+            return
 
         self.check('test_zope_interface', '-q')
     
