@@ -3,7 +3,12 @@
 
 import os
 import commands
-import unittest
+
+# use twisted if we can so we get nice trial goodness
+try:
+    from twisted.trial import unittest
+except ImportError:
+    import unittest
 
 def canImport(module):
     '''

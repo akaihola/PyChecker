@@ -12,7 +12,10 @@ The new testsuite is in the test/ directory and uses the unittest module.
  - test/ contains the unittest modules
  - test/common.py contains common classes used in the unittest modules
  - test/main.py is the main test loader
- - python test/main.py or trial test runs the testsuite
+ - run the testsuite either with:
+   PYTHONPATH=`pwd`:$PYTHONPATH python test/main.py
+   or 
+   trial test
 
 Adding a test:
  - add a TestCase in test/test_(type).py
