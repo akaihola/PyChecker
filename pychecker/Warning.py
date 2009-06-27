@@ -9,14 +9,34 @@ Warning class to hold info about each warning.
 
 
 class Warning :
-    "Class which holds error information."
+    """
+    Class which holds warning information.
+
+    @ivar file: file where the warning was found.
+    @type file: str
+    @ivar line: line number where the warning was found.
+    @type line: int
+    @type err:  L{msgs.WarningClass}
+    """
 
     def __init__(self, file, line, err) :
+        """
+        @param file: an object from which the file where the warning
+                     was found can be derived
+        @type  file: L{types.CodeType}, L{function.FakeCode} or str
+        @param line: the line where the warning was found; if file was str,
+                     then line will be a code object.
+        @type  line: int or L{types.CodeType} or None
+        @type  err:  L{msgs.WarningClass}
+        """
         if hasattr(file, "function") :
+            # file is a function.FakeCode
             file = file.function.func_code.co_filename
         elif hasattr(file, "co_filename") :
+            # file is a types.CodeType
             file = file.co_filename
         elif hasattr(line, "co_filename") :
+            # file was a str
             file = line.co_filename
         if file[:2] == './' :
             file = file[2:]

@@ -548,6 +548,7 @@ def _findFunctionWarnings(module, globalRefs, warnings, suppressions) :
         suppress = getSuppression(name, suppressions, warnings)
         if cfg().noDocFunc and func.function.__doc__ == None :
             err = msgs.NO_FUNC_DOC % func.function.__name__
+            # FIXME: is there a good reason why this passes func_code as line ?
             warnings.append(Warning(module.filename(), func_code, err))
 
         _checkNoSelfArg(func, warnings)
@@ -634,6 +635,7 @@ def _findClassWarnings(module, c, class_code,
 
         if cfg().noDocFunc and method.function.__doc__ == None :
             err = msgs.NO_FUNC_DOC % method.function.__name__
+            # FIXME: is there a good reason why this passes func_code as line ?
             warnings.append(Warning(filename, func_code, err))
 
         _checkSelfArg(method, warnings)

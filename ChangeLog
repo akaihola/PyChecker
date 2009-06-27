@@ -1,6 +1,14 @@
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:
+	* pychecker/Warning.py:
+	* pychecker/utils.py:
+	* pychecker/warn.py:
+	  Add comments and docstrings as I learn.
+
+2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
 	* pychecker/warn.py:
 	  raise NotImplementedError where we actually have the
 	  opcode.

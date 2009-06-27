@@ -46,6 +46,22 @@ def shouldUpdateArgs(operand) :
     return operand == Config.CHECKER_VAR
 
 def updateCheckerArgs(argStr, func, lastLineNum, warnings) :
+    """
+    @param argStr:      list of space-separated options, as passed
+                        on the command line
+                        e.g 'blacklist=wrongname initattr no-classdoc'
+    @type  argStr:      str
+    @param func:        'suppressions' or code object
+    @type  func:        str or {function.FakeCode} or {types.CodeType}
+    @param lastLineNum: the last line number of the given function;
+                        compare to func.co_firstlineno if exists
+    @type  lastLineNum: int or {types.CodeType}
+    @param warnings:    list of warnings to append to
+    @type  warnings:    list of L{Warning}
+
+    @rtype:   int
+    @returns: 1 if the arguments were invalid, 0 if ok.
+    """
     try :
         argList = string.split(argStr)
         # don't require long options to start w/--, we can add that for them
@@ -56,6 +72,8 @@ def updateCheckerArgs(argStr, func, lastLineNum, warnings) :
         cfg().processArgs(argList)
         return 1
     except Config.UsageError, detail :
+        # FIXME: thomasvs: I have not been able to trigger this warning,
+        # and it's the only time func and lastLineNum actually get used
         warn = Warning(func, lastLineNum, msgs.INVALID_CHECKER_ARGS % detail)
         warnings.append(warn)
         return 0

@@ -811,6 +811,9 @@ class Code :
         return Warning.Warning(self.func_code, line, err)
 
     def addWarning(self, err, line = None) :
+        """
+        @type line: int or L{types.CodeType} or None
+        """
         w = err
         if not isinstance(w, Warning.Warning):
             w = self.getWarning(err, line)
@@ -989,11 +992,15 @@ def _checkVariableOperationOnItself(code, lname, msg):
     if code.stack and code.stack[-1].getName() == lname:
         code.addWarning(msg % lname)
 
+# checks if the given varname is a known future keyword, and warn if so
 def _checkFutureKeywords(code, varname) :
     kw = python.FUTURE_KEYWORDS.get(varname)
     if kw is not None :
         code.addWarning(msgs.USING_KEYWORD % (varname, kw))
 
+# Implements name = TOS. namei is the index of name in the attribute co_names
+# of the code object. The compiler tries to use STORE_FAST or STORE_GLOBAL if
+# possible.
 def _STORE_NAME(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :
         _checkFutureKeywords(code, operand)
