@@ -642,6 +642,7 @@ def _findClassWarnings(module, c, class_code,
         tmpModule = _getModuleFromFilename(module, func_code.co_filename)
         funcInfo = _updateFunctionWarnings(tmpModule, method, c, warnings, globalRefs)
         if func_code.co_name == utils.INIT :
+            # this is a constructor
             if utils.INIT in dir(c.classObject) :
                 warns = _checkBaseClassInit(filename, c, func_code, funcInfo)
                 warnings.extend(warns)

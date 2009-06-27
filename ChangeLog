@@ -1,6 +1,15 @@
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:
+	* pychecker/warn.py:
+	  Note where test44 seems to fail.  Can't figure out how
+	  to fix it yet though.
+	  Add more comments.
+	  Reorder a function to be more clear to follow.
+
+2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
 	  Implement DELETE_SLICE3.  ./test_check.sh no longer
 	  triggers dispatch errors.
 

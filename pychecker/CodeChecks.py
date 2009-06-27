@@ -39,6 +39,7 @@ def getFunctionArgErr(func_name, argCount, minArgs, maxArgs):
 def _checkFunctionArgCount(code, func_name, argCount, minArgs, maxArgs,
                            objectReference = 0) :
     # there is an implied argument for object creation and self.xxx()
+    # FIXME: this is where test44 fails
     if objectReference :
         minArgs = minArgs - 1
         if maxArgs is not None :
@@ -74,19 +75,25 @@ def _checkFunctionArgs(code, func, objectReference, argCount, kwArgs,
                                func.minArgs, func.maxArgs, objectReference)
 
 def _getReferenceFromModule(module, identifier) :
+    # if the identifier is in the list of module's functions, return
+    # the function, with no class, and method 0
     func = module.functions.get(identifier, None)
     if func is not None :
         return func, None, 0
 
-    create = 0
+    # now look it up as a class instantiation
     c = module.classes.get(identifier, None)
     if c is not None :
         func = c.methods.get(utils.INIT, None)
-        create = 1
-    return func, c, create
+        return func, c, 1
+
+    # not found as either
+    return None, None, 0
 
 def _getFunction(module, stackValue) :
-    'Return (function, class) from the stack value'
+    # FIXME: it's not clear to me if the above method really returns
+    # whether the stack value is a constructor
+    'Return (function, class, is_a_method) from the stack value'
 
     identifier = stackValue.data
     if type(identifier) == types.StringType :
