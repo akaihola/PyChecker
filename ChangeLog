@@ -1,5 +1,10 @@
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/CodeChecks.py:
+	  Add opcodes from 2.5 and 2.6
+
+2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test/test_stdlib.py:
 	  For now, return OK if we can't import zope.interface,
 	  since there is no skip support in the standard unittest.
