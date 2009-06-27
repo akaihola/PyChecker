@@ -148,13 +148,10 @@ def _checkCode(code, codeSource) :
         op, oparg, operand = code.popNextOp()
         dispatch_func = CodeChecks.DISPATCH[op]
         if dispatch_func is not None :
-            dispatch_func(oparg, operand, codeSource, code)
-        else :
-            # FIXME: when we have added all the opcodes
-            # raise NotImplementedError('No DISPATCH member for op %r' % op)
-            print NotImplementedError(
-                'Warning: no DISPATCH member for op %r' % op)
-            
+            try :
+                dispatch_func(oparg, operand, codeSource, code)
+            except NotImplementedError :
+                raise NotImplementedError('No DISPATCH member for op %r' % op)
 
 def _name_unused(var) :
     if var in cfg().unusedNames :

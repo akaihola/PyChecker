@@ -1881,7 +1881,7 @@ def _RAISE_VARARGS(oparg, operand, codeSource, code) :
 
 def _empty(oparg, operand, codeSource, code): pass
 def _unimplemented(oparg, operand, codeSource, code):
-    raise NotImplementedError('No DISPATCH member for operand %r' % operand)
+    raise NotImplementedError('No DISPATCH member for operand')
 
 # these op codes do not interact with the stack
 _PRINT_NEWLINE = _empty

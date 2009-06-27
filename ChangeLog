@@ -1,6 +1,13 @@
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:
+	* pychecker/warn.py:
+	  raise NotImplementedError where we actually have the
+	  opcode.
+
+2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
 	  Add opcodes from 2.5 and 2.6
 
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
