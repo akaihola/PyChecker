@@ -1,5 +1,16 @@
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/checker.py:
+	  moduleDir can be '' which is None, in the case where
+	  the module being tested lives in the current directory.
+	  So always compare with is/is not None.
+
+	  Fixes
+	  https://sourceforge.net/tracker/index.php?
+	  func=detail&aid=2209631&group_id=24686&atid=382217
+
+2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/CodeChecks.py:
 	* pychecker/warn.py:
 	  Note where test44 seems to fail.  Can't figure out how

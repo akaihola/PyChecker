@@ -302,7 +302,7 @@ class Class :
         self.module = sys.modules.get(modname)
         # if the pcmodule has moduleDir, it means we processed it before,
         # and deleted it from sys.modules
-        if not self.module and not pcmodule.moduleDir:
+        if not self.module and pcmodule.moduleDir is None:
             self.module = module
             if modname not in cfg().blacklist:
                 sys.stderr.write("warning: couldn't find real module "
@@ -551,8 +551,11 @@ class PyCheckerModule :
         """
         @param moduleDir: if specified, the directory where the module can
                           be loaded from; allows discerning between modules
-                          with the same name in a different directory
-
+                          with the same name in a different directory.
+                          Note that moduleDir can be the empty string, if
+                          the module being tested lives in the current working
+                          directory.
+        @type  moduleDir: str
         """
         self.moduleName = moduleName
         self.moduleDir = moduleDir
@@ -628,9 +631,12 @@ class PyCheckerModule :
         try :
             # there's no need to reload modules we already have if no moduleDir
             # is specified for this module
-            if not self.moduleDir:
+            # NOTE: self.moduleDir can be '' if the module tested lives in
+            # the current working directory
+            if self.moduleDir is None:
                 module = sys.modules.get(self.moduleName)
                 if module :
+                    pcmodule = pcmodules.getPCModule(self.moduleName)
                     if not pcmodules.getPCModule(self.moduleName).module :
                         return self._initModule(module)
                     return 1
@@ -698,11 +704,11 @@ class PyCheckerModule :
         # FIXME: if the smt[-1] == imp.PKG_DIRECTORY : load __all__
         # HACK: to make sibling imports work, we add self.moduleDir to sys.path
         # temporarily, and remove it later
-        if self.moduleDir:
+        if self.moduleDir is not None:
             oldsyspath = sys.path[:]
             sys.path.insert(0, self.moduleDir)
         module = imp.load_module(self.moduleName, file, filename, smt)
-        if self.moduleDir:
+        if self.moduleDir is not None:
             sys.path = oldsyspath
             # to make sure that subsequent modules with the same moduleName
             # do not persist, and get their namespace clobbered, delete it
