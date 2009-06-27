@@ -1,6 +1,12 @@
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:
+	  Implement STORE_MAP dispatcher.
+	  Fixes test/test_dict.py
+
+2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
 	* pychecker/checker.py:
 	* pychecker/utils.py:
 	  Further documentation and commenting.

@@ -1507,6 +1507,9 @@ def _BUILD_TUPLE(oparg, operand, codeSource, code) :
     _makeConstant(code, oparg, Stack.makeTuple)
 def _BUILD_LIST(oparg, operand, codeSource, code) :
     _makeConstant(code, oparg, Stack.makeList)
+def _STORE_MAP(oparg, operand, codeSource, code) :
+    _popn(code, 2)
+
 
 def _BUILD_CLASS(oparg, operand, codeSource, code) :
     newValue = Stack.makeFuncReturnValue(code.stack[-1], types.ClassType)
@@ -1982,7 +1985,6 @@ _DUP_TOPX = _unimplemented
 _BUILD_SLICE = _unimplemented
 
 _WITH_CLEANUP = _unimplemented
-_STORE_MAP = _unimplemented
 
 DISPATCH = [ None ] * 256
 DISPATCH[  0] = _STOP_CODE
