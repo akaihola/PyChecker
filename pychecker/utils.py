@@ -72,8 +72,7 @@ def updateCheckerArgs(argStr, func, lastLineNum, warnings) :
         cfg().processArgs(argList)
         return 1
     except Config.UsageError, detail :
-        # FIXME: thomasvs: I have not been able to trigger this warning,
-        # and it's the only time func and lastLineNum actually get used
+        # this gets triggered when parsing a bad __pychecker__ declaration
         warn = Warning(func, lastLineNum, msgs.INVALID_CHECKER_ARGS % detail)
         warnings.append(warn)
         return 0

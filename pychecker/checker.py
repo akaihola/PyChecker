@@ -539,7 +539,13 @@ def _getPyFile(filename):
     return filename
 
 class PyCheckerModule :
-    "Class to hold all information for a module"
+    """
+    Class to hold all information for a module
+
+    @ivar moduleLineNums: mapping of the module's nameds/operands to the
+                          filename and linenumber where they are created
+    @type moduleLineNums: dict of str -> (str, int)
+    """
 
     def __init__(self, moduleName, check = 1, moduleDir=None) :
         """

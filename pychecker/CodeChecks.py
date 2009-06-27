@@ -482,11 +482,17 @@ def _makeConstant(code, index, factoryFunction) :
 
 
 def _hasGlobal(operand, module, func, main) :
+    # returns whether we have a global with the operand's name, because of:
+    # - being in the function's global list
+    # - main being set to 1
+    # - being in the module's list of global operands
+    # - being a builtin
     return (func.function.func_globals.has_key(operand) or
              main or module.moduleLineNums.has_key(operand) or
              __builtins__.has_key(operand))
 
 def _checkGlobal(operand, module, func, code, err, main = 0) :
+    # if the given operand is not in the global namespace, add the given err
     if not _hasGlobal(operand, module, func, main) :
         code.addWarning(err % operand)
         if not cfg().reportAllGlobals :
@@ -752,7 +758,12 @@ def _getLineNum(co, instr_index):
 
 
 class Code :
-    'Hold all the code state information necessary to find warnings'
+    """
+    Hold all the code state information necessary to find warnings
+
+    @ivar stack:
+    @type stack: list of L{Stack.Item}
+    """
 
     def __init__(self) :
         self.bytes = None
@@ -953,19 +964,47 @@ class Code :
                     self.removeBranch(label)
 
     def updateCheckerArgs(self, operand) :
+        """
+        If the operand is a __pychecker__ argument string,
+        update the checker arguments for this Code object.
+
+        @rtype:   bool
+        @returns: whether the checker arguments were updated.
+        """
         rc = utils.shouldUpdateArgs(operand)
         if rc :
+            # pass the location of the __pychecker__ arguments
             utils.updateCheckerArgs(self.stack[-1].data, self.func_code,
                                     self.getLineNum(), self.warnings)
         return rc
         
     def updateModuleLineNums(self, module, operand) :
+        """
+        @type module:  L{pychecker.checker.PyCheckerModule}
+        """
         filelist = (self.func_code.co_filename, self.getLineNum())
         module.moduleLineNums[operand] = filelist
 
 
 class CodeSource :
-    'Holds source information about a code block (module, class, func, etc)'
+    """
+    Holds source information about a code block (module, class, func, etc)
+
+    @ivar module:       name of module
+    @type module:       str
+    @ivar func:         name of function
+    @type func:         str
+    @ivar c:            the class object, if applicable
+    @type c:            object or None
+    @ivar main:         whether this code block is in the source's global
+                        namespace
+    @type main:         int (used as bool)
+    @ivar in_class:     whether this code block is inside a class scope
+    @type in_class:     int (used as bool)
+    @ivar calling_code: list of functions that call this source
+    @type calling_code: list of callable
+    
+    """
     def __init__(self, module, func, c, main, in_class, code) :
         self.module = module
         self.func = func
@@ -998,19 +1037,37 @@ def _checkFutureKeywords(code, varname) :
     if kw is not None :
         code.addWarning(msgs.USING_KEYWORD % (varname, kw))
 
+### dispatcher functions for operands
+
+# All these functions have the following documentation:
+# @param oparg:
+# @param operand:
+# @param codeSource:
+# @type  codeSource: L{CodeSource}
+# @param code:
+# @type  code:       L{Code}
+
 # Implements name = TOS. namei is the index of name in the attribute co_names
 # of the code object. The compiler tries to use STORE_FAST or STORE_GLOBAL if
 # possible.
 def _STORE_NAME(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :
-        _checkFutureKeywords(code, operand)
         module = codeSource.module
+
+        # not a __pychecker__ operand, so continue checking
+        _checkFutureKeywords(code, operand)
+
         if not codeSource.in_class :
             _checkShadowBuiltin(code, operand)
+
+            # complain if the code is called and declares global on an
+            # undefined name
             if not codeSource.calling_code :
                 _checkGlobal(operand, module, codeSource.func, code,
                              msgs.GLOBAL_DEFINED_NOT_DECLARED, codeSource.main)
         else :
+            # we're in a class
+
             if code.stack :
                 codeSource.classObject.statics[operand] = code.stack[-1]
                 codeSource.classObject.lineNums[operand] = code.getLineNum()
@@ -1119,6 +1176,7 @@ def _checkLocalShadow(code, module, varname) :
         code.addWarning(w)
 
 def _checkShadowBuiltin(code, varname) :
+    # Check if the given variable name shadows a builtin
     if __builtins__.has_key(varname) and varname[0] != '_' and \
        cfg().shadowBuiltins:
         code.addWarning(msgs.VARIABLE_SHADOWS_BUILTIN % varname)
@@ -1144,6 +1202,7 @@ def _LOAD_FAST(oparg, operand, codeSource, code) :
 
 def _STORE_FAST(oparg, operand, codeSource, code) :
     if not code.updateCheckerArgs(operand) :
+        # not a __pychecker__ operand, so continue checking
         _checkFutureKeywords(code, operand)
         if code.stack and code.stack[-1].type == types.StringType and \
                not code.stack[-1].const:

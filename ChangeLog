@@ -1,6 +1,13 @@
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:
+	* pychecker/checker.py:
+	* pychecker/utils.py:
+	  Further documentation and commenting.
+
+2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
 	* pychecker/Warning.py:
 	* pychecker/utils.py:
 	* pychecker/warn.py:
