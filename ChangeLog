@@ -1,6 +1,13 @@
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:
+	  Implement more opcodes, this time triggered by checking
+	  pychecker itself.
+	  pycheckering pychecker is a sobering experience, and bad PR.
+
+2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
 	  Implement STORE_SLICE2, which is triggered by anaconda.
 
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>

@@ -1800,10 +1800,19 @@ _SLICE1 = _SLICE2 = _SLICE_1_ARG
 def _SLICE3(oparg, operand, codeSource, code) :
     _popStackRef(code, operand, 3)
 
-def _STORE_SLICE2(oparg, operand, codeSource, code) :
+def _STORE_SLICE1(oparg, operand, codeSource, code) :
     # FIXME: can we check here if we're storing to something that supports
     # slice assignment ?
     _popStackRef(code, operand, 3)
+
+_STORE_SLICE2 = _STORE_SLICE1
+
+def _DELETE_SLICE1(oparg, operand, codeSource, code) :
+    # FIXME: can we check here if we're deleting from something that supports
+    # slice deletion ?
+    _popStackRef(code, operand, count=2)
+
+_DELETE_SLICE2 = _DELETE_SLICE1
 
 def _DELETE_SLICE3(oparg, operand, codeSource, code) :
     # FIXME: can we check here if we're deleting from something that supports
@@ -1999,10 +2008,7 @@ _PRINT_EXPR = _unimplemented
 _PRINT_NEWLINE_TO = _unimplemented
 
 _DELETE_SLICE0 = _unimplemented
-_DELETE_SLICE1 = _unimplemented
-_DELETE_SLICE2 = _unimplemented
 _STORE_SLICE0 = _unimplemented
-_STORE_SLICE1 = _unimplemented
 _STORE_SLICE3 = _unimplemented
 # FIXME: probably pop argument number of items ?
 _DUP_TOPX = _unimplemented
