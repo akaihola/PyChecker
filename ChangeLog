@@ -1,6 +1,12 @@
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:
+	  Implement DELETE_SLICE3.  ./test_check.sh no longer
+	  triggers dispatch errors.
+
+2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
 	  Implement SLICE0 and YIELD_VALUE.
 
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>

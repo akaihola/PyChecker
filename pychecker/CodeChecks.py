@@ -1143,6 +1143,8 @@ def _LOAD_DEREF(oparg, operand, codeSource, code) :
 
 _LOAD_CLOSURE = _LOAD_DEREF
 
+# Implements del name, where namei is the index into co_names attribute of the
+# code object.
 def _DELETE_NAME(oparg, operand, codeSource, code) :
     _checkLoadGlobal(codeSource, code, operand)
     # FIXME: handle deleting global multiple times
@@ -1791,6 +1793,11 @@ _SLICE1 = _SLICE2 = _SLICE_1_ARG
 def _SLICE3(oparg, operand, codeSource, code) :
     _popStackRef(code, operand, 3)
 
+def _DELETE_SLICE3(oparg, operand, codeSource, code) :
+    # FIXME: can we check here if we're deleting from something that supports
+    # slice deletion ?
+    _popStackRef(code, operand, 3)
+
 def _check_string_iteration(code, index):
     try:
         item = code.stack[index]
@@ -1982,7 +1989,6 @@ _PRINT_NEWLINE_TO = _unimplemented
 _DELETE_SLICE0 = _unimplemented
 _DELETE_SLICE1 = _unimplemented
 _DELETE_SLICE2 = _unimplemented
-_DELETE_SLICE3 = _unimplemented
 _STORE_SLICE0 = _unimplemented
 _STORE_SLICE1 = _unimplemented
 _STORE_SLICE2 = _unimplemented
