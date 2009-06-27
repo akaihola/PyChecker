@@ -1563,6 +1563,7 @@ def _UNARY_INVERT(oparg, operand, codeSource, code) :
 
 
 def _popStackRef(code, operand, count = 2) :
+    # pop count items, then push a ref to the operand on the stack
     code.popStackItems(count)
     code.pushStack(Stack.Item(operand, Stack.TYPE_UNKNOWN))
 
@@ -1780,7 +1781,11 @@ def _UNPACK_SEQUENCE(oparg, operand, codeSource, code) :
 
 def _SLICE_1_ARG(oparg, operand, codeSource, code) :
     _popStackRef(code, operand)
-    
+
+def _SLICE0(oparg, operand, codeSource, code) :
+    # Implements TOS = TOS[:].
+    _popStackRef(code, operand, count=1)
+
 _SLICE1 = _SLICE2 = _SLICE_1_ARG
 
 def _SLICE3(oparg, operand, codeSource, code) :
@@ -1926,6 +1931,10 @@ def _EXEC_STMT(oparg, operand, codeSource, code) :
         else :
             code.addWarning(msgs.USES_EXEC)
 
+def _YIELD_VALUE(oparg, operand, codeSource, code) :
+    # FIXME: any kind of checking we need to do on a yield ? globals ?
+    code.popStack()
+
 def _checkStrException(code, varType, item):
     if varType is types.StringType:
         code.addWarning(msgs.RAISE_STR_EXCEPTION % item.data)
@@ -1969,9 +1978,7 @@ _EXTENDED_ARG = _unimplemented
 _PRINT_EXPR = _unimplemented
 # FIXME: this implementation could just be a pop 1 from the stack I think
 _PRINT_NEWLINE_TO = _unimplemented
-_YIELD_VALUE = _unimplemented
 
-_SLICE0 = _unimplemented
 _DELETE_SLICE0 = _unimplemented
 _DELETE_SLICE1 = _unimplemented
 _DELETE_SLICE2 = _unimplemented
