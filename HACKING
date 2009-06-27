@@ -23,3 +23,8 @@ Adding a test:
  - run the test to generate an expected output for this test
  - adapt it, since it might not be what you want, if for example it generates
    a warning that it shouldn't
+
+UPDATE TO NEW PYTHON VERSION
+----------------------------
+ - add dispatchers for new opcodes in pychecker/CodeChecks.py
+ - add future keywords in pychecker/python.py
