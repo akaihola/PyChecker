@@ -101,13 +101,12 @@ Longer Term goals:
 
 Fixing testsuite:
 -----------------
-On Fedora 9, Python 2.5, these tests still fail (tested on 2009-06-20):
-  test103 test13 test22 test44 test48 test53 test70 test71 test77
-  test78 test87 test88
+On Fedora 9, Python 2.5, these tests still fail (tested on 2009-06-27):
+ TESTS FAILED:  test103 test13 test22 test44 test48 test53 test70 test71 test77 test78 test87
 On Fedora 9, Python 2.4 built by hand:
- TESTS FAILED:  test13 test3 test44 test70 test78 test88
+ TESTS FAILED:  test13 test44 test70 test78 test88
 On Fedora 9, Python 2.3 built by hand:
- TESTS FAILED:  test103 test13 test44 test68 test70 test78 test85
+ TESTS FAILED:  test103 test13 test44 test68 test70 test77 test78 test85
 On Fedora 9, Python 2.2 built by hand:
   all tests fail due to a bug in this_mod.__filename__
 
@@ -125,6 +124,7 @@ On Fedora 9, Python 2.2 built by hand:
   test70:  5 conditional warnings went away since python 2.5
   test71:  unreachable code moved from test a to test c; since 2.5
   test77:  doesn't get error formatting exception value; since 2.5
+	   gets linenumber wrong (698 and not 704) in 2.3
   test78: generated output has, at offset 0x35, [?1034h.Warnings; expected
           output does not have this; since 2.3
   test85: 9: Using a conditional statement with a constant value (true)
@@ -138,3 +138,10 @@ On Fedora 9, Python 2.2 built by hand:
 Test questions
 --------------
 test3: why does 'dict shadows builtin' trigger in 2.3 but not 2.4/2.5 ?
+
+Bugs
+----
+figure out why running pychecker on test/input/test_dict.py fails in 2.6
+while it doesn't when you copy it to ./test.py and run it on that
+(Probably because there is also test/__init__.py and it is trying to import
+ that instead ?)
