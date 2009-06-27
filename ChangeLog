@@ -1,5 +1,10 @@
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/CodeChecks.py:
+	  Implement STORE_SLICE2, which is triggered by anaconda.
+
+2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/checker.py:
 	  moduleDir can be '' which is None, in the case where
 	  the module being tested lives in the current directory.
