@@ -9,6 +9,7 @@
 from test_stdlib import *
 from test_module import *
 from test_dict import *
+from test_pychecker_CodeChecks import *
 
 if __name__ == '__main__':
     unittest.main()

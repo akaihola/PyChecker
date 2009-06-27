@@ -1,3 +1,17 @@
+2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
+	  Add _empty and _unimplemented as opcode dispatchers.
+	  Add all missing opcodes for python 2.4
+	* pychecker/warn.py:
+	  For now, print a NotImplementedError if there are still
+	  missing opcodes.  This should be changed to a raise
+	  when we've added all opcodes from released python versions.
+	* test/main.py:
+	  Add new tests for pychecker.CodeChecks
+	* test/test_pychecker_CodeChecks.py:
+	  Add a test to make sure we have all opcodes handled.
+
 2009-06-26  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* HACKING:
