@@ -103,3 +103,4 @@ if [ "$NO_EXPECTED_RESULTS" != "" ]; then
     echo " WARNING no expected results for: $NO_EXPECTED_RESULTS"
 fi
 
+exit $error

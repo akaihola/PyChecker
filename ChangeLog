@@ -1,3 +1,9 @@
+2009-07-29  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* test_check.sh:
+	  Return the number of failed tests, similar to make check.
+	  This makes sure tools like buildbot see a failure.
+
 2009-06-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:
