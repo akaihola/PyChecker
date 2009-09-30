@@ -118,6 +118,13 @@ On Fedora 9, Python 2.2 built by hand:
   test22:  two constant warnings went away since python 2.5
   test26:  fails in 2.6
   test34:  fails in 2.5, 2.6
+           locale.py added a currency method which uses digits as a local var;
+           this shadows global defined in the test.  Not sure if this is
+           a valid warning that should be flagged (due to from ... import *)
+           I would argue no, since locale.py being good or bad shouldn't
+           change based on where it's imported from.
+           Formatter was added to string.py, without docstring, so looks like
+           a valid new warning.
   test36:  fails in 2.6
   test44:  pychecker seems to print a wrong warning about __init__ argument
            number since 2.3
