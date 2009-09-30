@@ -1,5 +1,20 @@
 2009-09-30  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test_expected/test22-2.5:
+	  From Python 2.5 "What's new" at
+	  http://www.python.org/doc/2.5/whatsnew/other-lang.html:
+	  "The code generator's peephole optimizer now performs simple constant
+	   folding in expressions. If you write something like a = 2+3, the
+	   code generator will do the arithmetic and produce code corresponding
+	   to a = 5. (Proposed and implemented by Raymond Hettinger.)"
+	  Verified from debug info that this actually happens; the code
+	  generator now transforms the statement on line 79 to 1, and line 81
+	  to 0.
+	  So, remove these warnings from the expected output as they can't
+	  be triggered anymore.  Fixes test 22 for Python 2.5
+
+2009-09-30  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test_input/test88.py:
 	  gopherlib has been removed in 2.6, so wrap it inside a try/except.
 	* test_expected/test88:
