@@ -2033,6 +2033,7 @@ _BUILD_SLICE = _unimplemented
 
 _WITH_CLEANUP = _unimplemented
 
+# dispatched from pychecker/warn.py
 DISPATCH = [ None ] * 256
 DISPATCH[  0] = _STOP_CODE
 DISPATCH[  1] = _POP_TOP
