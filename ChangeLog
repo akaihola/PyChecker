@@ -1,5 +1,18 @@
 2009-09-30  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test_input/test88.py:
+	  gopherlib has been removed in 2.6, so wrap it inside a try/except.
+	* test_expected/test88:
+	* test_expected/test88-2.4:
+	* test_expected/test88-2.5:
+	  Update the line numbers since they've all changed.
+	* test_expected/test88-2.6:
+	  Add an expected output, which is now different since the deprecation
+	  warning from the module itself is now gone.
+	  Fixes test 88.
+
+2009-09-30  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/CodeChecks.py:
 	  Since Python 2.6, BUILD_MAP can take a non-zero argument.
 	  This argument is the size of the dictionary to pre-size with,

@@ -4,7 +4,13 @@ also test functions w/security implications
 '''
 
 import os
-import gopherlib
+
+# gopherlib was removed in 2.6
+try:
+    import gopherlib
+except ImportError:
+    pass
+
 import string
 
 try:
