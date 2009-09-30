@@ -19,7 +19,6 @@ if [ $# -gt 0 ]; then
 fi
 
 TMP=`mktemp -t -d tmp.pychecker.test_check.XXXXXXXXXX`
-echo $TMP
 
 function get_expected ()
 # Find a versioned expected output file
