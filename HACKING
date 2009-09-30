@@ -28,3 +28,7 @@ UPDATE TO NEW PYTHON VERSION
 ----------------------------
  - add dispatchers for new opcodes in pychecker/CodeChecks.py
  - add future keywords in pychecker/python.py
+
+BUILDBOT
+--------
+A buildbot is set up at http://build.fluendo.com:8200/
