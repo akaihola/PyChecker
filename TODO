@@ -116,21 +116,26 @@ On Fedora 9, Python 2.2 built by hand:
            does in python 2.3 and 2.5, but not 2.4
   test13:  the wrong functions are triggering the warnings since python 2.4
   test22:  two constant warnings went away since python 2.5
+  test26:  fails in 2.6
+  test34:  fails in 2.5, 2.6
+  test36:  fails in 2.6
   test44:  pychecker seems to print a wrong warning about __init__ argument
            number since 2.3
   test48:  line 57 (the single character '5') no longer triggers statement
            has no effect warning since python 2.5
   test53:  the operator ~~ stopped generating a warning since python 2.5
-  test70:  5 conditional warnings went away since python 2.5
+  test59:  fails in 2.6
+  test68:  only fails in python 2.3
+  test70:  5 conditional warnings went away since python 2.5; but test fails in            all
   test71:  unreachable code moved from test a to test c; since 2.5
   test77:  doesn't get error formatting exception value; since 2.5
 	   gets linenumber wrong (698 and not 704) in 2.3
   test78: generated output has, at offset 0x35, [?1034h.Warnings; expected
           output does not have this; since 2.3
   test85: 9: Using a conditional statement with a constant value (true)
-          fails in 2.3, works in 2.4/2.5
+          fails in 2.3, works in 2.4/2.5/2.6
   test87: the expected output is able to clearly identify the line number
-          of a broken up statement; the current output is not and blames
+         of a broken up statement; the current output is not and blames
           the first line of the broken up statement; since python 2.5
   test88: DeprecationWarning for whrandom pointing to the prefix path instead
           of expected /usr/lib
