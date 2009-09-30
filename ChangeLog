@@ -1,5 +1,16 @@
 2009-09-30  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test_expected/test48-2.5:
+	  Similarly, the following piece of opcode is now optimized away
+	  since 2.5:
+	  >>> dis.dis(test_input.test48.abc)
+	  57          16 LOAD_CONST               1 (5)
+	              19 POP_TOP             
+	  "Fixes" test 48 on 2.5 and 2.6
+
+
+2009-09-30  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test_expected/test22-2.5:
 	  From Python 2.5 "What's new" at
 	  http://www.python.org/doc/2.5/whatsnew/other-lang.html:
