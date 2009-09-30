@@ -18,7 +18,7 @@ if [ $# -gt 0 ]; then
     done
 fi
 
-TMP=`mktemp --tmpdir -d tmp.pychecker.test_check.XXXXXXXXXX`
+TMP=`mktemp -t -d tmp.pychecker.test_check.XXXXXXXXXX`
 echo $TMP
 
 function get_expected ()
