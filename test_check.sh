@@ -18,9 +18,8 @@ if [ $# -gt 0 ]; then
     done
 fi
 
-if [ -z "$TMP" ]; then
-    TMP=/tmp
-fi
+TMP=`mktemp --tmpdir -d tmp.pychecker.test_check.XXXXXXXXXX`
+echo $TMP
 
 function get_expected ()
 # Find a versioned expected output file
@@ -102,5 +101,7 @@ fi
 if [ "$NO_EXPECTED_RESULTS" != "" ]; then
     echo " WARNING no expected results for: $NO_EXPECTED_RESULTS"
 fi
+
+rm -rf $TMP
 
 exit $error
