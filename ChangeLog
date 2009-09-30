@@ -1,5 +1,11 @@
 2009-09-30  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/CodeChecks.py:
+	  Add docs and comments on some methods before fixing test26
+	  on Python 2.6
+
+2009-09-30  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test_check.sh:
 	  Use mktemp to create a temporary directory.  Makes testsuite
 	  robust against parallel execution.  First buglet caught by

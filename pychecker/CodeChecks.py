@@ -480,8 +480,17 @@ def _checkNoEffect(code, ignoreStmtWithNoEffect=0):
         code.addWarning(msgs.POSSIBLE_STMT_WITH_NO_EFFECT)
     
 def _makeConstant(code, index, factoryFunction) :
-    "Build a constant on the stack ((), [], or {})"
+    """
+    Build a constant on the stack ((), [], or {})
+
+    @param index:           how many items the constant will consume from the
+                            stack
+    @param factoryFunction: the factory function from L{pychecker.Stack} to
+                            use when creating the actual constant
+    """
     if index > 0 :
+        # replace the bottom of the stack with the result of applying the
+        # factory function to it
         code.stack[-index:] = [ factoryFunction(code.stack[-index:]) ]
         _checkNoEffect(code)
     else :
@@ -766,7 +775,7 @@ def _getLineNum(co, instr_index):
 
 class Code :
     """
-    Hold all the code state information necessary to find warnings
+    Hold all the code state information necessary to find warnings.
 
     @ivar stack:
     @type stack: list of L{Stack.Item}
@@ -1511,10 +1520,17 @@ def _MAKE_CLOSURE(oparg, operand, codeSource, code) :
     _MAKE_FUNCTION(max(0, oparg - 1), operand, codeSource, code)
 
 def _BUILD_MAP(oparg, operand, codeSource, code) :
+    # Pushes a new dictionary object onto the stack. The dictionary is
+    # pre-sized to hold count entries.
+    # before python 2.6, the argument was always zero
+    # since 2.6, the argument is the size the dict should be pre-sized to
     _makeConstant(code, oparg, Stack.makeDict)
 def _BUILD_TUPLE(oparg, operand, codeSource, code) :
+    # Creates a tuple consuming count items from the stack, and pushes the
+    # resulting tuple onto the stack.
     _makeConstant(code, oparg, Stack.makeTuple)
 def _BUILD_LIST(oparg, operand, codeSource, code) :
+    # Works as BUILD_TUPLE, but creates a list.
     _makeConstant(code, oparg, Stack.makeList)
 def _STORE_MAP(oparg, operand, codeSource, code) :
     _popn(code, 2)
