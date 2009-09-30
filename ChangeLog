@@ -1,5 +1,15 @@
 2009-09-30  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test_check.sh:
+	  Mangle output from warnings for system libraries so that we replace
+	  the system path with [system path] much like pychecker does.
+	  Allows us to consistently check against expected output without
+	  relying on where python is installed.
+	* test_expected/test88-2.4:
+	  Change to use [system path].  Fixes test 88 for python 2.4
+
+2009-09-30  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test_expected/test87-2.5:
 	  Since Python 2.5, disassembly is able to pinpoint the exact line
 	  number of multiline statements.  So update line numbers to the

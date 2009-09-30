@@ -81,6 +81,11 @@ for test_file in $TESTS ; do
 
     test_path=$TMP/$test_name
     $PYTHON -tt ./pychecker/checker.py --limit 0 --moduledoc --classdoc --no-argsused $extra_args $test_file 2>&1 | egrep -v '\[[0-9]+ refs\]$' > $test_path
+    # mangle any system path-like paths that warning lines start with;
+    # this allows us to compare to fixed expected output irrespective
+    # of where python is installed, making it reproducable
+    # FIXME: someone translate this to an equivalent line of python or sed
+    perl -i -p -e 's@.*/lib(.*)/python\d.\d/@[system path]/@g' $test_path
     diff $test_path $EXPECTED
     if [ $? -ne 0 ]; then
         error=`expr $error + 1`
