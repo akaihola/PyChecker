@@ -1,6 +1,17 @@
 2009-09-30  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:
+	  Since Python 2.6, BUILD_MAP can take a non-zero argument.
+	  This argument is the size of the dictionary to pre-size with,
+	  but the opcode doesn't actually consume this number of items
+	  from the stack; adding items to the dict comes later on the stack.
+	  So, the factory function makeDict should be called with an index of
+	  0 always.
+	  Fixes tests 26, 36, 59 on Python 2.6.
+
+2009-09-30  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
 	  Add docs and comments on some methods before fixing test26
 	  on Python 2.6
 

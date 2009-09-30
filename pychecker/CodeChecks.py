@@ -1524,7 +1524,8 @@ def _BUILD_MAP(oparg, operand, codeSource, code) :
     # pre-sized to hold count entries.
     # before python 2.6, the argument was always zero
     # since 2.6, the argument is the size the dict should be pre-sized to
-    _makeConstant(code, oparg, Stack.makeDict)
+    # In either case, _BUILD_MAP does not consume anything from the stack
+    _makeConstant(code, 0, Stack.makeDict)
 def _BUILD_TUPLE(oparg, operand, codeSource, code) :
     # Creates a tuple consuming count items from the stack, and pushes the
     # resulting tuple onto the stack.
