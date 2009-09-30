@@ -778,7 +778,9 @@ class Code :
     Hold all the code state information necessary to find warnings.
 
     @ivar stack:
-    @type stack: list of L{Stack.Item}
+    @type stack:    list of L{Stack.Item}
+    @ivar warnings: list of warnings
+    @type warnings: list of L{pychecker.Warning.Warning}
     """
 
     def __init__(self) :
@@ -833,6 +835,9 @@ class Code :
         return line
 
     def getWarning(self, err, line = None) :
+        """
+        @type err:  L{msgs.WarningClass}
+        """
         if line is None :
             line = self.getLineNum()
         return Warning.Warning(self.func_code, line, err)
@@ -840,6 +845,7 @@ class Code :
     def addWarning(self, err, line = None) :
         """
         @type line: int or L{types.CodeType} or None
+        @type err:  L{Warning.Warning} or L{msgs.WarningClass}
         """
         w = err
         if not isinstance(w, Warning.Warning):
