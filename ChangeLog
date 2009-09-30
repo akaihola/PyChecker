@@ -1,5 +1,13 @@
 2009-09-30  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test_expected/test87-2.5:
+	  Since Python 2.5, disassembly is able to pinpoint the exact line
+	  number of multiline statements.  So update line numbers to the
+	  correct source line.
+	  Fixes test 87 for 2.5 and later.
+
+2009-09-30  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/CodeChecks.py:
 	  More documentation.
 
