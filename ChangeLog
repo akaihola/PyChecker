@@ -1,6 +1,12 @@
 2009-10-01  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:
+	* pychecker/OP.py:
+	  Document.
+
+2009-10-01  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
 	* pychecker/utils.py:
 	  From 2.4 to 2.5, the name for generator code objects changed.
 	  In 2.4, lib/compile.c has the function compile_generator_expression

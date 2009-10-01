@@ -777,12 +777,28 @@ class Code :
     """
     Hold all the code state information necessary to find warnings.
 
-    @ivar stack:
-    @type stack:    list of L{Stack.Item}
-    @ivar warnings: list of warnings
-    @type warnings: list of L{pychecker.Warning.Warning}
+    @ivar bytes:        the raw bytecode for this code object
+    @type bytes:        str
+    @ivar func_code:    the function code object
+    @type func_code:    L{types.CodeType}
+    @ivar index:        index into bytes for the current instruction
+    @type index:        int
+    @ivar extended_arg: extended argument for the current instruction
+    @type extended_arg: int
+    @ivar maxCode:      length of bytes
+    @type maxCode:      int
+    @ivar stack:        
+    @type stack:        list of L{Stack.Item}
+    @ivar warnings:     list of warnings
+    @type warnings:     list of L{pychecker.Warning.Warning}
+    @ivar returnValues: tuple of (line number, stack item,
+                                  index to next instruction)
+    @type returnValues: tuple of (int, L{Stack.Item}, int)
     """
 
+    # opcodes are either 1 byte (no argument) or 3 bytes (with argument) long
+    # opcode can be EXTENDED_ARGS which then accumulates to the previous arg
+    # to span values > 64K
     def __init__(self) :
         self.bytes = None
         self.func = None
@@ -853,6 +869,19 @@ class Code :
         self.warnings.append(w)
 
     def popNextOp(self) :
+        """
+        Pops the next bytecode instruction from the code object for processing.
+
+        The opcode and oparg are integers coming from the byte code.
+
+        The operand is the object referenced by the oparg, from the
+        respective array (co_consts, co_names, co_varnames)
+
+        Changes L{index} and L{extended_arg} to point to the next operation.
+
+        @returns: tuple of (opcode, oparg, operand)
+        @rtype:   tuple of (int, int, object)
+        """
         self.indexList.append(self.index)
         info = OP.getInfo(self.bytes, self.index, self.extended_arg)
         op, oparg, self.index, self.extended_arg = info
@@ -869,6 +898,12 @@ class Code :
         return op, oparg, operand
 
     def nextOpInfo(self, offset = 0) :
+        """
+        Peeks ahead at the next instruction.
+
+        @returns: tuple of (opcode, oparg, index) or (-1, 0, -1) if no next
+        @rtype:   tuple of (int, int, int)
+        """
         try :
             return OP.getInfo(self.bytes, self.index + offset, 0)[0:3]
         except IndexError :

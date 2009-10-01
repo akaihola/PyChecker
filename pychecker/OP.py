@@ -64,6 +64,11 @@ IN_COMPARISON = 6
 NOT_IN_COMPARISON = 7
 
 def getOperand(op, func_code, oparg) :
+    """
+    Get the actual object the oparg references.
+
+    @rtype: object
+    """
     if op in _HAS_NAME :
         return func_code.co_names[oparg]
     elif op in _HAS_LOCAL :
