@@ -135,6 +135,26 @@ On Fedora 9, Python 2.2 built by hand:
   test68:  only fails in python 2.3
   test70:  5 conditional warnings went away since python 2.5; but test fails in            all
   test71:  unreachable code moved from test a to test c; since 2.5
+	   In the pre-2.5 warnings, the line numbers don't point at the
+           unreachable code, but the statement before.
+           In 2.5 and later, the right blocks don't even get found; it looks
+           like this is because the implicit return None is gone from the byte
+	   code; compare:
+
+           2.6, py-dis test_input.test71.a
+           ...
+  9          25 LOAD_FAST                0 (x)
+             28 PRINT_ITEM          
+             29 PRINT_NEWLINE       
+
+           2.4, py-dis test_input.test71.a
+  9          25 LOAD_FAST                0 (x)
+             28 PRINT_ITEM          
+             29 PRINT_NEWLINE       
+             30 LOAD_CONST               0 (None)
+             33 RETURN_VALUE        
+
+           So the implied return None is not found as a terminal
   test77:  doesn't get error formatting exception value; since 2.5
 	   gets linenumber wrong (698 and not 704) in 2.3
   test78: generated output has, at offset 0x35, [?1034h.Warnings; expected

@@ -1,5 +1,13 @@
 2009-10-01  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* TODO:
+	  Add notes about failing test.
+	* test_input/test71.py:
+	  comment the lines that really should be unreacheable.
+	  They're not the lines the pre-2.5 results actually hit.
+
+2009-10-01  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/CodeChecks.py:
 	* pychecker/OP.py:
 	  Document.

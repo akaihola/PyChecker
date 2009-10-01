@@ -6,25 +6,25 @@ def a(x):
     if x == 5:
         return x
     return 0
-    print x
+    print x # this should be unreachable
 
 def b(x):
     if x == 5:
         return x
     raise ValueError
-    print x
+    print x # this should be unreachable
 
 def c(x):
     if x == 5:
         return
     return
-    print x
+    print x # this should be unreachable
 
 def d(x):
     if x == 5:
         return
     raise ValueError
-    print x
+    print x # this should be unreachable
 
 def e(x):
     def foo():
