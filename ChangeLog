@@ -1,3 +1,19 @@
+2009-10-01  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
+	* pychecker/utils.py:
+	  From 2.4 to 2.5, the name for generator code objects changed.
+	  In 2.4, lib/compile.c has the function compile_generator_expression
+	  with:
+	          c->c_name = "<generator expression>";
+
+	  In 2.5, lib/compile.c has the function compiler_genexp with:
+	          if (!name) {
+		                  name = PyString_FromString("<genexpr>");
+	  So adapt to this change by adding another utils string, and
+	  comparing against it in _LODE_CONST.
+	  Fixes test 103 on 2.5/2.6
+
 2009-09-30  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* test_check.sh:

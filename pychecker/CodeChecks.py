@@ -1182,7 +1182,7 @@ def _LOAD_CONST(oparg, operand, codeSource, code) :
     if type(operand) == types.CodeType :
         name = operand.co_name
         obj = code.codeObjects.get(name, None)
-        if name in (utils.LAMBDA, utils.GENEXP):
+        if name in (utils.LAMBDA, utils.GENEXP, utils.GENEXP25):
             # use a unique key, so we can have multiple lambdas
             code.codeObjects[code.index] = operand
         elif obj is None :
