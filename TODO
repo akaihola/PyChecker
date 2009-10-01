@@ -155,6 +155,21 @@ On Fedora 9, Python 2.2 built by hand:
              33 RETURN_VALUE        
 
            So the implied return None is not found as a terminal
+
+	   Aditionally, b disassembles differently too:
+	   2.6, py-dis test_intput.test71.b
+           ...
+ 13          13 LOAD_FAST                0 (x)
+             16 RETURN_VALUE        
+        >>   17 POP_TOP             
+
+	   2.4, py-dis test_intput.test71.b
+13          13 LOAD_FAST                0 (x)
+             16 RETURN_VALUE        
+             17 JUMP_FORWARD             1 (to 21)
+        >>   20 POP_TOP             
+
+  index 9 is different
   test77:  doesn't get error formatting exception value; since 2.5
 	   gets linenumber wrong (698 and not 704) in 2.3
   test78: generated output has, at offset 0x35, [?1034h.Warnings; expected
