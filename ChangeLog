@@ -1,5 +1,16 @@
 2010-12-04  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* doc/opcodes/opcodes-2.3:
+	* doc/opcodes/opcodes-2.4:
+	* doc/opcodes/opcodes-2.5:
+	* doc/opcodes/opcodes-2.6:
+	* doc/opcodes/opcodes-2.7:
+	* scripts/opcodes.py:
+	  Add a script to list opcodes, and record the results for 5 python
+	  versions.
+
+2010-12-04  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test_check.sh:
 	  Fix simple typo so it reports number of failed tests.
 
