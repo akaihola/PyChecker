@@ -1,3 +1,8 @@
+2010-12-04  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* test_check.sh:
+	  Fix simple typo so it reports number of failed tests.
+
 2009-10-01  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* TODO:

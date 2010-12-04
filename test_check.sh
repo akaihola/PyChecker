@@ -97,7 +97,7 @@ done
 
 if [ $error -ne 0 ]; then
     echo ""
-    echo "$errors TESTS FAILED: $FAILED"
+    echo "$error TESTS FAILED: $FAILED"
 else
     echo "ALL TESTS PASSED"
 fi
