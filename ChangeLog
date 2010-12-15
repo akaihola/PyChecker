@@ -1,3 +1,8 @@
+2010-12-15  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/utils.py:
+	  Add constant for 2.7
+
 2010-12-04  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* doc/opcodes/opcodes-2.3:
