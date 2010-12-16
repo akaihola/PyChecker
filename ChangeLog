@@ -1,3 +1,9 @@
+2010-12-16  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/checker.py:
+	  Make code more PEP-8.
+	  If we get pcmodule, reuse it on the next line.
+
 2010-12-15  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/utils.py:

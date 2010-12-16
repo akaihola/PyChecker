@@ -635,17 +635,17 @@ class PyCheckerModule :
             # the current working directory
             if self.moduleDir is None:
                 module = sys.modules.get(self.moduleName)
-                if module :
+                if module:
                     pcmodule = pcmodules.getPCModule(self.moduleName)
-                    if not pcmodules.getPCModule(self.moduleName).module :
+                    if not pcmodule.module:
                         return self._initModule(module)
                     return 1
 
             return self._initModule(self.setupMainCode())
-        except (SystemExit, KeyboardInterrupt) :
+        except (SystemExit, KeyboardInterrupt):
             exc_type, exc_value, exc_tb = sys.exc_info()
             raise exc_type, exc_value
-        except :
+        except:
             importError(self.moduleName, self.moduleDir)
             return cfg().ignoreImportErrors
 
