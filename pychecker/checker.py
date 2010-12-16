@@ -810,7 +810,7 @@ def install_ignore__import__():
     _orig__import__ = __builtin__.__import__
     __builtin__.__import__ = __import__
 
-def processFiles(files, cfg = None, pre_process_cb = None) :
+def processFiles(files, cfg=None, pre_process_cb=None):
     """
     @type  files:          list of str
     @type  cfg:            L{Config.Config}
@@ -818,6 +818,7 @@ def processFiles(files, cfg = None, pre_process_cb = None) :
     @type  pre_process_cb: callable taking (str, str)
     """
     
+    warnings = []
 
     # insert this here, so we find files in the local dir before std library
     if sys.path[0] != '' :
@@ -825,28 +826,34 @@ def processFiles(files, cfg = None, pre_process_cb = None) :
 
     # ensure we have a config object, it's necessary
     global _cfg
-    if cfg is not None :
+    if cfg is not None:
         _cfg = cfg
-    elif _cfg is None :
+    elif _cfg is None:
         _cfg = Config.Config()
 
     if _cfg.ignoreImportErrors:
         install_ignore__import__()
 
-    warnings = []
     utils.initConfig(_cfg)
-    for file, (moduleName, moduleDir) in zip(files, getModules(files)) :
-        if callable(pre_process_cb) :
+
+    for file, (moduleName, moduleDir) in zip(files, getModules(files)):
+        if callable(pre_process_cb):
             pre_process_cb("module %s (%s)" % (moduleName, file))
+
+        # create and load the PyCheckerModule, tricking sys.path temporarily
         oldsyspath = sys.path[:]
         sys.path.insert(0, moduleDir)
-        module = PyCheckerModule(moduleName, moduleDir=moduleDir)
-        if not module.load() :
-            w = Warning(module.filename(), 1,
+        pcmodule = PyCheckerModule(moduleName, moduleDir=moduleDir)
+        loaded = pcmodule.load()
+        sys.path = oldsyspath
+
+        if not loaded:
+            w = Warning(pcmodule.filename(), 1,
                         msgs.Internal("NOT PROCESSED UNABLE TO IMPORT"))
             warnings.append(w)
-        sys.path = oldsyspath
+
     utils.popConfig()
+
     return warnings
 
 

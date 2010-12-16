@@ -1,6 +1,11 @@
 2010-12-16  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/checker.py:
+	  Make function PEP-8.  Comment and restructure.
+
+2010-12-16  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/checker.py:
 	  Make code more PEP-8.
 	  If we get pcmodule, reuse it on the next line.
 
