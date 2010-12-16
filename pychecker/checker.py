@@ -678,6 +678,7 @@ class PyCheckerModule :
         self.module = module
         self.attributes = dir(self.module)
 
+        # interpret module-specific suppressions
         pychecker_attr = getattr(module, Config.CHECKER_VAR, None)
         if pychecker_attr is not None :
             utils.pushConfig()
