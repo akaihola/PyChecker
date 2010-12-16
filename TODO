@@ -164,7 +164,7 @@ On Fedora 9, Python 2.2 built by hand:
         >>   17 POP_TOP             
 
 	   2.4, py-dis test_intput.test71.b
-13          13 LOAD_FAST                0 (x)
+ 13          13 LOAD_FAST                0 (x)
              16 RETURN_VALUE        
              17 JUMP_FORWARD             1 (to 21)
         >>   20 POP_TOP             
