@@ -251,18 +251,29 @@ class Variable :
     __repr__ = utils.std_repr
 
 
-def _filterDir(object, ignoreList) :
-    "Return a list of tokens (attributes) in a class, except for ignoreList"
+def _filterDir(object, ignoreList):
+    """
+    Return a list of attribute names of an object, excluding the ones
+    in ignoreList.
+
+    @type  ignoreList: list of str
+
+    @rtype: list of str
+    """
 
     tokens = dir(object)
-    for token in ignoreList :
-        if token in tokens :
+
+    for token in ignoreList:
+        if token in tokens:
             tokens.remove(token)
+
     return tokens
 
-def _getClassTokens(c) :
+def _getClassTokens(c):
     return _filterDir(c, _DEFAULT_CLASS_TOKENS)
 
+def _getModuleTokens(m):
+    return _filterDir(m, _DEFAULT_MODULE_TOKENS)
 
 class Class :
     "Class to hold all information about a class"
@@ -671,7 +682,7 @@ class PyCheckerModule :
             utils.pushConfig()
             utils.updateCheckerArgs(pychecker_attr, 'suppressions', 0, [])
 
-        for tokenName in _filterDir(self.module, _DEFAULT_MODULE_TOKENS) :
+        for tokenName in _getModuleTokens(self.module):
             if _EVIL_C_OBJECTS.has_key('%s.%s' % (self.moduleName, tokenName)):
                 continue
 

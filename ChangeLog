@@ -1,6 +1,12 @@
 2010-12-16  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/checker.py:
+	  PEP-8-ify more.  Document _filterDir.  Add _getModuleTokens similar
+	  to _getClassTokens.
+
+2010-12-16  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/checker.py:
 	  Make function PEP-8.  Comment and restructure.
 
 2010-12-16  Thomas Vander Stichele  <thomas at apestaart dot org>
