@@ -811,6 +811,14 @@ def install_ignore__import__():
     __builtin__.__import__ = __import__
 
 def processFiles(files, cfg = None, pre_process_cb = None) :
+    """
+    @type  files:          list of str
+    @type  cfg:            L{Config.Config}
+    @param pre_process_cb: callable notifying of module name, filename
+    @type  pre_process_cb: callable taking (str, str)
+    """
+    
+
     # insert this here, so we find files in the local dir before std library
     if sys.path[0] != '' :
         sys.path.insert(0, '')
