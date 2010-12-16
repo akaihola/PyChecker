@@ -1,5 +1,16 @@
 2010-12-16  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/CodeChecks.py:
+	* pychecker/checker.py:
+	* pychecker/function.py:
+	* pychecker/warn.py:
+	  Rename PyCheckerModule's main_code to mainCode to be consistent with
+	  other instance variable names.
+	  More PEP-8-ifying.
+	  More docstrings.
+
+2010-12-16  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/checker.py:
 	  PEP-8-ify more.  Document _filterDir.  Add _getModuleTokens similar
 	  to _getClassTokens.

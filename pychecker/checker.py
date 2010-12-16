@@ -556,6 +556,7 @@ class PyCheckerModule :
     @ivar moduleLineNums: mapping of the module's nameds/operands to the
                           filename and linenumber where they are created
     @type moduleLineNums: dict of str -> (str, int)
+    @type mainCode:       L{function.Function}
     """
 
     def __init__(self, moduleName, check = 1, moduleDir=None) :
@@ -576,7 +577,7 @@ class PyCheckerModule :
         self.modules = {}
         self.moduleLineNums = {}
         self.attributes = [ '__dict__' ]
-        self.main_code = None
+        self.mainCode = None
         self.module = None
         self.check = check
         # key on a combination of moduleName and moduleDir so we have separate
@@ -710,7 +711,7 @@ class PyCheckerModule :
             utils.popConfig()
         return 1
 
-    def setupMainCode(self) :
+    def setupMainCode(self):
         file, filename, smt = _findModule(self.moduleName, self.moduleDir)
         # FIXME: if the smt[-1] == imp.PKG_DIRECTORY : load __all__
         # HACK: to make sibling imports work, we add self.moduleDir to sys.path
@@ -729,10 +730,10 @@ class PyCheckerModule :
         return module
 
     def _setupMainCode(self, file, filename, module):
-        try :
-            self.main_code = function.create_from_file(file, filename, module)
-        finally :
-            if file != None :
+        try:
+            self.mainCode = function.create_from_file(file, filename, module)
+        finally:
+            if file != None:
                 file.close()
 
 

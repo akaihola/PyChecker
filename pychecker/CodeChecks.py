@@ -576,7 +576,7 @@ def _handleImport(code, operand, module, main, fromName) :
 
         # filter out warnings when files are different (ie, from X import ...)
         if err is not None and cfg().moduleImportErrors :
-            bytes = module.main_code
+            bytes = module.mainCode
             if bytes is None or \
                bytes.function.func_code.co_filename == code.func_code.co_filename :
                 code.addWarning(err)

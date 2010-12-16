@@ -733,9 +733,9 @@ def find(moduleList, initialCfg, suppressions = None) :
         modSuppress = getSuppression(module.moduleName, suppressions, warnings)
         globalRefs, classCodes = {}, {}
 
-        # main_code can be null if there was a syntax error
-        if module.main_code != None :
-            funcInfo = _updateFunctionWarnings(module, module.main_code,
+        # mainCode can be null if there was a syntax error
+        if module.mainCode != None :
+            funcInfo = _updateFunctionWarnings(module, module.mainCode,
                                                None, warnings, globalRefs, 1)
             for code in funcInfo[1] :
                 classCodes[code.co_name] = code
@@ -767,7 +767,7 @@ def find(moduleList, initialCfg, suppressions = None) :
                 warnings.extend(_getUnused(module, globalRefs, module.modules,
                                            msgs.IMPORT_NOT_USED))
 
-        if module.main_code != None :
+        if module.mainCode != None :
             utils.popConfig()
         if modSuppress is not None :
             utils.popConfig()

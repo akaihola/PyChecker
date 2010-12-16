@@ -124,7 +124,14 @@ class Function(_ReturnValues):
 def create_fake(name, code, func_globals = {}, varnames = None) :
     return Function(FakeFunction(name, code, func_globals, varnames))
 
-def create_from_file(file, filename, module) :
+def create_from_file(file, filename, module):
+    """
+    @type  filename: str
+
+    @returns: a function that represents the __main__ entry point, if
+              there was a file
+    @rtype: L{Function}
+    """
     if file is None:
         return create_fake(filename, compile('', filename, 'exec'))
 
@@ -136,7 +143,7 @@ def create_from_file(file, filename, module) :
     codestr = file.read()
     codestr = string.replace(codestr, "\r\n", "\n")
     codestr = string.replace(codestr, "\r", "\n")
-    if codestr and codestr[-1] != '\n' :
+    if codestr and codestr[-1] != '\n':
         codestr = codestr + '\n'
     code = compile(codestr, filename, 'exec')
     return Function(FakeFunction('__main__', code, module.__dict__))
