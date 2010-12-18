@@ -29,6 +29,7 @@ UPDATE TO NEW PYTHON VERSION
  - test/test_pychecker_CodeChecks has a test that fails on missing
    opcode handlers for new opcodes
  - add dispatchers for new opcodes in pychecker/CodeChecks.py
+   - see http://docs.python.org/library/dis.html
    - figure out when they were added; in python source code:
      svn blame Lib/opcode.py
      svn diff -c [changeset that added/changed your opcode]
