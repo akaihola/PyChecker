@@ -1,6 +1,15 @@
 2010-12-18  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:
+	  Implement support for JUMP_IF_FALSE/TRUE and
+	  JUMP_IF_FALSE/TRUE_OR_POP.
+	  Brings 2.7 test failures from 33 to 7.
+	  Compared to 2.6, the only difference is 85 now failing and 78
+	  passing.
+
+2010-12-18  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
 	  Rearrange opcodes for 2.7, without implementing new or
 	  changed opcodes.
 	  Brings 2.7 test failures from 54 to 33.

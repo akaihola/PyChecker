@@ -1996,6 +1996,8 @@ def _jump_conditional(oparg, operand, codeSource, code, if_false) :
 
     _jump(oparg, operand, codeSource, code)
 
+# JUMP_IF_FALSE(delta)
+#  If TOS is false, increment the bytecode counter by delta. TOS is not changed.
 def _JUMP_IF_FALSE(oparg, operand, codeSource, code) :
     _jump_conditional(oparg, operand, codeSource, code, 1)
 
@@ -2005,6 +2007,27 @@ def _JUMP_IF_TRUE(oparg, operand, codeSource, code) :
 def _JUMP_FORWARD(oparg, operand, codeSource, code) :
     _jump(oparg, operand, codeSource, code)
     code.remove_unreachable_code(code.label)
+
+# POP_JUMP_IF_FALSE(target)
+# If TOS is false, sets the bytecode counter to target. TOS is popped.
+def _POP_JUMP_IF_FALSE(oparg, operand, codeSource, code):
+    _jump_conditional(oparg, operand, codeSource, code, 1)
+    _pop(oparg, operand, codeSource, code)
+
+def _POP_JUMP_IF_TRUE(oparg, operand, codeSource, code):
+    _jump_conditional(oparg, operand, codeSource, code, 0)
+    _pop(oparg, operand, codeSource, code)
+
+def _JUMP_IF_FALSE_OR_POP(oparg, operand, codeSource, code):
+    _jump_conditional(oparg, operand, codeSource, code, 1)
+    # FIXME: should we really POP here ? We don't know whether the condition
+    # is true or false...
+    _pop(oparg, operand, codeSource, code)
+
+def _JUMP_IF_TRUE_OR_POP(oparg, operand, codeSource, code):
+    _jump_conditional(oparg, operand, codeSource, code, 0)
+    # FIXME: same here
+    _pop(oparg, operand, codeSource, code)
 
 def _RETURN_VALUE(oparg, operand, codeSource, code) :
     if not codeSource.calling_code :
@@ -2073,12 +2096,6 @@ _DUP_TOPX = _unimplemented
 _BUILD_SLICE = _unimplemented
 
 _WITH_CLEANUP = _unimplemented
-
-# 2.7
-_POP_JUMP_IF_FALSE = _unimplemented
-_POP_JUMP_IF_TRUE = _unimplemented
-_JUMP_IF_FALSE_OR_POP = _unimplemented
-_JUMP_IF_TRUE_OR_POP = _unimplemented
 
 # dispatched from pychecker/warn.py
 DISPATCH = [ None ] * 256
@@ -2192,8 +2209,8 @@ else:
 DISPATCH[113] = _JUMP_ABSOLUTE
 
 if utils.pythonVersion() >= utils.PYTHON_2_7:
-    DISPATCH[114] = _POP_JUMP_IF_FALSE
-    DISPATCH[115] = _POP_JUMP_IF_TRUE
+    DISPATCH[114] = _JUMP_IF_FALSE_OR_POP
+    DISPATCH[115] = _JUMP_IF_TRUE_OR_POP
 else:
     DISPATCH[114] = _FOR_LOOP
 
