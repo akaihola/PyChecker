@@ -6,19 +6,27 @@
 """
 Python byte code operations.
 
-Very similar to the dis module, but dis does not exist in Jython,
+Very similar to the dis and opcode module, but dis does not exist in Jython,
 so recreate the small portion we need here.
 """
+
+from pychecker import utils
 
 def LINE_NUM(op):              return op == 127
 def LOAD_GLOBAL(op):           return op == 116
 def LOAD_CONST(op):            return op == 100
 def LOAD_FAST(op):             return op == 124
-def LOAD_ATTR(op):             return op == 105
+if utils.pythonVersion() >= utils.PYTHON_2_7:
+    def LOAD_ATTR(op):             return op == 106
+else:
+    def LOAD_ATTR(op):             return op == 105
 def LOAD_DEREF(op):            return op == 136
 def STORE_ATTR(op):            return op == 95
 def POP_TOP(op):               return op == 1
-def IMPORT_FROM(op):           return op == 108
+if utils.pythonVersion() >= utils.PYTHON_2_7:
+    def IMPORT_FROM(op):           return op == 109
+else:
+    def IMPORT_FROM(op):           return op == 108
 def IMPORT_STAR(op):           return op == 84
 def UNARY_POSITIVE(op):        return op == 10
 def UNARY_NEGATIVE(op):        return op == 11
@@ -39,21 +47,41 @@ def UNPACK_SEQUENCE(op) :
     "Deal w/Python 1.5.2 (UNPACK_[LIST|TUPLE]) or 2.0 (UNPACK_SEQUENCE)"
     return op in (92, 93,)
 
-def IS_CONDITIONAL_JUMP(op):
-    return op in (111, 112)
+if utils.pythonVersion() >= utils.PYTHON_2_7:
+    def IS_CONDITIONAL_JUMP(op):
+        return op in (111, 112, 114, 115)
+else:
+    def IS_CONDITIONAL_JUMP(op):
+        return op in (111, 112)
 
 def IS_NOT(op):
     return op == 12
 
-HAVE_ARGUMENT = 90
-EXTENDED_ARG = 143
+HAVE_ARGUMENT = 90 # Opcodes from here have an argument
 
-_HAS_NAME = (90, 91, 95, 96, 97, 98, 101, 105, 107, 108, 116,)
+# moved 2 places in 2.7
+if utils.pythonVersion() >= utils.PYTHON_2_7:
+    EXTENDED_ARG = 145
+else:
+    EXTENDED_ARG = 143
+
+if utils.pythonVersion() >= utils.PYTHON_2_7:
+    _HAS_NAME = (90, 91, 95, 96, 97, 98, 101, 106, 108, 109, 116,)
+else:
+    _HAS_NAME = (90, 91, 95, 96, 97, 98, 101, 105, 107, 108, 116,)
 _HAS_LOCAL = (124, 125, 126,)
 _HAS_CONST = (100,)
-_HAS_COMPARE = (106,)
-_HAS_JREL = (110, 111, 112, 114, 120, 121, 122,)
-_HAS_JABS = (113, 119,)
+if utils.pythonVersion() >= utils.PYTHON_2_7:
+    _HAS_COMPARE = (107,)
+else:
+    _HAS_COMPARE = (106,)
+if utils.pythonVersion() >= utils.PYTHON_2_7:
+    _HAS_JREL = (93, 110, 120, 121, 122, 143,)
+    _HAS_JABS = (111, 112, 113, 114, 115, 119,)
+else:
+    # FIXME: 2.6 here has 93 and does not have 114
+    _HAS_JREL = (110, 111, 112, 114, 120, 121, 122,)
+    _HAS_JABS = (113, 119,)
 
 _CMP_OP =  ('<', '<=', '==', '!=', '>', '>=', 'in', 'not in', 'is',
             'is not', 'exception match', 'BAD')
@@ -117,7 +145,7 @@ def conditional(op):
     "returns true if the code results in conditional execution"
     return op in [83,                   # return
                   93,                   # for_iter
-                  111, 112, 114,        # conditional jump
+                  111, 112, 114, 115,   # conditional jump
                   121,                  # setup_exec
                   130                   # raise_varargs
                   ]

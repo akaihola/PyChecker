@@ -1,3 +1,11 @@
+2010-12-18  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* HACKING:
+	  Add notes on updating to newer Python version.
+	* pychecker/OP.py:
+	  Adapt to opcode changes and additions.
+	  Brings 2.7 test failures from 69 to 54.
+
 2010-12-16  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:

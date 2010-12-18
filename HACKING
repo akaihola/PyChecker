@@ -28,14 +28,35 @@ UPDATE TO NEW PYTHON VERSION
 ----------------------------
  - test/test_pychecker_CodeChecks has a test that fails on missing
    opcode handlers for new opcodes
+ - add version codes to pychecker/utils.py (PYTHON_X_Y)
+ - compare pychecker/OP.py with opcodes:
+   - check/update the arrays for
+     cmp_op, hascompare, hasconst, hasfree, hasjabs, hasjrel, haslocal, hasname
+   - update some of the OP.py specific things:
+     - IS_CONDITIONAL_JUMP
+     - op checkers at the top
  - add dispatchers for new opcodes in pychecker/CodeChecks.py
    - see http://docs.python.org/library/dis.html
    - figure out when they were added; in python source code:
      svn blame Lib/opcode.py
      svn diff -c [changeset that added/changed your opcode]
- - add version codes to pychecker/utils.py (PYTHON_X_Y)
  - add future keywords in pychecker/python.py
 
+HISTORY
+-------
+ - Python 2.7:
+   - changes:
+     LIST_APPEND moved from 18 to 94
+     BUILD_MAP to IMPORT_FROM bumped from 104-108 to 105-109
+     EXTENDED_ARG bumped from 143 to 145
+   - added:
+     BUILD_SET
+     JUMP_IF_FALSE/TRUE_OR_POP
+     POP_JUMP_IF_FALSE/TRUE
+     SET_ADD/MAP_ADD
+   - removed:
+     JUMP_IF_FALSE/JUMP_IF_TRUE
+ 
 BUILDBOT
 --------
 A buildbot is set up at http://build.fluendo.com:8200/
