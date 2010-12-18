@@ -1583,9 +1583,15 @@ def _BUILD_CLASS(oparg, operand, codeSource, code) :
     code.popStackItems(3)
     code.pushStack(newValue)
 
+# old pre-2.7 LIST_APPEND, argumentless
 def _LIST_APPEND(oparg, operand, codeSource, code):
     code.popStackItems(2)
 
+# new 2.7 LIST_APPEND, takes argument as number of items to append
+def _LIST_APPEND_2_7(oparg, operand, codeSource, code):
+    count = oparg
+    code.popStackItems(1 + count)
+  
 def _modifyStackName(code, suffix):
     if code.stack:
         tos = code.stack[-1]
@@ -2065,6 +2071,11 @@ def _RAISE_VARARGS(oparg, operand, codeSource, code) :
             else:
                 _checkStrException(code, item.getType(code.typeMap), item)
 
+def _SET_ADD(oparg, operand, codeSource, code):
+    code.popStackItems(1)
+
+def _MAP_ADD(oparg, operand, codeSource, code):
+    code.popStackItems(2)
 
 def _empty(oparg, operand, codeSource, code): pass
 def _unimplemented(oparg, operand, codeSource, code):
@@ -2174,6 +2185,9 @@ DISPATCH[ 90] = _STORE_NAME
 DISPATCH[ 91] = _DELETE_NAME
 DISPATCH[ 92] = _UNPACK_SEQUENCE
 DISPATCH[ 93] = _FOR_ITER
+# changed from no arguments to taking an argument and 18 to 94 in 2.7
+# Python svn revision 67818
+DISPATCH[ 94] = _LIST_APPEND_2_7
 DISPATCH[ 95] = _STORE_ATTR
 DISPATCH[ 96] = _DELETE_ATTR
 DISPATCH[ 97] = _STORE_GLOBAL
@@ -2243,3 +2257,8 @@ else:
     DISPATCH[145] = _EXTENDED_ARG
 
 # FIXME: implement SETUP_WITH 
+
+# Added in 2.7
+# Python svn revision 77422
+DISPATCH[146] = _SET_ADD
+DISPATCH[147] = _MAP_ADD
