@@ -101,17 +101,18 @@ Longer Term goals:
 
 Fixing testsuite:
 -----------------
-Tested on 2010-12-16:
+Tested on 2010-12-18, after 2.7 fixes:
 
-  On Fedora 12, system+source Python 2.6:
-7 TESTS FAILED:  test13 test34 test44 test70 test71 test77 test78
-  On Fedora 12, source Python 2.5:
-7 TESTS FAILED:  test13 test34 test44 test70 test71 test77 test78
-  On Fedora 12, source Python 2.4:
-5 TESTS FAILED:  test13 test44 test70 test77 test78
-  On Fedora 12, source Python 2.3:
+  On Fedora 14, system Python 2.7:
+7 TESTS FAILED:  test13 test34 test44 test70 test71 test77 test85
+  On Fedora 14, source Python 2.6:
+6 TESTS FAILED:  test13 test34 test44 test70 test71 test77
+  On Fedora 14, source Python 2.5:
+6 TESTS FAILED:  test13 test34 test44 test70 test71 test77
+  On Fedora 14, source Python 2.4:
+4 TESTS FAILED:  test13 test44 test70 test77
+  On Fedora 14, source Python 2.3:
 8 TESTS FAILED:  test103 test13 test44 test68 test70 test77 test78 test85
-
 
 
 Tested on 2009-06-27:
