@@ -1904,12 +1904,12 @@ def _FOR_ITER(oparg, operand, codeSource, code) :
     code.loops = code.loops + 1
     _popStackRef(code, '<for_iter>', 1)
 
-def _jump(oparg, operand, codeSource, code) :
-    if len(code.stack) > 0 :
+def _jump(oparg, operand, codeSource, code):
+    if len(code.stack) >0:
         topOfStack = code.stack[-1]
         if topOfStack.isMethodCall(codeSource.classObject, cfg().methodArgName):
             name = topOfStack.data[-1]
-            if codeSource.classObject.methods.has_key(name) :
+            if codeSource.classObject.methods.has_key(name):
                 code.addWarning(msgs.USING_METHOD_AS_ATTR % name)
 _JUMP_ABSOLUTE = _jump
 
@@ -1929,7 +1929,7 @@ def _skip_loops(bytes, i, lastLineNum, max) :
 
     return lastLineNum, i
 
-def _is_unreachable(code, topOfStack, branch, if_false) :
+def _is_unreachable(code, topOfStack, branch, ifFalse) :
     # Are we are checking exceptions, but we not catching all exceptions?
     if (topOfStack.type == Stack.TYPE_COMPARISON and 
         topOfStack.data[1] == 'exception match' and 
@@ -1937,7 +1937,7 @@ def _is_unreachable(code, topOfStack, branch, if_false) :
         return 1
 
     # do we possibly have while 1: ?
-    if not (topOfStack.const and topOfStack.data == 1 and if_false) :
+    if not (topOfStack.const and topOfStack.data == 1 and ifFalse):
         return 0
 
     # get the op just before the branch (ie, -3)
@@ -1979,7 +1979,7 @@ _IGNORE_BOGUS_JUMP = '%c%c%c' % (110, 4, 0)
 def _shouldIgnoreBogusJumps(code):
     return _shouldIgnoreCodeOptimizations(code, _IGNORE_BOGUS_JUMP, 6, 3)
 
-def _checkConstantCondition(code, topOfStack, if_false, nextIsPop):
+def _checkConstantCondition(code, topOfStack, ifFalse, nextIsPop):
     # don't warn when doing (test and 'true' or 'false')
     # still warn when doing (test and None or 'false')
     # since 2.7, instead of JUMP_IF_x/POP_TOP, we have POP_JUMP_IF_x, so
@@ -1988,35 +1988,35 @@ def _checkConstantCondition(code, topOfStack, if_false, nextIsPop):
     if nextIsPop:
         candidate = 1
 
-    if if_false or not OP.LOAD_CONST(code.nextOpInfo(candidate)[0]) or \
+    if ifFalse or not OP.LOAD_CONST(code.nextOpInfo(candidate)[0]) or \
        not topOfStack.data or topOfStack.type is types.NoneType:
         if not _shouldIgnoreBogusJumps(code):
             code.addWarning(msgs.CONSTANT_CONDITION % utils.safestr(topOfStack))
     
-def _jump_conditional(oparg, operand, codeSource, code, if_false, nextIsPop):
+def _jump_conditional(oparg, operand, codeSource, code, ifFalse, nextIsPop):
     # FIXME: this doesn't work in 2.3+ since constant conditions
     #        are optimized away by the compiler.
-    if code.stack :
+    if code.stack:
         topOfStack = code.stack[-1]
         if (topOfStack.const or topOfStack.type is types.NoneType) and \
            cfg().constantConditions and \
            (topOfStack.data != 1 or cfg().constant1):
-            _checkConstantCondition(code, topOfStack, if_false, nextIsPop)
+            _checkConstantCondition(code, topOfStack, ifFalse, nextIsPop)
 
-        if _is_unreachable(code, topOfStack, code.label, if_false) :
+        if _is_unreachable(code, topOfStack, code.label, ifFalse):
             code.removeBranch(code.label)
 
     _jump(oparg, operand, codeSource, code)
 
 # JUMP_IF_FALSE(delta)
 #  If TOS is false, increment the bytecode counter by delta. TOS is not changed.
-def _JUMP_IF_FALSE(oparg, operand, codeSource, code) :
+def _JUMP_IF_FALSE(oparg, operand, codeSource, code):
     _jump_conditional(oparg, operand, codeSource, code, 1, 1)
 
-def _JUMP_IF_TRUE(oparg, operand, codeSource, code) :
+def _JUMP_IF_TRUE(oparg, operand, codeSource, code):
     _jump_conditional(oparg, operand, codeSource, code, 0, 1)
 
-def _JUMP_FORWARD(oparg, operand, codeSource, code) :
+def _JUMP_FORWARD(oparg, operand, codeSource, code):
     _jump(oparg, operand, codeSource, code)
     code.remove_unreachable_code(code.label)
 
