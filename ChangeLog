@@ -1,3 +1,11 @@
+2010-12-19  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
+	  Instead of peaking two intstructions ahead past POP_TOP for
+	  LOAD_CONST, with the new POP/JUMP instructions, peak only one
+	  ahead.
+	  Fixes test 85 for 2.7.
+
 2010-12-18  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:

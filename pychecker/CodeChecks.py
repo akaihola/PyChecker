@@ -1979,15 +1979,21 @@ _IGNORE_BOGUS_JUMP = '%c%c%c' % (110, 4, 0)
 def _shouldIgnoreBogusJumps(code):
     return _shouldIgnoreCodeOptimizations(code, _IGNORE_BOGUS_JUMP, 6, 3)
 
-def _checkConstantCondition(code, topOfStack, if_false):
+def _checkConstantCondition(code, topOfStack, if_false, nextIsPop):
     # don't warn when doing (test and 'true' or 'false')
     # still warn when doing (test and None or 'false')
-    if if_false or not OP.LOAD_CONST(code.nextOpInfo(1)[0]) or \
+    # since 2.7, instead of JUMP_IF_x/POP_TOP, we have POP_JUMP_IF_x, so
+    # the next opcode is not POP_TOP, but a possible LOAD_CONST already.
+    candidate = 0
+    if nextIsPop:
+        candidate = 1
+
+    if if_false or not OP.LOAD_CONST(code.nextOpInfo(candidate)[0]) or \
        not topOfStack.data or topOfStack.type is types.NoneType:
         if not _shouldIgnoreBogusJumps(code):
             code.addWarning(msgs.CONSTANT_CONDITION % utils.safestr(topOfStack))
     
-def _jump_conditional(oparg, operand, codeSource, code, if_false) :
+def _jump_conditional(oparg, operand, codeSource, code, if_false, nextIsPop):
     # FIXME: this doesn't work in 2.3+ since constant conditions
     #        are optimized away by the compiler.
     if code.stack :
@@ -1995,7 +2001,7 @@ def _jump_conditional(oparg, operand, codeSource, code, if_false) :
         if (topOfStack.const or topOfStack.type is types.NoneType) and \
            cfg().constantConditions and \
            (topOfStack.data != 1 or cfg().constant1):
-            _checkConstantCondition(code, topOfStack, if_false)
+            _checkConstantCondition(code, topOfStack, if_false, nextIsPop)
 
         if _is_unreachable(code, topOfStack, code.label, if_false) :
             code.removeBranch(code.label)
@@ -2005,10 +2011,10 @@ def _jump_conditional(oparg, operand, codeSource, code, if_false) :
 # JUMP_IF_FALSE(delta)
 #  If TOS is false, increment the bytecode counter by delta. TOS is not changed.
 def _JUMP_IF_FALSE(oparg, operand, codeSource, code) :
-    _jump_conditional(oparg, operand, codeSource, code, 1)
+    _jump_conditional(oparg, operand, codeSource, code, 1, 1)
 
 def _JUMP_IF_TRUE(oparg, operand, codeSource, code) :
-    _jump_conditional(oparg, operand, codeSource, code, 0)
+    _jump_conditional(oparg, operand, codeSource, code, 0, 1)
 
 def _JUMP_FORWARD(oparg, operand, codeSource, code) :
     _jump(oparg, operand, codeSource, code)
@@ -2017,21 +2023,22 @@ def _JUMP_FORWARD(oparg, operand, codeSource, code) :
 # POP_JUMP_IF_FALSE(target)
 # If TOS is false, sets the bytecode counter to target. TOS is popped.
 def _POP_JUMP_IF_FALSE(oparg, operand, codeSource, code):
-    _jump_conditional(oparg, operand, codeSource, code, 1)
+    _jump_conditional(oparg, operand, codeSource, code, 1, 0)
     _pop(oparg, operand, codeSource, code)
 
 def _POP_JUMP_IF_TRUE(oparg, operand, codeSource, code):
-    _jump_conditional(oparg, operand, codeSource, code, 0)
+    _jump_conditional(oparg, operand, codeSource, code, 0, 0)
     _pop(oparg, operand, codeSource, code)
 
 def _JUMP_IF_FALSE_OR_POP(oparg, operand, codeSource, code):
-    _jump_conditional(oparg, operand, codeSource, code, 1)
+    # FIXME: can the next one still be a pop ?
+    _jump_conditional(oparg, operand, codeSource, code, 1, 0)
     # FIXME: should we really POP here ? We don't know whether the condition
     # is true or false...
     _pop(oparg, operand, codeSource, code)
 
 def _JUMP_IF_TRUE_OR_POP(oparg, operand, codeSource, code):
-    _jump_conditional(oparg, operand, codeSource, code, 0)
+    _jump_conditional(oparg, operand, codeSource, code, 0, 0)
     # FIXME: same here
     _pop(oparg, operand, codeSource, code)
 
