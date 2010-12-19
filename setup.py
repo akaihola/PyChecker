@@ -241,7 +241,7 @@ CUSTOMIZED_ACTIONS = { 'build_scripts'  : my_build_scripts,
                      }
 
 DATA_FILES = [ 'COPYRIGHT', 'README', 'VERSION', 'ChangeLog', 'NEWS', 
-                'KNOWN_BUGS', 'MAINTAINERS', 'TODO', 
+                'KNOWN_BUGS', 'MAINTAINERS', 'TODO',
              ]
 
 LONG_DESCRIPTION = """
@@ -251,8 +251,8 @@ C++. Because of the dynamic nature of Python, some warnings may be incorrect;
 however, spurious warnings should be fairly infrequent.
 """
 
-kw =  { 'name'             : "PyChecker",
-        'version'          : "0.8.18",
+kw =  { 'name'             : "pychecker",
+        'version'          : "0.8.18.1",
         'license'          : "BSD-like",
         'description'      : "Python source code checking tool",
         'author'           : "Neal Norwitz",
