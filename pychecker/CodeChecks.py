@@ -2115,6 +2115,10 @@ _BUILD_SLICE = _unimplemented
 
 _WITH_CLEANUP = _unimplemented
 
+# new in 2.7
+_SETUP_WITH = _unimplemented
+_BUILD_SET = _unimplemented
+
 # dispatched from pychecker/warn.py
 DISPATCH = [ None ] * 256
 DISPATCH[  0] = _STOP_CODE
@@ -2206,6 +2210,7 @@ DISPATCH[102] = _BUILD_TUPLE
 DISPATCH[103] = _BUILD_LIST
 
 if utils.pythonVersion() >= utils.PYTHON_2_7:
+    DISPATCH[104] = _BUILD_SET
     DISPATCH[105] = _BUILD_MAP
     DISPATCH[106] = _LOAD_ATTR
     DISPATCH[107] = _COMPARE_OP
@@ -2261,9 +2266,8 @@ DISPATCH[142] = _CALL_FUNCTION_VAR_KW
 if utils.pythonVersion() < utils.PYTHON_2_7:
     DISPATCH[143] = _EXTENDED_ARG
 else:
+    DISPATCH[143] = _SETUP_WITH
     DISPATCH[145] = _EXTENDED_ARG
-
-# FIXME: implement SETUP_WITH 
 
 # Added in 2.7
 # Python svn revision 77422
