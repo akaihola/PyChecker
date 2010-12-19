@@ -136,6 +136,41 @@ Missing opcodes:
 	    raise NotImplementedError('No DISPATCH member for op %r' % op)
 	NotImplementedError: No DISPATCH member for op 143
 
+On Flumotion:
+flumotion/common/registry.py:1354: INTERNAL ERROR -- STOPPED PROCESSING FUNCTION --
+	Traceback (most recent call last):
+	  File "/usr/lib/python2.7/site-packages/pychecker/warn.py", line 238, in _checkFunction
+	    _handleNestedCode(func_code, code, codeSource)
+	  File "/usr/lib/python2.7/site-packages/pychecker/warn.py", line 182, in _handleNestedCode
+	    _checkCode(code, codeSource)
+	  File "/usr/lib/python2.7/site-packages/pychecker/warn.py", line 154, in _checkCode
+	    raise NotImplementedError('No DISPATCH member for op %r' % op)
+	NotImplementedError: No DISPATCH member for op 74
+	
+
+flumotion/common/signals.py:25: Imported module (warnings) not used
+
+flumotion/component/base/multiple.py:122: Local variable (mood) not used
+
+flumotion/component/base/scheduler.py:131: Local variable (earliest) not used
+
+flumotion/component/bouncers/combinator.py:72: INTERNAL ERROR -- STOPPED PROCESSING FUNCTION --
+	Traceback (most recent call last):
+	  File "/usr/lib/python2.7/site-packages/pychecker/warn.py", line 231, in _checkFunction
+	    _checkCode(code, codeSource)
+	  File "/usr/lib/python2.7/site-packages/pychecker/warn.py", line 154, in _checkCode
+	    raise NotImplementedError('No DISPATCH member for op %r' % op)
+	NotImplementedError: No DISPATCH member for op 133
+	
+flumotion/component/bouncers/combinator.py:127: INTERNAL ERROR -- STOPPED PROCESSING FUNCTION --
+	Traceback (most recent call last):
+	  File "/usr/lib/python2.7/site-packages/pychecker/warn.py", line 231, in _checkFunction
+	    _checkCode(code, codeSource)
+	  File "/usr/lib/python2.7/site-packages/pychecker/warn.py", line 154, in _checkCode
+	    raise NotImplementedError('No DISPATCH member for op %r' % op)
+	NotImplementedError: No DISPATCH member for op 133
+
+
 Fixing testsuite:
 -----------------
 Tested on 2010-12-18, after 2.7 fixes:
