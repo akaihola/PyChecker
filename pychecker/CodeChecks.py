@@ -2263,11 +2263,11 @@ DISPATCH[142] = _CALL_FUNCTION_VAR_KW
 
 # changed from 143 to 145 in 2.7, because 143 is now _SETUP_WITH
 # Python svn revision 72912
-if utils.pythonVersion() < utils.PYTHON_2_7:
-    DISPATCH[143] = _EXTENDED_ARG
-else:
+if utils.pythonVersion() >= utils.PYTHON_2_7:
     DISPATCH[143] = _SETUP_WITH
     DISPATCH[145] = _EXTENDED_ARG
+else:
+    DISPATCH[143] = _EXTENDED_ARG
 
 # Added in 2.7
 # Python svn revision 77422
