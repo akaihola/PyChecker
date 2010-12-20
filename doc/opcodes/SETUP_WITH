@@ -1,0 +1,50 @@
+example code, taken from unittest.case:
+
+import sys
+import warnings
+
+class TestCase(object):
+    def assertItemsEqual(self, expected_seq, actual_seq, msg=None):
+        with warnings.catch_warnings():
+            if sys.py3kwarning:
+                # Silence Py3k warning raised during the sorting
+                for _msg in ["(code|dict|type) inequality comparisons",
+                             "builtin_function_or_method order comparisons",
+                             "comparing unequal types"]:
+                    warnings.filterwarnings("ignore", _msg, DeprecationWarning)
+
+In 2.6, disassembly shows:
+
+  8           0 LOAD_GLOBAL              0 (warnings)
+              3 LOAD_ATTR                1 (catch_warnings)
+              6 CALL_FUNCTION            0
+              9 DUP_TOP             
+             10 LOAD_ATTR                2 (__exit__)
+             13 ROT_TWO             
+             14 LOAD_ATTR                3 (__enter__)
+             17 CALL_FUNCTION            0
+             20 POP_TOP             
+             21 SETUP_FINALLY           63 (to 87)
+
+In 2.7:
+  8           0 LOAD_GLOBAL              0 (warnings)
+              3 LOAD_ATTR                1 (catch_warnings)
+              6 CALL_FUNCTION            0
+              9 SETUP_WITH              62 (to 74)
+             12 POP_TOP             
+
+
+both SETUP_FINALLY and SETUP_WITH point to the cleanup part:
+        >>   74 WITH_CLEANUP        
+             75 END_FINALLY         
+             76 LOAD_CONST               0 (None)
+             79 RETURN_VALUE        
+
+From dis documentation:
+
+This opcode performs several operations before a with block starts. First, it
+loads __exit__() from the context manager and pushes it onto the stack for
+later use by WITH_CLEANUP. Then, __enter__() is called, and a finally block
+pointing to delta is pushed. Finally, the result of calling the enter method is
+pushed onto the stack. The next opcode will either ignore it (POP_TOP), or
+store it in (a) variable(s) (STORE_FAST, STORE_NAME, or UNPACK_SEQUENCE).
