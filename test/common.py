@@ -92,5 +92,5 @@ class TestCase(unittest.TestCase):
 
         expected = open(absexpectedfile).read()
 
-        diffStrings(expected, output, desc=relexpectedfile)
+        print 'returning', diffStrings(expected, output, desc=relexpectedfile)
 
