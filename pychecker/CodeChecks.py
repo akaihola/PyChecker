@@ -1822,6 +1822,14 @@ def _SETUP_FINALLY(oparg, operand, codeSource, code) :
     if not code.has_except :
         code.try_finally_first = 1
 
+# SETUP_WITH added in 2.7
+# not sure what _SETUP_FINALLY does exactly, but looking at the 2.6
+# implementation for the new SETUP_WITH, it ends with SETUP_FINALLY,
+# so SETUP_WITH should do the same
+def _SETUP_WITH(oparg, operand, codeSource, code) :
+    if not code.has_except :
+        code.try_finally_first = 1
+
 def _END_FINALLY(oparg, operand, codeSource, code) :
     if code.try_finally_first and code.index == (len(code.bytes) - 4) :
         code.starts_and_ends_with_finally = 1
@@ -2116,7 +2124,6 @@ _BUILD_SLICE = _unimplemented
 _WITH_CLEANUP = _unimplemented
 
 # new in 2.7
-_SETUP_WITH = _unimplemented
 _BUILD_SET = _unimplemented
 
 # dispatched from pychecker/warn.py
