@@ -1,6 +1,12 @@
 2010-12-20  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:
+	  Add WITH_CLEANUP implementation for the case where TOS is None.
+	  Now can check unittest.case
+
+2010-12-20  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
 	  Add SETUP_WITH implementation, similar to SETUP_FINALLY.
 	  Fixes one of the two unimplemented opcodes warnings about
 	  unittest.case

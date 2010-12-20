@@ -1826,9 +1826,29 @@ def _SETUP_FINALLY(oparg, operand, codeSource, code) :
 # not sure what _SETUP_FINALLY does exactly, but looking at the 2.6
 # implementation for the new SETUP_WITH, it ends with SETUP_FINALLY,
 # so SETUP_WITH should do the same
-def _SETUP_WITH(oparg, operand, codeSource, code) :
-    if not code.has_except :
+def _SETUP_WITH(oparg, operand, codeSource, code):
+    if not code.has_except:
         code.try_finally_first = 1
+
+# WITH_CLEANUP since 2.5
+# four stack possibilities:
+#    * TOP = None
+#    * (TOP, SECOND) = (WHY_{RETURN,CONTINUE}), retval
+#    * TOP = WHY_*; no retval below it
+#    * (TOP, SECOND, THIRD) = exc_info()
+
+def _WITH_CLEANUP(oparg, operand, codeSource, code):
+    if code.stack:
+        top = code.stack[-1]
+        # FIXME: only implement the first one, only one I've seen
+        if top.isNone():
+            code.popStack()
+        else:
+            # FIXME: NotImplementedError gets recaught and reraised with
+            # less useful info
+            raise IndexError('WITH_CLEANUP with TOS %r' % top)
+        
+    # pop exit ? I didn't see it in my example case
 
 def _END_FINALLY(oparg, operand, codeSource, code) :
     if code.try_finally_first and code.index == (len(code.bytes) - 4) :
@@ -2120,8 +2140,6 @@ _STORE_SLICE3 = _unimplemented
 # FIXME: probably pop argument number of items ?
 _DUP_TOPX = _unimplemented
 _BUILD_SLICE = _unimplemented
-
-_WITH_CLEANUP = _unimplemented
 
 # new in 2.7
 _BUILD_SET = _unimplemented
