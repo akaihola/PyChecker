@@ -1,4 +1,4 @@
-# -*- Mode: Python -*-
+# -*- Mode: Python; test-case-name: test.test_pychecker_CodeChecks -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
 '''
@@ -26,3 +26,10 @@ class DispatchTestCase(common.TestCase):
                 res.append("opcode %d: %s not in CodeChecks.DISPATCH" % (
                     value, key))
         self.failIf(res, "\n".join(res))
+
+class OpcodesTestCase(common.TestCase):
+    def test_STORE_SLICE_PLUS_0(self):
+        self.check('test_STORE_SLICE_PLUS_0')
+
+if __name__ == '__main__':
+    unittest.main()

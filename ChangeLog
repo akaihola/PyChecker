@@ -1,5 +1,13 @@
 2010-12-20  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/CodeChecks.py:
+	* test/input/test_STORE_SLICE_PLUS_0.py:
+	* test/test_pychecker_CodeChecks.py:
+	  Add support for STORE_SLICE+0, as triggered by
+	  twisted.trial.unittest, plus a test.
+
+2010-12-20  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test/common.py:
 	  Make it clear when we actually generate an expected output file
 	  the first time.
