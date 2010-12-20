@@ -1,5 +1,11 @@
 2010-12-20  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test/common.py:
+	  Make it clear when we actually generate an expected output file
+	  the first time.
+
+2010-12-20  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/CodeChecks.py:
 	  Add WITH_CLEANUP implementation for the case where TOS is None.
 	  Now can check unittest.case
