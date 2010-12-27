@@ -1,3 +1,9 @@
+2010-12-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
+	  Implement PRINT_NEWLINE_TO taking a cue from PRINT_ITEM_TO.
+	  Also triggered by twisted.trial.unittest.
+
 2010-12-20  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:

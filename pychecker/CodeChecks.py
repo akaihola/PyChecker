@@ -1685,8 +1685,11 @@ def _BINARY_XOR(oparg, operand, codeSource, code):
     _checkModifyNoOp(code, '^', msgs.XOR_VAR_WITH_ITSELF, modifyStack=0)
     _coerce_type(code)
 
-def _PRINT_ITEM_TO(oparg, operand, codeSource, code) :
+def _PRINT_ITEM_TO(oparg, operand, codeSource, code):
     code.popStackItems(2)
+
+def _PRINT_NEWLINE_TO(oparg, operand, codeSource, code):
+    code.popStackItems(1)
 
 try:
     ComplexType = types.ComplexType
@@ -2137,8 +2140,6 @@ _NOP = _empty
 _INPLACE_FLOOR_DIVIDE = _INPLACE_TRUE_DIVIDE = _unimplemented
 _EXTENDED_ARG = _unimplemented
 _PRINT_EXPR = _unimplemented
-# FIXME: this implementation could just be a pop 1 from the stack I think
-_PRINT_NEWLINE_TO = _unimplemented
 
 _DELETE_SLICE0 = _unimplemented
 _STORE_SLICE3 = _unimplemented
