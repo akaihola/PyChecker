@@ -20,10 +20,22 @@ TYPE_COMPARISON = "-comparison-"
 TYPE_GLOBAL = "-global-"
 TYPE_EXCEPT = "-except-"
 
-class Item :
-    "Representation of data on the stack"
+class Item:
+    """
+    Representation of data on the stack
 
-    def __init__(self, data, dataType, const = 0, length = 0) :
+    @ivar is_really_string: whether the stack item really is a string.
+    """
+
+    def __init__(self, data, dataType, const=0, length=0):
+        """
+        @param data:     the actual data of the stack item
+        @type  dataType: type
+        @param const:    whether the item is a constant or not
+        @type  const:    int
+        @type  length:   int
+        """
+
         self.data = data
         self.type = dataType
         self.const = const
@@ -31,12 +43,12 @@ class Item :
         self.is_really_string = 0
 
     def __str__(self) :
-        if type(self.data) == types.TupleType :
+        if type(self.data) == types.TupleType:
             value = '('
-            for item in self.data :
+            for item in self.data:
                 value = value + utils.safestr(item) + ', '
             # strip off the ', ' for multiple items
-            if len(self.data) > 1 :
+            if len(self.data) > 1:
                 value = value[:-2]
             return value + ')'
         return utils.safestr(self.data)
@@ -44,7 +56,7 @@ class Item :
     def __repr__(self):
         return 'Stack Item: (%r, %r, %d)' % (self.data, self.type, self.const)
 
-    def isNone(self) :
+    def isNone(self):
         return (self.type != TYPE_UNKNOWN and self.data is None or
                 (self.data == 'None' and not self.const))
 
@@ -55,50 +67,76 @@ class Item :
         return self.type == TYPE_ATTRIBUTE and c != None and \
                len(self.data) == 2 and self.data[0] == methodArgName
 
-    def isLocals(self) :
+    def isLocals(self):
         return self.type == types.DictType and self.data == LOCALS
 
     def setStringType(self, value = types.StringType):
         self.is_really_string = value == types.StringType
 
-    def getType(self, typeMap) :
+    def getType(self, typeMap):
         if self.type != types.StringType or self.is_really_string:
             return self.type
-        if self.const :
+        if self.const:
             return type(self.data)
-        if type(self.data) == types.StringType :
+        if type(self.data) == types.StringType:
             localTypes = typeMap.get(self.data, [])
-            if len(localTypes) == 1 :
+            if len(localTypes) == 1:
                 return localTypes[0]
         return TYPE_UNKNOWN
 
-    def getName(self) :
+    def getName(self):
         if self.type == TYPE_ATTRIBUTE and type(self.data) != types.StringType:
             strValue = ""
             # convert the tuple into a string ('self', 'data') -> self.data
-            for item in self.data :
+            for item in self.data:
                 strValue = '%s.%s' % (strValue, utils.safestr(item))
             return strValue[1:]
         return utils.safestr(self.data)
 
-    def addAttribute(self, attr) :
-        if type(self.data) == types.TupleType :
+    def addAttribute(self, attr):
+        if type(self.data) == types.TupleType:
             self.data = self.data + (attr,)
-        else :
+        else:
             self.data = (self.data, attr)
         self.type = TYPE_ATTRIBUTE
 
 
-def makeDict(values = (), const = 1) :
+# FIXME: I haven't seen makeDict with anything else than (), 1
+def makeDict(values=(), const=1):
+    """
+    @param values: the values to make a dict out of
+    @type  values: FIXME: tuple of L{Item} ?
+    @param const:  whether the dict is constant
+
+    @returns: A Stack.Item representing a dict
+    @rtype:   L{Item}
+    """
     values = tuple(values)
     if not values:
-        values = ('<on-stack>',)
+        values = ('<on-stack>', )
     return Item(values, types.DictType, const, len(values))
 
-def makeTuple(values = (), const = 1) :
+def makeTuple(values=(), const=1):
+    """
+    @param values: the values to make a tuple out of
+    @type  values: tuple of L{Item}
+    @param const:  whether the tuple is constant
+
+    @returns: A Stack.Item representing a tuple
+    @rtype:   L{Item}
+    """
     return Item(tuple(values), types.TupleType, const, len(values))
 
-def makeList(values = [], const = 1) :
+# FIXME: I haven't seen makeList with anything else than const=1
+def makeList(values=[], const=1):
+    """
+    @param values: the values to make a list out of
+    @type  values: list of L{Item}
+    @param const:  whether the list is constant
+
+    @returns: A Stack.Item representing a list
+    @rtype:   L{Item}
+    """
     return Item(values, types.ListType, const, len(values))
 
 def makeFuncReturnValue(stackValue, argCount) :
