@@ -1583,6 +1583,45 @@ def _BUILD_CLASS(oparg, operand, codeSource, code) :
     code.popStackItems(3)
     code.pushStack(newValue)
 
+# example disassembly:
+# ('  18 BUILD_LIST', 6, None)
+# ('  21 STORE_FAST', 0, 'l')
+# ('  24 LOAD_FAST', 0, 'l')
+# ('  27 LOAD_CONST', 7, 0)
+# ('  30 LOAD_CONST', 0, None)
+# ('  33 LOAD_CONST', 2, 2)
+# ('  36 BUILD_SLICE', 3, None)
+def _BUILD_SLICE(oparg, operand, codeSource, code):
+    argCount = oparg
+    assert argCount in [2, 3]
+
+    if argCount == 3:
+        start = code.stack[-3].data
+        stop = code.stack[-2].data
+        step = code.stack[-1].data
+        sourceName = code.stack[-4].data
+    else:
+        start = code.stack[-2].data
+        stop = code.stack[-1].data
+        step = None
+        sourceName = code.stack[-3].data
+
+    if sourceName in code.constants:
+        source = code.constants[sourceName]
+        if step:
+            sl = source[start:stop:step]
+        else:
+            sl = source[start:stop]
+        # push new slice on stack
+        code.stack[-argCount:] = [Stack.Item(sl, types.ListType, 1, len(sl)), ]
+    else:
+        # FIXME: not sure what we do with a non-constant slice ?
+        # push a non-constant slice of the source on stack
+        code.stack[-argCount:] = [Stack.Item(
+            sourceName, types.ListType, 0, 1), ]
+
+    _checkNoEffect(code)
+
 # old pre-2.7 LIST_APPEND, argumentless
 def _LIST_APPEND(oparg, operand, codeSource, code):
     code.popStackItems(2)
@@ -2145,7 +2184,6 @@ _DELETE_SLICE0 = _unimplemented
 _STORE_SLICE3 = _unimplemented
 # FIXME: probably pop argument number of items ?
 _DUP_TOPX = _unimplemented
-_BUILD_SLICE = _unimplemented
 
 # new in 2.7
 _BUILD_SET = _unimplemented

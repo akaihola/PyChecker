@@ -1,5 +1,11 @@
 2010-12-28  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/CodeChecks.py:
+	  Implement BUILD_SLICE, opcode 133.  Now dis can be pychecked.
+	  Not sure what to push on stack for non-const slices though.
+
+2010-12-28  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/Stack.py:
 	  Document and pep-8-ify.
 
