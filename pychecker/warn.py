@@ -389,6 +389,7 @@ def _updateFunctionWarnings(module, func, c, warnings, globalRefs,
     Update function warnings and global references.
 
     @type  module: L{pychecker.checker.PyCheckerModule}
+    @type  func:   L{function.Function}
     """
 
     newWarnings, newGlobalRefs, funcs, codeObjects, returnValues = \
