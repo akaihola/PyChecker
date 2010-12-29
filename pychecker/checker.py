@@ -38,6 +38,9 @@ def setupNamespace(path) :
 def setupSysPathForDevelopment():
     import pychecker
     this_module = sys.modules[__name__]
+    # in 2.2 and older, this_module might not have __file__ at all
+    if not hasattr(this_module, '__file__'):
+        return
     this_path = os.path.normpath(os.path.dirname(this_module.__file__))
     pkg_path = os.path.normpath(os.path.dirname(pychecker.__file__))
     if pkg_path != this_path:
