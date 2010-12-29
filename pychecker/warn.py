@@ -216,7 +216,11 @@ def _findUnreachableCode(code) :
 
 
 def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
-    "Return a list of Warnings found in a function/method."
+    """
+    Return a list of Warnings found in a function/method.
+
+    @type  module: L{pychecker.checker.PyCheckerModule}
+    """
 
     # always push a new config object, so we can pop at end of function
     utils.pushConfig()
@@ -381,7 +385,11 @@ def _checkOverridenMethods(func, baseClasses, warnings) :
 
 def _updateFunctionWarnings(module, func, c, warnings, globalRefs,
                             main = 0, in_class = 0) :
-    "Update function warnings and global references"
+    """
+    Update function warnings and global references.
+
+    @type  module: L{pychecker.checker.PyCheckerModule}
+    """
 
     newWarnings, newGlobalRefs, funcs, codeObjects, returnValues = \
                  _checkFunction(module, func, c, main, in_class)
@@ -540,6 +548,9 @@ def getSuppression(name, suppressions, warnings) :
         return None
 
 def _findFunctionWarnings(module, globalRefs, warnings, suppressions) :
+    """
+    @type  module: L{pychecker.checker.PyCheckerModule}
+    """
     for func in module.functions.values() :
         func_code = func.function.func_code
         utils.debug("function:", func_code)

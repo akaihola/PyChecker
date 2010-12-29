@@ -14,6 +14,13 @@ _KW_ARGS_FLAG = 8
 _CO_FLAGS_MASK = _ARGS_ARGS_FLAG + _KW_ARGS_FLAG
 
 class _ReturnValues:
+    """
+    I am a base class that can track return values.
+
+    @ivar returnValues: tuple of (line number, stack item,
+                                  index to next instruction)
+    @type returnValues: tuple of (int, L{pychecker.Stack.Item}, int)
+    """
     def __init__(self):
         self.returnValues = None
 
@@ -34,6 +41,9 @@ class _ReturnValues:
 class FakeCode :
     "This is a holder class for code objects (so we can modify them)"
     def __init__(self, code, varnames = None) :
+        """
+        @type  code: L{types.CodeType}
+        """
         for attr in dir(code):
             try:
                 setattr(self, attr, getattr(code, attr))
@@ -43,7 +53,13 @@ class FakeCode :
             self.co_varnames = varnames
 
 class FakeFunction(_ReturnValues):
-    "This is a holder class for turning code at module level into a function"
+    """
+    This is a holder class for turning non-scoped code (for example at
+    module-global level, or generator expressions) into a function.
+    
+    Pretends to be a normal callable and can be used as constructor argument
+    to L{Function}
+    """
 
     def __init__(self, name, code, func_globals = {}, varnames = None) :
         _ReturnValues.__init__(self)
@@ -61,18 +77,47 @@ class FakeFunction(_ReturnValues):
         return '%s from %r' % (self.func_name, self.func_code.co_filename)
 
 class Function(_ReturnValues):
-    "Class to hold all information about a function"
+    """
+    Class to hold all information about a function
+
+    @ivar function:   the function to wrap
+    @type function:   callable
+    @ivar isMethod:   whether the callable is a method
+    @type isMethod:   int (used as bool)
+    @ivar minArgs:    the minimum number of arguments that should be passed to this
+                      function
+    @type minArgs:    int
+    @ivar minArgs:    the maximum number of arguments that should be passed to this
+                      function, or None in case of *args/unlimited
+    @type maxArgs:    int or None
+    @ivar supportsKW: whether the function supports keyword arguments.
+    @type supportsKW: int (used as bool)
+    """
 
     def __init__(self, function, isMethod=0):
+        """
+        @param function: the function to wrap
+        @type  function: callable or L{FakeFunction}
+        @param isMethod: whether the callable is a method
+        @type  isMethod: int (used as bool)
+        """
+ 
         _ReturnValues.__init__(self)
         self.function = function
         self.isMethod = isMethod
+        # co_argcount is the number of positional arguments (including
+        # arguments with default values)
         self.minArgs = self.maxArgs = function.func_code.co_argcount
-        if function.func_defaults is not None :
+        # func_defaults is a tuple containing default argument values for those
+        # arguments that have defaults, or None if no arguments have a default
+        # value
+        if function.func_defaults is not None:
             self.minArgs = self.minArgs - len(function.func_defaults)
         # if function uses *args, there is no max # args
         try:
-            if function.func_code.co_flags & _ARGS_ARGS_FLAG != 0 :
+            # co_flags is an integer encoding a number of flags for the
+            # interpreter.
+            if function.func_code.co_flags & _ARGS_ARGS_FLAG != 0:
                 self.maxArgs = None
             self.supportsKW = function.func_code.co_flags & _KW_ARGS_FLAG
         except AttributeError:
@@ -83,19 +128,45 @@ class Function(_ReturnValues):
         return self.function.func_name
 
     def __repr__(self):
-        return '%s from %r:%d' % (self.function.func_name,
-                                  self.function.func_code.co_filename,
-                                  self.function.func_code.co_firstlineno)
+        # co_filename is the filename from which the code was compiled
+        # co_firstlineno is the first line number of the function
+        return '<%s from %r:%d>' % (self.function.func_name,
+                                    self.function.func_code.co_filename,
+                                    self.function.func_code.co_firstlineno)
 
-    def arguments(self) :
+    def arguments(self):
+        """
+        @returns: a list of argument names to this function
+        @rtype:   list of str
+        """
+        # see http://docs.python.org/reference/datamodel.html#types
+        # for more info on func_code
+        # co_argcount is the number of positional arguments (including
+        # arguments with default values)
         numArgs = self.function.func_code.co_argcount
-        if self.maxArgs is None :
+        if self.maxArgs is None:
+            # co_varnames has the name of the *args variable after the
+            # positional arguments
             numArgs = numArgs + 1
-        if self.supportsKW :
+        if self.supportsKW:
+            # co_varnames has the name of the **kwargs variable after the
+            # positional arguments and *args variable
             numArgs = numArgs + 1
+        # co_varnames is a tuple containing the names of the local variables
+        # (starting with the argument names)
+        # FIXME: a generator seems to have .0 as the first member here,
+        #        and then the generator variable as the second.
+        #        should we special-case that here ?
         return self.function.func_code.co_varnames[:numArgs]
         
-    def isParam(self, name) :
+    def isParam(self, name):
+        """
+        @type  name: str
+
+        @returns: Whether the given name is the name of an argument to the
+                  function
+        @rtype:   bool
+        """
         return name in self.arguments()
 
     def isStaticMethod(self):
@@ -107,16 +178,26 @@ class Function(_ReturnValues):
         except AttributeError:
             return 0
 
-    def defaultValue(self, name) :
+    def defaultValue(self, name):
+        """
+        @type  name: str
+
+        @returns: the default value for the function parameter with the given
+                  name.
+        """
         func_code = self.function.func_code
         arg_names = list(func_code.co_varnames[:func_code.co_argcount])
         i = arg_names.index(name)
-        if i < self.minArgs :
+        if i < self.minArgs:
             raise ValueError
         return self.function.func_defaults[i - self.minArgs]
 
-    def varArgName(self) :
-        if self.maxArgs is not None :
+    def varArgName(self):
+        """
+        @returns: the name of the *args parameter of the function.
+        @rtype:   str
+        """
+        if self.maxArgs is not None:
             return None
         func_code = self.function.func_code
         return func_code.co_varnames[func_code.co_argcount]

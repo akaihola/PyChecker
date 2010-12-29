@@ -552,25 +552,32 @@ def _getPyFile(filename):
         return filename[:-1]
     return filename
 
-class PyCheckerModule :
+class PyCheckerModule:
     """
     Class to hold all information for a module
 
+    @ivar functions:
+    @type functions:      dict of str -> L{function.Function}
     @ivar moduleLineNums: mapping of the module's nameds/operands to the
                           filename and linenumber where they are created
     @type moduleLineNums: dict of str -> (str, int)
     @type mainCode:       L{function.Function}
+    @ivar check:          whether this module should be checked
+    @type check:          int (used as bool)
     """
 
-    def __init__(self, moduleName, check = 1, moduleDir=None) :
+    def __init__(self, moduleName, check=1, moduleDir=None) :
         """
-        @param moduleDir: if specified, the directory where the module can
-                          be loaded from; allows discerning between modules
-                          with the same name in a different directory.
-                          Note that moduleDir can be the empty string, if
-                          the module being tested lives in the current working
-                          directory.
-        @type  moduleDir: str
+        @type  moduleName: str
+        @param check:      whether this module should be checked
+        @type  check:      int (used as bool)
+        @param moduleDir:  if specified, the directory where the module can
+                           be loaded from; allows discerning between modules
+                           with the same name in a different directory.
+                           Note that moduleDir can be the empty string, if
+                           the module being tested lives in the current working
+                           directory.
+        @type  moduleDir:  str
         """
         self.moduleName = moduleName
         self.moduleDir = moduleDir
@@ -741,12 +748,18 @@ class PyCheckerModule :
                 file.close()
 
 
-def getAllModules() :
-    "Returns a list of all modules that should be checked."
+def getAllModules():
+    """
+    Returns a list of all modules that should be checked.
+
+    @rtype: list of L{PyCheckerModule}
+    """
     modules = []
+
     for module in pcmodules.getPCModules():
-        if module.check :
+        if module.check:
             modules.append(module)
+
     return modules
 
 _BUILTIN_MODULE_ATTRS = { 'sys': [ 'ps1', 'ps2', 'tracebacklimit', 
