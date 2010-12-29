@@ -84,11 +84,11 @@ class Function(_ReturnValues):
     @type function:   callable
     @ivar isMethod:   whether the callable is a method
     @type isMethod:   int (used as bool)
-    @ivar minArgs:    the minimum number of arguments that should be passed to this
-                      function
+    @ivar minArgs:    the minimum number of arguments that should be passed to
+                      this function
     @type minArgs:    int
-    @ivar minArgs:    the maximum number of arguments that should be passed to this
-                      function, or None in case of *args/unlimited
+    @ivar minArgs:    the maximum number of arguments that should be passed to
+                      this function, or None in case of *args/unlimited
     @type maxArgs:    int or None
     @ivar supportsKW: whether the function supports keyword arguments.
     @type supportsKW: int (used as bool)
@@ -103,6 +103,7 @@ class Function(_ReturnValues):
         """
  
         _ReturnValues.__init__(self)
+
         self.function = function
         self.isMethod = isMethod
         # co_argcount is the number of positional arguments (including
