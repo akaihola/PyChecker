@@ -60,6 +60,7 @@ class TestCase(unittest.TestCase):
         Run pychecker on the given test, located in input/
         Will compare to output of the same name in expected/
 
+        @type args:       str
         @type checkables: list of str
         """
         abstestdir = os.path.dirname(__file__)
@@ -81,6 +82,9 @@ class TestCase(unittest.TestCase):
         
         # here we can select a different file based on os/python version/arch
         relexpectedfile = os.path.join('expected', testname)
+        if args:
+            underscoredArgs = args.replace('-', '_').replace(' ', '_')
+            relexpectedfile += underscoredArgs
         absexpectedfile = os.path.join(abstestdir, relexpectedfile)
 
         # FIXME: make generating an option
@@ -92,5 +96,5 @@ class TestCase(unittest.TestCase):
 
         expected = open(absexpectedfile).read()
 
-        print 'returning', diffStrings(expected, output, desc=relexpectedfile)
+        diffStrings(expected, output, desc=relexpectedfile)
 
