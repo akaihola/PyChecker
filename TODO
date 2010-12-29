@@ -113,6 +113,8 @@ Tested on 2010-12-18, after 2.7 fixes:
 4 TESTS FAILED:  test13 test44 test70 test77
   On Fedora 14, source Python 2.3:
 8 TESTS FAILED:  test103 test13 test44 test68 test70 test77 test78 test85
+  On Fedora 14, source Python 2.2:
+11 TESTS FAILED:  test101 test103 test13 test1 test34 test3 test44 test58 test77 test78 test85
 
 
 Tested on 2009-06-27:
@@ -130,7 +132,6 @@ Tested on 2009-06-27:
 
   test103: a generator statement run twice should not generate a warning, but
            does in python 2.3 and 2.5, but not 2.4
-  test13:  the wrong functions are triggering the warnings since python 2.4
   test22:  two constant warnings went away since python 2.5
   test26:  fails in 2.6
   test34:  fails in 2.5, 2.6

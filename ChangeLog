@@ -1,5 +1,15 @@
 2010-12-29  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* TODO:
+	* test_expected/test13:
+	  For some reason the expected output was warning about the second
+	  occurrence of each global, not the first.  So the expected output
+	  was wrong.  Even in 2.2 the behaviour was the same.
+	  So, regenerate expected output.  Verified it passes from 2.2 to
+	  2.7.
+
+2010-12-29  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/checker.py:
 	  In 2.2 and older, __file__ might not be set on the current
 	  module.
