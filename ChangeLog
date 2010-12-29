@@ -1,5 +1,15 @@
 2010-12-29  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test/test_global.py:
+	  Add a test for globals, same as test13.
+	* test/input/test_global.py:
+	  Test it without and with -g as the test input says.
+	* test/expected/test_global:
+	* test/expected/test_global_g:
+	  Expected outputs in both cases.
+
+2010-12-29  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test/common.py:
 	  Add underscored arguments to expected file name, so that we can
 	  run the same input file with more than one argument.
