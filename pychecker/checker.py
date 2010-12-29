@@ -384,17 +384,16 @@ class Class:
             func_name = className + func_name
         return func_name
 
-    def addMethod(self, method, methodName=None):
+    def addMethod(self, methodName, method=None):
         """
-        @type method:     method or str
         @type methodName: str
+        @type method:     method or None
         """
-        if type(method) == types.StringType :
-            self.methods[method] = None
+        if not method:
+            self.methods[methodName] = None
         else :
-            assert methodName is not None, "must supply methodName"
             self.methods[methodName] = function.Function(method, 1)
-                
+                 
     def addMethods(self, classObject) :
         for classToken in _getClassTokens(classObject) :
             token = getattr(classObject, classToken, None)
@@ -405,7 +404,7 @@ class Class:
             # accommodate ExtensionClass and Python 2.2.  Yecchh.
             if (hasattr(token, "func_code") and
                 hasattr(token.func_code, "co_argcount")): 
-                self.addMethod(token, token.__name__)
+                self.addMethod(token.__name__, method=token)
 
             elif hasattr(token, '__get__') and \
                  not hasattr(token, '__set__') and \
@@ -418,7 +417,7 @@ class Class:
         self.cleanupMemberRefs()
         # add standard methods
         for methodName in ('__class__',) :
-            self.addMethod(methodName, self.classObject__name__)
+            self.addMethod(methodName)
 
     def addMembers(self, classObject) :
         if not cfg().onlyCheckInitForMembers :

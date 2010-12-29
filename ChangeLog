@@ -1,5 +1,14 @@
 2010-12-29  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/checker.py:
+	  Rework confusing addMethod method such that instead of mixing
+	  method and methodName and doing confusing checks and asserts,
+	  the name is always passed, and optionally the method.
+	  In the third case where it was used, a name was always passed,
+	  hence the second argument wasn't even used; so drop it.
+
+2010-12-29  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* TODO:
 	  Add a TODO item.
 	* test/test_pychecker_function.py:
