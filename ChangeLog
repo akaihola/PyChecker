@@ -1,5 +1,13 @@
 2010-12-29  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* TODO:
+	  Add a TODO item.
+	* test/test_pychecker_function.py:
+	  Add a unit test for function.Function
+	  Add a surprising result for co_varnames for generators.
+
+2010-12-29  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/checker.py:
 	* pychecker/function.py:
 	* pychecker/pcmodules.py:

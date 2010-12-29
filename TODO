@@ -66,6 +66,8 @@ Goals for next major release (0.9):
 * Fix most of the FIXMEs
 * Add check for import module (from within package p-should be import p.module)
   - don't use relative imports, should always use absolute paths
+* If there is a warnings for unused varargs parameter (varArgumentsUsed), why
+  not for kwargs ?
 
 Longer Term goals:
 ------------------
@@ -143,8 +145,9 @@ Tested on 2009-06-27:
            Formatter was added to string.py, without docstring, so looks like
            a valid new warning.
   test36:  fails in 2.6
-  test44:  pychecker seems to print a wrong warning about __init__ argument
-           number since 2.3
+  test44:  test44.py imports * from import44, which has a class Ccc named the
+           same but whose init takes an extra argument.
+           
   test48:  line 57 (the single character '5') no longer triggers statement
            has no effect warning since python 2.5
   test53:  the operator ~~ stopped generating a warning since python 2.5
