@@ -278,12 +278,29 @@ def _getClassTokens(c):
 def _getModuleTokens(m):
     return _filterDir(m, _DEFAULT_MODULE_TOKENS)
 
-class Class :
-    "Class to hold all information about a class"
+class Class:
+    """
+    Class to hold all information about a class.
 
-    def __init__(self, name, pcmodule) :
+    @ivar name:        name of class
+    @type name:        str
+    @ivar classObject: the object representing the class
+    @type classObject: class
+    @ivar module:      the module where the class is defined
+    @type module:      module
+
+    @type ignoreAttrs: int (used as bool)
+    @type methods:     dict
+    @type members:     dict of str -> type
+    @type memberRefs:  dict
+    @type statics:     dict
+    @type lineNums:    dict
+    """
+
+    def __init__(self, name, pcmodule):
         """
-        @type pcmodule: PyCheckerModule
+        @type name:     str
+        @type pcmodule: L{PyCheckerModule}
         """
         self.name = name
         module = pcmodule.module
@@ -349,7 +366,7 @@ class Class :
         return 0
 
     def allBaseClasses(self, c = None) :
-        "Return a list of all base classes for this class and it's subclasses"
+        "Return a list of all base classes for this class and its subclasses"
 
         baseClasses = []
         if c == None :
@@ -367,7 +384,11 @@ class Class :
             func_name = className + func_name
         return func_name
 
-    def addMethod(self, method, methodName = None) :
+    def addMethod(self, method, methodName=None):
+        """
+        @type method:     method or str
+        @type methodName: str
+        """
         if type(method) == types.StringType :
             self.methods[method] = None
         else :
@@ -556,7 +577,7 @@ class PyCheckerModule:
     """
     Class to hold all information for a module
 
-    @ivar functions:
+    @ivar functions:      dict of function name -> function
     @type functions:      dict of str -> L{function.Function}
     @ivar moduleLineNums: mapping of the module's nameds/operands to the
                           filename and linenumber where they are created
@@ -602,7 +623,10 @@ class PyCheckerModule:
     def addVariable(self, var, varType) :
         self.variables[var] = Variable(var, varType)
 
-    def addFunction(self, func) :
+    def addFunction(self, func):
+        """
+        @type  func: callable
+        """
         self.functions[func.__name__] = function.Function(func)
 
     def __addAttributes(self, c, classObject) :
