@@ -1526,6 +1526,18 @@ def _DUP_TOP(oparg, operand, codeSource, code) :
     if len(code.stack) > 0 :
         code.pushStack(code.stack[-1], _shouldIgnoreNoEffectWarning(code))
 
+# Duplicate count items, keeping them in the same order. Due to implementation
+# limits, count should be between 1 and 5 inclusive.
+def _DUP_TOPX(oparg, operand, codeSource, code):
+    if oparg > 5:
+        code.addWarning(msgs.Warning(
+            'DUP_TOPX has oparg %d, should not be more than 5' % oparg))
+
+    if len(code.stack) > oparg - 1:
+        source = code.stack[-oparg:]
+        for item in source:
+            code.pushStack(item, _shouldIgnoreNoEffectWarning(code))
+
 def _popn(code, n) :
     if len(code.stack) >= 2 :
         loadValue = code.stack[-2]
@@ -2182,8 +2194,6 @@ _PRINT_EXPR = _unimplemented
 
 _DELETE_SLICE0 = _unimplemented
 _STORE_SLICE3 = _unimplemented
-# FIXME: probably pop argument number of items ?
-_DUP_TOPX = _unimplemented
 
 # new in 2.7
 _BUILD_SET = _unimplemented

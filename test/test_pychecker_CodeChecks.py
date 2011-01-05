@@ -31,5 +31,8 @@ class OpcodesTestCase(common.TestCase):
     def test_STORE_SLICE_PLUS_0(self):
         self.check('test_STORE_SLICE_PLUS_0')
 
+    def test_DUP_TOPX(self):
+        self.check('test_DUP_TOPX')
+
 if __name__ == '__main__':
     unittest.main()

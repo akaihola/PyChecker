@@ -1,3 +1,12 @@
+2011-01-05  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
+	  Add support for opcode 99, DUP_TOPX
+	* test/expected/test_DUP_TOPX:
+	* test/input/test_DUP_TOPX.py:
+	* test/test_pychecker_CodeChecks.py:
+	  Add a test for it.
+
 2010-12-29  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/checker.py:
