@@ -6,9 +6,14 @@
 Print out warnings from Python source files.
 """
 
+import re
 import sys
+import os
 import string
 import copy
+import imp
+import traceback
+import types
 
 from pychecker import msgs
 from pychecker import Config
@@ -129,3 +134,145 @@ def safestr(value):
       return str(value)
    except UnicodeError:
       return unicode(value)
+
+
+def _q_file(f):
+    # crude hack!!!
+    # imp.load_module requires a real file object, so we can't just
+    # fiddle def lines and yield them
+    import tempfile
+    fd, newfname = tempfile.mkstemp(suffix=".py", text=True)
+    newf = os.fdopen(fd, 'r+')
+    os.unlink(newfname)
+    for line in f:
+        mat = re.match(r'(\s*def\s+\w+\s*)\[(html|plain)\](.*)', line)
+        if mat is None:
+            newf.write(line)
+        else:
+            newf.write(mat.group(1)+mat.group(3)+'\n')
+    newf.seek(0)
+    return newf
+
+def _q_find_module(p, path):
+    if not cfg().quixote:
+        return imp.find_module(p, path)
+    else:
+        for direc in path:
+            try:
+                return imp.find_module(p, [direc])
+            except ImportError:
+                f = os.path.join(direc, p+".ptl")
+                if os.path.exists(f):
+                    return _q_file(file(f)), f, ('.ptl', 'U', 1)
+
+def findModule(name, moduleDir=None) :
+    """Returns the result of an imp.find_module(), ie, (file, filename, smt)
+       name can be a module or a package name.  It is *not* a filename."""
+
+    path = sys.path[:]
+    if moduleDir:
+        path.insert(0, moduleDir)
+
+    packages = string.split(name, '.')
+    for p in packages :
+        # smt = (suffix, mode, type)
+        file, filename, smt = _q_find_module(p, path)
+        if smt[-1] == imp.PKG_DIRECTORY :
+            try :
+                # package found - read path info from init file
+                m = imp.load_module(p, file, filename, smt)
+            finally :
+                if file is not None :
+                    file.close()
+
+            # importing xml plays a trick, which replaces itself with _xmlplus
+            # both have subdirs w/same name, but different modules in them
+            # we need to choose the real (replaced) version
+            if m.__name__ != p :
+                try :
+                    file, filename, smt = _q_find_module(m.__name__, path)
+                    m = imp.load_module(p, file, filename, smt)
+                finally :
+                    if file is not None :
+                        file.close()
+
+            new_path = m.__path__
+            if type(new_path) == types.ListType :
+                new_path = filename
+            if new_path not in path :
+                path.insert(1, new_path)
+        elif smt[-1] != imp.PY_COMPILED:
+            if p is not packages[-1] :
+                if file is not None :
+                    file.close()
+                raise ImportError, "No module named %s" % packages[-1]
+            return file, filename, smt
+
+    # in case we have been given a package to check
+    return file, filename, smt
+
+
+def _getLineInFile(moduleName, moduleDir, linenum):
+    line = ''
+    file, filename, smt = findModule(moduleName, moduleDir)
+    if file is None:
+        return ''
+    try:
+        lines = file.readlines()
+        line = string.rstrip(lines[linenum - 1])
+    except (IOError, IndexError):
+        pass
+    file.close()
+    return line
+
+def importError(moduleName, moduleDir=None):
+    exc_type, exc_value, tb = sys.exc_info()
+
+    # First, try to get a nice-looking name for this exception type.
+    exc_name = getattr(exc_type, '__name__', None)
+    if not exc_name:
+        # either it's a string exception or a user-defined exception class
+        # show string or fully-qualified class name
+        exc_name = safestr(exc_type)
+        
+    # Print a traceback, unless this is an ImportError.  ImportError is
+    # presumably the most common import-time exception, so this saves
+    # the clutter of a traceback most of the time.  Also, the locus of
+    # the error is usually irrelevant for ImportError, so the lack of
+    # traceback shouldn't be a problem.
+    if exc_type is SyntaxError:
+        # SyntaxErrors are special, we want to control how we format
+        # the output and make it consistent for all versions of Python
+        e = exc_value
+        msg = '%s (%s, line %d)' % (e.msg, e.filename, e.lineno)
+        line = _getLineInFile(moduleName, moduleDir, e.lineno)
+        offset = e.offset
+        if type(offset) is not types.IntType:
+            offset = 0
+        exc_value = '%s\n    %s\n   %s^' % (msg, line, ' ' * offset)
+    elif exc_type is not ImportError:
+        sys.stderr.write("  Caught exception importing module %s:\n" %
+                         moduleName)
+
+        try:
+            tbinfo = traceback.extract_tb(tb)
+        except:
+            tbinfo = []
+            sys.stderr.write("      Unable to format traceback\n")
+        for filename, line, func, text in tbinfo[1:]:
+            sys.stderr.write("    File \"%s\", line %d" % (filename, line))
+            if func != "?":
+                sys.stderr.write(", in %s()" % func)
+            sys.stderr.write("\n")
+            if text:
+                sys.stderr.write("      %s\n" % text)
+
+    # And finally print the exception type and value.
+    # Careful formatting exc_value -- can fail for some user exceptions
+    sys.stderr.write("  %s: " % exc_name)
+    try:
+        sys.stderr.write(safestr(exc_value) + '\n')
+    except:
+        sys.stderr.write('**error formatting exception value**\n')
+
+

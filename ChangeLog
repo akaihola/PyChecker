@@ -1,5 +1,17 @@
 2011-01-06  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/checker.py:
+	  Extract PyCheckerModule, Variable and Class...
+	* pychecker/pcmodules.py:
+	  ... and move it here.
+	  This allows us importing a module that has PyCheckerModule without
+	  all sorts of side effects.
+	* pychecker/CodeChecks.py:
+	* pychecker/utils.py:
+	  Follow up on changes.
+
+2011-01-06  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/utils.py:
 	  Make utils.debug output something slightly nicer.
 

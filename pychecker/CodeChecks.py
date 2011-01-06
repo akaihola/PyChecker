@@ -1586,8 +1586,9 @@ def _IMPORT_FROM(oparg, operand, codeSource, code) :
         elif not codeSource.module.moduleLineNums.has_key(operand) :
             code.updateModuleLineNums(codeSource.module, operand)
 
-# handles from ... import *
-# the from operand is before us on the stack
+# Loads all symbols not starting with '_' directly from the module TOS to the
+# local namespace. The module is popped after loading all names. This opcode
+# implements from module import *.
 def _IMPORT_STAR(oparg, operand, codeSource, code):
     # codeSource: the piece of source code doing the import 
     # code:       the piece of code matching codeSource doing the import
