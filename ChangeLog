@@ -1,5 +1,21 @@
 2011-01-06  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test_todo/import44.py:
+	* test_todo/test34.py:
+	* test_todo/test44.py:
+	* test_todo/test70.py:
+	* test_todo/test71.py:
+	* test_todo/test77.py:
+	* test_input/test44.py (deleted):
+	* test_input/test34.py (deleted):
+	* test_input/test77.py (deleted):
+	* test_input/test71.py (deleted):
+	* test_input/test70.py (deleted):
+	* test_input/import44.py (deleted):
+	  Move known broken tests to todo.
+
+2011-01-06  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/CodeChecks.py:
 	  Debug every warning when it gets created.
 	  Prefix all opcode debugging with DIS, makes it easier to find.
