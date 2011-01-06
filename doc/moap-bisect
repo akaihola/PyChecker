@@ -1,0 +1,9 @@
+# an example of how to use moap vcs bisect to find when tests started failing
+# between 0_8_17 and HEAD
+moap vcs bisect reset
+moap vcs bisect start
+cvs up -rv0_8_17
+moap vcs bisect good
+cvs up -A
+moap vcs bisect bad
+moap vcs bisect run ./test.sh
