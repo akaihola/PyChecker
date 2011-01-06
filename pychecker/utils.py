@@ -1,9 +1,10 @@
-#!/usr/bin/env python
+# -*- Mode: Python -*-
+# vi:si:et:sw=4:sts=4:ts=4
 
 # Copyright (c) 2001-2004, MetaSlash Inc.  All rights reserved.
 
 """
-Print out warnings from Python source files.
+Utility functions.
 """
 
 import re

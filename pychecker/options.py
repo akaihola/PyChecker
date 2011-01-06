@@ -1,3 +1,6 @@
+# -*- Mode: Python -*-
+# vi:si:et:sw=4:sts=4:ts=4
+
 "Main module for running pychecker a Tkinter GUI for all the options"
 
 import sys

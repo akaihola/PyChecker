@@ -1,5 +1,23 @@
 2011-01-06  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/Config.py:
+	* pychecker/OP.py:
+	* pychecker/OptionTypes.py:
+	* pychecker/Stack.py:
+	* pychecker/Warning.py:
+	* pychecker/checker.py:
+	* pychecker/function.py:
+	* pychecker/msgs.py:
+	* pychecker/options.py:
+	* pychecker/pcmodules.py:
+	* pychecker/printer.py:
+	* pychecker/python.py:
+	* pychecker/utils.py:
+	* pychecker/warn.py:
+	  Add Python mode lines.  Remove shebang lines where not needed.
+
+2011-01-06  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/checker.py:
 	  Extract PyCheckerModule, Variable and Class...
 	* pychecker/pcmodules.py:

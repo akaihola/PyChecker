@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+# -*- Mode: Python -*-
+# vi:si:et:sw=4:sts=4:ts=4
 
 # Copyright (c) 2001-2002, MetaSlash Inc.  All rights reserved.
 

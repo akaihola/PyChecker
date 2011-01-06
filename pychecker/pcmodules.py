@@ -1,3 +1,6 @@
+# -*- Mode: Python -*-
+# vi:si:et:sw=4:sts=4:ts=4
+
 """
 Track loaded PyCheckerModules together with the directory they were loaded from.
 This allows us to differentiate between loaded modules with the same name
