@@ -148,6 +148,12 @@ Buildbot
 Pychecker is tested on each commit using Buildbot.  See
 http://build.fluendo.com:8200/
 
+IRC
+---
+
+Feel free to ask questions on #pychecker on irc.freenode.org
+Our friendly buildbot is there too.
+
 Projects using PyChecker
 ------------------------
 
