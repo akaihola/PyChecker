@@ -1,0 +1,13 @@
+#!/bin/sh
+cd /home/thomas/dev/ext/anaconda
+output=`PYTHONPATH=/home/thomas/dev/ext/pychecker python /home/thomas/dev/ext/pychecker/pychecker/checker.py backend.py constants.py 2>&1`
+echo $output | grep NoneType > /dev/null 2>&1
+if test $? -eq 1
+then
+  # not found, so good
+  echo version good.
+  exit 0
+else
+  echo version bad.
+  exit 1
+fi
