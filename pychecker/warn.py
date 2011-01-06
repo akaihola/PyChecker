@@ -736,8 +736,10 @@ def find(moduleList, initialCfg, suppressions = None) :
         suppressions = {}, {}
 
     utils.initConfig(initialCfg)
+    utils.debug('Finding warnings in %d modules' % len(moduleList))
 
     warnings = []
+
     for module in moduleList :
         if module.moduleName in cfg().blacklist :
             continue
@@ -787,8 +789,13 @@ def find(moduleList, initialCfg, suppressions = None) :
     std_lib = None
     if cfg().ignoreStandardLibrary :
         std_lib = getStandardLibraries()
-    return removeWarnings(warnings, getBlackList(cfg().blacklist), std_lib,
+
+    ret = removeWarnings(warnings, getBlackList(cfg().blacklist), std_lib,
                           cfg())
+
+    utils.debug('Found %d warnings in %d modules' % (len(ret), len(moduleList)))
+    return ret
+
 
 if 0:
     # if you want to test w/psyco, include this
