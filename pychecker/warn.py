@@ -589,6 +589,7 @@ except NameError:
 
 def _findClassWarnings(module, c, class_code,
                        globalRefs, warnings, suppressions) :
+    utils.debug("class:", class_code)
     try:
         className = utils.safestr(c.classObject)
     except TypeError:
@@ -615,7 +616,7 @@ def _findClassWarnings(module, c, class_code,
         if method == None :
             continue
         func_code = method.function.func_code
-        utils.debug("method:", func_code)
+        utils.debug("class %s: method:" % className, func_code)
 
         try:
             name = utils.safestr(c.classObject) + '.' + method.function.func_name
@@ -749,6 +750,7 @@ def find(moduleList, initialCfg, suppressions = None) :
 
         # mainCode can be null if there was a syntax error
         if module.mainCode != None :
+            utils.debug("module:", module)
             funcInfo = _updateFunctionWarnings(module, module.mainCode,
                                                None, warnings, globalRefs, 1)
             for code in funcInfo[1] :
