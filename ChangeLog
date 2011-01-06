@@ -1,5 +1,10 @@
 2011-01-06  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/utils.py:
+	  Make utils.debug output something slightly nicer.
+
+2011-01-06  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/warn.py:
 	  Make sure that every disassembly has a header saying what it
 	  is (module/class/class method/function)

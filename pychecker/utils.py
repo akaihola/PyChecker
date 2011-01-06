@@ -79,8 +79,17 @@ def updateCheckerArgs(argStr, func, lastLineNum, warnings) :
         return 0
                        
 
-def debug(*args) :
-    if cfg().debug: print args
+def debug(formatString, *args):
+    if cfg().debug:
+        if args:
+            if '%' in formatString:
+                message = formatString % args
+            else:
+                args = [isinstance(a, str) and a or repr(a) for a in args]
+                message = formatString + " " + " ".join(args)
+        else:
+            message = formatString
+        print "DEBUG:", message
 
 
 PYTHON_1_5 = 0x10502
