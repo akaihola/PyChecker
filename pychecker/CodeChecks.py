@@ -8,6 +8,9 @@
 Find warnings in byte code from Python source files.
 """
 
+# For documentation about dispatcher arguments, look for
+# dispatcher functions for operands
+
 import keyword
 import string
 import types
@@ -25,33 +28,66 @@ __pychecker__ = 'no-argsused'
 def cfg() :
     return utils.cfg()
 
-def getFunctionArgErr(func_name, argCount, minArgs, maxArgs):
+def getFunctionArgErr(funcName, argCount, minArgs, maxArgs):
+    """
+    Check that the number of arguments given is correct according to
+    the given minArgs and maxArgs.
+
+    @type funcName:   str
+    @type argCount:   int
+    @ivar minArgs:    the minimum number of arguments that should be passed to
+                      this function
+    @type minArgs:    int
+    @ivar minArgs:    the maximum number of arguments that should be passed to
+                      this function, or None in case of *args/unlimited
+    @type maxArgs:    int or None
+
+    @rtype: L{msgs.WarningClass} or None
+    """
     err = None
+
     if maxArgs == None:
         if argCount < minArgs :
-            err = msgs.INVALID_ARG_COUNT2 % (func_name, argCount, minArgs)
+            err = msgs.INVALID_ARG_COUNT2 % (funcName, argCount, minArgs)
     elif argCount < minArgs or argCount > maxArgs:
         if minArgs == maxArgs:
-            err = msgs.INVALID_ARG_COUNT1 % (func_name, argCount, minArgs)
+            err = msgs.INVALID_ARG_COUNT1 % (funcName, argCount, minArgs)
         else:
-            err = msgs.INVALID_ARG_COUNT3 % (func_name, argCount, minArgs, maxArgs)
+            err = msgs.INVALID_ARG_COUNT3 % (funcName, argCount, minArgs,
+                maxArgs)
+
     return err
 
 def _checkFunctionArgCount(code, func_name, argCount, minArgs, maxArgs,
-                           objectReference = 0) :
+                           objectReference=0):
+    """
+    @param objectReference: whether the first argument references self
+    @type  objectReference: int (used as bool)
+    """
     # there is an implied argument for object creation and self.xxx()
     # FIXME: this is where test44 fails
-    if objectReference :
+    if objectReference:
         minArgs = minArgs - 1
-        if maxArgs is not None :
+        if maxArgs is not None:
             maxArgs = maxArgs - 1
 
     err = getFunctionArgErr(func_name, argCount, minArgs, maxArgs)
-    if err :
+    if err:
         code.addWarning(err)
 
 def _checkFunctionArgs(code, func, objectReference, argCount, kwArgs,
-                       check_arg_count = 1) :
+                       checkArgCount=1):
+    """
+    @param code:            The code block containing the invocation of the
+                            function to be checked
+    @type  code:            L{Code}
+    @param func:            The function to check the invocation against
+    @type  func:            L{function.Function}
+    @param objectReference: whether the first argument references self
+    @type  objectReference: int (used as bool)
+    @param checkArgCount:   whether the first argument references self
+    @type  checkArgCount:   int (used as bool)
+    """
     func_name = func.function.func_code.co_name
     if kwArgs :
         args_len = func.function.func_code.co_argcount
@@ -65,21 +101,36 @@ def _checkFunctionArgs(code, func, objectReference, argCount, kwArgs,
                 argCount = argCount + 1
                 kwArgs = kwArgs[1:]
             _checkFunctionArgs(code, func, objectReference, argCount, kwArgs,
-                               check_arg_count)
+                               checkArgCount)
             return
 
         if not func.supportsKW :
             code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW % func_name)
 
-    if check_arg_count :
+    if checkArgCount:
         _checkFunctionArgCount(code, func_name, argCount,
                                func.minArgs, func.maxArgs, objectReference)
 
-def _getReferenceFromModule(module, identifier) :
+def _getReferenceFromModule(module, identifier):
+    """
+    Looks up the given identifier in the module.
+    If it is a function, returns (function, None, 0)
+    If it is a class instantiation, returns (__init__ function, class, 1)
+
+    @type  module:     L{pychecker.checker.PyCheckerModule}
+    @type  identifier: str
+
+    @returns: a triple of:
+              - the function object (which can be the __init__ for the class)
+              - the class, if the identifier references a class
+              - 0 if it was a function, 1 if it was a class
+    @rtype:   triple of (function, class or None, int (as bool))
+    """
+
     # if the identifier is in the list of module's functions, return
     # the function, with no class, and method 0
     func = module.functions.get(identifier, None)
-    if func is not None :
+    if func is not None:
         return func, None, 0
 
     # now look it up as a class instantiation
@@ -91,13 +142,20 @@ def _getReferenceFromModule(module, identifier) :
     # not found as either
     return None, None, 0
 
-def _getFunction(module, stackValue) :
+def _getFunction(module, stackValue):
     # FIXME: it's not clear to me if the above method really returns
     # whether the stack value is a constructor
-    'Return (function, class, is_a_method) from the stack value'
+    """
+    Return (function, class, is_a_method) from the stack value
+
+    @type  module:     L{pychecker.checker.PyCheckerModule}
+    @type  stackValue: L{Stack.Item}
+
+    @rtype: tuple of (function or None, class or None, int (as bool))
+    """
 
     identifier = stackValue.data
-    if type(identifier) == types.StringType :
+    if type(identifier) == types.StringType:
         return _getReferenceFromModule(module, identifier)
 
     # find the module this references
@@ -528,7 +586,27 @@ def _handleComparison(stack, operand) :
     stack[-si:] = [ Stack.makeComparison(compareValues, operand) ]
     return compareValues
 
-def _handleImport(code, operand, module, main, fromName) :
+# FIXME: this code needs to be vetted; star imports should actually
+# import all the names from the module and put them in the new module
+# namespace so we detect collisions
+def _handleImport(code, operand, module, main, fromName):
+    """
+    @param code:     the code block in which the import is happening
+    @type  code:     L{Code}
+    @param operand:  what is being imported (the module name in case of
+                     normal import, or the object names in the module in
+                     case of from ... import names/*)
+    @type  operand:  str
+    @param module:   the module in which the import is happening
+    @type  module:   L{pychecker.checker.PyCheckerModule}
+    @param main:     whether the import is in the source's global
+                     namespace (__main__)
+    @type  main:     int (treated as bool)
+    @param fromName: the name that's being imported
+    @type  fromName: str
+    """
+    assert type(operand) is str
+
     # FIXME: this function should be refactored/cleaned up
     key = operand
     tmpOperand = tmpFromName = operand
@@ -589,11 +667,22 @@ def _handleImport(code, operand, module, main, fromName) :
             module.moduleLineNums[(fromName,)] = fileline
 
 
-def _handleImportFrom(code, operand, module, main) :
+def _handleImportFrom(code, operand, module, main):
+    """
+    @type  code:    L{Code}
+    @param operand: what is being imported; can be * for star imports
+
+    @param main:    whether the import is in the source's global
+                    namespace (__main__)
+    @type  main:    int (treated as bool)
+    """
+    # previous opcode is IMPORT_NAME
     fromName = code.stack[-1].data
     if utils.pythonVersion() < utils.PYTHON_2_0 and \
        OP.POP_TOP(code.nextOpInfo()[0]):
         code.popNextOp()
+    # FIXME: thomas: why are we pushing the operand, which represents what
+    # we import, not where we import from ?
     code.pushStack(Stack.Item(operand, types.ModuleType))
     _handleImport(code, operand, module, main, fromName)
 
@@ -1044,18 +1133,18 @@ class Code :
         module.moduleLineNums[operand] = filelist
 
 
-class CodeSource :
+class CodeSource:
     """
     Holds source information about a code block (module, class, func, etc)
 
-    @ivar module:       name of module
-    @type module:       str
-    @ivar func:         name of function
-    @type func:         str
-    @ivar c:            the class object, if applicable
-    @type c:            object or None
+    @ivar module:       module the source is for
+    @type module:       L{pychecker.checker.PyCheckerModule}
+    @ivar func:         function the source is for
+    @type func:         L{pychecker.function.Function}
+    @ivar classObject:  the class object, if applicable
+    @type classObject:  L{pychecker.checker.Class} or None
     @ivar main:         whether this code block is in the source's global
-                        namespace
+                        namespace (__main__)
     @type main:         int (used as bool)
     @ivar in_class:     whether this code block is inside a class scope
     @type in_class:     int (used as bool)
@@ -1063,7 +1152,7 @@ class CodeSource :
     @type calling_code: list of callable
     
     """
-    def __init__(self, module, func, c, main, in_class, code) :
+    def __init__(self, module, func, c, main, in_class, code):
         self.module = module
         self.func = func
         self.classObject = c
@@ -1098,7 +1187,9 @@ def _checkFutureKeywords(code, varname) :
 ### dispatcher functions for operands
 
 # All these functions have the following documentation:
+# @type  oparg:      int
 # @param oparg:
+# @type  operand:    object
 # @param operand:
 # @param codeSource:
 # @type  codeSource: L{CodeSource}
@@ -1228,6 +1319,7 @@ def _LOAD_CONST(oparg, operand, codeSource, code) :
 
 
 def _checkLocalShadow(code, module, varname) :
+    # FIXME: why is this only for variables, not for classes/functions ?
     if module.variables.has_key(varname) and cfg().shadows :
         line = module.moduleLineNums.get(varname, ('<unknown>', 0))
         w = code.getWarning(msgs.LOCAL_SHADOWS_GLOBAL % (varname, line[1]))
@@ -1478,8 +1570,10 @@ def _COMPARE_OP(oparg, operand, codeSource, code) :
 
 def _IMPORT_NAME(oparg, operand, codeSource, code) :
     code.pushStack(Stack.Item(operand, types.ModuleType))
+
+    # only handle straight import names; FROM or STAR are done separately
     nextOp = code.nextOpInfo()[0]
-    if not OP.IMPORT_FROM(nextOp) and not OP.IMPORT_STAR(nextOp) :
+    if not OP.IMPORT_FROM(nextOp) and not OP.IMPORT_STAR(nextOp):
         _handleImport(code, operand, codeSource.module, codeSource.main, None)
 
 def _IMPORT_FROM(oparg, operand, codeSource, code) :
@@ -1492,7 +1586,11 @@ def _IMPORT_FROM(oparg, operand, codeSource, code) :
         elif not codeSource.module.moduleLineNums.has_key(operand) :
             code.updateModuleLineNums(codeSource.module, operand)
 
-def _IMPORT_STAR(oparg, operand, codeSource, code) :
+# handles from ... import *
+# the from operand is before us on the stack
+def _IMPORT_STAR(oparg, operand, codeSource, code):
+    # codeSource: the piece of source code doing the import 
+    # code:       the piece of code matching codeSource doing the import
     _handleImportFrom(code, '*', codeSource.module, codeSource.main)
 
 # Python 2.3 introduced some optimizations that create problems
@@ -1565,6 +1663,9 @@ def _CALL_FUNCTION_KW(oparg, operand, codeSource, code) :
 def _CALL_FUNCTION_VAR_KW(oparg, operand, codeSource, code) :
     _handleFunctionCall(codeSource, code, oparg, 2, 0)
 
+# Pushes a new function object on the stack. TOS is the code associated with
+# the function. The function object is defined to have argc default parameters,
+# which are found below TOS.
 def _MAKE_FUNCTION(oparg, operand, codeSource, code) :
     newValue = Stack.makeFuncReturnValue(code.stack[-1], oparg)
     code.popStackItems(oparg+1)
@@ -1590,7 +1691,8 @@ def _BUILD_LIST(oparg, operand, codeSource, code) :
 def _STORE_MAP(oparg, operand, codeSource, code) :
     _popn(code, 2)
 
-
+# Creates a new class object. TOS is the methods dictionary, TOS1 the tuple
+# of the names of the base classes, and TOS2 the class name.
 def _BUILD_CLASS(oparg, operand, codeSource, code) :
     newValue = Stack.makeFuncReturnValue(code.stack[-1], types.ClassType)
     code.popStackItems(3)

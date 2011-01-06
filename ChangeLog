@@ -1,5 +1,15 @@
 2011-01-06  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/CodeChecks.py:
+	  Add docstrings.
+	  Fix some inconsistent casing.
+	  More PEP-8 adherence.
+	* pychecker/checker.py:
+	  All of the above, plus add PyCheckerModule.getToken() which
+	  can be used later to handle token conflicts.
+
+2011-01-06  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/checker.py:
 	  Make output of NOT PROCESSED UNABLE TO IMPORT report filename
 	  similarly to other warnings.

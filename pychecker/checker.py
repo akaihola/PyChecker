@@ -240,10 +240,16 @@ def _findModule(name, moduleDir=None) :
     return file, filename, smt
 
 
-class Variable :
+class Variable:
     "Class to hold all information about a variable"
 
     def __init__(self, name, type):
+        """
+        @param name: name of the variable
+        @type  name: str
+        @param type: type of the variable
+        @type  type: type
+        """
         self.name = name
         self.type = type
         self.value = None
@@ -386,6 +392,8 @@ class Class:
 
     def addMethod(self, methodName, method=None):
         """
+        Add the given method to this class by name.
+
         @type methodName: str
         @type method:     method or None
         """
@@ -394,8 +402,14 @@ class Class:
         else :
             self.methods[methodName] = function.Function(method, 1)
                  
-    def addMethods(self, classObject) :
-        for classToken in _getClassTokens(classObject) :
+    def addMethods(self, classObject):
+        """
+        Add all methods for this class object to the class.
+
+        @param classObject: the class object to add methods from.
+        @type  classObject: types.ClassType (classobj)
+        """
+        for classToken in _getClassTokens(classObject):
             token = getattr(classObject, classToken, None)
             if token is None:
                 continue
@@ -408,15 +422,15 @@ class Class:
 
             elif hasattr(token, '__get__') and \
                  not hasattr(token, '__set__') and \
-                 type(token) is not types.ClassType :
+                 type(token) is not types.ClassType:
                 self.addMethod(getattr(token, '__name__', classToken))
-            else :
+            else:
                 self.members[classToken] = type(token)
                 self.memberRefs[classToken] = None
 
         self.cleanupMemberRefs()
         # add standard methods
-        for methodName in ('__class__',) :
+        for methodName in ('__class__', ):
             self.addMethod(methodName)
 
     def addMembers(self, classObject) :
@@ -576,8 +590,25 @@ class PyCheckerModule:
     """
     Class to hold all information for a module
 
+    @ivar module:         the module wrapped by this PyCheckerModule
+    @type module:         module
+    @ivar moduleName:     name of the module
+    @type moduleName:     str
+    @ivar moduleDir:      if specified, the directory where the module can
+                          be loaded from; allows discerning between modules
+                          with the same name in a different directory.
+                          Note that moduleDir can be the empty string, if
+                          the module being tested lives in the current working
+                          directory.
+    @type moduleDir:      str
+    @ivar variables:      dict of variable name -> Variable
+    @type variables:      dict of str -> L{Variable}
     @ivar functions:      dict of function name -> function
     @type functions:      dict of str -> L{function.Function}
+    @ivar classes:        dict of class name -> class
+    @type classes:        dict of str -> L{Class}
+    @ivar modules:        dict of module name -> module
+    @type modules:        dict of str -> L{PyCheckerModule}
     @ivar moduleLineNums: mapping of the module's nameds/operands to the
                           filename and linenumber where they are created
     @type moduleLineNums: dict of str -> (str, int)
@@ -586,8 +617,9 @@ class PyCheckerModule:
     @type check:          int (used as bool)
     """
 
-    def __init__(self, moduleName, check=1, moduleDir=None) :
+    def __init__(self, moduleName, check=1, moduleDir=None):
         """
+        @param moduleName: name of the module
         @type  moduleName: str
         @param check:      whether this module should be checked
         @type  check:      int (used as bool)
@@ -599,6 +631,7 @@ class PyCheckerModule:
                            directory.
         @type  moduleDir:  str
         """
+        self.module = None
         self.moduleName = moduleName
         self.moduleDir = moduleDir
         self.variables = {}
@@ -608,18 +641,24 @@ class PyCheckerModule:
         self.moduleLineNums = {}
         self.attributes = [ '__dict__' ]
         self.mainCode = None
-        self.module = None
         self.check = check
         # key on a combination of moduleName and moduleDir so we have separate
         # entries for modules with the same name but in different directories
         pcmodules.addPCModule(self)
 
-    def __str__(self) :
+    def __str__(self):
         return self.moduleName
 
     __repr__ = utils.std_repr
 
-    def addVariable(self, var, varType) :
+    def addVariable(self, var, varType):
+        """
+        @param var:     name of the variable
+        @type  var:     str
+        @param varType: type of the variable
+        @type  varType: type
+        """
+        
         self.variables[var] = Variable(var, varType)
 
     def addFunction(self, func):
@@ -634,7 +673,7 @@ class PyCheckerModule:
         c.addMethods(classObject)
         c.addMembers(classObject)
 
-    def addClass(self, name) :
+    def addClass(self, name):
         self.classes[name] = c = Class(name, self)
         try:
             objName = utils.safestr(c.classObject)
@@ -716,6 +755,7 @@ class PyCheckerModule:
             utils.pushConfig()
             utils.updateCheckerArgs(pychecker_attr, 'suppressions', 0, [])
 
+        # read all tokens from the real module, and register them
         for tokenName in _getModuleTokens(self.module):
             if _EVIL_C_OBJECTS.has_key('%s.%s' % (self.moduleName, tokenName)):
                 continue
@@ -768,6 +808,26 @@ class PyCheckerModule:
         finally:
             if file != None:
                 file.close()
+
+    def getToken(self, name):
+        """
+        Looks up the given name in this module's namespace.
+
+        @param name: the name of the token to look up in this module.
+
+        @rtype: one of L{Variable}, L{function.Function}, L{Class},
+                L{PyCheckerModule}, or None
+        """
+        if name in self.variables:
+            return self.variables[name]
+        elif name in self.functions:
+            return self.functions[name]
+        elif name in self.classes:
+            return self.classes[name]
+        elif name in self.modules:
+            return self.modules[name]
+
+        return None
 
 
 def getAllModules():
@@ -887,6 +947,8 @@ def processFiles(files, cfg=None, pre_process_cb=None):
 
     utils.initConfig(_cfg)
 
+    utils.debug('Processing %d files' % len(files))
+
     for file, (moduleName, moduleDir) in zip(files, getModules(files)):
         if callable(pre_process_cb):
             pre_process_cb("module %s (%s)" % (moduleName, file))
@@ -903,12 +965,15 @@ def processFiles(files, cfg=None, pre_process_cb=None):
                         msgs.Internal("NOT PROCESSED UNABLE TO IMPORT"))
             warnings.append(w)
 
+    utils.debug('Processed %d files' % len(files))
+
     utils.popConfig()
 
     return warnings
 
 
 def getWarnings(files, cfg = None, suppressions = None):
+    utils.debug('Processing %d files' % len(files))
     warnings = processFiles(files, cfg)
     fixupBuiltinModules()
     return warnings + warn.find(getAllModules(), _cfg, suppressions)
@@ -948,6 +1013,7 @@ def main(argv) :
  
     global _cfg
     _cfg, files, suppressions = Config.setupFromArgs(argv[1:])
+    utils.initConfig(_cfg)
     if not files :
         return 0
 
@@ -958,13 +1024,19 @@ def main(argv) :
     # insert this here, so we find files in the local dir before std library
     sys.path.insert(0, '')
 
+    utils.debug('main: Finding import warnings')
     importWarnings = processFiles(files, _cfg, _print_processing)
+    utils.debug('main: Found %d import warnings' % len(importWarnings))
+
     fixupBuiltinModules()
     if _cfg.printParse :
         for module in getAllModules() :
             printer.module(module)
 
+    utils.debug('main: Finding warnings')
     warnings = warn.find(getAllModules(), _cfg, suppressions)
+    utils.debug('main: Found %d warnings' % len(warnings))
+
     if not _cfg.quiet :
         print "\nWarnings...\n"
     if warnings or importWarnings :
@@ -976,6 +1048,8 @@ def main(argv) :
     return 0
 
 
+# FIXME: this is a nasty side effect for import checker
+# extract PyCheckerModule separately so it can be used in other locations
 if __name__ == '__main__' :
     try :
         sys.exit(main(sys.argv))
