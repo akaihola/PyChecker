@@ -956,6 +956,7 @@ class Code :
         w = err
         if not isinstance(w, Warning.Warning):
             w = self.getWarning(err, line)
+        utils.debug('adding warning: %s', w.format())
         self.warnings.append(w)
 
     def popNextOp(self) :
@@ -976,12 +977,12 @@ class Code :
         info = OP.getInfo(self.bytes, self.index, self.extended_arg)
         op, oparg, self.index, self.extended_arg = info
         if op < OP.HAVE_ARGUMENT :
-            utils.debug("  %d %s" % (self.indexList[-1], OP.name[op]))
+            utils.debug("DIS  %d %s" % (self.indexList[-1], OP.name[op]))
             operand = None
         else :
             operand = OP.getOperand(op, self.func_code, oparg)
             self.label = label = OP.getLabel(op, oparg, self.index)
-            utils.debug("  %d %s" % (self.indexList[-1], OP.name[op]), oparg, operand)
+            utils.debug("DIS  %d %s" % (self.indexList[-1], OP.name[op]), oparg, operand)
             if label != None :
                 self.addBranch(label)
 
