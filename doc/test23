@@ -1,0 +1,35 @@
+minimal code
+2.6 disassembly:
+	$ py-dis u
+Disassembly of X:
+Disassembly of x:
+  6           0 LOAD_CONST               0 (None)
+              3 RETURN_VALUE        
+
+Disassembly of y:
+ 10           0 LOAD_FAST                0 (self)
+              3 LOAD_ATTR                0 (x)
+              6 JUMP_IF_FALSE            4 (to 13)
+              9 POP_TOP             
+
+ 11          10 JUMP_FORWARD             1 (to 14)
+        >>   13 POP_TOP             
+        >>   14 LOAD_CONST               1 (None)
+             17 RETURN_VALUE        
+2.7 dissassembly:
+	]$ py-dis u
+Disassembly of X:
+Disassembly of x:
+  6           0 LOAD_CONST               0 (None)
+              3 RETURN_VALUE        
+
+Disassembly of y:
+ 10           0 LOAD_FAST                0 (self)
+              3 LOAD_ATTR                0 (x)
+              6 POP_JUMP_IF_FALSE       12
+
+ 11           9 JUMP_FORWARD             0 (to 12)
+        >>   12 LOAD_CONST               1 (None)
+             15 RETURN_VALUE        
+
+69->54 with opcodes ->
