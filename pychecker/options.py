@@ -103,7 +103,7 @@ class ConfigDialog:
         self._file = Tkinter.StringVar()
         self._results = None
 
-	if len(sys.argv) > 1:
+        if len(sys.argv) > 1:
             self._file.set(sys.argv[1])
 
         for name, group in Config._OPTIONS:
@@ -189,7 +189,7 @@ class ConfigDialog:
         f = Tkinter.Frame(self._tk, name="fileStuff")
         Tkinter.Button(f, name="getfile", command=self.file).grid(row=0, column=1)
         fileEntry = Tkinter.Entry(f, name="fname", textvariable=self._file)
-	fileEntry.grid(row=0, column=2)
+        fileEntry.grid(row=0, column=2)
         Tkinter.Button(f, name="check", command=self.check).grid(row=0, column=3)
         f.grid(sticky=Tkinter.EW)
         
