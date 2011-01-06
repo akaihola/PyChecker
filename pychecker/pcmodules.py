@@ -300,15 +300,15 @@ class Class:
         """
         if not self.methods.get(m, None):
             return None
-        func_code, bytes, i, maxCode, extended_arg = \
+        funcCode, codeBytes, i, maxCode, extended_arg = \
                    OP.initFuncCode(self.methods[m].function)
         # abstract if the first opcode is RAISE_VARARGS and it raises
         # NotImplementedError
         arg = ""
         while i < maxCode:
-            op, oparg, i, extended_arg = OP.getInfo(bytes, i, extended_arg)
+            op, oparg, i, extended_arg = OP.getInfo(codeBytes, i, extended_arg)
             if OP.LOAD_GLOBAL(op):
-                arg = func_code.co_names[oparg]
+                arg = funcCode.co_names[oparg]
             elif OP.RAISE_VARARGS(op):
                 # if we saw NotImplementedError sometime before the raise
                 # assume it's related to this raise stmt
@@ -478,11 +478,11 @@ class PyCheckerModule:
             filename = _getPyFile(module.__file__)
             if string.lower(filename[-3:]) == '.py':
                 try:
-                    file = open(filename)
+                    handle = open(filename)
                 except IOError:
                     pass
                 else:
-                    self._setupMainCode(file, filename, module)
+                    self._setupMainCode(handle, filename, module)
             return self._initModule(module)
         return 1
 
@@ -526,29 +526,30 @@ class PyCheckerModule:
         return 1
 
     def setupMainCode(self):
-        file, filename, smt = utils.findModule(self.moduleName, self.moduleDir)
+        handle, filename, smt = utils.findModule(
+            self.moduleName, self.moduleDir)
         # FIXME: if the smt[-1] == imp.PKG_DIRECTORY : load __all__
         # HACK: to make sibling imports work, we add self.moduleDir to sys.path
         # temporarily, and remove it later
         if self.moduleDir is not None:
             oldsyspath = sys.path[:]
             sys.path.insert(0, self.moduleDir)
-        module = imp.load_module(self.moduleName, file, filename, smt)
+        module = imp.load_module(self.moduleName, handle, filename, smt)
         if self.moduleDir is not None:
             sys.path = oldsyspath
             # to make sure that subsequent modules with the same moduleName
             # do not persist, and get their namespace clobbered, delete it
             del sys.modules[self.moduleName]
 
-        self._setupMainCode(file, filename, module)
+        self._setupMainCode(handle, filename, module)
         return module
 
-    def _setupMainCode(self, file, filename, module):
+    def _setupMainCode(self, handle, filename, module):
         try:
-            self.mainCode = function.create_from_file(file, filename, module)
+            self.mainCode = function.create_from_file(handle, filename, module)
         finally:
-            if file != None:
-                file.close()
+            if handle != None:
+                handle.close()
 
     def getToken(self, name):
         """

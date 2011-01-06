@@ -177,25 +177,25 @@ def findModule(name, moduleDir=None) :
     packages = string.split(name, '.')
     for p in packages :
         # smt = (suffix, mode, type)
-        file, filename, smt = _q_find_module(p, path)
+        handle, filename, smt = _q_find_module(p, path)
         if smt[-1] == imp.PKG_DIRECTORY :
             try :
                 # package found - read path info from init file
-                m = imp.load_module(p, file, filename, smt)
+                m = imp.load_module(p, handle, filename, smt)
             finally :
-                if file is not None :
-                    file.close()
+                if handle is not None :
+                    handle.close()
 
             # importing xml plays a trick, which replaces itself with _xmlplus
             # both have subdirs w/same name, but different modules in them
             # we need to choose the real (replaced) version
             if m.__name__ != p :
                 try :
-                    file, filename, smt = _q_find_module(m.__name__, path)
-                    m = imp.load_module(p, file, filename, smt)
+                    handle, filename, smt = _q_find_module(m.__name__, path)
+                    m = imp.load_module(p, handle, filename, smt)
                 finally :
-                    if file is not None :
-                        file.close()
+                    if handle is not None :
+                        handle.close()
 
             new_path = m.__path__
             if type(new_path) == types.ListType :
@@ -204,26 +204,26 @@ def findModule(name, moduleDir=None) :
                 path.insert(1, new_path)
         elif smt[-1] != imp.PY_COMPILED:
             if p is not packages[-1] :
-                if file is not None :
-                    file.close()
+                if handle is not None :
+                    handle.close()
                 raise ImportError, "No module named %s" % packages[-1]
-            return file, filename, smt
+            return handle, filename, smt
 
     # in case we have been given a package to check
-    return file, filename, smt
+    return handle, filename, smt
 
 
 def _getLineInFile(moduleName, moduleDir, linenum):
     line = ''
-    file, filename, smt = findModule(moduleName, moduleDir)
-    if file is None:
+    handle, filename, smt = findModule(moduleName, moduleDir)
+    if handle is None:
         return ''
     try:
-        lines = file.readlines()
+        lines = handle.readlines()
         line = string.rstrip(lines[linenum - 1])
     except (IOError, IndexError):
         pass
-    file.close()
+    handle.close()
     return line
 
 def importError(moduleName, moduleDir=None):

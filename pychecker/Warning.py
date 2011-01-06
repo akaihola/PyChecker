@@ -67,7 +67,7 @@ class Warning :
             return str(self.err)
         file = self.file
         if removeSysPath:
-            import sys, os
+            import sys
             for path in sys.path:
                 if not path or path == '.':
                     continue

@@ -1,5 +1,15 @@
 2011-01-06  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/CodeChecks.py:
+	* pychecker/Warning.py:
+	* pychecker/options.py:
+	* pychecker/pcmodules.py:
+	* pychecker/utils.py:
+	* pychecker/warn.py:
+	  Clean up a bunch of pychecker warnings.
+
+2011-01-06  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/Config.py:
 	* pychecker/OP.py:
 	* pychecker/OptionTypes.py:

@@ -38,9 +38,9 @@ def spawn(cmd_list):
 def edit(file, line):
     "Fire up an external editor to see the file at the given line"
     unused = file, line
-    list = split(EDITOR)
+    args = split(EDITOR)
     cmd_list = []
-    for word in list:
+    for word in args:
         cmd_list.append(word % locals())
     spawn(cmd_list)
 
@@ -84,8 +84,8 @@ class Results:
         text = rstrip(text)
         result = re.search("(.*):([0-9]+):", text)
         if result:
-            file, line = result.groups()
-            edit(file, int(line))
+            path, line = result.groups()
+            edit(path, int(line))
             self.text.after(0, self.selectLine)
 
     def selectLine(self):
@@ -211,8 +211,8 @@ class ConfigDialog:
             return
         if self._help == w:             # ignore help events on help...
             return
-        help = w.option_get("help", "help")
-        self._help.configure(text=help)
+        text = w.option_get("help", "help")
+        self._help.configure(text=text)
 
     def focus(self, ev):
         self.help(ev.widget)

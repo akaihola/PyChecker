@@ -161,10 +161,10 @@ def _getFunction(module, stackValue):
     # find the module this references
     i, maxLen = 0, len(identifier)
     while i < maxLen :
-        id = utils.safestr(identifier[i])
-        if module.classes.has_key(id) or module.functions.has_key(id) :
+        name = utils.safestr(identifier[i])
+        if module.classes.has_key(name) or module.functions.has_key(name) :
             break
-        refModule = module.modules.get(id, None)
+        refModule = module.modules.get(name, None)
         if refModule is not None :
             module = refModule
         else :
@@ -655,9 +655,9 @@ def _handleImport(code, operand, module, main, fromName):
 
         # filter out warnings when files are different (ie, from X import ...)
         if err is not None and cfg().moduleImportErrors :
-            bytes = module.mainCode
-            if bytes is None or \
-               bytes.function.func_code.co_filename == code.func_code.co_filename :
+            codeBytes = module.mainCode
+            if codeBytes is None or \
+               codeBytes.function.func_code.co_filename == code.func_code.co_filename :
                 code.addWarning(err)
 
     if main :
@@ -692,13 +692,13 @@ _FORMAT_CONVERTERS = 'diouxXeEfFgGcrs'
 # NOTE: lLh are legal in the flags, but are ignored by python, we warn
 _FORMAT_FLAGS = '*#- +.' + string.digits
 
-def _getFormatInfo(format, code) :
-    vars = []
+def _getFormatInfo(formatString, code) :
+    variables = []
 
     # first get rid of all the instances of %% in the string, they don't count
-    format = string.replace(format, "%%", "")
-    sections = string.split(format, '%')
-    percentFormatCount = formatCount = string.count(format, '%')
+    formatString = string.replace(formatString, "%%", "")
+    sections = string.split(formatString, '%')
+    percentFormatCount = formatCount = string.count(formatString, '%')
     mappingFormatCount = 0
 
     # skip the first item in the list, it's always empty
@@ -716,7 +716,7 @@ def _getFormatInfo(format, code) :
             varname = string.split(section, ')')
             if varname[1] == '' :
                 code.addWarning(msgs.INVALID_FORMAT % section)
-            vars.append(varname[0][1:])
+            variables.append(varname[0][1:])
             section = varname[1]
 
         if not section :
@@ -745,17 +745,17 @@ def _getFormatInfo(format, code) :
     if mappingFormatCount > 0 and mappingFormatCount != percentFormatCount :
         code.addWarning(msgs.CANT_MIX_MAPPING_IN_FORMATS)
 
-    return formatCount, vars
+    return formatCount, variables
 
 def _getConstant(code, module, data) :
     data = utils.safestr(data.data)
-    format = code.constants.get(data)
-    if format is not None :
-        return format
+    formatString = code.constants.get(data)
+    if formatString is not None :
+        return formatString
 
-    format = module.variables.get(data)
-    if format is not None and format.value is not None :
-        return format.value
+    formatString = module.variables.get(data)
+    if formatString is not None and formatString.value is not None :
+        return formatString.value
     return None
 
 _UNCHECKABLE_FORMAT_STACK_TYPES = \
@@ -767,32 +767,32 @@ def _getFormatString(code, codeSource) :
     if len(code.stack) <= 1 :
         return ''
 
-    format = code.stack[-2]
-    if format.type != types.StringType or not format.const :
-        format = _getConstant(code, codeSource.module, format)
-        if format is None or type(format) != types.StringType :
+    formatString = code.stack[-2]
+    if formatString.type != types.StringType or not formatString.const :
+        formatString = _getConstant(code, codeSource.module, formatString)
+        if formatString is None or type(formatString) != types.StringType :
             return ''
-        return format
-    return format.data
+        return formatString
+    return formatString.data
 
     
 def _getFormatWarnings(code, codeSource) :
-    format = _getFormatString(code, codeSource)
-    if not format :
+    formatString = _getFormatString(code, codeSource)
+    if not formatString :
         return
 
     args = 0
-    count, vars = _getFormatInfo(format, code)
+    count, variables = _getFormatInfo(formatString, code)
     topOfStack = code.stack[-1]
     if topOfStack.isLocals() :
-        for varname in vars :
+        for varname in variables :
             if not code.unusedLocals.has_key(varname) :
                 code.addWarning(msgs.NO_LOCAL_VAR % varname)
             else :
                 code.unusedLocals[varname] = None
     else :
         stackItemType = topOfStack.getType(code.typeMap)
-        if ((stackItemType == types.DictType and len(vars) > 0) or
+        if ((stackItemType == types.DictType and len(variables) > 0) or
             codeSource.func.isParam(topOfStack.data) or
             stackItemType in _UNCHECKABLE_FORMAT_STACK_TYPES) :
             return
@@ -1923,9 +1923,9 @@ _BINARY_FLOOR_DIVIDE = _BINARY_TRUE_DIVIDE
 
 def _BINARY_MULTIPLY(oparg, operand, codeSource, code) :
     if len(code.stack) >= 2 :
-        format = _getFormatString(code, codeSource)
-        if format and type(code.stack[-1].data) == types.IntType :
-            code.stack[-2].data = format * code.stack[-1].data
+        formatString = _getFormatString(code, codeSource)
+        if formatString and type(code.stack[-1].data) == types.IntType :
+            code.stack[-2].data = formatString * code.stack[-1].data
             code.popStack()
         else:
             _coerce_type(code)

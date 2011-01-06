@@ -276,12 +276,14 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     returns = len(code.returnValues)
     if not main and not in_class :
         args = code.func_code.co_argcount
-        locals = len(code.func_code.co_varnames) - args
+        localCount = len(code.func_code.co_varnames) - args
         _checkComplex(code, cfg().maxArgs, args, func, msgs.TOO_MANY_ARGS)
-        _checkComplex(code, cfg().maxLocals, locals, func, msgs.TOO_MANY_LOCALS)
+        _checkComplex(code, cfg().maxLocals, localCount, func,
+            msgs.TOO_MANY_LOCALS)
         _checkComplex(code, cfg().maxLines, lines, func, msgs.FUNC_TOO_LONG)
     _checkComplex(code, cfg().maxReturns, returns, func, msgs.TOO_MANY_RETURNS)
-    _checkComplex(code, cfg().maxBranches, branches, func, msgs.TOO_MANY_BRANCHES)
+    _checkComplex(code, cfg().maxBranches, branches, func,
+        msgs.TOO_MANY_BRANCHES)
 
     if not (main or in_class) :
         utils.popConfig()
@@ -407,9 +409,9 @@ def getBlackList(moduleList) :
         if badBoy[-3:] == ".py":
             badBoy = badBoy[0:-3]
         try :
-            file, path, flags = imp.find_module(badBoy)
-            if file :
-                file.close()
+            handle, path, flags = imp.find_module(badBoy)
+            if handle:
+                handle.close()
             # apparently, imp.find_module can return None, path, (triple)
             # This happened to me with twisted 2.2.0 in a separate path
             if path:
