@@ -8,7 +8,7 @@ Tests related to pychecker.function
 import unittest
 import common
 
-from pychecker import function
+from pychecker import function, utils
 
 class GeneratorTestCase(common.TestCase):
     '''
@@ -23,7 +23,10 @@ class GeneratorTestCase(common.TestCase):
 
         # FIXME: this is what co_varnames looks like, but I don't understand why
         # possible clue in Python, Lib/compiler/ast.py, class GenExpr
-        self.assertEquals(genCode.co_varnames, ('.0', 'x'))
+        if utils.pythonVersion() < utils.PYTHON_2_5:
+            self.assertEquals(genCode.co_varnames, ('[outmost-iterable]', 'x'))
+        else:
+            self.assertEquals(genCode.co_varnames, ('.0', 'x'))
 
         # wrap it into a Funtion so we can look at it
         f = function.Function(
@@ -32,7 +35,10 @@ class GeneratorTestCase(common.TestCase):
         self.failIf(f.isMethod)
         self.assertEquals(f.minArgs, 1)
         self.assertEquals(f.maxArgs, 1)
-        self.assertEquals(f.arguments(), ('.0', ))
+        if utils.pythonVersion() < utils.PYTHON_2_5:
+            self.assertEquals(f.arguments(), ('[outmost-iterable]', ))
+        else:
+            self.assertEquals(f.arguments(), ('.0', ))
 
 if __name__ == '__main__':
     unittest.main()
