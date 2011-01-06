@@ -665,10 +665,9 @@ class PyCheckerModule:
             filename = self.module.__file__
         except AttributeError :
             filename = self.moduleName
-            # FIXME: this would be nice to have, but changes output of
-            # NOT PROCESSED UNABLE TO IMPORT like in test8
-            #if self.moduleDir:
-            #    filename = self.moduleDir + ': ' + filename
+            # FIXME: we're blindly adding .py, but it might be something else.
+            if self.moduleDir:
+                filename = self.moduleDir + '/' + filename + '.py'
 
         return _getPyFile(filename)
 
