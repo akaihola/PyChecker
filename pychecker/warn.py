@@ -179,9 +179,14 @@ def _handleNestedCode(func_code, code, codeSource):
                      codeSource.calling_code[-1].function.func_code.co_varnames
         # save the original return value and restore after checking
         returnValues = code.returnValues
+
+        # we don't want suppressions from nested code to bleed into the
+        # containing code block, or the next nested code on the same level
+        utils.pushConfig()
         code.init(function.create_fake(func_code.co_name, func_code, {},
                                        varnames))
         _checkCode(code, codeSource)
+        utils.popConfig()
         code.returnValues = returnValues
 
 def _findUnreachableCode(code) :
@@ -466,7 +471,7 @@ def removeWarnings(warnings, blacklist, std_lib, cfg):
 
     if std_lib is not None:
         std_lib = [normalize_path(p) for p in std_lib]
-    for index in range(len(warnings)-1, -1, -1) :
+    for index in range(len(warnings) - 1, -1, -1):
         filename = normalize_path(warnings[index].file)
         # the blacklist contains paths to packages and modules we do not
         # want warnings for
@@ -532,8 +537,17 @@ def _updateSuppressions(suppress, warnings) :
 
 _CLASS_NAME_RE = re.compile("<class '([A-Za-z0-9.]+)'>(\\..+)?")
 
-def getSuppression(name, suppressions, warnings) :
-    try :
+def getSuppression(name, suppressions, warnings):
+    """
+    @type  name:         str
+    @type  suppressions: tuple of (dict of str -> str,
+                                   dict of _sre.SRE_Pattern -> str)
+    @type  warnings:     list of L{Warning.Warning}
+
+    @returns: the suppression options for the given name
+    @rtype:   str
+    """
+    try:
         utils.pushConfig()
 
         # cheesy hack to deal with new-style classes.  i don't see a
@@ -546,14 +560,14 @@ def getSuppression(name, suppressions, warnings) :
             name = string.join(filter(None, matches.groups()), '')
 
         suppress = suppressions[0].get(name, None)
-        if suppress is not None :
+        if suppress is not None:
             _updateSuppressions(suppress, warnings)
 
         regexList = suppressions[1].keys()
         regexList.sort()
-        for regex in regexList :
+        for regex in regexList:
             match = regex.match(name)
-            if match and match.group() == name :
+            if match and match.group() == name:
                 suppress = 1
                 _updateSuppressions(suppressions[1][regex], warnings)
 
