@@ -1,5 +1,15 @@
 2011-01-07  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test/input/test_nestedsuppression.py:
+	  Add a test that shows that suppressions in nested code
+	  bleed over into their sibling code blocks and parent.
+	  Curiously, in my case it warned correctly about containerFirst,
+	  but did not warn in containerSecond.
+	  Debug log indicates that in containerSecond, the second() function
+	  was parsed (and suppression was added) before first().
+
+2011-01-07  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/CodeChecks.py:
 	  Document CodeChecks.Code.codeObjects
 
