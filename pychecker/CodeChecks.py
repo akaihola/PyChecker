@@ -894,6 +894,8 @@ class Code :
                         type can also be string defined in L{Stack}
                         with TYPE_
     @type typeMap:      dict of str -> list of str or L{pcmodules.Class}
+    @ivar codeObjects:  dict of name/anonymous index -> code
+    @type codeObjects:  dict of str/int -> L{types.CodeType}
     """
 
     # opcodes are either 1 byte (no argument) or 3 bytes (with argument) long
@@ -1315,17 +1317,23 @@ def _make_const(value):
         return Stack.makeTuple(map(_make_const, value))
     return Stack.Item(value, type(value), 1)
 
-def _LOAD_CONST(oparg, operand, codeSource, code) :
+def _LOAD_CONST(oparg, operand, codeSource, code):
     code.pushStack(_make_const(operand))
-    if type(operand) == types.CodeType :
+
+    # add code objects to code.codeObjects
+    if type(operand) == types.CodeType:
         name = operand.co_name
         obj = code.codeObjects.get(name, None)
         if name in (utils.LAMBDA, utils.GENEXP, utils.GENEXP25):
             # use a unique key, so we can have multiple lambdas
+            if code.index in code.codeObjects:
+                msg = "LOAD_CONST: code.index %d is already in codeObjects" \
+                    % code.index
+                code.addWarning(msgs.CHECKER_BROKEN % msg)
             code.codeObjects[code.index] = operand
-        elif obj is None :
+        elif obj is None:
             code.codeObjects[name] = operand
-        elif cfg().redefiningFunction :
+        elif cfg().redefiningFunction:
             code.addWarning(msgs.REDEFINING_ATTR % (name, obj.co_firstlineno))
 
 
