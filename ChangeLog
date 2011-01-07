@@ -1,5 +1,11 @@
 2011-01-07  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/warn.py:
+	  Give us stats on how many warnings were triggered processing
+	  each kind of block.
+
+2011-01-07  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/Config.py:
 	  Process command line args before config files.
 	  This gives a -d option a change to debug the processing of

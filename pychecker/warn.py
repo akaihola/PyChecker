@@ -737,7 +737,7 @@ def _findClassWarnings(module, c, class_code,
         utils.popConfig()
 
 
-def find(moduleList, initialCfg, suppressions = None) :
+def find(moduleList, initialCfg, suppressions=None):
     "Return a list of warnings found in the module list"
 
     if suppressions is None :
@@ -747,6 +747,7 @@ def find(moduleList, initialCfg, suppressions = None) :
     utils.debug('Finding warnings in %d modules' % len(moduleList))
 
     warnings = []
+    before = 0
 
     for module in moduleList :
         if module.moduleName in cfg().blacklist :
@@ -758,50 +759,76 @@ def find(moduleList, initialCfg, suppressions = None) :
         # mainCode can be null if there was a syntax error
         if module.mainCode != None :
             utils.debug("module:", module)
+            before = len(warnings)
             funcInfo = _updateFunctionWarnings(module, module.mainCode,
                                                None, warnings, globalRefs, 1)
+
+            if before != len(warnings):
+                utils.debug("module: %r __main__ triggered %d warnings", module,
+                    len(warnings) - before)
+
             for code in funcInfo[1] :
                 classCodes[code.co_name] = code
 
+        before = len(warnings)
         _findFunctionWarnings(module, globalRefs, warnings, suppressions)
+        if before != len(warnings):
+            utils.debug("module: %r functions triggered %d warnings", module,
+                len(warnings) - before)
 
-        for c in module.classes.values() :
+        before = len(warnings)
+        for c in module.classes.values():
             _findClassWarnings(module, c, classCodes.get(c.name),
                                globalRefs, warnings, suppressions)
+        if before != len(warnings):
+            utils.debug("module: %r classes triggered %d warnings", module,
+                len(warnings) - before)
 
         if cfg().noDocModule and \
-           module.module != None and module.module.__doc__ == None :
+           module.module != None and module.module.__doc__ == None:
             warnings.append(Warning(module.filename(), 1, msgs.NO_MODULE_DOC))
+            utils.debug("module: %r module doc triggered 1 warning")
 
-        if cfg().allVariablesUsed or cfg().privateVariableUsed :
+        before = len(warnings)
+        if cfg().allVariablesUsed or cfg().privateVariableUsed:
             prefix = None
-            if not cfg().allVariablesUsed :
+            if not cfg().allVariablesUsed:
                 prefix = "_"
-            for ignoreVar in cfg().variablesToIgnore + cfg().unusedNames :
+            for ignoreVar in cfg().variablesToIgnore + cfg().unusedNames:
                 globalRefs[ignoreVar] = ignoreVar
             warnings.extend(_getUnused(module, globalRefs, module.variables,
                                        msgs.VAR_NOT_USED, prefix))
-        if cfg().importUsed :
-            if module.moduleName != utils.INIT or cfg().packageImportUsed :
+        if before != len(warnings):
+            utils.debug("module: %r unused variables triggered %d warnings",
+                module, len(warnings) - before)
+
+        before = len(warnings)
+        if cfg().importUsed:
+            if module.moduleName != utils.INIT or cfg().packageImportUsed:
                 # always ignore readline module, if [raw_]input() is used
                 if globalRefs.has_key('input') or \
                    globalRefs.has_key('raw_input'):
                     globalRefs['readline'] = 0
                 warnings.extend(_getUnused(module, globalRefs, module.modules,
                                            msgs.IMPORT_NOT_USED))
+        if before != len(warnings):
+            utils.debug("module: %r unused imports triggered %d warnings",
+                module, len(warnings) - before)
 
-        if module.mainCode != None :
+        # we have to do this here, b/c checkFunction doesn't popConfig for
+        # classes this allows us to have __pychecker__ apply to all methods
+        # when defined at class scope
+        if module.mainCode != None:
             utils.popConfig()
-        if modSuppress is not None :
+        if modSuppress is not None:
             utils.popConfig()
 
     std_lib = None
-    if cfg().ignoreStandardLibrary :
+    if cfg().ignoreStandardLibrary:
         std_lib = getStandardLibraries()
 
     ret = removeWarnings(warnings, getBlackList(cfg().blacklist), std_lib,
                           cfg())
-
     utils.debug('Found %d warnings in %d modules' % (len(ret), len(moduleList)))
     return ret
 
