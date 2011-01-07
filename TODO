@@ -133,6 +133,10 @@ Tested on 2009-06-27:
 
 
 
+  test76:  when adding the patch on 2011-01-07 to process nested functions
+           in order, line numbers for warnings changed from 6 to 7.
+           Not clear which should be correct; it seems like a should be 6
+           and d should be 7 ?
   test103: a generator statement run twice should not generate a warning, but
            does in python 2.3 and 2.5, but not 2.4
   test22:  two constant warnings went away since python 2.5
