@@ -1,5 +1,17 @@
 2011-01-07  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/CodeChecks.py:
+	  add Code.codeOrder attribute, keeping track of the order in
+	  which codeObjects is added to.
+	  add addCodeObject method.
+	* pychecker/warn.py:
+	  Go through codeObjects in order.
+	  Fixing the ordering moves the warning in the previous test from
+	  containerFirst to containerSecond, which makes more sense, but
+	  still shows suppression bleed.
+
+2011-01-07  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test/input/test_nestedsuppression.py:
 	  Add a test that shows that suppressions in nested code
 	  bleed over into their sibling code blocks and parent.

@@ -240,7 +240,8 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
 
         # handle lambdas and nested functions
         codeSource.calling_code.append(func)
-        for func_code in code.codeObjects.values() :
+        for key in code.codeOrder:
+            func_code = code.codeObjects[key]
             _handleNestedCode(func_code, code, codeSource)
         del codeSource.calling_code[-1]
 
@@ -289,6 +290,8 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     if not (main or in_class) :
         utils.popConfig()
     func.returnValues = code.returnValues
+    # FIXME: I don't think code.codeObjects.values() ever gets used,
+    # but if it does, and needs to be in order, then use code.codeOrder here.
     return (code.warnings, code.globalRefs, code.functionsCalled,
             code.codeObjects.values(), code.returnValues)
 
@@ -356,8 +359,13 @@ def _baseInitCalled(classInitInfo, base, functionsCalled) :
     return 0
 
 def _checkBaseClassInit(moduleFilename, c, func_code, funcInfo) :
-    """Return a list of warnings that occur
-       for each base class whose __init__() is not called"""
+    """
+    Return a list of warnings that occur for each base class whose __init__()
+    is not called
+
+    @param funcInfo: triple of functions called, code objects, return values
+    @type  funcInfo: triple
+    """
 
     warnings = []
     functionsCalled, _, returnValues = funcInfo

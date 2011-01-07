@@ -896,6 +896,9 @@ class Code :
     @type typeMap:      dict of str -> list of str or L{pcmodules.Class}
     @ivar codeObjects:  dict of name/anonymous index -> code
     @type codeObjects:  dict of str/int -> L{types.CodeType}
+    @ivar codeOrder:    ordered list of when the given key was added to
+                        codeObjects
+    @type codeOrder:    list of str/int
     """
 
     # opcodes are either 1 byte (no argument) or 3 bytes (with argument) long
@@ -931,6 +934,7 @@ class Code :
         self.typeMap = {}
         self.constants = {}
         self.codeObjects = {}
+        self.codeOrder = []
 
     def init(self, func) :
         self.func = func
@@ -1145,6 +1149,17 @@ class Code :
         filelist = (self.func_code.co_filename, self.getLineNum())
         module.moduleLineNums[operand] = filelist
 
+    def addCodeObject(self, key, code):
+        """
+        Add the given code object, maintaining order of addition.
+
+        @param key:  the key to be used for storing in self.codeObjects
+        @type  key:  str or int
+        @param code: the code to be stored
+        @type  code: L{types.CodeType}
+        """
+        self.codeObjects[key] = code
+        self.codeOrder.append(key)
 
 class CodeSource:
     """
@@ -1330,9 +1345,9 @@ def _LOAD_CONST(oparg, operand, codeSource, code):
                 msg = "LOAD_CONST: code.index %d is already in codeObjects" \
                     % code.index
                 code.addWarning(msgs.CHECKER_BROKEN % msg)
-            code.codeObjects[code.index] = operand
+            code.addCodeObject(code.index, operand)
         elif obj is None:
-            code.codeObjects[name] = operand
+            code.addCodeObject(name, operand)
         elif cfg().redefiningFunction:
             code.addWarning(msgs.REDEFINING_ATTR % (name, obj.co_firstlineno))
 
