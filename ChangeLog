@@ -1,6 +1,11 @@
 2011-01-07  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/warn.py:
+	  Identify nested code better.
+
+2011-01-07  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/warn.py:
 	  Give us stats on how many warnings were triggered processing
 	  each kind of block.
 

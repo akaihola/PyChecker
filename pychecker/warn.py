@@ -171,7 +171,8 @@ def _checkUnusedParam(var, line, func, code) :
 def _handleNestedCode(func_code, code, codeSource):
     nested = not (codeSource.main or codeSource.in_class)
     if func_code.co_name == utils.LAMBDA or nested:
-        utils.debug(' handling nested code')
+        utils.debug(' handling nested code %s under %r',
+            func_code.co_name, codeSource.func)
         varnames = None
         if nested and func_code.co_name != utils.LAMBDA:
             varnames = func_code.co_varnames + \
