@@ -1,0 +1,8 @@
+Processing module test_nestedsuppression (input/test_nestedsuppression.py)...
+
+Warnings...
+
+input/test_nestedsuppression.py:17: Object (b) has no attribute (nonexistent)
+input/test_nestedsuppression.py:26: Object (a) has no attribute (nonexistent)
+input/test_nestedsuppression.py:41: Object (a) has no attribute (nonexistent)
+input/test_nestedsuppression.py:46: Object (b) has no attribute (nonexistent)
