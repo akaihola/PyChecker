@@ -1,3 +1,18 @@
+2011-01-07  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/warn.py:
+	  Debug filtering the warnings with the blacklist.
+	* pychecker/pcmodules.py:
+	  Document Class.ignoreAttrs.
+	* pychecker/checker.py:
+	  getWarnings only used by TKInter; so don't untils.debug there
+	  too.
+	* pychecker/Stack.py:
+	  Clean up and document getType a little.  There are unneeded
+	  if's there complicating the code.
+	* pychecker/CodeChecks.py:
+	  typemap documenting, and pep-8-ifying.
+
 2011-01-06  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* test/test_pychecker_function.py:

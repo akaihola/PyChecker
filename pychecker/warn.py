@@ -453,6 +453,8 @@ def removeWarnings(warnings, blacklist, std_lib, cfg):
     @param std_lib:   list of standard library directories
     @type  std_lib:   list of str or None
     """
+    utils.debug('filtering %d warnings with blacklist', len(warnings))
+
     if std_lib is not None:
         std_lib = [normalize_path(p) for p in std_lib]
     for index in range(len(warnings)-1, -1, -1) :
@@ -505,6 +507,8 @@ def removeWarnings(warnings, blacklist, std_lib, cfg):
             del warnings[:-cfg.limit]
             msg = msgs.TOO_MANY_WARNINGS % num_ignored
             warnings.append(Warning('', 0, msg))
+
+    utils.debug('kept %d warnings with blacklist', len(warnings))
 
     return warnings
 

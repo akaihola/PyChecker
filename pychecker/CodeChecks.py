@@ -808,26 +808,32 @@ def _getFormatWarnings(code, codeSource) :
         code.addWarning(msgs.INVALID_FORMAT_COUNT % (count, args))
 
 def _checkAttributeType(code, stackValue, attr) :
-    if not cfg().checkObjectAttrs :
+    """
+    @type code:       {Code}
+    @type stackValue: {Stack.Item}
+    @type attr:       str
+    """
+
+    if not cfg().checkObjectAttrs:
         return
 
     varTypes = code.typeMap.get(utils.safestr(stackValue.data), None)
-    if not varTypes :
+    if not varTypes:
         return
 
     # the value may have been converted on stack (`v`)
-    other_types = []
-    if stackValue.type not in varTypes :
-        other_types = [stackValue.type]
+    otherTypes = []
+    if stackValue.type not in varTypes:
+        otherTypes = [stackValue.type]
 
-    for varType in varTypes + other_types :
+    for varType in varTypes + otherTypes:
         # ignore built-in types that have no attributes
-        if python.METHODLESS_OBJECTS.has_key(varType) :
+        if python.METHODLESS_OBJECTS.has_key(varType):
             continue
 
         attrs = python.BUILTIN_ATTRS.get(varType, None)
-        if attrs is not None :
-            if attr in attrs :
+        if attrs is not None:
+            if attr in attrs:
                 return
             continue
 
@@ -884,6 +890,10 @@ class Code :
     @ivar returnValues: tuple of (line number, stack item,
                                   index to next instruction)
     @type returnValues: tuple of (int, L{Stack.Item}, int)
+    @ivar typeMap:      dict of token name -> list of wrapped types;
+                        type can also be string defined in L{Stack}
+                        with TYPE_
+    @type typeMap:      dict of str -> list of str or L{pcmodules.Class}
     """
 
     # opcodes are either 1 byte (no argument) or 3 bytes (with argument) long

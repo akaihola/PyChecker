@@ -106,7 +106,10 @@ class Class:
     @type classObject: class
     @ivar module:      the module where the class is defined
     @type module:      module
-
+    @ivar ignoreAttrs: whether to ignore this class's attributes when checking
+                       attributes.  Can be set because of a bad __getattr__
+                       or because the module this class comes from is
+                       blacklisted.
     @type ignoreAttrs: int (used as bool)
     @type methods:     dict
     @type members:     dict of str -> type

@@ -281,9 +281,8 @@ def processFiles(files, cfg=None, pre_process_cb=None):
 
     return warnings
 
-
+# only used by TKInter options.py
 def getWarnings(files, cfg = None, suppressions = None):
-    utils.debug('Processing %d files' % len(files))
     warnings = processFiles(files, cfg)
     fixupBuiltinModules()
     return warnings + warn.find(getAllModules(), _cfg, suppressions)
@@ -344,6 +343,7 @@ def main(argv) :
             printer.module(module)
 
     utils.debug('main: Finding warnings')
+    # suppressions is a tuple of suppressions, suppressionRegexs dicts
     warnings = warn.find(getAllModules(), _cfg, suppressions)
     utils.debug('main: Found %d warnings' % len(warnings))
 

@@ -75,14 +75,32 @@ class Item:
         self.is_really_string = value == types.StringType
 
     def getType(self, typeMap):
+        """
+        @type  typeMap: dict of str -> list of str or L{pcmodules.Class}
+        """
+
+        # FIXME: looks like StringType is used for real strings but also
+        # for names of objects.  Couldn't this be split to avoid
+        # self.is_really_string ?
         if self.type != types.StringType or self.is_really_string:
             return self.type
+
+        # FIXME: I assert here because there were if's to this effect,
+        # and a return of type(self.data).  Remove this assert later.
+        assert type(self.data) == types.StringType
+
+        # it's a StringType but not really a string
+        # if it's constant, return type of data
         if self.const:
-            return type(self.data)
-        if type(self.data) == types.StringType:
-            localTypes = typeMap.get(self.data, [])
-            if len(localTypes) == 1:
-                return localTypes[0]
+            return types.StringType
+
+
+        # it's a non-constant StringType, so treat it as the name of a token
+        # and look up the actual type in the typeMap
+        localTypes = typeMap.get(self.data, [])
+        if len(localTypes) == 1:
+            return localTypes[0]
+
         return TYPE_UNKNOWN
 
     def getName(self):
