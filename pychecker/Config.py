@@ -320,31 +320,66 @@ class Config :
         self.usesInput = 1
         self.constAttr = 1
 
-    def loadFile(self, filename) :
+    def loadFile(self, filename):
+        """
+        Load suppressions from the given file.
+
+        @type  filename: str
+
+        @rtype: tuple of (dict, dict)
+        """
         suppressions = {}
         suppressionRegexs = {}
-        try :
-            tmpGlobal, dict = {}, {}
-            execfile(filename, tmpGlobal, dict)
-            for key, value in dict.items() :
-                if self.__dict__.has_key(key) :
+
+        try:
+            tmpGlobals, tmpLocals = {}, {}
+            execfile(filename, tmpGlobals, tmpLocals)
+            
+            suppressions = _getSuppressions('suppressions', tmpLocals, filename)
+            regexs = _getSuppressions('suppressionRegexs', tmpLocals, filename)
+
+            # debug them here, since the options in tmpLocals can turn off
+            # debugging again
+
+            # We don't have an active config here yet.  Push ourselves,
+            # since we first got loaded with command line arguments,
+            # and so -d shows these suppression messages
+            from pychecker import utils
+            utils.initConfig(self)
+            if suppressions:
+                utils.debug('Loaded %d suppressions from %s',
+                    len(suppressions), filename)
+            if suppressionRegexs:
+                utils.debug('Loaded %d suppression regexs from %s',
+                    len(suppressionRegexs), filename)
+            utils.popConfig()
+
+
+            # now set our attributes based on the locals
+            for key, value in tmpLocals.items():
+                if self.__dict__.has_key(key):
                     self.__dict__[key] = value
                 elif key not in ('suppressions', 'suppressionRegexs') and \
                      key[0] != '_':
                     print "Warning, option (%s) doesn't exist, ignoring" % key
 
-            suppressions = _getSuppressions('suppressions', dict, filename)
-            regexs = _getSuppressions('suppressionRegexs', dict, filename)
-            for regex_str in regexs.keys() :
+            for regex_str in regexs.keys():
                 regex = re.compile(regex_str)
                 suppressionRegexs[regex] = regexs[regex_str]
-        except IOError :
+        except IOError:
             pass       # ignore if no file
         except Exception, detail:
             print "Warning, error loading defaults file:", filename, detail
+
         return suppressions, suppressionRegexs
 
     def loadFiles(self, filenames, oldSuppressions = None) :
+        """
+        @type  filenames: list of str
+        @type  oldSuppression: tuple of (dict, dict)
+
+        @rtype: tuple of (dict, dict)
+        """
         if oldSuppressions is None :
             oldSuppressions = ({}, {})
         suppressions = oldSuppressions[0]
@@ -460,14 +495,20 @@ def usage(cfg = None) :
             printArg(shortArg, longArg, description, defValue, useValue)
 
 
-def setupFromArgs(argList) :
-    "Returns (Config, [ file1, file2, ... ]) from argList"
+def setupFromArgs(argList):
+    """
+    @param argList: the list of command-line arguments
+    @type argList:  list of str
+
+    @rtype: list of L{Config}, list of str, tuple of (dict, dict)
+    """
 
     cfg = Config()
     try :
-        suppressions = cfg.loadFiles(_getRCfiles(_RC_FILE))
         otherConfigFiles = []
+
         files = cfg.processArgs(argList, otherConfigFiles)
+        suppressions = cfg.loadFiles(_getRCfiles(_RC_FILE))
         if otherConfigFiles:
             suppressions = cfg.loadFiles(otherConfigFiles, suppressions)
         return cfg, files, suppressions

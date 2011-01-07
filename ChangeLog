@@ -1,5 +1,13 @@
 2011-01-07  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/Config.py:
+	  Process command line args before config files.
+	  This gives a -d option a change to debug the processing of
+	  config files.
+	  Add debugging of loaded suppressions.
+
+2011-01-07  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/warn.py:
 	  Debug filtering the warnings with the blacklist.
 	* pychecker/pcmodules.py:
