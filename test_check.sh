@@ -86,7 +86,7 @@ for test_file in $TESTS ; do
     # of where python is installed, making it reproducable
     # FIXME: someone translate this to an equivalent line of python or sed
     perl -i -p -e 's@.*/lib(.*)/python\d.\d/@[system path]/@g' $test_path
-    diff $test_path $EXPECTED
+    diff -u $EXPECTED $test_path
     if [ $? -ne 0 ]; then
         error=`expr $error + 1`
         echo "  $test_name FAILED; output different from expected in $EXPECTED"

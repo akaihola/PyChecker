@@ -1,5 +1,13 @@
 2011-01-07  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/utils.py:
+	  debug suppressions detected.
+	* test_check.sh:
+	  Do a unified diff.  Reverse order, so that + lines show us
+	  what the new output is.
+
+2011-01-07  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test_expected/test76:
 	  For some reason line numbers for warnings shifted from 6 to 7.
 	  Neither seems correct.  Adjust expected output for now since

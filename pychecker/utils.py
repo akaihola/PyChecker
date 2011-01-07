@@ -52,7 +52,7 @@ def popConfig() :
 def shouldUpdateArgs(operand) :
     return operand == Config.CHECKER_VAR
 
-def updateCheckerArgs(argStr, func, lastLineNum, warnings) :
+def updateCheckerArgs(argStr, func, lastLineNum, warnings):
     """
     @param argStr:      list of space-separated options, as passed
                         on the command line
@@ -69,16 +69,20 @@ def updateCheckerArgs(argStr, func, lastLineNum, warnings) :
     @rtype:   int
     @returns: 1 if the arguments were invalid, 0 if ok.
     """
-    try :
+    try:
         argList = string.split(argStr)
+        # if func is code, might trigger
+        # TypeError: code.__cmp__(x,y) requires y to be a 'code', not a 'str'
+        if argList and not type(func) == str:
+            debug('func %r: pychecker args %r', func, argStr)
         # don't require long options to start w/--, we can add that for them
-        for i in range(0, len(argList)) :
-            if argList[i][0] != '-' :
+        for i in range(0, len(argList)):
+            if argList[i][0] != '-':
                 argList[i] = '--' + argList[i]
 
         cfg().processArgs(argList)
         return 1
-    except Config.UsageError, detail :
+    except Config.UsageError, detail:
         # this gets triggered when parsing a bad __pychecker__ declaration
         warn = Warning(func, lastLineNum, msgs.INVALID_CHECKER_ARGS % detail)
         warnings.append(warn)
