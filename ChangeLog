@@ -1,3 +1,15 @@
+=== release 0.8.19 ===
+
+2011-01-08  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* setup.py:
+	* NEWS:
+	  Releasing 0.8.19, "Two Seven"
+	* README:
+	  Note that we support 2.2 - 2.7
+	* MANIFEST.in:
+	  Adding pychecker.doap
+
 2011-01-08  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker.doap:
