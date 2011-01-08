@@ -42,6 +42,15 @@ UPDATE TO NEW PYTHON VERSION
      svn diff -c [changeset that added/changed your opcode]
  - add future keywords in pychecker/python.py
 
+FINDING WARNINGS
+----------------
+If you want to know where a generated warning was triggered in the code:
+ - look for the string template in pychecker/msgs.py; find the capitaled
+   constant representing it
+ - grep for that string in the code
+ - use -d when running pychecker to see where during the processing that
+   warning was added
+
 HISTORY
 -------
  - Python 2.7:
