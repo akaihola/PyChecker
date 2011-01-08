@@ -41,7 +41,9 @@ EVIL_C_OBJECTS = {
   }
 
 
-__pcmodules = {}
+__pcmodules = {} # dict of
+                 # (fully qualified module name, moduleDir)
+                 # -> PyCheckerModule}
 
 def _filterDir(object, ignoreList):
     """
@@ -351,7 +353,7 @@ class PyCheckerModule:
     @type functions:      dict of str -> L{function.Function}
     @ivar classes:        dict of class name -> class
     @type classes:        dict of str -> L{Class}
-    @ivar modules:        dict of module name -> module
+    @ivar modules:        dict of fully qualified module name -> module
     @type modules:        dict of str -> L{PyCheckerModule}
     @ivar moduleLineNums: mapping of the module's nameds/operands to the
                           filename and linenumber where they are created
@@ -577,6 +579,7 @@ class PyCheckerModule:
 
 def getPCModule(moduleName, moduleDir=None):
     """
+    @param moduleName: fully qualified module name
     @type  moduleName: str
     @param moduleDir:  if specified, the directory where the module can
                        be loaded from; allows discerning between modules

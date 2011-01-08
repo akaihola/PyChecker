@@ -111,9 +111,10 @@ def _checkFunctionArgs(code, func, objectReference, argCount, kwArgs,
         _checkFunctionArgCount(code, func_name, argCount,
                                func.minArgs, func.maxArgs, objectReference)
 
+# FIXME: is identifier fully qualified ? check code for functions and classes
 def _getReferenceFromModule(module, identifier):
     """
-    Looks up the given identifier in the module.
+    Looks up the given identifier in the module as a class or function.
     If it is a function, returns (function, None, 0)
     If it is a class instantiation, returns (__init__ function, class, 1)
 
@@ -843,6 +844,8 @@ def _checkAttributeType(code, stackValue, attr) :
         elif not hasattr(varType, 'attributes') or attr in varType.attributes :
             return
 
+
+    # FIXME: maybe show type here too ?
     code.addWarning(msgs.OBJECT_HAS_NO_ATTR % (stackValue.data, attr))
 
 
@@ -1460,6 +1463,7 @@ def _checkDeprecated(code, identifierTuple):
         code.addWarning(msg)
 
 def _LOAD_ATTR(oparg, operand, codeSource, code) :
+    # FIXME: how can LOAD_ATTR happen without a stack ?
     if len(code.stack) > 0 :
         top = code.stack[-1]
         _checkAttribute(top, operand, codeSource, code)

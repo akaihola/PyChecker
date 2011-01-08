@@ -169,10 +169,17 @@ def _checkUnusedParam(var, line, func, code) :
             code.addWarning(msgs.UNUSED_PARAMETER % var, code.func_code)
 
 def _handleNestedCode(func_code, code, codeSource):
+    """
+    @param func_code:  the code object for the nested code
+    @type  func_code:  L{types.CodeType}
+    @param code:       the parent code in which the code is nested
+    @type  code:       L{CodeChecks.Code}
+    @type  codeSource: L{Codechecks.CodeSource}
+    """
     nested = not (codeSource.main or codeSource.in_class)
     if func_code.co_name == utils.LAMBDA or nested:
-        utils.debug(' handling nested code %s under %r',
-            func_code.co_name, codeSource.func)
+        utils.debug(' handling nested code %s under %r for %r',
+            func_code.co_name, codeSource.func, code.func)
         varnames = None
         if nested and func_code.co_name != utils.LAMBDA:
             varnames = func_code.co_varnames + \
@@ -222,11 +229,19 @@ def _findUnreachableCode(code) :
                 pass
 
 
-def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
+def _checkFunction(module, func, classObject=None, main=0, in_class=0):
     """
     Return a list of Warnings found in a function/method.
 
-    @type  module: L{pychecker.checker.PyCheckerModule}
+    @type  module:      L{pychecker.checker.PyCheckerModule}
+    @type  func:        L{function.Function}
+    @param classObject: the class object, if applicable
+    @type  classObject: L{pychecker.checker.Class} or None
+    @param main:        whether this code block is in the source's global
+                        namespace (__main__)
+    @type  main:        int (used as bool)
+    @param in_class:    whether this code block is inside a class scope
+    @type  in_class:    int (used as bool)
     """
 
     # always push a new config object, so we can pop at end of function
@@ -237,7 +252,10 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     if main:
         for key in func.function.func_globals.keys():
             code.unusedLocals[key] = -1
-    codeSource = CodeChecks.CodeSource(module, func, c, main, in_class, code)
+    codeSource = CodeChecks.CodeSource(
+        module, func, classObject, main, in_class, code)
+
+
     try :
         _checkCode(code, codeSource)
         if not in_class :
@@ -297,20 +315,44 @@ def _checkFunction(module, func, c = None, main = 0, in_class = 0) :
     func.returnValues = code.returnValues
     # FIXME: I don't think code.codeObjects.values() ever gets used,
     # but if it does, and needs to be in order, then use code.codeOrder here.
+    # FIXME: should this not be returning copies of globalRefs ?
     return (code.warnings, code.globalRefs, code.functionsCalled,
             code.codeObjects.values(), code.returnValues)
 
 
 def _getUnused(module, globalRefs, dict, msg, filterPrefix = None) :
-    "Return a list of warnings for unused globals"
+    """
+    Return a list of warnings for unused globals.
+
+    
+
+    For example, for modules:
+      from twisted.internet import defer
+    would result in
+      'defer' -> PyCheckerModule at 0x...: twisted.internet.defer
+
+    @param globalRefs: dict of token alias -> full name of token aliases
+                       that have been used ?
+    @type  globalRefs: dict of str -> str
+    @param dict:       dict of token alias -> token containing the tokens
+                       to check for use
+    @type  dict:       dict of str -> token
+    @param msg:        the message template to use to create warnings
+    @type  msg:        str from L{msgs}
+    """
+
+    import pprint
 
     warnings = []
-    for ref in dict.keys() :
+
+    for ref in dict.keys():
         check = not filterPrefix or utils.startswith(ref, filterPrefix)
+        # FIXME: do a ref in globalRefs instead?
         if check and globalRefs.get(ref) == None :
             lineInfo = module.moduleLineNums.get(ref)
             if lineInfo:
                 warnings.append(Warning(lineInfo[0], lineInfo[1], msg % ref))
+
     return warnings
 
 
@@ -400,17 +442,27 @@ def _checkOverridenMethods(func, baseClasses, warnings) :
             break
 
 
-def _updateFunctionWarnings(module, func, c, warnings, globalRefs,
-                            main = 0, in_class = 0) :
+def _updateFunctionWarnings(module, func, classObject, warnings, globalRefs,
+                            main=0, in_class=0):
     """
     Update function warnings and global references.
 
-    @type  module: L{pychecker.checker.PyCheckerModule}
-    @type  func:   L{function.Function}
-    """
+    @type  module:      L{pychecker.checker.PyCheckerModule}
+    @type  func:        L{function.Function}
+    @param classObject: the class object, if applicable
+    @type  classObject: L{pychecker.checker.Class} or None
+    @param globalRefs: dict of token alias -> full name of token aliases
+                       that have been used ?
+    @type  globalRefs: dict of str -> str
+    @param main:        whether this code block is in the source's global
+                        namespace (__main__)
+    @type  main:        int (used as bool)
+    @param in_class:    whether this code block is inside a class scope
+    @type  in_class:    int (used as bool)
+     """
 
     newWarnings, newGlobalRefs, funcs, codeObjects, returnValues = \
-                 _checkFunction(module, func, c, main, in_class)
+                 _checkFunction(module, func, classObject, main, in_class)
     warnings.extend(newWarnings)
     globalRefs.update(newGlobalRefs)
 
@@ -580,7 +632,10 @@ def getSuppression(name, suppressions, warnings):
 
 def _findFunctionWarnings(module, globalRefs, warnings, suppressions) :
     """
-    @type  module: L{pychecker.checker.PyCheckerModule}
+    @type  module:     L{pychecker.checker.PyCheckerModule}
+    @param globalRefs: dict of token alias -> full name of token aliases
+                       that have been used ?
+    @type  globalRefs: dict of str -> str
     """
     for func in module.functions.values() :
         func_code = func.function.func_code
@@ -619,6 +674,12 @@ except NameError:
 
 def _findClassWarnings(module, c, class_code,
                        globalRefs, warnings, suppressions) :
+    """
+    @type  module:     L{pychecker.checker.PyCheckerModule}
+    @param globalRefs: dict of token alias -> full name of token aliases
+                       that have been used ?
+    @type  globalRefs: dict of str -> str
+    """
     utils.debug("class:", class_code)
     try:
         className = utils.safestr(c.classObject)
@@ -626,6 +687,8 @@ def _findClassWarnings(module, c, class_code,
         # goofy __getattr__
         return
     classSuppress = getSuppression(className, suppressions, warnings)
+
+    # mark the base class modules as being used as globals
     baseClasses = c.allBaseClasses()
     for base in baseClasses :
         baseModule = utils.safestr(base)

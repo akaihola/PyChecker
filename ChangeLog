@@ -1,5 +1,12 @@
 2011-01-08  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/CodeChecks.py:
+	* pychecker/pcmodules.py:
+	* pychecker/warn.py:
+	  Add documentation, comments, FIXME, and name cleanup.
+
+2011-01-08  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test/input/unused_import.py:
 	* test/test_unused.py:
 	  Add a test to show that we do catch a straight unused import,
