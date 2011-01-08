@@ -223,3 +223,5 @@ Admin
  * make website's index.html generate README so we don't have to update
    in two places
  * moap updates to automate release process
+ * update pychecker.doap with older releases
+ * add rss feed
