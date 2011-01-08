@@ -43,6 +43,7 @@ Release procedure for pychecker
   cd ..
   rsync -arv * thomasvs,pychecker@web.sourceforge.net:
 - bump setup.py and commit
+- build packages for Fedora with mach
 - why don't you blog about it ?
 
 
