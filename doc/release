@@ -1,0 +1,48 @@
+Release procedure for pychecker
+-------------------------------
+
+- Pick a new version number and set it:
+  export VERSION=0.8.19
+- Update setup.py
+- Pick a release name
+- Update .doap file
+- verify the update with moap doap show
+- Add list of new features to NEWS
+- Update bugs fixed in NEWS:
+  FIXME: implement sourceforge support in moap
+  moap doap bug query -f "- %(id)3s: %(summary)s" "milestone=$VERSION"
+- Update README and home page with relevant new features, as well as version
+  moap cl cont
+- Run moap cl prep and add comment about release
+- Update ChangeLog; add === release x.y.z === line
+- python setup.py sdist
+- python setup.py bdist_rpm
+- Create folder for new release:
+  https://sourceforge.net/projects/pychecker/files/pychecker/#folder-create
+- Go in, add file, browse to new release
+- Add a README file
+- send out test release mails
+    FIXME: handle 302 repsponse in urllib in moap
+    moap doap -v $VERSION mail -f thomas@apestaart.org thomas@apestaart.org
+- commit to HEAD
+- create release tag:
+  cvs tag v`echo $VERSION | tr . _`
+- announce to freshmeat:
+  FIXME: Neil to give me admin ?
+  moap doap -v $VERSION freshmeat -b Default
+- send out release mail:
+    moap doap -v $VERSION mail -f thomas@apestaart.org pychecker-list@lists.sourceforge.net
+- add new group to sourceforge and make it the default (FIXME: does default work ?)
+- update the homepage
+  rsync -arv thomasvs,pychecker@web.sourceforge.net: .
+  cd htdocs
+  add tarball
+  ln -sf pychecker-0.8.19.tar.gz pychecker-current.tar.gz 
+  ln -sf pychecker-0.8.19.tar.gz pychecker-current.tgz 
+  edit index.html, update version
+  cd ..
+  rsync -arv * thomasvs,pychecker@web.sourceforge.net:
+- bump setup.py and commit
+- why don't you blog about it ?
+
+

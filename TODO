@@ -217,3 +217,9 @@ figure out why running pychecker on test/input/test_dict.py fails in 2.6
 while it doesn't when you copy it to ./test.py and run it on that
 (Probably because there is also test/__init__.py and it is trying to import
  that instead ?)
+
+Admin
+-----
+ * make website's index.html generate README so we don't have to update
+   in two places
+ * moap updates to automate release process
