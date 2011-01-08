@@ -241,7 +241,7 @@ CUSTOMIZED_ACTIONS = { 'build_scripts'  : my_build_scripts,
                      }
 
 DATA_FILES = [ 'COPYRIGHT', 'README', 'VERSION', 'ChangeLog', 'NEWS', 
-                'KNOWN_BUGS', 'MAINTAINERS', 'TODO',
+                'KNOWN_BUGS', 'MAINTAINERS', 'TODO', 'pychecker.doap',
              ]
 
 LONG_DESCRIPTION = """
