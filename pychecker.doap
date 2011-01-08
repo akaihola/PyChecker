@@ -69,8 +69,7 @@ Types of problems that can be found include:
    <branch>HEAD</branch>
    <name>Two Seven</name>
    <created>2011-01-08</created>
-   <file-release rdf:resource="http://thomas.apestaart.org/download/moap/moap-0.2.7.tar.bz2" />
-   <file-release rdf:resource="http://thomas.apestaart.org/download/moap/moap-0.2.7-1.noarch.rpm" />
+   <file-release rdf:resource="http://downloads.sourceforge.net/project/pychecker/pychecker/0.8.19/pychecker-0.8.19.tar.gz" />
    <dc:description>
 Add support for Python 2.7
 Fixed SF Bug [ 2209631 ]:
@@ -104,7 +103,7 @@ Added implementations for the following opcodes:
    <branch>HEAD</branch>
    <name></name>
    <created>2008-08-17</created>
-   <file-release rdf:resource="http://sourceforge.net/projects/pychecker/files/pychecker/0.8.18/pychecker-0.8.18.tar.gz/download" />
+   <file-release rdf:resource="http://downloads.sourceforge.net/project/pychecker/pychecker/0.8.18/pychecker-0.8.18.tar.gz" />
    <dc:description>
 Fixed SF Bug [ 1827412 ] pychecker.bat only handles 9 cmdline args
 Fix warning about comparison checking with bool false alert for 'in' and 'not
