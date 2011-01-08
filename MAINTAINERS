@@ -26,7 +26,7 @@ Nicolas Chauvat                 setup.py
 Allan Crooks                    bug reports
 Jeff Collins                    checker.findModule
 Tom Culliton                    bug reports and suggestions
-André Dahlqvist                 bug reports
+AndrÃ© Dahlqvist                 bug reports
 Walter Doerwald                 bug reports and fixes
 Mika Eloranta                   bug reports
 Jeff Epler                      bug reports
@@ -60,7 +60,7 @@ Michele Moore                   many suggestions
 Jon Nelson                      fix setup.py, add MANIFEST.in
 Jason Orendorff                 suggestions
 Ian Parker                      suggestions
-Fernando Pérez                  bug reports
+Fernando PÃ©rez                  bug reports
 Kenneth Pronovici               debian maintainer, bug reports, patches, setup.py
 Eric S. Raymond                 bug reports and suggestions
 Terry Reedy                     suggestions
