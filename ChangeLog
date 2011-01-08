@@ -1,5 +1,12 @@
 2011-01-08  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test/input/unused_import.py:
+	* test/test_unused.py:
+	  Add a test to show that we do catch a straight unused import,
+	  but not a from ... import ... one.
+
+2011-01-08  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* setup.py:
 	  Back to HEAD.
 
