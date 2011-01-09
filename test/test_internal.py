@@ -10,6 +10,7 @@ import unittest
 import common
 
 from pychecker import pcmodules
+from pychecker import Config
 
 class InternalTestCase(common.TestCase):
     def setUp(self):
@@ -25,8 +26,11 @@ class InternalTestCase(common.TestCase):
         # starts fresh for each test
 
     def check(self, paths):
+        config = Config.Config()
+        config.ignoreStandardLibrary = 1
+
         from pychecker.checker import _check
-        warnings = _check(paths)
+        warnings = _check(paths, cfg=config)
 
         return warnings
 
@@ -34,8 +38,7 @@ class UnusedImportTestCase(InternalTestCase):
     def test_unused_import(self):
         warnings = self.check(['input/unused_import.py', ])
 
-        # FIXME: this should generate one more
-        self.assertEquals(len(warnings), 11)
+        self.assertEquals(len(warnings), 3)
 
         # check the module and the code
         pcmodule = pcmodules.getPCModule("unused_import", moduleDir="input")

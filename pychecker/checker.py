@@ -293,20 +293,20 @@ def _print_processing(name) :
         sys.stderr.write("Processing %s...\n" % name)
 
 # grooming this to be public API to use pychecker as a module
-def _check(files, suppressions=None, printProcessing=False):
+def _check(files, cfg=None, suppressions=None, printProcessing=False):
     utils.debug('main: Finding import warnings')
-    importWarnings = processFiles(files, _cfg,
+    importWarnings = processFiles(files, cfg,
         printProcessing and _print_processing or None)
     utils.debug('main: Found %d import warnings' % len(importWarnings))
 
     fixupBuiltinModules()
-    if _cfg.printParse :
+    if cfg.printParse :
         for module in getAllModules() :
             printer.module(module)
 
     utils.debug('main: Finding warnings')
     # suppressions is a tuple of suppressions, suppressionRegexs dicts
-    warnings = warn.find(getAllModules(), _cfg, suppressions)
+    warnings = warn.find(getAllModules(), cfg, suppressions)
     utils.debug('main: Found %d warnings' % len(warnings))
 
     return importWarnings + warnings
@@ -352,7 +352,9 @@ def main(argv) :
     # insert this here, so we find files in the local dir before std library
     sys.path.insert(0, '')
 
-    warnings = _check(files, suppressions=suppressions, printProcessing=True)
+    warnings = _check(files,
+        cfg=_cfg,
+        suppressions=suppressions, printProcessing=True)
     if not _cfg.quiet :
         print "\nWarnings...\n"
     if warnings:

@@ -1,5 +1,12 @@
 2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/checker.py:
+	  Allow passing a config to _check() and use it.
+	* test/test_internal.py:
+	  Ignore standard library.  We don't care about xml.sax
+
+2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/CodeChecks.py:
 	  Report warning when from X import * imports symbols that
 	  get shadowed by later class definitions.
