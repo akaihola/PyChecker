@@ -357,7 +357,7 @@ class PyCheckerModule:
     @type modules:        dict of str -> L{PyCheckerModule}
     @ivar moduleLineNums: mapping of the module's nameds/operands to the
                           filename and linenumber where they are created
-    @type moduleLineNums: dict of str -> (str, int)
+    @type moduleLineNums: dict of str or tuple of str -> (str, int)
     @type mainCode:       L{function.Function}
     @ivar check:          whether this module should be checked
     @type check:          int (used as bool)
