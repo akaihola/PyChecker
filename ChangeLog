@@ -1,3 +1,12 @@
+2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/checker.py:
+	  Extract a still-private _check method so we can also invoke
+	  pychecker as a function from other code.
+	* test/test_internal.py:
+	  Use this in the test suite.  Then poke into the generated objects
+	  to assert that the test got parsed and checked properly.
+
 2011-01-08  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:

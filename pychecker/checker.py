@@ -292,6 +292,25 @@ def _print_processing(name) :
     if not _cfg.quiet :
         sys.stderr.write("Processing %s...\n" % name)
 
+# grooming this to be public API to use pychecker as a module
+def _check(files, suppressions=None, printProcessing=False):
+    utils.debug('main: Finding import warnings')
+    importWarnings = processFiles(files, _cfg,
+        printProcessing and _print_processing or None)
+    utils.debug('main: Found %d import warnings' % len(importWarnings))
+
+    fixupBuiltinModules()
+    if _cfg.printParse :
+        for module in getAllModules() :
+            printer.module(module)
+
+    utils.debug('main: Finding warnings')
+    # suppressions is a tuple of suppressions, suppressionRegexs dicts
+    warnings = warn.find(getAllModules(), _cfg, suppressions)
+    utils.debug('main: Found %d warnings' % len(warnings))
+
+    return importWarnings + warnings
+
 
 def main(argv) :
     __pychecker__ = 'no-miximport'
@@ -333,30 +352,16 @@ def main(argv) :
     # insert this here, so we find files in the local dir before std library
     sys.path.insert(0, '')
 
-    utils.debug('main: Finding import warnings')
-    importWarnings = processFiles(files, _cfg, _print_processing)
-    utils.debug('main: Found %d import warnings' % len(importWarnings))
-
-    fixupBuiltinModules()
-    if _cfg.printParse :
-        for module in getAllModules() :
-            printer.module(module)
-
-    utils.debug('main: Finding warnings')
-    # suppressions is a tuple of suppressions, suppressionRegexs dicts
-    warnings = warn.find(getAllModules(), _cfg, suppressions)
-    utils.debug('main: Found %d warnings' % len(warnings))
-
+    warnings = check(files, suppressions=suppressions, printProcessing=True)
     if not _cfg.quiet :
         print "\nWarnings...\n"
-    if warnings or importWarnings :
-        _printWarnings(importWarnings + warnings)
+    if warnings:
+        _printWarnings(warnings)
         return 1
 
     if not _cfg.quiet :
         print "None"
     return 0
-
 
 # FIXME: this is a nasty side effect for import checker
 if __name__ == '__main__' :
