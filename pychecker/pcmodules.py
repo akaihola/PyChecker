@@ -158,7 +158,8 @@ class Class:
         # and deleted it from sys.modules
         if not self.module and pcmodule.moduleDir is None:
             self.module = module
-            if modname not in utils.cfg().blacklist:
+            if modname not in utils.cfg().blacklist \
+                and not modname.startswith('_'):
                 sys.stderr.write("warning: couldn't find real module "
                                  "for class %s (module name: %s)\n"
                                  % (self.classObject, modname))

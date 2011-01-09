@@ -1,5 +1,13 @@
 2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/pcmodules.py:
+	  Don't complain about not finding real modules when they start
+	  with underscore - they probably do not want to be found.
+	* test/expected/test_zope_interface_q:
+	  Adjust output.
+
+2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/checker.py:
 	  Allow passing a config to _check() and use it.
 	* test/test_internal.py:
