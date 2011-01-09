@@ -352,7 +352,7 @@ def main(argv) :
     # insert this here, so we find files in the local dir before std library
     sys.path.insert(0, '')
 
-    warnings = check(files, suppressions=suppressions, printProcessing=True)
+    warnings = _check(files, suppressions=suppressions, printProcessing=True)
     if not _cfg.quiet :
         print "\nWarnings...\n"
     if warnings:
