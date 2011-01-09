@@ -1,6 +1,11 @@
 2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* test/test_internal.py:
+	  I'm sorry, I meant pre-2.6
+
+2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* test/test_internal.py:
 	  Pre-2.5 __package__ is not a module variable.
 
 2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>

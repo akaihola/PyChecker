@@ -46,7 +46,7 @@ class UnusedImportTestCase(InternalTestCase):
         self.assertEquals(pcmodule.moduleName, "unused_import")
         self.assertEquals(pcmodule.moduleDir, "input")
 
-        if utils.pythonVersion() >= utils.PYTHON_2_5:
+        if utils.pythonVersion() >= utils.PYTHON_2_6:
             self.assertEquals(pcmodule.variables.keys(), ["__package__"])
         else:
             self.assertEquals(pcmodule.variables.keys(), [])
