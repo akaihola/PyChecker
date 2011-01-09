@@ -1,0 +1,6 @@
+Processing module unused_import (input/unused_import.py)...
+
+Warnings...
+
+input/unused_import.py:4: Imported module (sys) not used
+input/unused_import.py:6: Imported module (path) not used
