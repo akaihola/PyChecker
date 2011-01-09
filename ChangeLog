@@ -1,5 +1,15 @@
 2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test/input/unused_import.py:
+	  Add an import and a function argument shadowing that name.
+	  This used to fail up to pychecker 0.8.19, but now correctly
+	  triggers
+	* test/expected/unused_import:
+	* test/test_internal.py:
+	  Adjust assertions and expected output.
+
+2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test/test_internal.py:
 	  I'm sorry, I meant pre-2.6
 

@@ -39,7 +39,7 @@ class UnusedImportTestCase(InternalTestCase):
     def test_unused_import(self):
         warnings = self.check(['input/unused_import.py', ])
 
-        self.assertEquals(len(warnings), 3)
+        self.assertEquals(len(warnings), 4)
 
         # check the module and the code
         pcmodule = pcmodules.getPCModule("unused_import", moduleDir="input")
@@ -51,10 +51,10 @@ class UnusedImportTestCase(InternalTestCase):
         else:
             self.assertEquals(pcmodule.variables.keys(), [])
         self.assertEquals(pcmodule.classes, {})
-        self.assertEquals(pcmodule.functions, {})
+        self.assertEquals(pcmodule.functions.keys(), ["do"])
 
         # check the code
-        self.assertEquals(len(pcmodule.codes), 1)
+        self.assertEquals(len(pcmodule.codes), 2)
         main = pcmodule.codes[0]
 
         # all triggered warnings were import warnings
@@ -65,15 +65,19 @@ class UnusedImportTestCase(InternalTestCase):
 
         modules = pcmodule.modules.keys()
         modules.sort()
-        self.assertEquals(modules, ["path", "sax", "sys"])
+        self.assertEquals(modules, ["case", "path", "sax", "sys"])
         self.assertEquals(pcmodule.moduleLineNums,
             {
-                'sys':          ('input/unused_import.py', 4),
-                'path':         ('input/unused_import.py', 6),
-                ('os', 'path'): ('input/unused_import.py', 6),
-                ('os',):        ('input/unused_import.py', 6),
-                'sax':          ('input/unused_import.py', 8),
-                'xml.sax':      ('input/unused_import.py', 8),
+                'case':                 ('input/unused_import.py', 10),
+                'do':                   ('input/unused_import.py', 12),
+                'sys':                  ('input/unused_import.py', 4),
+                'path':                 ('input/unused_import.py', 6),
+                ('os', 'path'):         ('input/unused_import.py', 6),
+                ('os',):                ('input/unused_import.py', 6),
+                'sax':                  ('input/unused_import.py', 8),
+                'xml.sax':              ('input/unused_import.py', 8),
+                ('unittest', ):         ('input/unused_import.py', 10),
+                ('unittest', 'case'):   ('input/unused_import.py', 10),
             })
 
 if __name__ == '__main__':
