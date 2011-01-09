@@ -45,10 +45,20 @@ class UnusedImportTestCase(InternalTestCase):
         self.assertEquals(pcmodule.variables.keys(), ["__package__"])
         self.assertEquals(pcmodule.classes, {})
         self.assertEquals(pcmodule.functions, {})
-        # FIXME: we did from os.path, but we get posixpath
+
+        # check the code
+        self.assertEquals(len(pcmodule.codes), 1)
+        main = pcmodule.codes[0]
+
+        # all triggered warnings were import warnings
+        self.failIf(main.warnings)
+
+        # FIXME: should the stack not be empty after processing it all ?
+        # self.failIf(main.stack)
+
         modules = pcmodule.modules.keys()
         modules.sort()
-        self.assertEquals(modules, ["posixpath", "sys", "xml.sax"])
+        self.assertEquals(modules, ["path", "sax", "sys"])
         self.assertEquals(pcmodule.moduleLineNums,
             {
                 'sys':          ('input/unused_import.py', 4),
@@ -59,6 +69,5 @@ class UnusedImportTestCase(InternalTestCase):
                 'xml.sax':      ('input/unused_import.py', 8),
             })
 
-    
 if __name__ == '__main__':
     unittest.main()

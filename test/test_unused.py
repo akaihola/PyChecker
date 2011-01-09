@@ -9,9 +9,6 @@ import unittest
 import common
 
 class UnusedImportTestCase(common.TestCase):
-    todo = "Pychecker should catch the unused from ... import"
-    '''
-    '''
     def test_unused_import(self):
         self.check('unused_import')
     

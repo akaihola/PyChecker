@@ -854,7 +854,6 @@ def _checkAttributeType(code, stackValue, attr) :
     @type stackValue: {Stack.Item}
     @type attr:       str
     """
-
     if not cfg().checkObjectAttrs:
         return
 
@@ -979,7 +978,10 @@ class Code :
         self.codeObjects = {}
         self.codeOrder = []
 
-    def init(self, func) :
+    def init(self, func):
+        """
+        @type  func:        L{function.Function}
+        """
         self.func = func
         self.func_code, self.bytes, self.index, self.maxCode, self.extended_arg = \
                         OP.initFuncCode(func.function)
@@ -1204,6 +1206,7 @@ class Code :
         self.codeObjects[key] = code
         self.codeOrder.append(key)
 
+
 class CodeSource:
     """
     Holds source information about a code block (module, class, func, etc)
@@ -1326,7 +1329,8 @@ def _checkLoadGlobal(codeSource, code, varname) :
             varname = varname[len(codeSource.classObject.name)+1:]
             
         # make sure we remember each global ref to check for unused
-        code.globalRefs[_getGlobalName(varname, codeSource.func)] = varname
+        # FIXME: globalRefs is a dict where only key is used.
+        code.globalRefs[varname] = varname
         if not codeSource.in_class :
             _checkGlobal(varname, codeSource.module, codeSource.func,
                          code, msgs.INVALID_GLOBAL)
@@ -1335,6 +1339,8 @@ def _LOAD_NAME(oparg, operand, codeSource, code) :
     _checkLoadGlobal(codeSource, code, operand)
 
     # if there was from XXX import *, _* names aren't imported
+    # FIXME: this changes operand from handler to xml.sax.handler
+    # for from xml.sax import handler; see test12
     if codeSource.module.modules.has_key(operand) and \
        hasattr(codeSource.module.module, operand) :
         operand = getattr(codeSource.module.module, operand).__name__

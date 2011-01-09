@@ -254,7 +254,7 @@ def _checkFunction(module, func, classObject=None, main=0, in_class=0):
             code.unusedLocals[key] = -1
     codeSource = CodeChecks.CodeSource(
         module, func, classObject, main, in_class, code)
-
+    module.codes.append(code)
 
     try :
         _checkCode(code, codeSource)

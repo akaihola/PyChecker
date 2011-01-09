@@ -1,6 +1,25 @@
 2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:
+	  Track the aliased name of a global reference, so we track
+	  path when we do from os import path
+	* pychecker/pcmodules.py:
+	  Track aliases in Code.modules keys, instead of fully qualified
+	  names.
+	  Add a codes list member to Code, to analyze Code objects in
+	  unit tests for debugging.
+	* pychecker/warn.py:
+	  Add to PyCheckerModule.codes.
+	* test/test_internal.py:
+	  Replace the fully qualified module names with the aliases used in
+	  the code.
+	* test/test_unused.py:
+	  With this change, we now catch the unused import of
+	  from os import path.
+
+2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
 	  Extract a method to handle deprecated modules being imported.
 	  Add a helper to get a pcmodule for a given name so we can
 	  put it on the stack.

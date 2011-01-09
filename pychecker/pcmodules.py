@@ -353,7 +353,7 @@ class PyCheckerModule:
     @type functions:      dict of str -> L{function.Function}
     @ivar classes:        dict of class name -> class
     @type classes:        dict of str -> L{Class}
-    @ivar modules:        dict of fully qualified module name -> module
+    @ivar modules:        dict of module alias -> module
     @type modules:        dict of str -> L{PyCheckerModule}
     @ivar moduleLineNums: mapping of the module's nameds/operands to the
                           filename and linenumber where they are created
@@ -361,6 +361,9 @@ class PyCheckerModule:
     @type mainCode:       L{function.Function}
     @ivar check:          whether this module should be checked
     @type check:          int (used as bool)
+    @ivar codes:          a list of all code in this module; used for
+                          testing
+    @type codes:          list of L{CodeChecks.Code}
     """
 
     def __init__(self, moduleName, check=1, moduleDir=None):
@@ -391,6 +394,8 @@ class PyCheckerModule:
         # key on a combination of moduleName and moduleDir so we have separate
         # entries for modules with the same name but in different directories
         addPCModule(self)
+
+        self.codes = []
 
     def __str__(self):
         return self.moduleName
@@ -432,18 +437,20 @@ class PyCheckerModule:
         if not c.ignoreAttrs :
             self.__addAttributes(c, c.classObject)
 
-    def addModule(self, name, moduleDir=None) :
+    def addModule(self, name, alias, moduleDir=None) :
         module = getPCModule(name, moduleDir)
         if module is None :
-            self.modules[name] = module = PyCheckerModule(name, 0)
+            # not yet loaded, so load
+            self.modules[alias] = module = PyCheckerModule(name, 0)
             if imp.is_builtin(name) == 0:
                 module.load()
             else :
+                # FIXME: probably should be alias ?
                 globalModule = globals().get(name)
                 if globalModule :
                     module.attributes.extend(dir(globalModule))
         else :
-            self.modules[name] = module
+            self.modules[alias] = module
 
     def filename(self) :
         try :
@@ -523,7 +530,7 @@ class PyCheckerModule:
             token = getattr(self.module, tokenName)
             if isinstance(token, types.ModuleType) :
                 # get the real module name, tokenName could be an alias
-                self.addModule(token.__name__)
+                self.addModule(token.__name__, tokenName)
             elif isinstance(token, types.FunctionType) :
                 self.addFunction(token)
             elif isinstance(token, types.ClassType) or \
