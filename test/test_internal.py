@@ -11,6 +11,7 @@ import common
 
 from pychecker import pcmodules
 from pychecker import Config
+from pychecker import utils
 
 class InternalTestCase(common.TestCase):
     def setUp(self):
@@ -45,7 +46,10 @@ class UnusedImportTestCase(InternalTestCase):
         self.assertEquals(pcmodule.moduleName, "unused_import")
         self.assertEquals(pcmodule.moduleDir, "input")
 
-        self.assertEquals(pcmodule.variables.keys(), ["__package__"])
+        if utils.pythonVersion() >= utils.PYTHON_2_5:
+            self.assertEquals(pcmodule.variables.keys(), ["__package__"])
+        else:
+            self.assertEquals(pcmodule.variables.keys(), [])
         self.assertEquals(pcmodule.classes, {})
         self.assertEquals(pcmodule.functions, {})
 

@@ -1,5 +1,10 @@
 2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test/test_internal.py:
+	  Pre-2.5 __package__ is not a module variable.
+
+2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/pcmodules.py:
 	  Don't complain about not finding real modules when they start
 	  with underscore - they probably do not want to be found.
