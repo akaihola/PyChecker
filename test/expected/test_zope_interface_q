@@ -1,4 +1,15 @@
 Processing module test_zope_interface (input/test_zope_interface.py)...
+warning: couldn't find real module for class <type '_interface_coptimizations.ClassProvidesBase'> (module name: _interface_coptimizations)
+warning: couldn't find real module for class <type '_zope_interface_coptimizations.InterfaceBase'> (module name: _zope_interface_coptimizations)
+warning: couldn't find real module for class <type '_zope_interface_coptimizations.LookupBase'> (module name: _zope_interface_coptimizations)
+warning: couldn't find real module for class <type '_interface_coptimizations.ObjectSpecificationDescriptor'> (module name: _interface_coptimizations)
+warning: couldn't find real module for class <type '_interface_coptimizations.SpecificationBase'> (module name: _interface_coptimizations)
+warning: couldn't find real module for class <type '_zope_interface_coptimizations.VerifyingBase'> (module name: _zope_interface_coptimizations)
+warning: couldn't find real module for class <type '_interface_coptimizations.ClassProvidesBase'> (module name: _interface_coptimizations)
+warning: couldn't find real module for class <type '_interface_coptimizations.ObjectSpecificationDescriptor'> (module name: _interface_coptimizations)
+warning: couldn't find real module for class <type '_interface_coptimizations.SpecificationBase'> (module name: _interface_coptimizations)
+warning: couldn't find real module for class <type '_zope_interface_coptimizations.InterfaceBase'> (module name: _zope_interface_coptimizations)
+warning: couldn't find real module for class <type '_interface_coptimizations.SpecificationBase'> (module name: _interface_coptimizations)
 
 Warnings...
 

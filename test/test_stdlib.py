@@ -20,6 +20,7 @@ class ZopeTestCase(common.TestCase):
             self.skip = True # FIXME: interpret this
             return
 
+        # FIXME: add _interface_coptimizations to blacklist
         self.check('test_zope_interface', '-q')
     
 if __name__ == '__main__':

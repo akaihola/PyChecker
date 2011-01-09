@@ -43,6 +43,13 @@ class Item:
         self.length = length
         self.is_really_string = 0
 
+        # assert that proper data types are added
+        # FIXME: I would really like to add this assert, but we cannot be
+        # sure the python module exists or is loadable.
+        # For example: java.lang
+        # if self.type is types.ModuleType:
+            # assert data.__class__.__name__ == 'PyCheckerModule'
+
     def __str__(self) :
         if type(self.data) == types.TupleType:
             value = '('

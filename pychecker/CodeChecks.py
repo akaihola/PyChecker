@@ -21,6 +21,7 @@ from pychecker import Warning
 from pychecker import OP
 from pychecker import Stack
 from pychecker import python
+from pychecker import pcmodules
 
 __pychecker__ = 'no-argsused'
 
@@ -586,45 +587,66 @@ def _handleComparison(stack, operand) :
         compareValues.append(Stack.Item(None, None))
     stack[-si:] = [ Stack.makeComparison(compareValues, operand) ]
     return compareValues
+        
+def _handleDeprecated(code, name):
+    """
+    Check if the given name is a deprecated module, and add a warning
+    if it is.  Returns True if the name is deprecated.
+
+    @param code:     the code block in which the import is happening
+    @type  code:     L{Code}
+    @param name:     the name being imported that could be deprecated
+    @type  name:     str
+
+    @rtype: bool
+    """
+    try:
+        undeprecated = python.DEPRECATED_MODULES[name]
+    except KeyError:
+        return False
+    else:
+        if cfg().deprecated:
+            msg = msgs.USING_DEPRECATED_MODULE % name
+            if undeprecated:
+                msg.data = msg.data + msgs.USE_INSTEAD % undeprecated
+            code.addWarning(msg)
+        return True
 
 # FIXME: this code needs to be vetted; star imports should actually
 # import all the names from the module and put them in the new module
 # namespace so we detect collisions
-def _handleImport(code, operand, module, main, fromName):
+def _handleImport(code, operand, module, main, fromWhere):
     """
-    @param code:     the code block in which the import is happening
-    @type  code:     L{Code}
-    @param operand:  what is being imported (the module name in case of
-                     normal import, or the object names in the module in
-                     case of from ... import names/*)
-    @type  operand:  str
-    @param module:   the module in which the import is happening
-    @type  module:   L{pychecker.checker.PyCheckerModule}
-    @param main:     whether the import is in the source's global
-                     namespace (__main__)
-    @type  main:     int (treated as bool)
-    @param fromName: the name that's being imported
-    @type  fromName: str
+    @param code:       the code block in which the import is happening
+    @type  code:       L{Code}
+    @param operand:    what is being imported (the module name in case of
+                       normal import, or the object names in the module in
+                       case of from ... import names/*)
+    @type  operand:    str
+    @param module:     the module in which the import is happening
+    @type  module:     L{pychecker.checker.PyCheckerModule}
+    @param main:       whether the import is in the source's global
+                       namespace (__main__)
+    @type  main:       int (treated as bool)
+    @param fromWhere:  the module that's being imported from (name or object)
+    @type  fromWhere:  str or L{pcmodules.PyCheckerModule}
     """
     assert type(operand) is str
+    # FIXME: would be good if we could do this for real
+    # if fromModule:
+    #    assert isinstance(fromModule, pcmodules.PyCheckerModule)
 
     # FIXME: this function should be refactored/cleaned up
     key = operand
     tmpOperand = tmpFromName = operand
-    if fromName is not None :
-        tmpOperand = tmpFromName = fromName
-        key = (fromName, operand)
-
-    if cfg().deprecated:
-        try:
-            undeprecated = python.DEPRECATED_MODULES[tmpFromName]
-        except KeyError:
-            pass
+    if fromWhere:
+        if isinstance(fromWhere, pcmodules.PyCheckerModule):
+            tmpOperand = tmpFromName = fromWhere.moduleName
         else:
-            msg = msgs.USING_DEPRECATED_MODULE % tmpFromName
-            if undeprecated:
-                msg.data = msg.data + msgs.USE_INSTEAD % undeprecated
-            code.addWarning(msg)
+            tmpOperand = tmpFromName = fromWhere
+        key = (tmpFromName, operand)
+
+    _handleDeprecated(code, tmpFromName)
 
     if cfg().reimportSelf and tmpOperand == module.module.__name__ :
         code.addWarning(msgs.IMPORT_SELF % tmpOperand)
@@ -632,14 +654,14 @@ def _handleImport(code, operand, module, main, fromName):
     modline1 = module.moduleLineNums.get(tmpOperand, None)
     modline2 = module.moduleLineNums.get((tmpFromName, '*'), None)
     key2 = (tmpFromName,)
-    if fromName is not None and operand != '*' :
+    if fromWhere is not None and operand != '*' :
         key2 = (tmpFromName, operand)
     modline3 = module.moduleLineNums.get(key2, None)
 
     if modline1 is not None or modline2 is not None or modline3 is not None :
         err = None
 
-        if fromName is None :
+        if fromWhere is None :
             if modline1 is not None :
                 err = msgs.MODULE_IMPORTED_AGAIN % operand
             elif cfg().mixImport :
@@ -652,7 +674,7 @@ def _handleImport(code, operand, module, main, fromName):
                 if cfg().mixImport and code.getLineNum() != modline1[1] :
                     err = msgs.MIX_IMPORT_AND_FROM_IMPORT % tmpFromName
             else :
-                err = msgs.MODULE_MEMBER_ALSO_STAR_IMPORTED % fromName
+                err = msgs.MODULE_MEMBER_ALSO_STAR_IMPORTED % tmpFromName
 
         # filter out warnings when files are different (ie, from X import ...)
         if err is not None and cfg().moduleImportErrors :
@@ -664,28 +686,46 @@ def _handleImport(code, operand, module, main, fromName):
     if main :
         fileline = (code.func_code.co_filename, code.getLineNum())
         module.moduleLineNums[key] = fileline
-        if fromName is not None :
-            module.moduleLineNums[(fromName,)] = fileline
+        if fromWhere is not None :
+            module.moduleLineNums[(tmpFromName,)] = fileline
 
 
 def _handleImportFrom(code, operand, module, main):
     """
     @type  code:    L{Code}
-    @param operand: what is being imported; can be * for star imports
+    @param operand: what is being imported; can be * for star imports;
+                    can be any name (not only modules)
 
     @param main:    whether the import is in the source's global
                     namespace (__main__)
     @type  main:    int (treated as bool)
     """
+    # FIXME: are we sure that what we import is always a module ?
+    # Add a test for this that imports a function from a module
+
     # previous opcode is IMPORT_NAME
-    fromName = code.stack[-1].data
+    fromOperandData = code.stack[-1].data
+
+    # we now have from fromOperandData import operand
     if utils.pythonVersion() < utils.PYTHON_2_0 and \
        OP.POP_TOP(code.nextOpInfo()[0]):
         code.popNextOp()
-    # FIXME: thomas: why are we pushing the operand, which represents what
-    # we import, not where we import from ?
-    code.pushStack(Stack.Item(operand, types.ModuleType))
-    _handleImport(code, operand, module, main, fromName)
+
+    if isinstance(fromOperandData, pcmodules.PyCheckerModule):
+        fullName = "%s.%s" % (fromOperandData.moduleName, operand)
+    else:
+        fullName = "%s.%s" % (fromOperandData, operand)
+
+    try:
+        pcmodule = _getOrLoadPCModule(code, fullName)
+        code.pushStack(Stack.Item(pcmodule, types.ModuleType))
+    except ImportError:
+        # FIXME: so what is it ? what do we push ?
+        # For now, emulate the old code
+        code.pushStack(Stack.Item(operand, types.ModuleType))
+
+    # FIXME: should probably not continue if it was not a module
+    _handleImport(code, operand, module, main, fromOperandData)
 
 
 # http://www.python.org/doc/current/lib/typesseq-strings.html
@@ -1606,8 +1646,42 @@ def _COMPARE_OP(oparg, operand, codeSource, code) :
 
     _checkNoEffect(code)
 
-def _IMPORT_NAME(oparg, operand, codeSource, code) :
-    code.pushStack(Stack.Item(operand, types.ModuleType))
+def _getOrLoadPCModule(code, name):
+    """
+    Retrieve a previously loaded PyChecker module by name, or load it.
+
+    @param code:     the code block in which the import is happening
+    @type  code:     L{Code}
+    @param name:     the name being imported that could be deprecated
+    @type  name:     str
+
+    @rtype: L{pcmodules.PyCheckerModule}
+    """
+    pcmodule = pcmodules.getPCModule(name)
+    if not pcmodule:
+        pcmodule = pcmodules.PyCheckerModule(name)
+        try:
+            pcmodule.load(allowImportError=True)
+        except ImportError, e:
+            if not _handleDeprecated(code, name):
+                raise e
+
+    else:
+        pass
+
+    return pcmodule
+
+def _IMPORT_NAME(oparg, operand, codeSource, code):
+    try:
+        pcmodule = _getOrLoadPCModule(code, operand)
+        code.pushStack(Stack.Item(pcmodule, types.ModuleType))
+    except ImportError:
+        # TODO: a submodule could import a same-level module
+        # in that case, we wouldn't find the import name in PCModules
+        # construct a candidate local one instead, then add this warning
+        # msg = "IMPORT_NAME: '%s' does not seem to be a module" % (operand, )
+        # code.addWarning(msgs.CHECKER_BROKEN % msg)
+        code.pushStack(Stack.Item(operand, Stack.TYPE_UNKNOWN))
 
     # only handle straight import names; FROM or STAR are done separately
     nextOp = code.nextOpInfo()[0]

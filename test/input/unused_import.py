@@ -4,3 +4,5 @@
 import sys
 
 from os import path
+
+import xml.sax as sax

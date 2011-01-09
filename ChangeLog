@@ -1,5 +1,28 @@
 2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/CodeChecks.py:
+	  Extract a method to handle deprecated modules being imported.
+	  Add a helper to get a pcmodule for a given name so we can
+	  put it on the stack.
+	  Put the actual PyCheckerModule on the stack if we can find it.
+	  This will allow us to properly get attributes later on.
+	* pychecker/pcmodules.py:
+	  Allow errors during import to go through, so we can detect when
+	  something is not really a module.
+	* pychecker/Stack.py:
+	  Add a wishlist note.
+	* test/expected/test_zope_interface_q:
+	* test/test_stdlib.py:
+	  Doing more imports triggers these annoying warnings.  Blacklist them
+	  later in the test.
+	* test/input/unused_import.py:
+	  Add an import xml.sax as sax found in some test that caused problems
+	  while writing this patch.
+	* test/test_internal.py:
+	  Adjust the expected output because of it.
+
+2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/checker.py:
 	  Extract a still-private _check method so we can also invoke
 	  pychecker as a function from other code.

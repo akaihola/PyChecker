@@ -456,7 +456,12 @@ class PyCheckerModule:
 
         return _getPyFile(filename)
 
-    def load(self):
+    def load(self, allowImportError=False):
+        """
+        @param allowImportError: if True, do not catch ImportError but
+                                 reraise them, so caller can know this module
+                                 does not exist.
+        """
         try :
             # there's no need to reload modules we already have if no moduleDir
             # is specified for this module
@@ -474,7 +479,9 @@ class PyCheckerModule:
         except (SystemExit, KeyboardInterrupt):
             exc_type, exc_value, exc_tb = sys.exc_info()
             raise exc_type, exc_value
-        except:
+        except Exception, e:
+            if allowImportError:
+                raise
             utils.importError(self.moduleName, self.moduleDir)
             return utils.cfg().ignoreImportErrors
 

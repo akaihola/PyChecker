@@ -34,8 +34,8 @@ class UnusedImportTestCase(InternalTestCase):
     def test_unused_import(self):
         warnings = self.check(['input/unused_import.py', ])
 
-        # FIXME: this should generate two of them
-        self.assertEquals(len(warnings), 1)
+        # FIXME: this should generate one more
+        self.assertEquals(len(warnings), 11)
 
         # check the module and the code
         pcmodule = pcmodules.getPCModule("unused_import", moduleDir="input")
@@ -48,13 +48,15 @@ class UnusedImportTestCase(InternalTestCase):
         # FIXME: we did from os.path, but we get posixpath
         modules = pcmodule.modules.keys()
         modules.sort()
-        self.assertEquals(modules, ["posixpath", "sys"])
+        self.assertEquals(modules, ["posixpath", "sys", "xml.sax"])
         self.assertEquals(pcmodule.moduleLineNums,
             {
                 'sys':          ('input/unused_import.py', 4),
                 'path':         ('input/unused_import.py', 6),
                 ('os', 'path'): ('input/unused_import.py', 6),
-                ('os',):        ('input/unused_import.py', 6)
+                ('os',):        ('input/unused_import.py', 6),
+                'sax':          ('input/unused_import.py', 8),
+                'xml.sax':      ('input/unused_import.py', 8),
             })
 
     
