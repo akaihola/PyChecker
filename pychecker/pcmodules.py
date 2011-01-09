@@ -355,6 +355,8 @@ class PyCheckerModule:
     @type classes:        dict of str -> L{Class}
     @ivar modules:        dict of module alias -> module
     @type modules:        dict of str -> L{PyCheckerModule}
+    @ivar imported:       dict of name -> (import line, other module)
+    @type imported:       dict of str -> (int, L{PyCheckerModule})
     @ivar moduleLineNums: mapping of the module's nameds/operands to the
                           filename and linenumber where they are created
     @type moduleLineNums: dict of str or tuple of str -> (str, int)
@@ -387,6 +389,7 @@ class PyCheckerModule:
         self.functions = {}
         self.classes = {}
         self.modules = {}
+        self.imported = {}
         self.moduleLineNums = {}
         self.attributes = [ '__dict__' ]
         self.mainCode = None
@@ -451,6 +454,18 @@ class PyCheckerModule:
                     module.attributes.extend(dir(globalModule))
         else :
             self.modules[alias] = module
+
+    def addImported(self, name, line, pcmodule):
+        """
+        @param name:     the name of the token being imported
+        @type  name:     str
+        @param line:     the line number where the import happened
+        @type  line:     int
+        @param pcmodule: the module this name is being imported from
+        @type  pcmodule: L{PyCheckerModule}
+        """
+        assert name not in self.imported
+        self.imported[name] = (line, pcmodule)
 
     def filename(self) :
         try :
@@ -589,6 +604,15 @@ class PyCheckerModule:
             return self.modules[name]
 
         return None
+
+    def getTokenNames(self):
+        """
+        Looks up all names of tokens in this module's namespace.
+
+        @rtype: list of str
+        """
+        return self.variables.keys() + self.functions.keys() + \
+            self.classes.keys() + self.modules.keys()
 
 
 def getPCModule(moduleName, moduleDir=None):

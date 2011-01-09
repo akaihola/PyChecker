@@ -2,4 +2,6 @@ Processing module test44 (test_input/test44.py)...
 
 Warnings...
 
-None
+test_input/import44.py:11: Invalid arguments to (__init__), got 1, expected 0
+
+test_input/test44.py:5: Class (Ccc) shadows import on line 3 from module (import44)

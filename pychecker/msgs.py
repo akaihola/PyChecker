@@ -86,6 +86,7 @@ INVALID_MODULE_ATTR = Error("No module attribute (%s) found")
 
 LOCAL_SHADOWS_GLOBAL = Warning("Local variable (%s) shadows global defined on line %d")
 VARIABLE_SHADOWS_BUILTIN = Warning("(%s) shadows builtin")
+CLASS_SHADOWS_IMPORT = Warning("Class (%s) shadows import on line %d from module (%s)")
 USING_METHOD_AS_ATTR = Warning("Using method (%s) as an attribute (not invoked)")
 OBJECT_HAS_NO_ATTR = Warning("Object (%s) has no attribute (%s)")
 METHOD_SIGNATURE_MISMATCH = Warning("Overridden method (%s) doesn't match signature in class (%s)")

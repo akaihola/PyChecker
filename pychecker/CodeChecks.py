@@ -76,6 +76,8 @@ def _checkFunctionArgCount(code, func_name, argCount, minArgs, maxArgs,
     if err:
         code.addWarning(err)
 
+# FIXME: THOMAS: in test44, the func passed is wrong; it points to the
+#        Ccc.__init__ from test44 instead of the one from import44
 def _checkFunctionArgs(code, func, objectReference, argCount, kwArgs,
                        checkArgCount=1):
     """
@@ -635,6 +637,12 @@ def _handleImport(code, operand, module, main, fromWhere):
     # FIXME: would be good if we could do this for real
     # if fromModule:
     #    assert isinstance(fromModule, pcmodules.PyCheckerModule)
+
+    if isinstance(fromWhere, pcmodules.PyCheckerModule) and operand == '*':
+        for name in fromWhere.getTokenNames():
+            module.addImported(name, code.getLineNum(), fromWhere)
+
+    # FIXME: direct names imported should be added too
 
     # FIXME: this function should be refactored/cleaned up
     key = operand
@@ -1813,7 +1821,17 @@ def _STORE_MAP(oparg, operand, codeSource, code) :
 # Creates a new class object. TOS is the methods dictionary, TOS1 the tuple
 # of the names of the base classes, and TOS2 the class name.
 def _BUILD_CLASS(oparg, operand, codeSource, code) :
-    newValue = Stack.makeFuncReturnValue(code.stack[-1], types.ClassType)
+    nameItem = code.stack[-3]
+    newValue = Stack.makeFuncReturnValue(nameItem, types.ClassType)
+
+    if codeSource.main and \
+        nameItem.type is str and nameItem.data in codeSource.module.imported:
+        if cfg().shadows:
+            name = nameItem.data
+            line, pcmodule = codeSource.module.imported[name]
+            code.addWarning(msgs.CLASS_SHADOWS_IMPORT  % (
+                name, line, pcmodule.moduleName))
+
     code.popStackItems(3)
     code.pushStack(newValue)
 

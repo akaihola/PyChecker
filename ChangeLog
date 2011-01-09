@@ -1,6 +1,27 @@
 2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:
+	  Report warning when from X import * imports symbols that
+	  get shadowed by later class definitions.
+	  In _BUILD_CLASS, looks to me like we should push the name
+	  on the stack, not the dict.
+	* pychecker/msgs.py:
+	  Add the error message.
+	* pychecker/pcmodules.py:
+	  Track where imports happen in imported instance variable.
+	  Add addImported method.
+	* test_todo/import44.py (deleted):
+	* test_todo/test44.py (deleted):
+	* test_input/import44.py:
+	* test_input/test44.py:
+	* test_expected/test44:
+	  Since the code now gives a useful hint about what's wrong in this
+	  test (a class definition shadowing an import through *), put this
+	  test back in the test suite
+
+2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
 	  Track the aliased name of a global reference, so we track
 	  path when we do from os import path
 	* pychecker/pcmodules.py:
