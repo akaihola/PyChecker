@@ -1,5 +1,13 @@
 2011-01-10  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test/test_scope.py:
+	* test/expected/nested:
+	* test/input/nested.py:
+	  Add a test where pychecker lets the scope of one nested function
+	  bleed into the next one.
+
+2011-01-10  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test/input/unused_import.py:
 	  Change to an import that exists on older pythons.
 	* test/expected/unused_import:
