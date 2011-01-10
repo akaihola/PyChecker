@@ -5,4 +5,4 @@ Warnings...
 input/unused_import.py:4: Imported module (sys) not used
 input/unused_import.py:6: Imported module (path) not used
 input/unused_import.py:8: Imported module (sax) not used
-input/unused_import.py:10: Imported module (case) not used
+input/unused_import.py:10: Imported module (dom) not used

@@ -7,7 +7,7 @@ from os import path
 
 import xml.sax as sax
 
-from unittest import case
+from xml import dom
 
-def do(case=None): # older pycheckers treated case as used
-    print case
+def do(dom=None): # older pycheckers treated dom as used
+    print dom
