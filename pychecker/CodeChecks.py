@@ -66,7 +66,6 @@ def _checkFunctionArgCount(code, func_name, argCount, minArgs, maxArgs,
     @type  objectReference: int (used as bool)
     """
     # there is an implied argument for object creation and self.xxx()
-    # FIXME: this is where test44 fails
     if objectReference:
         minArgs = minArgs - 1
         if maxArgs is not None:
@@ -76,8 +75,6 @@ def _checkFunctionArgCount(code, func_name, argCount, minArgs, maxArgs,
     if err:
         code.addWarning(err)
 
-# FIXME: THOMAS: in test44, the func passed is wrong; it points to the
-#        Ccc.__init__ from test44 instead of the one from import44
 def _checkFunctionArgs(code, func, objectReference, argCount, kwArgs,
                        checkArgCount=1):
     """
