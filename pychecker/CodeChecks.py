@@ -2427,8 +2427,17 @@ _STORE_DEREF = _empty
 _STOP_CODE = _empty
 _NOP = _empty
 
+# In-place operations are like binary operations, in that they remove TOS and
+# TOS1, and push the result back on the stack, but the operation is done
+# in-place when TOS1 supports it, and the resulting TOS may be (but does not
+# have to be) the original TOS1.
+# Thomas: my reading is that they thus act the same as the BINARY ones,
+# and we don't really are if we push back the same object as the original
+# TOS1 or not
+_INPLACE_FLOOR_DIVIDE = _BINARY_FLOOR_DIVIDE
+_INPLACE_TRUE_DIVIDE = _BINARY_TRUE_DIVIDE
+
 # FIXME: all these could use an implementation
-_INPLACE_FLOOR_DIVIDE = _INPLACE_TRUE_DIVIDE = _unimplemented
 _EXTENDED_ARG = _unimplemented
 _PRINT_EXPR = _unimplemented
 

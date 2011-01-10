@@ -34,5 +34,8 @@ class OpcodesTestCase(common.TestCase):
     def test_DUP_TOPX(self):
         self.check('test_DUP_TOPX')
 
+    def test_INPLACE_TRUE_DIVIDE(self):
+        self.check('future_divide')
+
 if __name__ == '__main__':
     unittest.main()

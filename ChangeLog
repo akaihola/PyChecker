@@ -1,5 +1,14 @@
 2011-01-10  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test/test_pychecker_CodeChecks.py:
+	* test/expected/future_divide:
+	* test/input/future_divide.py:
+	  Add a test for inplace-division with __future__ division.
+	* pychecker/CodeChecks.py:
+	  Implement INPLACE_FLOOR_DIVIDE and INPLACE_TRUE_DIVIDE.
+
+2011-01-10  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* test/test_scope.py:
 	* test/expected/nested:
 	* test/input/nested.py:
