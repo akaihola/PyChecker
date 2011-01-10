@@ -65,10 +65,10 @@ class UnusedImportTestCase(InternalTestCase):
 
         modules = pcmodule.modules.keys()
         modules.sort()
-        self.assertEquals(modules, ["case", "path", "sax", "sys"])
+        self.assertEquals(modules, ["dom", "path", "sax", "sys"])
         self.assertEquals(pcmodule.moduleLineNums,
             {
-                'case':                 ('input/unused_import.py', 10),
+                'dom':                  ('input/unused_import.py', 10),
                 'do':                   ('input/unused_import.py', 12),
                 'sys':                  ('input/unused_import.py', 4),
                 'path':                 ('input/unused_import.py', 6),
@@ -76,8 +76,8 @@ class UnusedImportTestCase(InternalTestCase):
                 ('os',):                ('input/unused_import.py', 6),
                 'sax':                  ('input/unused_import.py', 8),
                 'xml.sax':              ('input/unused_import.py', 8),
-                ('unittest', ):         ('input/unused_import.py', 10),
-                ('unittest', 'case'):   ('input/unused_import.py', 10),
+                ('xml', ):              ('input/unused_import.py', 10),
+                ('xml', 'dom'):         ('input/unused_import.py', 10),
             })
 
 if __name__ == '__main__':
