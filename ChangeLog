@@ -1,3 +1,21 @@
+2011-01-11  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
+	* pychecker/warn.py:
+	  Implement support for cells which are used to store variables
+	  used in nested scope.
+	  Instead of blindly reusing the code object to handle nested code,
+	  restore the func object afterwards so that the code object points
+	  to the outside function at the end.
+	  Consider in the future actually making copies or deepcopies of
+	  the code object for the nested code, and keep references around.
+	  Fixes test_scope.py
+	* test/expected/nested:
+	* test/test_internal.py:
+	* test/test_scope.py:
+	* test_expected/test76:
+	  Adjust tests and expected output for this fix.
+
 2011-01-10  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* test/test_pychecker_CodeChecks.py:

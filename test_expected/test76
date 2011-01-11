@@ -2,5 +2,5 @@ Processing module test76 (test_input/test76.py)...
 
 Warnings...
 
-test_input/test76.py:7: Parameter (a) not used
-test_input/test76.py:7: Parameter (d) not used
+test_input/test76.py:5: Parameter (a) not used
+test_input/test76.py:5: Parameter (d) not used

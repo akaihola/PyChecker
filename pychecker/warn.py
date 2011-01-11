@@ -184,7 +184,9 @@ def _handleNestedCode(func_code, code, codeSource):
         if nested and func_code.co_name != utils.LAMBDA:
             varnames = func_code.co_varnames + \
                      codeSource.calling_code[-1].function.func_code.co_varnames
-        # save the original return value and restore after checking
+
+        # save the original func return value and restore after checking
+        func = code.func
         returnValues = code.returnValues
 
         # we don't want suppressions from nested code to bleed into the
@@ -194,6 +196,9 @@ def _handleNestedCode(func_code, code, codeSource):
                                        varnames))
         _checkCode(code, codeSource)
         utils.popConfig()
+
+        # restore
+        code.init(func)
         code.returnValues = returnValues
 
 def _findUnreachableCode(code) :
@@ -267,6 +272,7 @@ def _checkFunction(module, func, classObject=None, main=0, in_class=0):
             func_code = code.codeObjects[key]
             _handleNestedCode(func_code, code, codeSource)
         del codeSource.calling_code[-1]
+        assert code.func == codeSource.func
 
     except (SystemExit, KeyboardInterrupt) :
         exc_type, exc_value, exc_tb = sys.exc_info()

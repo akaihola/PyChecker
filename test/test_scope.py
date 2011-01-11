@@ -9,7 +9,6 @@ import unittest
 import common
 
 class NestedTestCase(common.TestCase):
-    todo = 'pychecker should handle nested scopes better'
     def test_nested(self):
         self.check('nested')
     

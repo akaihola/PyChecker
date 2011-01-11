@@ -11,6 +11,7 @@ Find warnings in byte code from Python source files.
 # For documentation about dispatcher arguments, look for
 # dispatcher functions for operands
 
+import copy
 import keyword
 import string
 import types
@@ -946,6 +947,9 @@ class Code :
     @ivar codeOrder:    ordered list of when the given key was added to
                         codeObjects
     @type codeOrder:    list of str/int
+    @ivar cells:        cells used for handling tokens in nested code;
+                        dict of oparg -> stack item
+    @type cells:        dict of int -> L{Stack.Item}
     """
 
     # opcodes are either 1 byte (no argument) or 3 bytes (with argument) long
@@ -982,6 +986,7 @@ class Code :
         self.constants = {}
         self.codeObjects = {}
         self.codeOrder = []
+        self.cells = {}
 
     def init(self, func):
         """
@@ -1346,6 +1351,7 @@ def _LOAD_NAME(oparg, operand, codeSource, code) :
     # if there was from XXX import *, _* names aren't imported
     # FIXME: this changes operand from handler to xml.sax.handler
     # for from xml.sax import handler; see test12
+
     if codeSource.module.modules.has_key(operand) and \
        hasattr(codeSource.module.module, operand) :
         operand = getattr(codeSource.module.module, operand).__name__
@@ -1359,7 +1365,16 @@ def _LOAD_NAME(oparg, operand, codeSource, code) :
 
 _LOAD_GLOBAL = _LOAD_NAME
 
+
+# Loads the cell contained in slot i of the cell and free variable storage.
+# Pushes a reference to the object the cell contains on the stack.
 def _LOAD_DEREF(oparg, operand, codeSource, code) :
+    if oparg in code.cells:
+        # FIXME: if I don't copy, then subsequent LOAD_DEREF for the same
+        # cell get attributes added to in LOAD_ATTR
+        code.pushStack(copy.copy(code.cells[oparg]))
+        return
+
     if type(oparg) == types.IntType :
         func_code = code.func_code
         try:
@@ -1373,6 +1388,14 @@ def _LOAD_DEREF(oparg, operand, codeSource, code) :
         _LOAD_GLOBAL(oparg, operand, codeSource, code)
 
 _LOAD_CLOSURE = _LOAD_DEREF
+
+
+# Stores TOS into the cell contained in slot i of the cell and free variable
+# storage.
+def _STORE_DEREF(oparg, operand, codeSource, code) :
+    if code.stack:
+        code.cells[oparg] = code.stack[-1]
+    code.popStack()
 
 # Implements del name, where namei is the index into co_names attribute of the
 # code object.
@@ -2420,7 +2443,6 @@ _POP_BLOCK = _empty
 _BREAK_LOOP = _empty
 _SETUP_LOOP = _empty
 _CONTINUE_LOOP = _empty
-_STORE_DEREF = _empty
 _STOP_CODE = _empty
 _NOP = _empty
 

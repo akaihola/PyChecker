@@ -35,11 +35,14 @@ class InternalTestCase(common.TestCase):
 
         return warnings
 
+    def formatWarnings(self, warnings):
+        return [w.format() for w in warnings]
+
 class UnusedImportTestCase(InternalTestCase):
     def test_unused_import(self):
         warnings = self.check(['input/unused_import.py', ])
 
-        self.assertEquals(len(warnings), 4)
+        self.assertEquals(len(warnings), 5, self.formatWarnings(warnings))
 
         # check the module and the code
         pcmodule = pcmodules.getPCModule("unused_import", moduleDir="input")
@@ -79,6 +82,39 @@ class UnusedImportTestCase(InternalTestCase):
                 ('xml', ):              ('input/unused_import.py', 10),
                 ('xml', 'dom'):         ('input/unused_import.py', 10),
             })
+
+    def test_nested(self):
+        warnings = self.check(['input/nested.py', ])
+
+        self.assertEquals(len(warnings), 1)
+
+        # check the module and the code
+        pcmodule = pcmodules.getPCModule("nested", moduleDir="input")
+        self.assertEquals(pcmodule.moduleName, "nested")
+        self.assertEquals(pcmodule.moduleDir, "input")
+
+        if utils.pythonVersion() >= utils.PYTHON_2_6:
+            self.assertEquals(pcmodule.variables.keys(), ["__package__"])
+        else:
+            self.assertEquals(pcmodule.variables.keys(), [])
+        self.assertEquals(pcmodule.classes.keys(), ["Result"])
+        self.assertEquals(pcmodule.functions.keys(), ["outside"])
+
+        # check the code
+        self.assertEquals(len(pcmodule.codes), 4)
+        self.assertEquals(pcmodule.codes[0].func.function.func_name, '__main__')
+        # FIXME: this assert is wrong; the code should be named outside,
+        # but since the code object got re-used for nested code, it's called
+        # second
+        self.assertEquals(pcmodule.codes[1].func.function.func_name, 'outside')
+        self.assertEquals(pcmodule.codes[2].func.function.func_name, 'Result')
+        self.assertEquals(pcmodule.codes[3].func.function.func_name, '__init__')
+
+        self.failIf(pcmodule.codes[0].stack)
+        # FIXME: why do we have a non-empty stack here ?
+        # self.failIf(pcmodule.codes[1].stack, pcmodule.codes[1].stack)
+        self.failIf(pcmodule.codes[2].stack)
+        self.failIf(pcmodule.codes[3].stack)
 
 if __name__ == '__main__':
     unittest.main()
