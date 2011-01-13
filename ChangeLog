@@ -1,5 +1,10 @@
 2011-01-13  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/pcmodules.py:
+	  Prepare for keying functions on alias instead of name.
+
+2011-01-13  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/check.py:
 	* pychecker/checker.py:
 	* pychecker/options.py:

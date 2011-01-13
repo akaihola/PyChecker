@@ -418,11 +418,16 @@ class PyCheckerModule:
         
         self.variables[var] = Variable(var, varType)
 
-    def addFunction(self, func):
+    def addFunction(self, func, alias):
         """
-        @type  func: callable
+        @type  func:  callable
+        @param alias: the name of the token in the module;
+                      for example _ = gettext.gettext will have alias _
+        @type  alias: str
         """
         self.functions[func.__name__] = function.Function(func)
+        # FIXME: do this instead
+        #self.functions[alias] = function.Function(func)
 
     def __addAttributes(self, c, classObject) :
         for base in getattr(classObject, '__bases__', None) or ():
@@ -444,6 +449,12 @@ class PyCheckerModule:
             self.__addAttributes(c, c.classObject)
 
     def addModule(self, name, alias, moduleDir=None) :
+        """
+        @type  name:  str
+        @param alias: the name of the token in the module;
+                      for example import gettext as g gives alias g
+        @type  alias: str
+        """
         module = getPCModule(name, moduleDir)
         if module is None :
             # not yet loaded, so load
@@ -467,7 +478,7 @@ class PyCheckerModule:
         @param pcmodule: the module this name is being imported from
         @type  pcmodule: L{PyCheckerModule}
         """
-        assert name not in self.imported
+        assert name not in self.imported, "name %s already imported"
         self.imported[name] = (line, pcmodule)
 
     def filename(self) :
@@ -550,7 +561,7 @@ class PyCheckerModule:
                 # get the real module name, tokenName could be an alias
                 self.addModule(token.__name__, tokenName)
             elif isinstance(token, types.FunctionType) :
-                self.addFunction(token)
+                self.addFunction(token, tokenName)
             elif isinstance(token, types.ClassType) or \
                  hasattr(token, '__bases__') and \
                  issubclass(type(token), type):
