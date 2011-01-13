@@ -637,6 +637,7 @@ def _handleImport(code, operand, module, main, fromWhere):
     #    assert isinstance(fromModule, pcmodules.PyCheckerModule)
 
     if isinstance(fromWhere, pcmodules.PyCheckerModule) and operand == '*':
+        utils.debug('Handling * import, adding %r', fromWhere.getTokenNames())
         for name in fromWhere.getTokenNames():
             module.addImported(name, code.getLineNum(), fromWhere)
 
