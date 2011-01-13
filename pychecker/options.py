@@ -251,13 +251,13 @@ class ConfigDialog:
         self._file.set(tkFileDialog.askopenfilename())
 
     def check(self, *unused):
-        import checker
+        import check
         import StringIO
         
         self.ok()                       # show effect of all settings
 
         checker._allModules = {}
-        warnings = checker.getWarnings([self._file.get()], self._cfg)
+        warnings = check.getWarnings([self._file.get()], self._cfg)
         capture = StringIO.StringIO()
         
         if not self._results:

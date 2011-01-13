@@ -1,5 +1,16 @@
 2011-01-13  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/check.py:
+	* pychecker/checker.py:
+	* pychecker/options.py:
+	* test/test_internal.py:
+	  Split out the module parts of checker.py into check.py
+	  checker.py is now only either the main of the pychecker script,
+	  or the side effects when importing.
+	  Adjust options and test_internal to suit.
+
+2011-01-13  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/pcmodules.py:
 	  When a module is binary (for now, ".so" extension, but might
 	  need to add more), don't try to setup main code and disassemble.

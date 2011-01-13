@@ -30,7 +30,7 @@ class InternalTestCase(common.TestCase):
         config = Config.Config()
         config.ignoreStandardLibrary = 1
 
-        from pychecker.checker import _check
+        from pychecker.check import _check
         warnings = _check(paths, cfg=config)
 
         return warnings
