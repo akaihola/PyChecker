@@ -1,5 +1,10 @@
 2011-01-13  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/pcmodules.py:
+	  Older Python versions do not have try/except/finally.
+
+2011-01-13  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/check.py:
 	  When processing files, only return warnings about newly loaded
 	  modules because of the files processed.

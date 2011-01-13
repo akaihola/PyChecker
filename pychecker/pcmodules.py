@@ -607,14 +607,15 @@ class PyCheckerModule:
     def _setupMainCode(self, handle, filename, module):
         try:
             self.mainCode = function.create_from_file(handle, filename, module)
+            if handle != None:
+                handle.close()
         except TypeError:
             # compile() expected string without null bytes
             utils.debug("Could not load function from file %s, module %r" % (
                 filename, module))
-            raise
-        finally:
             if handle != None:
                 handle.close()
+            raise
 
     def getToken(self, name):
         """
