@@ -1,6 +1,8 @@
 Goals for next minor release:
 -----------------------------
 * Run pychecker on itself and clean up
+* make sure that PyCheckerModule.functions/variables/classes/modules key
+  on alias for consistency
 * Add other non-pure python extensions like .so
 * it should be possible to mark imports that are unused but with side effects
   as not unused; either with a directive inside __main__ for that import
