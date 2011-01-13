@@ -1,6 +1,7 @@
 Goals for next minor release:
 -----------------------------
 * Run pychecker on itself and clean up
+* Add other non-pure python extensions like .so
 * it should be possible to mark imports that are unused but with side effects
   as not unused; either with a directive inside __main__ for that import
   specifically, or by inspecting the code and noticing there's more than
@@ -221,6 +222,8 @@ figure out why running pychecker on test/input/test_dict.py fails in 2.6
 while it doesn't when you copy it to ./test.py and run it on that
 (Probably because there is also test/__init__.py and it is trying to import
  that instead ?)
+- fix pychecker flumotion/twisted/credentials.py versus
+  flumotion.twisted.credentials
 
 Admin
 -----
