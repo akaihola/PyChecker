@@ -1,3 +1,9 @@
+2011-01-13  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/pcmodules.py:
+	  When a module is binary (for now, ".so" extension, but might
+	  need to add more), don't try to setup main code and disassemble.
+
 2011-01-11  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:

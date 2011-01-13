@@ -367,6 +367,8 @@ class PyCheckerModule:
     @ivar codes:          a list of all code in this module; used for
                           testing
     @type codes:          list of L{CodeChecks.Code}
+    @ivar python:         whether this is a pure python module
+    @type python:         int (used as bool)
     """
 
     def __init__(self, moduleName, check=1, moduleDir=None):
@@ -561,11 +563,18 @@ class PyCheckerModule:
         return 1
 
     def setupMainCode(self):
+        # FIXME: imp.find_module does not work if self.moduleName contains
+        # . like when checking flumotion.twisted.credentials
+        #(handle, filename, (suffix, mode, type)) = imp.find_module(self.moduleName)
         handle, filename, smt = utils.findModule(
             self.moduleName, self.moduleDir)
         # FIXME: if the smt[-1] == imp.PKG_DIRECTORY : load __all__
         # HACK: to make sibling imports work, we add self.moduleDir to sys.path
         # temporarily, and remove it later
+        # FIXME: but how do we distinguish between system twisted (normal
+        # import) and an import of twisted in flumotion.twisted module ?
+        # That should report something like import is both sibling and system
+        # module.
         if self.moduleDir is not None:
             oldsyspath = sys.path[:]
             sys.path.insert(0, self.moduleDir)
@@ -576,12 +585,22 @@ class PyCheckerModule:
             # do not persist, and get their namespace clobbered, delete it
             del sys.modules[self.moduleName]
 
+        if filename.endswith('.so'):
+            self.python = 0
+            return module
+
+        self.python = 1
         self._setupMainCode(handle, filename, module)
         return module
 
     def _setupMainCode(self, handle, filename, module):
         try:
             self.mainCode = function.create_from_file(handle, filename, module)
+        except TypeError:
+            # compile() expected string without null bytes
+            utils.debug("Could not load function from file %s, module %r" % (
+                filename, module))
+            raise
         finally:
             if handle != None:
                 handle.close()
