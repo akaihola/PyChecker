@@ -38,11 +38,19 @@ class InternalTestCase(common.TestCase):
     def formatWarnings(self, warnings):
         return [w.format() for w in warnings]
 
+    def assertWarnings(self, warnings, paths):
+        # check that all warnings are for files in the given paths
+        for w in warnings:
+            for p in paths:
+                self.failUnless(w.format().startswith(p),
+                    "Warning (%s) is for an unknown file" % w.format())
+
 class UnusedImportTestCase(InternalTestCase):
     def test_unused_import(self):
         warnings = self.check(['input/unused_import.py', ])
 
-        self.assertEquals(len(warnings), 5, self.formatWarnings(warnings))
+        self.assertEquals(len(warnings), 4, self.formatWarnings(warnings))
+        self.assertWarnings(warnings, ['input/unused_import.py'])
 
         # check the module and the code
         pcmodule = pcmodules.getPCModule("unused_import", moduleDir="input")
@@ -87,6 +95,7 @@ class UnusedImportTestCase(InternalTestCase):
         warnings = self.check(['input/nested.py', ])
 
         self.assertEquals(len(warnings), 1)
+        self.assertWarnings(warnings, ['input/nested.py'])
 
         # check the module and the code
         pcmodule = pcmodules.getPCModule("nested", moduleDir="input")

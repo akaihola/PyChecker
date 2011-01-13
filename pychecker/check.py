@@ -251,22 +251,40 @@ def _print_processing(name) :
 
 # grooming this to be public API to use pychecker as a module
 def _check(files, cfg=None, suppressions=None, printProcessing=False):
+    # snapshot modules before and after processing, so that we only warn
+    # about the modules loaded because of these files.
+    # preferable to clearing the loaded modules because we don't have to
+    # reprocess previously handled modules
+    beforeModules = getAllModules()
     utils.initConfig(cfg)
+
+    utils.debug('main: Checking %d files', len(files))
     utils.debug('main: Finding import warnings')
     importWarnings = processFiles(files, cfg,
         printProcessing and _print_processing or None)
     utils.debug('main: Found %d import warnings' % len(importWarnings))
 
     fixupBuiltinModules()
+
+    afterModules = getAllModules()
+
+    newModules = afterModules[:]
+    for m in beforeModules:
+        if m in newModules:
+            newModules.remove(m)
+
     if cfg.printParse :
-        for module in getAllModules() :
+        for module in newModules:
             printer.module(module)
 
     utils.debug('main: Finding warnings')
     # suppressions is a tuple of suppressions, suppressionRegexs dicts
-    warnings = warn.find(getAllModules(), cfg, suppressions)
-    utils.debug('main: Found %d warnings' % len(warnings))
+    warnings = warn.find(newModules, cfg, suppressions)
+
+    utils.debug('main: Found %d warnings in %d files and %d modules',
+        len(importWarnings) + len(warnings), len(files), len(newModules))
 
     # FIXME: any way to assert we are popping the one we pushed ?
     utils.popConfig()
+
     return importWarnings + warnings
