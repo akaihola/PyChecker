@@ -36,7 +36,7 @@ class InternalTestCase(common.TestCase):
         return warnings
 
     def formatWarnings(self, warnings):
-        return [w.format() for w in warnings]
+        return "\n".join([w.format() for w in warnings])
 
     def assertWarnings(self, warnings, paths):
         # check that all warnings are for files in the given paths
@@ -91,10 +91,11 @@ class UnusedImportTestCase(InternalTestCase):
                 ('xml', 'dom'):         ('input/unused_import.py', 10),
             })
 
+class NestedTestCase(InternalTestCase):
     def test_nested(self):
         warnings = self.check(['input/nested.py', ])
 
-        self.assertEquals(len(warnings), 1)
+        self.assertEquals(len(warnings), 1, self.formatWarnings(warnings))
         self.assertWarnings(warnings, ['input/nested.py'])
 
         # check the module and the code
@@ -124,6 +125,49 @@ class UnusedImportTestCase(InternalTestCase):
         # self.failIf(pcmodule.codes[1].stack, pcmodule.codes[1].stack)
         self.failIf(pcmodule.codes[2].stack)
         self.failIf(pcmodule.codes[3].stack)
+
+class StarImportTestCase(InternalTestCase):
+    todo = 'make functions keyed on alias'
+    def test_star_import(self):
+        warnings = self.check(['input/starimport.py', ])
+
+        self.assertEquals(len(warnings), 0, self.formatWarnings(warnings))
+
+        # check the module doing the star import
+        pcmodule = pcmodules.getPCModule("starimport", moduleDir="input")
+        self.assertEquals(pcmodule.moduleName, "starimport")
+        self.assertEquals(pcmodule.moduleDir, "input")
+
+        if utils.pythonVersion() >= utils.PYTHON_2_6:
+            self.assertEquals(pcmodule.variables.keys(), ["__package__"])
+        else:
+            self.assertEquals(pcmodule.variables.keys(), [])
+        self.assertEquals(pcmodule.classes.keys(), [])
+        self.assertEquals(pcmodule.functions.keys(), [])
+        self.assertEquals(pcmodule.modules.keys(), ["gettext", ])
+
+        # check the code
+        self.assertEquals(len(pcmodule.codes), 1)
+        self.assertEquals(pcmodule.codes[0].func.function.func_name, '__main__')
+
+        # FIXME: why do we have a non-empty stack here ?
+        # self.assertEquals(pcmodule.codes[0].stack, [])
+
+        # check the module from which we are starimporting
+        pcmodule = pcmodules.getPCModule("starimportfrom", moduleDir="input")
+        self.assertEquals(pcmodule.moduleName, "starimportfrom")
+        self.assertEquals(pcmodule.moduleDir, "input")
+
+        if utils.pythonVersion() >= utils.PYTHON_2_6:
+            self.assertEquals(pcmodule.variables.keys(), ["__package__"])
+        else:
+            self.assertEquals(pcmodule.variables.keys(), [])
+        self.assertEquals(pcmodule.classes.keys(), [])
+        self.assertEquals(pcmodule.functions.keys(), ["_", ])
+        self.assertEquals(pcmodule.modules.keys(), ["gettext", ])
+
+        # check the code
+        self.assertEquals(len(pcmodule.codes), 0)
 
 if __name__ == '__main__':
     unittest.main()

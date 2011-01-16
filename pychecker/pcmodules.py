@@ -478,7 +478,9 @@ class PyCheckerModule:
         @param pcmodule: the module this name is being imported from
         @type  pcmodule: L{PyCheckerModule}
         """
-        assert name not in self.imported, "name %s already imported"
+        assert name not in self.imported, \
+            "name %s from module %s already imported in %s" % (
+                name, pcmodule.moduleName, self.moduleName)
         self.imported[name] = (line, pcmodule)
 
     def filename(self) :
