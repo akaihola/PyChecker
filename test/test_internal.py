@@ -158,6 +158,50 @@ class StarImportTestCase(InternalTestCase):
         self.assertEquals(pcmodule.moduleName, "starimportfrom")
         self.assertEquals(pcmodule.moduleDir, "input")
 
+        variables = [v for v in pcmodule.variables.keys()
+            if v not in Config._DEFAULT_VARIABLE_IGNORE_LIST]
+        self.assertEquals(variables, [])
+        self.assertEquals(pcmodule.classes.keys(), [])
+        self.assertEquals(pcmodule.functions.keys(), ["_", ])
+        self.assertEquals(pcmodule.modules.keys(), ["gettext", ])
+
+        # check the code
+        self.assertEquals(len(pcmodule.codes), 0)
+
+    def test_star_import_from(self):
+        # First make sure that gettext only exists as a module, not as
+        # a function
+        warnings = self.check(['input/starimportfrom.py', ])
+
+        self.assertEquals(len(warnings), 0, self.formatWarnings(warnings))
+
+        # check the module doing the star import
+        pcmodule = pcmodules.getPCModule("starimportfrom", moduleDir="input")
+        self.assertEquals(pcmodule.moduleName, "starimportfrom")
+        self.assertEquals(pcmodule.moduleDir, "input")
+
+        variables = [v for v in pcmodule.variables.keys()
+            if v not in Config._DEFAULT_VARIABLE_IGNORE_LIST]
+        if utils.pythonVersion() >= utils.PYTHON_2_6:
+            self.assertEquals(variables, ["__package__"])
+        else:
+            self.assertEquals(variables, [])
+        self.assertEquals(pcmodule.classes.keys(), [])
+        self.assertEquals(pcmodule.functions.keys(), [])
+        self.assertEquals(pcmodule.modules.keys(), ["gettext", ])
+
+        # check the code
+        self.assertEquals(len(pcmodule.codes), 1)
+        self.assertEquals(pcmodule.codes[0].func.function.func_name, '__main__')
+
+        # FIXME: why do we have a non-empty stack here ?
+        # self.assertEquals(pcmodule.codes[0].stack, [])
+
+        # check the module from which we are starimporting
+        pcmodule = pcmodules.getPCModule("starimportfrom", moduleDir="input")
+        self.assertEquals(pcmodule.moduleName, "starimportfrom")
+        self.assertEquals(pcmodule.moduleDir, "input")
+
         if utils.pythonVersion() >= utils.PYTHON_2_6:
             self.assertEquals(pcmodule.variables.keys(), ["__package__"])
         else:
@@ -168,6 +212,7 @@ class StarImportTestCase(InternalTestCase):
 
         # check the code
         self.assertEquals(len(pcmodule.codes), 0)
+
 
 if __name__ == '__main__':
     unittest.main()

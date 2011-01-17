@@ -1,3 +1,9 @@
+2011-01-17  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* test/test_internal.py:
+	  Add another test to show that the problem is in the original
+	  module, 'gettext' is being added as a function.
+
 2011-01-16  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/pcmodules.py:
