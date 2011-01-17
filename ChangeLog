@@ -1,5 +1,11 @@
 2011-01-17  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test/input/starimport.py:
+	* test/input/starimportfrom.py:
+	  Actually add input files for the test
+
+2011-01-17  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/pcmodules.py:
 	  Key functions on their alias instead of their own name.
 	  Resolves problem of import gettext and _ = gettext.gettext
