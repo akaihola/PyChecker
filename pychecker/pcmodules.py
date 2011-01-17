@@ -471,6 +471,8 @@ class PyCheckerModule:
 
     def addImported(self, name, line, pcmodule):
         """
+        Track where a given token name is imported.
+
         @param name:     the name of the token being imported
         @type  name:     str
         @param line:     the line number where the import happened
@@ -479,8 +481,12 @@ class PyCheckerModule:
         @type  pcmodule: L{PyCheckerModule}
         """
         assert name not in self.imported, \
-            "name %s from module %s already imported in %s" % (
-                name, pcmodule.moduleName, self.moduleName)
+            "%s: name %s at %d from %s already imported at %d from %s" % (
+                self.moduleName,
+                name, line,
+                pcmodule.moduleName,
+                self.imported[name][0],
+                self.imported[name][1].moduleName)
         self.imported[name] = (line, pcmodule)
 
     def filename(self) :
