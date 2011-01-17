@@ -425,9 +425,7 @@ class PyCheckerModule:
                       for example _ = gettext.gettext will have alias _
         @type  alias: str
         """
-        self.functions[func.__name__] = function.Function(func)
-        # FIXME: do this instead
-        #self.functions[alias] = function.Function(func)
+        self.functions[alias] = function.Function(func)
 
     def __addAttributes(self, c, classObject) :
         for base in getattr(classObject, '__bases__', None) or ():

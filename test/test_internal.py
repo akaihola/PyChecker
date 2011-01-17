@@ -127,7 +127,6 @@ class NestedTestCase(InternalTestCase):
         self.failIf(pcmodule.codes[3].stack)
 
 class StarImportTestCase(InternalTestCase):
-    todo = 'make functions keyed on alias'
     def test_star_import(self):
         warnings = self.check(['input/starimport.py', ])
 
@@ -199,6 +198,8 @@ class StarImportTestCase(InternalTestCase):
         # FIXME: why do we have a non-empty stack here ?
         # self.assertEquals(pcmodule.codes[0].stack, [])
         self.assertEquals(pcmodule.codes[1].stack, [])
+
+    test_star_import.todo = 'make functions keyed on alias'
 
 if __name__ == '__main__':
     unittest.main()
