@@ -684,3 +684,12 @@ def addPCModule(pcmodule):
     """
     global __pcmodules
     __pcmodules[(pcmodule.moduleName, pcmodule.moduleDir)] = pcmodule
+
+def _getPCModulesDict():
+    """
+    Only to be used for testing.
+
+    @rtype: dict of (name, dir) -> L{pychecker.checker.PyCheckerModule}
+    """
+    global __pcmodules
+    return __pcmodules

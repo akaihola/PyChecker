@@ -152,6 +152,11 @@ class StarImportTestCase(InternalTestCase):
         # FIXME: why do we have a non-empty stack here ?
         # self.assertEquals(pcmodule.codes[0].stack, [])
 
+        modules = pcmodules._getPCModulesDict()
+        for (name, moduleDir) in modules.keys():
+            self.failIf(name.find('*') > -1,
+                'Invalid loaded module name %s' % (name, ))
+
         # check the module from which we are starimporting;
         # it should have been loaded as a side effect
         pcmodule = pcmodules.getPCModule("starimportfrom", moduleDir="input")

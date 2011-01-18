@@ -1,3 +1,11 @@
+2011-01-18  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/pcmodules.py:
+	  Allow getting the whole dict, for testing.
+	* test/test_internal.py:
+	  Add a test that shows that we are creating bogus modules
+	  when doing star imports.
+
 2011-01-17  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* test/input/starimport.py:
