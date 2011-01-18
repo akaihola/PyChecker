@@ -228,6 +228,7 @@ while it doesn't when you copy it to ./test.py and run it on that
  that instead ?)
 - fix pychecker flumotion/twisted/credentials.py versus
   flumotion.twisted.credentials
+- flumotion/common/options.py: _gobject is not defined problem; add test
 
 Admin
 -----
