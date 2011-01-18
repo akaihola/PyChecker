@@ -160,6 +160,8 @@ class StarImportTestCase(InternalTestCase):
         # check the module from which we are starimporting;
         # it should have been loaded as a side effect
         pcmodule = pcmodules.getPCModule("starimportfrom", moduleDir="input")
+        # FIXME; pcmodule has wrong moduleDir
+        pcmodule = pcmodules.getPCModule("starimportfrom", moduleDir=None)
         self.assertEquals(pcmodule.moduleName, "starimportfrom")
         self.assertEquals(pcmodule.moduleDir, "input")
 

@@ -1,5 +1,12 @@
 2011-01-18  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test/test_internal.py:
+	  Add another assert.
+	* pychecker/CodeChecks.py:
+	  Fix getting module names with * in it when doing star imports.
+
+2011-01-18  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/pcmodules.py:
 	  Allow getting the whole dict, for testing.
 	* test/test_internal.py:

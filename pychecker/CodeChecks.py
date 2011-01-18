@@ -719,12 +719,19 @@ def _handleImportFrom(code, operand, module, main):
         code.popNextOp()
 
     if isinstance(fromOperandData, pcmodules.PyCheckerModule):
-        fullName = "%s.%s" % (fromOperandData.moduleName, operand)
+        moduleName = fromOperandData.moduleName
+        moduleDir = fromOperandData.moduleDir
     else:
-        fullName = "%s.%s" % (fromOperandData, operand)
+        moduleName = fromOperandData
+        moduleDir = None
+
+    if operand == '*':
+        fullName = moduleName
+    else:
+        fullName = "%s.%s" % (moduleName, operand)
 
     try:
-        pcmodule = _getOrLoadPCModule(code, fullName)
+        pcmodule = _getOrLoadPCModule(code, fullName, moduleDir)
         code.pushStack(Stack.Item(pcmodule, types.ModuleType))
     except ImportError:
         # FIXME: so what is it ? what do we push ?
@@ -1681,7 +1688,7 @@ def _COMPARE_OP(oparg, operand, codeSource, code) :
 
     _checkNoEffect(code)
 
-def _getOrLoadPCModule(code, name):
+def _getOrLoadPCModule(code, name, moduleDir=None):
     """
     Retrieve a previously loaded PyChecker module by name, or load it.
 
@@ -1692,9 +1699,10 @@ def _getOrLoadPCModule(code, name):
 
     @rtype: L{pcmodules.PyCheckerModule}
     """
-    pcmodule = pcmodules.getPCModule(name)
+    assert '*' not in name, "Name %r contains an asterisk" % name
+    pcmodule = pcmodules.getPCModule(name, moduleDir=moduleDir)
     if not pcmodule:
-        pcmodule = pcmodules.PyCheckerModule(name)
+        pcmodule = pcmodules.PyCheckerModule(name, moduleDir=moduleDir)
         try:
             pcmodule.load(allowImportError=True)
         except ImportError, e:
