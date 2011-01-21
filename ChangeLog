@@ -1,3 +1,9 @@
+2011-01-21  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
+	  Make it clear when handling IMPORT_STAR whether we are actually
+	  able to import because we've loaded the module.
+
 2011-01-18  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* test/test_internal.py:
