@@ -39,7 +39,7 @@ Release procedure for pychecker
   FIXME: Neil to give me admin ?
   moap doap -v $VERSION freshmeat -b Default
 - send out release mail:
-    moap doap -v $VERSION mail -f thomas@apestaart.org pychecker-list@lists.sourceforge.net
+    moap doap -v $VERSION mail -f thomas@apestaart.org pychecker-list@lists.sourceforge.net vcrhonek@redhat.com pronovic@debian.org
 - add new group to sourceforge and make it the default (FIXME: does default work ?)
 - update the homepage
   rsync -arv thomasvs,pychecker@web.sourceforge.net: .
