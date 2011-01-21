@@ -1,3 +1,11 @@
+Before releasing
+----------------
+
+- ./test_check.sh
+- trial test
+- pychecker /usr/lib/python*/site-packages/pychecker/*.py
+- pychecker flumotion, moap, morituri, savon
+
 Release procedure for pychecker
 -------------------------------
 
