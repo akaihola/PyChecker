@@ -1,5 +1,10 @@
 2011-01-21  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* test/input/nestedinit.py:
+	  Add another test case that triggers the wrong warnings.
+
+2011-01-21  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/check.py:
 	  Don't add None to sys.path
 
