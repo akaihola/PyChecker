@@ -29,6 +29,8 @@ class InternalTestCase(common.TestCase):
     def check(self, paths):
         config = Config.Config()
         config.ignoreStandardLibrary = 1
+        if os.environ.get('PYCHECKER_DEBUG'):
+            config.debug = 1
 
         from pychecker.check import _check
         warnings = _check(paths, cfg=config)
@@ -160,14 +162,16 @@ class StarImportTestCase(InternalTestCase):
         # check the module from which we are starimporting;
         # it should have been loaded as a side effect
         pcmodule = pcmodules.getPCModule("starimportfrom", moduleDir="input")
-        # FIXME; pcmodule has wrong moduleDir
-        pcmodule = pcmodules.getPCModule("starimportfrom", moduleDir=None)
+        self.failUnless(pcmodule, pcmodules._getPCModulesDict())
         self.assertEquals(pcmodule.moduleName, "starimportfrom")
         self.assertEquals(pcmodule.moduleDir, "input")
 
         variables = [v for v in pcmodule.variables.keys()
             if v not in Config._DEFAULT_VARIABLE_IGNORE_LIST]
-        self.assertEquals(variables, [])
+        if utils.pythonVersion() >= utils.PYTHON_2_6:
+            self.assertEquals(pcmodule.variables.keys(), ["__package__"])
+        else:
+            self.assertEquals(pcmodule.variables.keys(), [])
         self.assertEquals(pcmodule.classes.keys(), [])
         self.assertEquals(pcmodule.functions.keys(), ["_", ])
         self.assertEquals(pcmodule.modules.keys(), ["gettext", ])
@@ -205,8 +209,6 @@ class StarImportTestCase(InternalTestCase):
         # FIXME: why do we have a non-empty stack here ?
         # self.assertEquals(pcmodule.codes[0].stack, [])
         self.assertEquals(pcmodule.codes[1].stack, [])
-
-    test_star_import.todo = 'make functions keyed on alias'
 
 if __name__ == '__main__':
     unittest.main()

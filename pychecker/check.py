@@ -96,7 +96,7 @@ def getModules(arg_list) :
     return modules
 
 
-def getAllModules():
+def getAllPCModules():
     """
     Returns a list of all modules that should be checked.
 
@@ -242,12 +242,33 @@ def processFiles(files, cfg=None, pre_process_cb=None):
 def getWarnings(files, cfg = None, suppressions = None):
     warnings = processFiles(files, cfg)
     fixupBuiltinModules()
-    return warnings + warn.find(getAllModules(), _cfg, suppressions)
+    return warnings + warn.find(getAllPCModules(), _cfg, suppressions)
 
 
 def _print_processing(name) :
     if not _cfg.quiet :
         sys.stderr.write("Processing %s...\n" % name)
+
+def _mightBeSiblingModule(module):
+    # check if the given module might be a sibling module
+    # return True if it's likely it is
+
+    # if we can't check the file we cannot now
+    if not hasattr(module, '__file__'):
+        return False
+
+    # if it's an absolute path then it was probably a system import
+    if module.__file__.startswith(os.path.sep):
+        return False
+
+    # if the package name matches the dir, it was an import from ''/cwd
+    package = module.__name__.split('.')[0]
+    directory = module.__file__.split(os.path.sep)[0]
+
+    if package == directory:
+        return False
+
+    return True
 
 # grooming this to be public API to use pychecker as a module
 def _check(files, cfg=None, suppressions=None, printProcessing=False):
@@ -255,7 +276,8 @@ def _check(files, cfg=None, suppressions=None, printProcessing=False):
     # about the modules loaded because of these files.
     # preferable to clearing the loaded modules because we don't have to
     # reprocess previously handled modules
-    beforeModules = getAllModules()
+    beforePCModules = getAllPCModules()
+    beforeModules = dict(sys.modules.items())
     utils.initConfig(cfg)
 
     utils.debug('main: Checking %d files', len(files))
@@ -263,26 +285,41 @@ def _check(files, cfg=None, suppressions=None, printProcessing=False):
     importWarnings = processFiles(files, cfg,
         printProcessing and _print_processing or None)
     utils.debug('main: Found %d import warnings' % len(importWarnings))
+    utils.debug('main: %d modules in sys.modules' % len(sys.modules.keys()))
 
     fixupBuiltinModules()
 
-    afterModules = getAllModules()
+    afterPCModules = getAllPCModules()
 
-    newModules = afterModules[:]
-    for m in beforeModules:
-        if m in newModules:
-            newModules.remove(m)
+    newPCModules = afterPCModules[:]
+    for m in beforePCModules:
+        if m in newPCModules:
+            newPCModules.remove(m)
+
+    newModules = dict(sys.modules.items())
+    for k, v in beforeModules.items():
+        if k in newModules:
+            del newModules[k]
 
     if cfg.printParse :
-        for module in newModules:
+        for module in newPCModules:
             printer.module(module)
+    utils.debug('main: %d Pychecker modules and %d python modules loaded',
+        len(newPCModules), len(newModules))
+
+    # remove all sys.modules suspected of being sibling imports; they now
+    # pollute the global namespace of sys.modules
+    for k, v in newModules.items():
+        if v and _mightBeSiblingModule(v):
+            utils.debug('main: unloading python module %s', v)
+            del sys.modules[k]
 
     utils.debug('main: Finding warnings')
     # suppressions is a tuple of suppressions, suppressionRegexs dicts
-    warnings = warn.find(newModules, cfg, suppressions)
+    warnings = warn.find(newPCModules, cfg, suppressions)
 
     utils.debug('main: Found %d warnings in %d files and %d modules',
-        len(importWarnings) + len(warnings), len(files), len(newModules))
+        len(importWarnings) + len(warnings), len(files), len(newPCModules))
 
     # FIXME: any way to assert we are popping the one we pushed ?
     utils.popConfig()

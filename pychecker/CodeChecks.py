@@ -735,10 +735,13 @@ def _handleImportFrom(code, operand, module, main):
     else:
         fullName = "%s.%s" % (moduleName, operand)
 
-    try:
-        pcmodule = _getOrLoadPCModule(code, fullName, moduleDir)
-        code.pushStack(Stack.Item(pcmodule, types.ModuleType))
-    except ImportError:
+    # see if the module we are importing from has the operand as a module
+    siblingModuleDir = module.moduleDir
+    pcmodule = _getOrLoadPCModule(code, moduleName, moduleDir,
+        siblingModuleDir=siblingModuleDir)
+    if operand in pcmodule.modules:
+        code.pushStack(Stack.Item(pcmodule.modules[operand], types.ModuleType))
+    else:
         # FIXME: so what is it ? what do we push ?
         # For now, emulate the old code
         code.pushStack(Stack.Item(operand, types.ModuleType))
@@ -1693,7 +1696,7 @@ def _COMPARE_OP(oparg, operand, codeSource, code) :
 
     _checkNoEffect(code)
 
-def _getOrLoadPCModule(code, name, moduleDir=None):
+def _getOrLoadPCModule(code, name, moduleDir=None, siblingModuleDir=None):
     """
     Retrieve a previously loaded PyChecker module by name, or load it.
 
@@ -1705,23 +1708,40 @@ def _getOrLoadPCModule(code, name, moduleDir=None):
     @rtype: L{pcmodules.PyCheckerModule}
     """
     assert '*' not in name, "Name %r contains an asterisk" % name
+
+    # make system imports take precedence over siblings
+    # FIXME: not sure what Python actually does here
+    # but reversing breaks the test_zope_interface test
+
     pcmodule = pcmodules.getPCModule(name, moduleDir=moduleDir)
+
+    if not pcmodule:
+        pcmodule = pcmodules.getPCModule(name, moduleDir=siblingModuleDir)
+
     if not pcmodule:
         pcmodule = pcmodules.PyCheckerModule(name, moduleDir=moduleDir)
         try:
             pcmodule.load(allowImportError=True)
         except ImportError, e:
-            if not _handleDeprecated(code, name):
-                raise e
+            pcmodule = pcmodules.PyCheckerModule(name,
+                moduleDir=siblingModuleDir)
+            try:
+                pcmodule.load(allowImportError=True)
+            except ImportError, e:
+                if not _handleDeprecated(code, name):
+                    raise e
 
     else:
         pass
 
     return pcmodule
-
 def _IMPORT_NAME(oparg, operand, codeSource, code):
     try:
-        pcmodule = _getOrLoadPCModule(code, operand)
+        # FIXME: if it is a sibling import, we should reuse moduleDir
+        # FIXME: but should only be a candidate, and here we pass it always
+        siblingModuleDir = codeSource.module.moduleDir
+        pcmodule = _getOrLoadPCModule(code, operand,
+            siblingModuleDir=siblingModuleDir)
         code.pushStack(Stack.Item(pcmodule, types.ModuleType))
     except ImportError:
         # TODO: a submodule could import a same-level module

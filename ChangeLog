@@ -1,6 +1,29 @@
 2011-01-21  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* pychecker/CodeChecks.py:
+	  Handle sibling imports, where a module could be importing another
+	  living in the same directory.
+	  When handling IMPORT_NAME, pass the current's module moduleDir as
+	  the sibling module dir so we can load the ones that are as such,
+	  and tag them properly in the PCModules.
+	* pychecker/check.py:
+	  Track both PC Modules and normal python modules added/loaded after
+	  importing all files to be checked.
+	  Delete the modules that are likely to be a sibling module from
+	  sys.modules, because they pollute that namespace by pretending they
+	  are an importable module from sys.path when they were a side effect
+	  of loading the files we were interested in.
+	* pychecker/checker.py:
+	  Find a good moduleDir for the candidate files.
+	* test/test_internal.py:
+	  Allow PYCHECKER_DEBUG as an env var so runs of trial can be done
+	  with debugging.
+	  Fix variables assert.
+	  Test now passes.
+
+2011-01-21  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* pychecker/CodeChecks.py:
 	  Make it clear when handling IMPORT_STAR whether we are actually
 	  able to import because we've loaded the module.
 

@@ -189,7 +189,18 @@ else :
         if check :
             try :
                 # FIXME: can we find a good moduleDir ?
-                module = pcmodules.PyCheckerModule(pymodule.__name__)
+                # based on possible module.__file__, check if it's from
+                # sys.path, and if not, extract moduleDir
+                moduleDir = os.path.dirname(pymodule.__file__)
+                for path in sys.path:
+                    if os.path.abspath(moduleDir) == os.path.abspath(path):
+                        moduleDir = None
+                        break
+
+                # FIXME: could it possibly be from a higher-level package,
+                # instead of the current dir ? Loop up with __init__.py ?
+                module = pcmodules.PyCheckerModule(pymodule.__name__,
+                    moduleDir=moduleDir)
                 if module.initModule(pymodule):
                     warnings = warn.find([module], _cfg, _suppressions)
                     _printWarnings(_get_unique_warnings(warnings))
