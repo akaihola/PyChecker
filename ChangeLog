@@ -1,5 +1,10 @@
 2011-01-21  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/check.py:
+	  Don't add None to sys.path
+
+2011-01-21  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* pychecker/CodeChecks.py:
 	  Handle sibling imports, where a module could be importing another
 	  living in the same directory.

@@ -60,7 +60,8 @@ def getModules(arg_list) :
     Returns a list of (module name, dirPath) that can be imported, where
     dirPath is the on-disk path to the module name for that argument.
 
-    dirPath can be None (in case the given argument is an actual module).
+    dirPath can be None (in case the given argument is an actual module name
+    importable as is).
     """
 
     new_arguments = []
@@ -221,7 +222,8 @@ def processFiles(files, cfg=None, pre_process_cb=None):
 
         # create and load the PyCheckerModule, tricking sys.path temporarily
         oldsyspath = sys.path[:]
-        sys.path.insert(0, moduleDir)
+        if moduleDir is not None:
+            sys.path.insert(0, moduleDir)
         pcmodule = pcmodules.PyCheckerModule(moduleName, moduleDir=moduleDir)
         loaded = pcmodule.load()
         sys.path = oldsyspath
