@@ -1,2 +1,20 @@
-include COPYRIGHT VERSION ChangeLog KNOWN_BUGS MAINTAINERS NEWS TODO pychecker.doap
-include README pycheckrc 
+include setup.py
+include setup.cfg
+include ChangeLog
+include COPYRIGHT
+include HACKING
+include KNOWN_BUGS
+include MAINTAINERS
+include NEWS
+include README
+include TODO
+include VERSION
+include pychecker.doap
+include pycheckrc
+include test_check.sh
+recursive-include pychecker *.py
+graft pychecker2
+graft test
+graft test_input
+graft test_expected
+global-exclude .cvsignore *.pyc
