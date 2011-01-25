@@ -21,6 +21,8 @@ TYPE_COMPARISON = "-comparison-"
 TYPE_GLOBAL = "-global-"
 TYPE_EXCEPT = "-except-"
 
+# conventions for Items:
+# a method call has data ('self', methodName), type ATTRIBUTE
 class Item:
     """
     Representation of data on the stack
@@ -72,8 +74,31 @@ class Item:
         return self.data is None and self.const
 
     def isMethodCall(self, c, methodArgName):
-        return self.type == TYPE_ATTRIBUTE and c != None and \
-               len(self.data) == 2 and self.data[0] == methodArgName
+        """
+        @param methodArgName: the first argument 
+        Check if the stack item is a method call.
+
+        @type  methodArgName: str
+        @param methodArgName: the name of the first argument for method calls;
+                              usually self.
+        """
+        if self.type != TYPE_ATTRIBUTE:
+            return False
+
+        # FIXME: we only check if c is not None; that doesn't mean it
+        # has the given methodArgName
+        if c is None:
+            return False
+
+        if len(self.data) != 2:
+            # no object indirection happening
+            return False
+
+        if self.data[0] != methodArgName:
+            # indirection does not start with first argument for method calls
+            return False
+
+        return True
 
     def isLocals(self):
         return self.type == types.DictType and self.data == LOCALS
@@ -111,6 +136,8 @@ class Item:
         return TYPE_UNKNOWN
 
     def getName(self):
+        # if the item is an attribute but not a string, it's a tuple
+        # of object indirections
         if self.type == TYPE_ATTRIBUTE and type(self.data) != types.StringType:
             strValue = ""
             # convert the tuple into a string ('self', 'data') -> self.data
@@ -120,10 +147,27 @@ class Item:
         return utils.safestr(self.data)
 
     def addAttribute(self, attr):
-        if type(self.data) == types.TupleType:
-            self.data = self.data + (attr,)
-        else:
-            self.data = (self.data, attr)
+        """
+        Replaces self with a stack item representing the dereferencing of
+        its attribute.
+
+        For example, if the stack item describes a class, calling this method
+        will replace the stack item with one describing the attribute of
+        this class.
+
+        @type  attr: str
+        """
+        # only called through LOAD_ATTR, which replaces TOS with the
+        # dereferencing result
+        assert type(attr) is str
+
+        # make sure that adding an attribute makes data a tuple if it
+        # wasn't yet
+        if type(self.data) != types.TupleType:
+            self.data = (self.data, )
+
+        self.data = self.data + (attr,)
+
         self.type = TYPE_ATTRIBUTE
 
 

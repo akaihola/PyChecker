@@ -1,3 +1,13 @@
+2011-01-25  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* HACKING:
+	  Add debian note.
+	* pychecker/CodeChecks.py:
+	  Add a FIXME for an internal warning.
+	* pychecker/Stack.py:
+	  Comment, document, and assert assumptions related to
+	  attributes and indirections.
+
 2011-01-21  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* test/input/nestedinit.py:

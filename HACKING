@@ -69,3 +69,7 @@ HISTORY
 BUILDBOT
 --------
 A buildbot is set up at http://build.fluendo.com:8200/
+
+PACKAGES
+--------
+- debian page: http://packages.qa.debian.org/p/pychecker.html

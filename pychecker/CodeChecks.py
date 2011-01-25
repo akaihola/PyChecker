@@ -1561,6 +1561,7 @@ def _checkDeprecated(code, identifierTuple):
 
 def _LOAD_ATTR(oparg, operand, codeSource, code) :
     # FIXME: how can LOAD_ATTR happen without a stack ?
+    # FIXME: add an internal warning here
     if len(code.stack) > 0 :
         top = code.stack[-1]
         _checkAttribute(top, operand, codeSource, code)
