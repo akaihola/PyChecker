@@ -207,7 +207,7 @@ def _validateKwArgs(code, info, func_name, kwArgs):
         if arg not in info[3]:
             code.addWarning(msgs.FUNC_DOESNT_SUPPORT_KW_ARG % (func_name, arg))
 
-def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
+def _checkBuiltin(code, loadValue, argCount, kwArgs, checkArgCount = 1) :
     returnValue = Stack.makeFuncReturnValue(loadValue, argCount)
     func_name = loadValue.data
     if loadValue.type == Stack.TYPE_GLOBAL :
@@ -227,7 +227,7 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
 
             if kwArgs:
                 _validateKwArgs(code, info, func_name, kwArgs)
-            elif check_arg_count :
+            elif checkArgCount :
                 _checkFunctionArgCount(code, func_name, argCount,
                                        info[1], info[2])
             returnValue = Stack.Item(returnValue.data, info[0])
@@ -238,7 +238,7 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
             try :
                 if func_name[1] == 'append' and argCount > 1 :
                     code.addWarning(msgs.LIST_APPEND_ARGS % func_name[0])
-                    check_arg_count = 0
+                    checkArgCount = 0
             except AttributeError :
                 # FIXME: why do we need to catch AttributeError???
                 pass
@@ -253,7 +253,7 @@ def _checkBuiltin(code, loadValue, argCount, kwArgs, check_arg_count = 1) :
                 elif methodInfo :
                     returnValue = Stack.Item(func_name[1], methodInfo[0])
                     returnValue.setStringType(methodInfo[0])
-                    if check_arg_count and methodInfo is not None :
+                    if checkArgCount and methodInfo is not None :
                         _checkFunctionArgCount(code, func_name[1], argCount,
                                                methodInfo[1], methodInfo[2])
 
@@ -364,11 +364,18 @@ def _checkReturnValueUse(code, func):
     if err:
         code.addWarning(err)
 
-def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
-                        check_arg_count = 1) :
-    'Checks for warnings, returns function called (may be None)'
+def _handleFunctionCall(codeSource, code, argCount, indexOffset=0,
+                        checkArgCount=1):
+    """
+    Checks the function call for warnings.
+    Replaces the function call on the stack with an Item representing
+    the return value.
+    """
 
-    if not code.stack :
+    # without a stack, we cannot construct the call
+    if not code.stack:
+        code.addWarning(msgs.Internal(
+            "handling function call without a stack. File a bug."))
         return
 
     kwArgCount = argCount >> utils.VAR_ARGS_BITS
@@ -400,7 +407,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
             if m != None :
                 objRef = not m.isStaticMethod()
                 _checkFunctionArgs(code, m, objRef, argCount, kwArgs,
-                                   check_arg_count)
+                                   checkArgCount)
         except KeyError :
             sattr = codeSource.classObject.statics.get(methodName)
             if sattr is not None :
@@ -446,7 +453,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                 if refClass and func.isClassMethod():
                     argCount = argCount + 1
                 _checkFunctionArgs(code, func, method, argCount, kwArgs,
-                                   check_arg_count)
+                                   checkArgCount)
                 # if this isn't a c'tor, we should check
                 if not (refClass and method) and cfg().checkReturnValues:
                     _checkReturnValueUse(code, func)
@@ -473,7 +480,7 @@ def _handleFunctionCall(codeSource, code, argCount, indexOffset = 0,
                     code.addWarning(msgs.NO_CTOR_ARGS)
             else :
                 returnValue = _checkBuiltin(code, loadValue, argCount, kwArgs,
-                                            check_arg_count)
+                                            checkArgCount)
                 if returnValue.type is types.NoneType and \
                    not OP.POP_TOP(code.nextOpInfo()[0]) :
                     name = utils.safestr(loadValue.data)
