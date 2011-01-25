@@ -73,11 +73,12 @@ class Item:
     def isImplicitNone(self) :
         return self.data is None and self.const
 
-    def isMethodCall(self, c, methodArgName):
+    def isMethodCall(self, classObject, methodArgName):
         """
-        @param methodArgName: the first argument 
         Check if the stack item is a method call.
 
+        @type  classObject:   L{pychecker.PCModules.Class} or None
+        @param classObject:   the class object to check against
         @type  methodArgName: str
         @param methodArgName: the name of the first argument for method calls;
                               usually self.
@@ -85,9 +86,9 @@ class Item:
         if self.type != TYPE_ATTRIBUTE:
             return False
 
-        # FIXME: we only check if c is not None; that doesn't mean it
+        # FIXME: we only check if classObject is not None; that doesn't mean it
         # has the given methodArgName
-        if c is None:
+        if classObject is None:
             return False
 
         if len(self.data) != 2:
@@ -97,6 +98,14 @@ class Item:
         if self.data[0] != methodArgName:
             # indirection does not start with first argument for method calls
             return False
+
+        # FIXME: this check was not happening before; so before it was counting
+        # object attributes as methods always
+        if self.data[1] not in classObject.methods:
+            # FIXME: for now implement previous behaviour, but fix it to return
+            # False
+            return True
+            # return False
 
         return True
 

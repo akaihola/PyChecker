@@ -1,5 +1,17 @@
 2011-01-25  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* pychecker/Stack.py:
+	  Document isMethodCall.
+	  Add a FIXME for the fact that we're not checking at all if the
+	  item really represents a method known to the classObject passed.
+	  It breaks test 69 which does __init__ aliasing.
+	* pychecker/pcmodules.py:
+	  Document Class better.
+	  Add an assert to make sure that we add by the real name of the
+	  method.
+
+2011-01-25  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* HACKING:
 	  Add debian note.
 	* pychecker/CodeChecks.py:

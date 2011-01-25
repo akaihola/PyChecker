@@ -113,7 +113,7 @@ class Class:
                        or because the module this class comes from is
                        blacklisted.
     @type ignoreAttrs: int (used as bool)
-    @type methods:     dict
+    @type methods:     dict of str -> None or L{Function}
     @type members:     dict of str -> type
     @type memberRefs:  dict
     @type statics:     dict
@@ -211,6 +211,8 @@ class Class:
     def addMethod(self, methodName, method=None):
         """
         Add the given method to this class by name.
+        The name is the real name of the method, not an alias; ie the name of
+        the method as defined in the code.
 
         @type methodName: str
         @type method:     method or None
@@ -218,6 +220,7 @@ class Class:
         if not method:
             self.methods[methodName] = None
         else :
+            assert method.func_name == methodName
             self.methods[methodName] = function.Function(method, 1)
                  
     def addMethods(self, classObject):
