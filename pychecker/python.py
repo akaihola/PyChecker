@@ -226,6 +226,7 @@ if utils.pythonVersion() >= utils.PYTHON_2_5:
     _STRING_METHODS['rpartition'] = (types.TupleType, 1, 1)
 
 if utils.pythonVersion() >= utils.PYTHON_2_6:
+    _STRING_METHODS['format'] = (types.StringType, 1, 2, [])
     GLOBAL_FUNC_INFO['bin'] = (types.StringType, 1, 1)
     GLOBAL_FUNC_INFO['bytesarray'] = (bytearray, 0, 1)
     GLOBAL_FUNC_INFO['bytes'] = (bytes, 0, 1)
